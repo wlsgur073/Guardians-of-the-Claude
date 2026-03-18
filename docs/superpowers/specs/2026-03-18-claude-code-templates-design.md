@@ -9,13 +9,14 @@ status: draft
 
 ## 1. Overview
 
-Claude-Code-Templates is a structured template repository for developers new to Claude Code. Users clone the repo and copy scaffold files into their own projects, using filled examples as a reference. The project is language/framework agnostic, English-only, and scoped to core configuration (CLAUDE.md, settings, rules, directory structure).
+Claude-Code-Templates is a structured template repository for developers new to Claude Code. Users clone the repo and copy scaffold files into their own projects, using filled examples as a reference. The project is language/framework agnostic, English-only, and scoped to core configuration (CLAUDE.md, settings, rules, directory structure) plus essential usage patterns sourced from official documentation.
 
 ### Goals
 
 - Provide a clone-and-go starting point for Claude Code beginners
 - Teach the Claude Code memory system through realistic, filled examples
-- Keep scope focused on core configuration — no hooks, MCP, skills, or advanced workflows
+- Cover essential day-one usage patterns (context management, session management, effective prompting) sourced from official best practices
+- Keep scope focused on core configuration + fundamental usage — no hooks, MCP, skills, or advanced workflows
 
 ### Audience
 
@@ -61,7 +62,8 @@ Claude-Code-Templates/
     ├── claude-md-guide.md                 ← Writing effective CLAUDE.md files
     ├── rules-guide.md                     ← .claude/rules/ usage & path-scoping
     ├── settings-guide.md                  ← settings.json options explained
-    └── directory-structure-guide.md       ← .claude/ folder, auto memory, logs
+    ├── directory-structure-guide.md       ← .claude/ folder, auto memory, logs
+    └── effective-usage-guide.md           ← Essential day-one usage patterns
 ```
 
 ## 3. README.md
@@ -79,10 +81,11 @@ The README serves as the entry point. Contents:
    - The layered hierarchy: managed policy → project → user
    - CLAUDE.md vs `.claude/rules/` vs auto memory
    - Key insight: CLAUDE.md is what you tell Claude; auto memory is what Claude tells itself
-6. **Docs Index** — links to each guide in `docs/`
-7. **Contributing + License**
+6. **The #1 Rule** — one sentence: "Give Claude a way to verify its work — include test commands, lint commands, and build commands in your CLAUDE.md."
+7. **Docs Index** — links to each guide in `docs/`, including the new `effective-usage-guide.md`
+8. **Contributing + License**
 
-Target length: under 100 lines.
+Target length: under 120 lines (expanded to accommodate the verification callout).
 
 ## 4. Templates (Blank Scaffolds)
 
@@ -216,14 +219,16 @@ Each guide is standalone — readable without the others, with cross-references 
 
 ### 6.1 `docs/getting-started.md`
 
-Action-oriented onboarding walkthrough (~80 lines):
+Action-oriented onboarding walkthrough (~100 lines):
 
 1. Prerequisites — Claude Code installed, a project to configure
-2. Copy the templates — which files to copy where, with exact commands
-3. Fill in your CLAUDE.md — walk through each section
-4. Set up rules (optional) — when to use `.claude/rules/` vs keeping everything in CLAUDE.md
-5. Verify it works — launch Claude Code, run `/memory` to confirm files are loaded
-6. What's next — links to other guides
+2. **Run `/init` first** — Claude analyzes your codebase and auto-generates a starting CLAUDE.md. This is the officially recommended first step per [best practices](https://code.claude.com/docs/en/best-practices). Our templates fill gaps that `/init` misses, not replace it.
+3. Copy the templates — which files to copy where, with exact commands. Explain that `/init` output and our templates are complementary: merge them.
+4. Fill in your CLAUDE.md — walk through each section, referencing the include/exclude table in `claude-md-guide.md`
+5. Set up rules (optional) — when to use `.claude/rules/` vs keeping everything in CLAUDE.md
+6. Configure permissions — brief intro to `.claude/settings.json` with a link to `settings-guide.md`
+7. Verify it works — launch Claude Code, run `/memory` to confirm files are loaded, try a simple task
+8. What's next — links to `effective-usage-guide.md` and other guides
 
 ### 6.2 `docs/claude-md-guide.md`
 
@@ -233,9 +238,22 @@ Deep dive on writing effective CLAUDE.md files:
 - Two locations — `./CLAUDE.md` vs `./.claude/CLAUDE.md`, when to use which
 - Folder-level CLAUDE.md — lazy loading behavior, when Claude discovers them
 - Writing principles — under 200 lines, specific/verifiable, structured with headers
+- **What to include vs exclude** — adapted from [best practices](https://code.claude.com/docs/en/best-practices):
+
+  | Include | Exclude |
+  |---------|---------|
+  | Bash commands Claude can't guess | Anything Claude can figure out by reading code |
+  | Code style rules that differ from defaults | Standard language conventions Claude already knows |
+  | Testing instructions and preferred test runners | Detailed API documentation (link to docs instead) |
+  | Repository etiquette (branch naming, PR conventions) | Information that changes frequently |
+  | Architectural decisions specific to your project | Long explanations or tutorials |
+  | Dev environment quirks (required env vars) | File-by-file descriptions of the codebase |
+  | Common gotchas or non-obvious behaviors | Self-evident practices like "write clean code" |
+
 - The `@import` syntax — referencing external files, path resolution, personal imports
-- Common mistakes — too long, too vague, conflicting instructions
-- The `/init` shortcut — Claude can auto-generate a starting CLAUDE.md
+- **Pruning your CLAUDE.md** — treat it like code: review when things go wrong, prune regularly. For each line, ask: "Would removing this cause Claude to make mistakes?" If not, cut it. Bloated CLAUDE.md files cause Claude to ignore actual instructions. You can add emphasis (e.g., "IMPORTANT" or "YOU MUST") for critical rules.
+- Common mistakes — too long, too vague, conflicting instructions, putting things Claude can already infer
+- The `/init` shortcut — Claude can auto-generate a starting CLAUDE.md. Mention `CLAUDE_CODE_NEW_INIT=true` for the interactive multi-phase flow.
 
 ### 6.3 `docs/rules-guide.md`
 
@@ -265,6 +283,59 @@ Maps the `.claude/` ecosystem:
 - Auto memory — `~/.claude/projects/<project>/memory/`, MEMORY.md index, topic files, 200-line cap
 - What to .gitignore — `settings.local.json` yes; `settings.json` and `rules/` no (team-shared)
 - The distinction — CLAUDE.md = what you tell Claude; auto memory = what Claude tells itself; settings = behavior configuration
+
+### 6.6 `docs/effective-usage-guide.md`
+
+Essential day-one usage patterns that complement the configuration guides. Sourced from [How Claude Code works](https://code.claude.com/docs/en/how-claude-code-works) and [Best practices](https://code.claude.com/docs/en/best-practices). Covers usage fundamentals, not advanced features.
+
+**The #1 constraint: context window**
+
+- Claude's context window holds your conversation, file contents, command outputs, CLAUDE.md, and system instructions. It fills up fast.
+- Performance degrades as context fills — Claude may "forget" earlier instructions or make more mistakes.
+- This is WHY configuration matters: a well-written CLAUDE.md reduces wasted context; good session habits keep context clean.
+
+**The #1 practice: give Claude a way to verify its work**
+
+- Include test commands, lint commands, build commands in your CLAUDE.md so Claude can self-check.
+- Provide verification criteria in prompts: test cases, expected outputs, screenshots.
+- This is the single highest-leverage thing you can do, per the official best practices.
+
+**The recommended workflow: explore → plan → implement → commit**
+
+- Use Plan Mode (`Shift+Tab` twice) to explore the codebase and create a plan before coding.
+- Review the plan, then switch to Normal Mode for implementation.
+- Skip planning for trivial tasks (typo fixes, log line additions) — planning adds overhead.
+
+**Session management essentials**
+
+- `Esc` — interrupt Claude mid-action. Context is preserved.
+- `Esc + Esc` or `/rewind` — rewind to a previous checkpoint (conversation and/or code).
+- `/clear` — reset context between unrelated tasks. **Use frequently.**
+- `/compact` — summarize conversation to free context. Add focus: `/compact focus on the API changes`.
+- `--continue` / `--resume` — pick up where you left off across sessions.
+
+**Permission modes**
+
+- `Shift+Tab` cycles through: Default → Auto-accept edits → Plan mode.
+- Default: Claude asks before edits and commands.
+- Auto-accept edits: Claude edits freely, still asks for commands.
+- Plan mode: read-only tools only, creates a plan you approve before execution.
+
+**Writing effective prompts**
+
+- Be specific upfront: reference files, mention constraints, point to patterns.
+- Delegate, don't dictate: give context and direction, let Claude figure out the details.
+- Provide rich content: use `@` for files, paste images, pipe data with `cat error.log | claude`.
+
+**Common failure patterns to avoid**
+
+Five anti-patterns from the official best practices:
+
+1. **Kitchen sink session** — mixing unrelated tasks in one session. Fix: `/clear` between tasks.
+2. **Correcting over and over** — repeated failed corrections pollute context. Fix: after two failures, `/clear` and write a better initial prompt.
+3. **Over-specified CLAUDE.md** — too long, important rules get lost. Fix: ruthlessly prune.
+4. **Trust-then-verify gap** — plausible output that doesn't handle edge cases. Fix: always provide verification.
+5. **Infinite exploration** — unscoped investigation fills context. Fix: scope narrowly or use subagents.
 
 ## 7. Cross-Cutting Concerns
 
