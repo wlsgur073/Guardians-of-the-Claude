@@ -86,7 +86,7 @@ Target length: under 100 lines.
 
 ## 4. Templates (Blank Scaffolds)
 
-All markdown files include YAML frontmatter with at minimum `title` and `description` fields.
+Template scaffolds do NOT include YAML frontmatter — they are meant to be copied directly into user projects, so they should not contain repo-specific metadata that users would need to remove. Scaffolds use HTML comments for in-file guidance instead.
 
 ### 4.1 `templates/CLAUDE.md`
 
@@ -100,21 +100,35 @@ Root project-level scaffold with commented section headers:
 - Important Context
 - References (demonstrating @import syntax)
 
-Each section contains HTML comments guiding the user on what to fill in, with concrete prompts (e.g., "What command builds your project?").
+Each section contains 1-2 HTML comments guiding the user on what to fill in, with concrete prompts. Examples:
+
+- Project Overview: `<!-- Brief description: what does your project do? Primary language/framework? -->`
+- Build & Run: `<!-- What commands build and run your project? e.g., npm install && npm run dev -->`
+- Testing: `<!-- How do you run tests? e.g., npm test, pytest, go test ./... -->`
+- Code Style & Conventions: `<!-- Be specific: "Use 2-space indentation" not "Format code properly" -->`
+- Project Structure: `<!-- List key directories and their purposes -->`
+- Important Context: `<!-- Anything Claude should know that isn't obvious from the code -->`
+- References: `<!-- Link detailed docs: @docs/architecture.md, @docs/api-design.md -->`
 
 ### 4.2 `templates/.claude/CLAUDE.md`
 
-Minimal scaffold noting this is the alternative location. Explains that users should choose EITHER root or `.claude/` — not both.
+Minimal scaffold noting this is the alternative location. Explains that users should choose EITHER root or `.claude/` — not both. Provides a decision rule: use root `./CLAUDE.md` if you want the file visible at a glance; use `.claude/CLAUDE.md` if you prefer a cleaner project root.
 
 ### 4.3 `templates/.claude/settings.json`
 
-Near-empty JSON with a comment pointing to `docs/settings-guide.md`:
+Valid JSON with the `$schema` field for editor autocomplete and an empty permissions block as a starting point:
 
-```jsonc
+```json
 {
-  // See docs/settings-guide.md for all available options
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [],
+    "deny": []
+  }
 }
 ```
+
+JSON does not support comments, so the scaffold relies on the `$schema` field for discoverability and the `docs/settings-guide.md` guide for explanation.
 
 ### 4.4 `templates/.claude/rules/*.md`
 
@@ -126,9 +140,15 @@ Three scaffold files:
 
 ### 4.5 `templates/subdirectory-claude-md/CLAUDE.md`
 
-Scaffold for folder-level lazy-loaded CLAUDE.md. Contains:
+Scaffold for folder-level lazy-loaded CLAUDE.md. The directory name `subdirectory-claude-md` is a placeholder — users should rename it to match their actual project directory (e.g., `src/`, `tests/`, `lib/`). The getting-started guide (Section 6.1) will explain this with an example copy command:
 
-- HTML comment explaining lazy loading behavior
+```bash
+cp templates/subdirectory-claude-md/CLAUDE.md your-project/src/CLAUDE.md
+```
+
+Contains:
+
+- HTML comment explaining lazy loading behavior and the rename instruction
 - Section headers: Directory Purpose, Conventions
 
 ### 4.6 `templates/.gitignore`
@@ -155,19 +175,24 @@ Realistic root CLAUDE.md demonstrating:
 
 ### 5.2 `examples/.claude/CLAUDE.md`
 
-Brief example showing the alternative location with a note about choosing one location.
+A short demonstration stub (not a full second example) showing what the alternative location looks like. Contains a brief note explaining this is the `.claude/` placement option, paired with `examples/CLAUDE.md` (the root placement option) to form a "pick one" demonstration pair. The root version is the fully realized example; this file is intentionally minimal.
 
 ### 5.3 `examples/.claude/settings.json`
 
-Shows the most common beginner use case — pre-approving safe commands:
+Shows the most common beginner use case — pre-approving safe commands. Uses the correct permission rule syntax `Tool(specifier)` per the [official docs](https://code.claude.com/docs/en/settings):
 
 ```json
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
-      "npm test",
-      "npm run lint",
-      "npm run build"
+      "Bash(npm test)",
+      "Bash(npm run lint)",
+      "Bash(npm run build)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)"
     ]
   }
 }
@@ -228,7 +253,8 @@ Explains settings.json:
 
 - Settings file locations — project, local, user, managed policy
 - What goes where — project for team-shared, local for personal overrides, merge behavior
-- Key options for beginners — `permissions.allow`, `permissions.deny`, `autoMemoryEnabled`, `claudeMdExcludes`
+- Key options for beginners — `permissions.allow`, `permissions.deny` (using `Tool(specifier)` syntax per [permission rule syntax](https://code.claude.com/docs/en/permissions#permission-rule-syntax)), `autoMemoryEnabled` (per [auto memory docs](https://code.claude.com/docs/en/memory#enable-or-disable-auto-memory)), `claudeMdExcludes` (per [memory docs](https://code.claude.com/docs/en/memory#exclude-specific-claudemd-files))
+- The `$schema` field — point to `https://json.schemastore.org/claude-code-settings.json` for editor autocomplete
 - What NOT to put in project settings — security-restricted options like `autoMemoryDirectory`
 
 ### 6.5 `docs/directory-structure-guide.md`
@@ -244,7 +270,9 @@ Maps the `.claude/` ecosystem:
 
 ### Frontmatter
 
-Every markdown file in the project includes YAML frontmatter. Minimum fields:
+Every markdown file in `docs/` and `examples/` includes YAML frontmatter. Scaffold files in `templates/` are an exception — they are starting points the user copies into their own project, so they should NOT include repo-specific frontmatter that the user would need to remove. Instead, template scaffolds use HTML comments for guidance.
+
+For files that do include frontmatter, minimum fields are:
 
 - `title` — document title
 - `description` — one-line summary
