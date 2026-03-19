@@ -15,7 +15,7 @@
 ## File Map
 
 | Action | Path | Responsibility |
-|--------|------|----------------|
+| -------- | ------ | ---------------- |
 | Create | `templates/CLAUDE.md` | Root project-level scaffold with HTML comment prompts |
 | Create | `templates/.claude/CLAUDE.md` | Alternative location scaffold |
 | Create | `templates/.claude/settings.json` | Settings scaffold with $schema |
@@ -48,6 +48,7 @@
 ### Task 1: Root CLAUDE.md scaffold
 
 **Files:**
+
 - Create: `templates/CLAUDE.md`
 
 - [ ] **Step 1: Create the scaffold file**
@@ -95,6 +96,7 @@ git commit -m "feat: add root CLAUDE.md scaffold template"
 ### Task 2: .claude/ directory scaffolds
 
 **Files:**
+
 - Create: `templates/.claude/CLAUDE.md`
 - Create: `templates/.claude/settings.json`
 
@@ -138,6 +140,7 @@ git commit -m "feat: add .claude/ directory scaffolds (CLAUDE.md + settings.json
 ### Task 3: .claude/rules/ scaffolds
 
 **Files:**
+
 - Create: `templates/.claude/rules/code-style.md`
 - Create: `templates/.claude/rules/testing.md`
 - Create: `templates/.claude/rules/path-specific-example.md`
@@ -204,6 +207,7 @@ git commit -m "feat: add .claude/rules/ scaffold templates (code-style, testing,
 ### Task 4: Subdirectory CLAUDE.md scaffold and .gitignore
 
 **Files:**
+
 - Create: `templates/subdirectory-claude-md/CLAUDE.md`
 - Create: `templates/.gitignore`
 
@@ -228,7 +232,7 @@ git commit -m "feat: add .claude/rules/ scaffold templates (code-style, testing,
 
 - [ ] **Step 2: Create the .gitignore scaffold**
 
-```
+```gitignore
 # Claude Code local settings (personal, not for version control)
 .claude/settings.local.json
 ```
@@ -251,6 +255,7 @@ git commit -m "feat: add subdirectory CLAUDE.md scaffold and .gitignore template
 ### Task 5: Root CLAUDE.md example (TaskFlow project)
 
 **Files:**
+
 - Create: `examples/CLAUDE.md`
 
 - [ ] **Step 1: Create the filled example**
@@ -320,6 +325,7 @@ git commit -m "feat: add filled CLAUDE.md example (TaskFlow project)"
 ### Task 6: .claude/ directory examples
 
 **Files:**
+
 - Create: `examples/.claude/CLAUDE.md`
 - Create: `examples/.claude/settings.json`
 
@@ -380,6 +386,7 @@ git commit -m "feat: add .claude/ directory examples (stub CLAUDE.md + settings.
 ### Task 7: .claude/rules/ examples
 
 **Files:**
+
 - Create: `examples/.claude/rules/code-style.md`
 - Create: `examples/.claude/rules/testing.md`
 - Create: `examples/.claude/rules/api-endpoints.md`
@@ -455,7 +462,7 @@ description: "Jest testing conventions for the TaskFlow project"
 
 - [ ] **Step 3: Create api-endpoints.md example (path-scoped)**
 
-```markdown
+````markdown
 ---
 title: "TaskFlow API Endpoint Rules"
 description: "Rules that apply only when working with API handler files"
@@ -470,10 +477,12 @@ paths:
   ```typescript
   router.get('/tasks', asyncHandler(async (req, res) => { ... }))
   ```
+
 - Return responses using `sendSuccess()` or `sendError()` from `src/api/response.ts`
 - Never call repository methods directly from handlers — go through services
 - Include rate limiting for public endpoints via `src/api/middleware/rateLimit.ts`
 - All endpoints must be documented with JSDoc tags: `@route`, `@method`, `@auth`
+
 ```
 
 - [ ] **Step 4: Verify files**
@@ -490,6 +499,7 @@ git commit -m "feat: add .claude/rules/ examples (code-style, testing, api-endpo
 ### Task 8: Folder-level CLAUDE.md examples
 
 **Files:**
+
 - Create: `examples/src/CLAUDE.md`
 - Create: `examples/tests/CLAUDE.md`
 
@@ -507,7 +517,7 @@ description: "Lazy-loaded conventions for the TaskFlow source directory"
 - Never import directly from `tests/`
 - Each service class handles one entity (e.g., `TaskService`, `UserService`)
 - Shared utilities go in `src/utils/` — keep them pure functions
-```
+````
 
 - [ ] **Step 2: Create tests/ CLAUDE.md example**
 
@@ -543,13 +553,14 @@ git commit -m "feat: add folder-level CLAUDE.md examples (src/ and tests/)"
 ### Task 9: Getting Started guide
 
 **Files:**
+
 - Create: `docs/getting-started.md`
 
 - [ ] **Step 1: Write the guide**
 
 Structure (~100 lines):
 
-```markdown
+````markdown
 ---
 title: "Getting Started"
 description: "Step-by-step guide to set up Claude Code configuration for your project"
@@ -587,26 +598,33 @@ cp templates/subdirectory-claude-md/CLAUDE.md your-project/src/CLAUDE.md
 # Recommended: add Claude-specific .gitignore entries
 cat templates/.gitignore >> your-project/.gitignore
 ```
+
 [Note: merge /init output with template scaffold — they are complementary.]
 
 ## Step 3: Fill in Your CLAUDE.md
+
 [Walk through each section with prompts. Reference the include/exclude
 table in claude-md-guide.md.]
 
 ## Step 4: Set Up Rules (Optional)
+
 [When to use .claude/rules/ vs keeping everything in CLAUDE.md.
 Link to rules-guide.md.]
 
 ## Step 5: Configure Permissions
+
 [Brief intro to .claude/settings.json with one example.
 Link to settings-guide.md.]
 
 ## Step 6: Verify It Works
+
 [Launch Claude Code, run /memory, confirm files are loaded.
 Try a simple task to verify.]
 
 ## What's Next
+
 [Links to effective-usage-guide.md and all other docs.]
+
 ```
 
 - [ ] **Step 2: Verify the guide**
@@ -618,11 +636,12 @@ Confirm: has frontmatter with `title`, `description`, `date`. Under 120 lines. A
 ```bash
 git add docs/getting-started.md
 git commit -m "docs: add getting-started guide"
-```
+````
 
 ### Task 10: CLAUDE.md Guide
 
 **Files:**
+
 - Create: `docs/claude-md-guide.md`
 
 - [ ] **Step 1: Write the guide**
@@ -694,6 +713,7 @@ git commit -m "docs: add CLAUDE.md writing guide"
 ### Task 11: Rules Guide
 
 **Files:**
+
 - Create: `docs/rules-guide.md`
 
 - [ ] **Step 1: Write the guide**
@@ -722,7 +742,7 @@ Example directory tree.]
 [The paths frontmatter. Glob pattern table:]
 
 | Pattern | Matches |
-|---------|---------|
+| --------- | --------- |
 | `**/*.ts` | All TypeScript files in any directory |
 | `src/**/*` | All files under src/ |
 | `*.md` | Markdown files in project root |
@@ -753,13 +773,14 @@ git commit -m "docs: add .claude/rules/ usage guide"
 ### Task 12: Settings Guide
 
 **Files:**
+
 - Create: `docs/settings-guide.md`
 
 - [ ] **Step 1: Write the guide**
 
 Structure (~150 lines):
 
-```markdown
+````markdown
 ---
 title: "Configuring settings.json"
 description: "How to configure Claude Code behavior with settings files"
@@ -801,20 +822,25 @@ for editor autocomplete and validation.]
   }
 }
 ```
+
 [Link to official permission rule syntax docs.]
 
 ### autoMemoryEnabled
+
 [Toggle auto memory. Default: true. Link to auto memory docs.]
 
 ### claudeMdExcludes
+
 [Skip CLAUDE.md files by path/glob. Useful in monorepos.
 Link to memory docs.]
 
 ## What NOT to Put in Project Settings
+
 [Security-restricted options like autoMemoryDirectory.
 Rejected from .claude/settings.json to prevent shared repos
 from redirecting memory writes to sensitive locations.]
-```
+
+````
 
 - [ ] **Step 2: Verify the guide**
 
@@ -830,13 +856,14 @@ git commit -m "docs: add settings.json configuration guide"
 ### Task 13: Directory Structure Guide
 
 **Files:**
+
 - Create: `docs/directory-structure-guide.md`
 
 - [ ] **Step 1: Write the guide**
 
 Structure (~120 lines):
 
-```markdown
+````markdown
 ---
 title: "The .claude/ Directory Structure"
 description: "Understanding the .claude/ ecosystem, auto memory, and what to version control"
@@ -848,6 +875,7 @@ date: 2026-03-18
 ## What Lives in .claude/
 [Tree diagram showing:]
 ```
+
 your-project/
 ├── .claude/
 │   ├── CLAUDE.md              # Alternative project instructions location
@@ -857,6 +885,7 @@ your-project/
 │       ├── code-style.md
 │       ├── testing.md
 │       └── ...
+
 ```
 
 ## Auto Memory
@@ -879,7 +908,7 @@ Auto memory = what CLAUDE tells itself (learnings it saves).
 Settings = behavior configuration (permissions, toggles).
 Each serves a different purpose. CLAUDE.md and auto memory are both
 loaded every session but are written by different authors.]
-```
+````
 
 - [ ] **Step 2: Verify the guide**
 
@@ -895,6 +924,7 @@ git commit -m "docs: add .claude/ directory structure guide"
 ### Task 14: Effective Usage Guide
 
 **Files:**
+
 - Create: `docs/effective-usage-guide.md`
 
 - [ ] **Step 1: Write the guide**
@@ -939,7 +969,7 @@ Skip planning for trivial tasks.]
 ## Session Management Essentials
 
 | Command | What it does |
-|---------|-------------|
+| --------- | ------------- |
 | `Esc` | Interrupt Claude mid-action. Context is preserved. |
 | Press `Esc` twice | Open rewind menu — restore conversation, code, or both |
 | `/rewind` | Same as double-Esc — open the rewind menu |
@@ -980,11 +1010,12 @@ git commit -m "docs: add effective usage patterns guide"
 ### Task 15: Root .gitignore
 
 **Files:**
+
 - Create: `.gitignore`
 
 - [ ] **Step 1: Create the root .gitignore**
 
-```
+```gitignore
 # OS files
 .DS_Store
 Thumbs.db
@@ -1013,13 +1044,14 @@ git commit -m "feat: add root .gitignore"
 ### Task 16: README.md
 
 **Files:**
+
 - Create: `README.md`
 
 - [ ] **Step 1: Write the README**
 
 Target: under 120 lines. Structure:
 
-```markdown
+````markdown
 # Claude Code Templates
 
 Starter templates and guides for configuring Claude Code. Clone this repo,
@@ -1036,7 +1068,8 @@ from day one.
    git clone https://github.com/wlsgur073/Claude-Code-Templates.git
    ```
 
-2. **Copy templates into your project**
+1. **Copy templates into your project**
+
    ```bash
    # Copy the essentials
    cp Claude-Code-Templates/templates/CLAUDE.md your-project/CLAUDE.md
@@ -1044,7 +1077,7 @@ from day one.
    cp Claude-Code-Templates/templates/.claude/settings.json your-project/.claude/settings.json
    ```
 
-3. **Fill in the scaffolds** using `examples/` as reference
+2. **Fill in the scaffolds** using `examples/` as reference
 
 > **Tip:** Run `/init` in your project first — Claude auto-generates a starter
 > CLAUDE.md. Then merge our template to fill gaps `/init` misses.
@@ -1059,7 +1092,7 @@ Claude-Code-Templates/
 ```
 
 | Directory | Purpose |
-|-----------|---------|
+| ----------- | --------- |
 | `templates/` | Blank scaffolds with HTML comment prompts — copy and fill in |
 | `examples/` | Realistic filled examples — use as a reference while editing |
 | `docs/` | Standalone guides — read any one without the others |
@@ -1083,7 +1116,7 @@ Claude Code has a layered memory system:
 ## Docs
 
 | Guide | What it covers |
-|-------|---------------|
+| ------- | --------------- |
 | [Getting Started](docs/getting-started.md) | Step-by-step setup walkthrough |
 | [CLAUDE.md Guide](docs/claude-md-guide.md) | Writing effective CLAUDE.md files |
 | [Rules Guide](docs/rules-guide.md) | .claude/rules/ usage and path-scoping |
@@ -1098,7 +1131,8 @@ Contributions welcome! Please open an issue or PR.
 ## License
 
 MIT — see [LICENSE](LICENSE).
-```
+
+````
 
 - [ ] **Step 2: Verify the README**
 

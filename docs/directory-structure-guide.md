@@ -10,7 +10,7 @@ Claude Code uses several directories and files to store configuration, instructi
 
 ## What Lives in .claude/
 
-```
+```text
 your-project/
 ├── CLAUDE.md                     # Project instructions (root placement)
 ├── .claude/
@@ -43,7 +43,7 @@ This is stored in your home directory, not in your project. It contains:
 Both MEMORY.md and CLAUDE.md reference "200 lines" but for very different reasons:
 
 | File | Limit | Type | What happens |
-|------|-------|------|-------------|
+| ------ | ------- | ------ | ------------- |
 | MEMORY.md | 200 lines | **Hard load boundary** | Content past line 200 is not loaded at session start. It is truncated. |
 | CLAUDE.md | 200 lines | **Soft adherence guideline** | The entire file is loaded regardless of length. But shorter files produce better adherence to your instructions. |
 
@@ -56,7 +56,7 @@ Auto memory lives outside your repository. You do not need to create, edit, or g
 ## What to .gitignore
 
 | File | Commit? | Why |
-|------|---------|-----|
+| ------ | --------- | ----- |
 | `.claude/settings.json` | Yes | Team-shared configuration -- everyone uses the same permissions |
 | `.claude/rules/` | Yes | Team-shared instruction files |
 | `.claude/settings.local.json` | No | Personal overrides -- each developer has their own |
@@ -64,7 +64,7 @@ Auto memory lives outside your repository. You do not need to create, edit, or g
 
 Add this to your project's `.gitignore`:
 
-```
+```gitignore
 .claude/settings.local.json
 ```
 
@@ -75,7 +75,7 @@ The `templates/.gitignore` scaffold includes this line ready to copy.
 Claude Code has three distinct systems that are all loaded at session start but serve different purposes:
 
 | System | Author | Purpose | Location |
-|--------|--------|---------|----------|
+| -------- | -------- | --------- | ---------- |
 | **CLAUDE.md** | You | Instructions you write for Claude | Project root, `.claude/`, subdirectories |
 | **Auto memory** | Claude | Learnings Claude saves for itself | `~/.claude/projects/<project>/memory/` |
 | **Settings** | You | Behavior configuration (permissions, toggles) | `.claude/settings.json`, `.claude/settings.local.json` |

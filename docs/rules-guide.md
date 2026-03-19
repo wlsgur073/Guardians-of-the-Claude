@@ -25,7 +25,7 @@ A good split: CLAUDE.md holds the essentials (under 200 lines), and rule files h
 
 Keep one topic per file. Use descriptive filenames that make the content obvious at a glance:
 
-```
+```text
 .claude/rules/
   code-style.md          # Naming, formatting, import conventions
   testing.md             # Test framework, patterns, coverage targets
@@ -36,7 +36,7 @@ Keep one topic per file. Use descriptive filenames that make the content obvious
 
 For larger projects, organize rules into subdirectories:
 
-```
+```text
 .claude/rules/
   frontend/
     components.md        # React component patterns
@@ -69,7 +69,7 @@ Path-scoped rules are loaded on demand, not every session. This keeps context cl
 ### Glob Pattern Reference
 
 | Pattern | Matches |
-|---------|---------|
+| --------- | --------- |
 | `**/*.ts` | All TypeScript files in any directory |
 | `src/**/*` | All files under src/ |
 | `*.md` | Markdown files in project root only |
@@ -92,7 +92,7 @@ See `examples/.claude/rules/api-endpoints.md` for a complete path-scoped rule ex
 
 Place personal rule files in `~/.claude/rules/` to apply them across all your projects:
 
-```
+```text
 ~/.claude/rules/
   personal-style.md      # Your preferred coding conventions
   git-workflow.md        # Your commit message and branching preferences

@@ -49,7 +49,7 @@ For non-trivial tasks, follow this cycle:
 ## Session Management Essentials
 
 | Command | What it does |
-|---------|-------------|
+| --------- | ------------- |
 | `Esc` | Interrupt Claude mid-action. Context is preserved. |
 | `Esc` twice | Open the rewind menu -- restore conversation, code, or both to a checkpoint |
 | `/rewind` | Same as double-Esc -- open the rewind menu |
@@ -66,7 +66,7 @@ For non-trivial tasks, follow this cycle:
 `Shift+Tab` cycles through three modes:
 
 | Mode | Behavior |
-|------|----------|
+| ------ | ---------- |
 | **Default** | Claude asks before edits and commands |
 | **Auto-accept edits** | Claude edits files freely, still asks for commands |
 | **Plan mode** | Read-only tools only. Creates a plan you approve before execution. |
@@ -77,7 +77,7 @@ Start with Default mode. Move to Auto-accept when you trust the task is low-risk
 
 **Be specific upfront.** Reference files, mention constraints, point to patterns:
 
-```
+```text
 Refactor src/api/tasks.ts to use the asyncHandler wrapper
 from src/api/middleware.ts. Follow the pattern in src/api/users.ts.
 ```

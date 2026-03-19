@@ -24,7 +24,7 @@ Developers who are brand new to Claude Code and need a starter template they can
 
 ## 2. Repository Structure
 
-```
+```text
 Claude-Code-Templates/
 ├── README.md                              ← Overview, philosophy, quick start
 ├── LICENSE                                ← MIT (existing)
@@ -158,7 +158,7 @@ Contains:
 
 Claude-specific patterns:
 
-```
+```gitignore
 # Claude Code local settings (personal, not for version control)
 .claude/settings.local.json
 ```
@@ -241,7 +241,7 @@ Deep dive on writing effective CLAUDE.md files:
 - **What to include vs exclude** — adapted from [best practices](https://code.claude.com/docs/en/best-practices):
 
   | Include | Exclude |
-  |---------|---------|
+  | --------- | --------- |
   | Bash commands Claude can't guess | Anything Claude can figure out by reading code |
   | Code style rules that differ from defaults | Standard language conventions Claude already knows |
   | Testing instructions and preferred test runners | Detailed API documentation (link to docs instead) |

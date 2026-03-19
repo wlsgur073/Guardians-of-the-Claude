@@ -17,7 +17,7 @@ This guide walks you through setting up Claude Code configuration for your proje
 
 Start by running `/init` inside Claude Code. This is the [officially recommended first step](https://code.claude.com/docs/en/best-practices) -- Claude analyzes your codebase and auto-generates a CLAUDE.md tailored to your project.
 
-```
+```text
 claude
 > /init
 ```

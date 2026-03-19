@@ -13,7 +13,7 @@ Settings files control Claude Code behavior -- permissions, toggles, and feature
 Claude Code reads settings from four locations, listed from broadest to most specific:
 
 | Scope | Location | Committed to git? | Purpose |
-|-------|----------|--------------------|---------|
+| ------- | ---------- | -------------------- | --------- |
 | Managed policy | Platform-specific system paths | N/A | Organization-wide policies set by admins |
 | User | `~/.claude/settings.json` | No | Personal preferences across all projects |
 | Project | `.claude/settings.json` | Yes | Team-shared project configuration |

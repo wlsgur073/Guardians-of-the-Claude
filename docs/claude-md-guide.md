@@ -15,7 +15,7 @@ CLAUDE.md is a markdown file containing persistent instructions that Claude read
 Claude loads instructions from multiple locations, with more specific scopes taking precedence over broader ones:
 
 | Scope | Location | Purpose |
-|-------|----------|---------|
+| ------- | ---------- | --------- |
 | Managed policy | Platform-specific system paths | Organization-wide instructions set by admins |
 | Project | `./CLAUDE.md` or `./.claude/CLAUDE.md` | Team-shared project instructions (committed to git) |
 | User | `~/.claude/CLAUDE.md` | Personal preferences applied to all projects |
@@ -55,7 +55,7 @@ This keeps your root CLAUDE.md focused on project-wide instructions while provid
 This is the most important decision when writing your CLAUDE.md:
 
 | Include | Exclude |
-|---------|---------|
+| --------- | --------- |
 | Bash commands Claude cannot guess | Anything Claude can figure out by reading code |
 | Code style rules that differ from defaults | Standard language conventions Claude already knows |
 | Testing instructions and preferred test runners | Detailed API documentation (link to docs instead) |
@@ -70,7 +70,7 @@ The rule of thumb: if Claude would make a mistake without this information, incl
 
 Reference external files to keep your CLAUDE.md focused while linking to deeper context:
 
-```
+```markdown
 # References
 See @README.md for project overview
 @docs/architecture.md
@@ -110,7 +110,7 @@ Reserve emphasis for rules that truly matter. If everything is marked IMPORTANT,
 
 If you are starting from scratch, Claude can generate a CLAUDE.md for you:
 
-```
+```text
 claude
 > /init
 ```
