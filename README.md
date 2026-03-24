@@ -7,6 +7,8 @@ as reference.
 **Audience:** Developers new to Claude Code who want a working configuration
 from day one.
 
+**[한국어 README](README-ko.md)**
+
 ## Quick Start
 
 1. **Clone this repo**
@@ -77,9 +79,48 @@ Claude Code has a layered memory system:
 | [Effective Usage](docs/effective-usage-guide.md) | Day-one usage patterns |
 | [Advanced Features](docs/advanced-features-guide.md) | Hooks, agents, and skills |
 
+## Recommended Plugins
+
+Claude Code supports official plugins that extend its capabilities.
+Install via `/install-plugin` in Claude Code, or see
+[Plugin docs](https://docs.anthropic.com/en/docs/claude-code/plugins) for details.
+
+### Development Workflow
+
+| Plugin | What it does |
+| ------ | ------------ |
+| [superpowers](https://github.com/obra/superpowers) | Full dev workflow — spec → design → plan → subagent-driven implementation. Claude works autonomously for hours without drifting from your plan |
+| [feature-dev](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/feature-dev) | Structured 7-phase feature development: explore codebase → ask questions → design → implement → review |
+| [code-review](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-review) | Multi-agent PR review with confidence scoring to filter false positives. Catches real issues, skips noise |
+| [code-simplifier](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier) | Refines recently modified code for clarity and consistency while preserving all behavior |
+
+### Code Intelligence & Quality
+
+| Plugin | What it does |
+| ------ | ------------ |
+| [typescript-lsp](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/typescript-lsp) | TypeScript/JS language server — go-to-definition, find references, and error checking without leaving Claude |
+| [security-guidance](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/security-guidance) | Pre-edit hook that warns about potential security vulnerabilities (XSS, injection, etc.) before code is written |
+| [context7](https://github.com/upstash/context7) | MCP server that fetches up-to-date library docs on demand. No more hallucinated APIs |
+
+### UI & Browser
+
+| Plugin | What it does |
+| ------ | ------------ |
+| [frontend-design](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/frontend-design) | Generates distinctive, production-grade UIs that don't look like "AI made this" |
+| [chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp) | Control and inspect a live Chrome browser — debug, automate, and analyze performance via DevTools |
+| [figma](https://github.com/figma/mcp-server-guide) | Pull design context directly from Figma files into your implementation workflow |
+
+### Project Setup
+
+| Plugin | What it does |
+| ------ | ------------ |
+| [claude-code-setup](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-code-setup) | Scans your codebase and recommends the best hooks, skills, MCP servers, and subagents for your project |
+| [claude-md-management](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-md-management) | Audit CLAUDE.md quality + capture session learnings with `/revise-claude-md` |
+
 ## Contributing
 
-Contributions welcome! Please open an issue or PR.
+Contributing? In this repo? Just tell Claude to do it.
+...Fine, humans are welcome too. Open an issue or PR.
 
 ## License
 
