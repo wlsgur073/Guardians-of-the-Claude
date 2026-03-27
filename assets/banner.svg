@@ -4,7 +4,6 @@
       <stop offset="0%" stop-color="#1a1b2e"/>
       <stop offset="100%" stop-color="#2d1b4e"/>
     </linearGradient>
-    <!-- Clawd path reusable -->
     <path id="clawd" clip-rule="evenodd" d="M20.998 10.949H24v3.102h-3v3.028h-1.487V20H18v-2.921h-1.487V20H15v-2.921H9V20H7.488v-2.921H6V20H4.487v-2.921H3V14.05H0V10.95h3V5h17.998v5.949zM6 10.949h1.488V8.102H6v2.847zm10.51 0H18V8.102h-1.49v2.847z" fill-rule="evenodd"/>
   </defs>
 
@@ -16,96 +15,81 @@
   <circle cx="46" cy="20" r="5" fill="#ffbd2e"/>
   <circle cx="64" cy="20" r="5" fill="#27c93f"/>
 
-  <!-- ===== Scene: Before vs After ===== -->
-
-  <!-- BEFORE: Tiny confused Clawd (left) -->
-  <g transform="translate(55, 100) scale(2.5)">
-    <use href="#clawd" fill="#D97757" opacity="0.5"/>
-  </g>
-  <!-- Sweat drops -->
-  <circle cx="110" cy="105" r="3" fill="#5599dd" opacity="0.6"/>
-  <circle cx="116" cy="98" r="2" fill="#5599dd" opacity="0.4"/>
-  <!-- Question marks -->
-  <text x="95" y="95" font-family="monospace" font-weight="bold" font-size="18" fill="#ff6b6b">?</text>
-  <text x="112" y="88" font-family="monospace" font-weight="bold" font-size="12" fill="#ff6b6b" opacity="0.6">?</text>
-  <!-- "Before" label -->
-  <text x="82" y="170" font-family="monospace" font-size="9" fill="#666688">before</text>
-
-  <!-- Arrow -->
-  <line x1="140" y1="130" x2="175" y2="130" stroke="#555577" stroke-width="2"/>
-  <polygon points="175,125 185,130 175,135" fill="#555577"/>
-
-  <!-- AFTER: Big confident Clawd with sunglasses -->
-  <g transform="translate(195, 65) scale(5.5)">
+  <!-- ===== Big Clawd with ThugLife Glasses ===== -->
+  <g transform="translate(55, 30) scale(9.5)">
     <use href="#clawd" fill="#D97757"/>
   </g>
-  <!-- Sunglasses on big Clawd -->
-  <rect x="224" y="101" width="28" height="10" rx="3" fill="#1a1b2e" stroke="#333" stroke-width="1"/>
-  <rect x="258" y="101" width="28" height="10" rx="3" fill="#1a1b2e" stroke="#333" stroke-width="1"/>
-  <line x1="252" y1="106" x2="258" y2="106" stroke="#333" stroke-width="1.5"/>
-  <!-- Lens shine -->
-  <rect x="227" y="103" width="6" height="3" rx="1" fill="rgba(255,255,255,0.15)"/>
-  <rect x="261" y="103" width="6" height="3" rx="1" fill="rgba(255,255,255,0.15)"/>
-  <!-- "After" label -->
-  <text x="237" y="195" font-family="monospace" font-size="9" fill="#666688">after</text>
+  <!-- ThugLife Glasses (exact SVG from ThugLife_Glasses.svg) -->
+  <g transform="translate(60, 96) scale(8.88)">
+    <path fill="#000" d="m0,0v2h1v1h1v1h1v1h7v-1h1v-1h1v-2h2v2h1v1h1v1h6v-1h1v-1h1v-1h1v-2d"/>
+    <path fill="#fff" d="m2,1v1h4v2h1v-1h-2v-2h-1v3h1v-1h-2v-2z"/>
+    <path fill="#fff" d="m15,1v1h4v2h1v-1h-2v-2h-1v3h1v-1h-2v-2z"/>
+  </g>
 
-  <!-- Sparkles around big Clawd -->
-  <text x="190" y="78" font-size="14">&#x2728;</text>
-  <text x="310" y="72" font-size="11">&#x2728;</text>
-  <text x="325" y="165" font-size="12">&#x2728;</text>
+  <!-- Mustache (1st path from 1527822684.svg) -->
+  <g transform="translate(112, 110) scale(0.18)">
+    <g transform="translate(0,1715) scale(0.1,-0.1)">
+      <path d="M824 15376 c-169 -85 -243 -231 -216 -422 15 -98 51 -221 93 -312 16 -35 29 -65 29 -67 0 -11 80 -139 128 -205 189 -260 484 -445 852 -534 363 -87 908 -87 1360 0 98 19 292 80 352 110 57 29 68 29 117 4 310 -158 1045 -226 1566 -144 608 96 1030 427 1210 949 67 193 71 344 13 459 -48 94 -203 196 -300 196 -41 0 -50 -4 -72 -32 -14 -19 -29 -59 -35 -92 -21 -113 -9 -143 22 -56 11 29 28 57 44 67 39 26 70 2 116 -86 33 -64 37 -81 37 -144 0 -118 -48 -199 -165 -283 -115 -81 -240 -126 -359 -127 -81 -1 -129 17 -461 173 -44 21 -138 66 -210 100 -142 68 -259 123 -375 177 -98 45 -223 86 -335 108 -71 14 -117 16 -220 12 -171 -8 -288 -42 -415 -120 -130 -80 -107 -77 -189 -23 -88 59 -211 109 -321 132 -146 29 -342 13 -525 -44 -74 -23 -214 -87 -590 -267 -231 -111 -406 -190 -485 -221 -99 -38 -181 -37 -303 4 -146 49 -263 135 -322 236 -59 101 -40 253 45 348 35 39 39 42 63 31 26 -12 67 -78 67 -108 0 -9 5 -13 10 -10 25 16 0 152 -37 195 -36 43 -97 42 -189 -4z" fill="#000"/>
+    </g>
+  </g>
 
-  <!-- Speech bubble from big Clawd -->
-  <rect x="310" y="60" width="120" height="30" rx="8" fill="white" opacity="0.9"/>
-  <polygon points="312,85 320,85 308,95" fill="white" opacity="0.9"/>
-  <text x="326" y="79" font-family="monospace" font-size="10" fill="#1a1b2e" font-weight="bold">ez CLAUDE.md</text>
+  <!-- Speech bubble -->
+  <rect x="200" y="28" width="125" height="24" rx="6" fill="white" opacity="0.9"/>
+  <polygon points="215,52 225,52 208,62" fill="white" opacity="0.9"/>
+  <text x="215" y="44" font-family="monospace" font-size="10" fill="#1a1b2e" font-weight="bold">deal with it 😎</text>
+
+  <!-- Sparkles -->
+  <text x="300" y="55" font-size="15">&#x2728;</text>
+  <text x="50" y="240" font-size="12">&#x2728;</text>
 
   <!-- ===== Text content (right side) ===== -->
-
-  <!-- Main title -->
-  <text x="590" y="95" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="bold" font-size="38" fill="white">Claude Code</text>
-  <text x="590" y="133" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="bold" font-size="38" fill="#D97757">Template</text>
+  <text x="560" y="100" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="bold" font-size="42" fill="white">Claude Code</text>
+  <text x="560" y="142" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="bold" font-size="42" fill="#D97757">Template</text>
 
   <!-- Tagline -->
-  <text x="590" y="165" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#a0a0c0">Your AI's first day at work, handled.</text>
+  <text x="560" y="175" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#a0a0c0">Your AI's first day at work, handled.</text>
 
   <!-- Terminal command preview -->
-  <rect x="440" y="185" width="300" height="32" rx="6" fill="#0d0d1a" stroke="#333355" stroke-width="1"/>
-  <text x="452" y="205" font-family="monospace" font-size="11" fill="#555577">&gt;</text>
-  <text x="465" y="205" font-family="monospace" font-size="11" fill="#D97757">@../Claude-Code-Template/setup-prompt.md</text>
+  <rect x="400" y="195" width="320" height="32" rx="6" fill="#0d0d1a" stroke="#333355" stroke-width="1"/>
+  <text x="412" y="215" font-family="monospace" font-size="11" fill="#555577">&gt;</text>
+  <text x="425" y="215" font-family="monospace" font-size="11" fill="#D97757">@../Claude-Code-Template/setup-prompt.md</text>
 
-  <!-- Flying file icons (generated files) -->
-  <!-- CLAUDE.md file -->
-  <g transform="translate(470, 230)">
-    <rect width="38" height="14" rx="3" fill="#2a2a4a" stroke="#D97757" stroke-width="0.8"/>
-    <text x="4" y="10" font-family="monospace" font-size="6" fill="#D97757">CLAUDE</text>
+  <!-- File tags (centered text) -->
+  <g transform="translate(445, 240)">
+    <rect width="44" height="14" rx="3" fill="#2a2a4a" stroke="#D97757" stroke-width="0.8"/>
+    <text x="22" y="10" text-anchor="middle" font-family="monospace" font-size="6.5" fill="#D97757">CLAUDE</text>
   </g>
-  <!-- rules/ -->
-  <g transform="translate(520, 230)">
+  <g transform="translate(499, 240)">
     <rect width="30" height="14" rx="3" fill="#2a2a4a" stroke="#27c93f" stroke-width="0.8"/>
-    <text x="4" y="10" font-family="monospace" font-size="6" fill="#27c93f">rules</text>
+    <text x="15" y="10" text-anchor="middle" font-family="monospace" font-size="6.5" fill="#27c93f">rules</text>
   </g>
-  <!-- settings -->
-  <g transform="translate(562, 230)">
-    <rect width="40" height="14" rx="3" fill="#2a2a4a" stroke="#ffbd2e" stroke-width="0.8"/>
-    <text x="3" y="10" font-family="monospace" font-size="6" fill="#ffbd2e">settings</text>
+  <g transform="translate(539, 240)">
+    <rect width="44" height="14" rx="3" fill="#2a2a4a" stroke="#ffbd2e" stroke-width="0.8"/>
+    <text x="22" y="10" text-anchor="middle" font-family="monospace" font-size="6.5" fill="#ffbd2e">settings</text>
   </g>
-  <!-- hooks -->
-  <g transform="translate(614, 230)">
-    <rect width="30" height="14" rx="3" fill="#2a2a4a" stroke="#5599dd" stroke-width="0.8"/>
-    <text x="4" y="10" font-family="monospace" font-size="6" fill="#5599dd">hooks</text>
+  <g transform="translate(593, 240)">
+    <rect width="34" height="14" rx="3" fill="#2a2a4a" stroke="#5599dd" stroke-width="0.8"/>
+    <text x="17" y="10" text-anchor="middle" font-family="monospace" font-size="6.5" fill="#5599dd">hooks</text>
+  </g>
+  <g transform="translate(637, 240)">
+    <rect width="38" height="14" rx="3" fill="#2a2a4a" stroke="#cc66cc" stroke-width="0.8"/>
+    <text x="19" y="10" text-anchor="middle" font-family="monospace" font-size="6.5" fill="#cc66cc">agents</text>
   </g>
 
-  <!-- Tiny parade of Clawds at the bottom -->
-  <g transform="translate(50, 260) scale(0.9)">
-    <use href="#clawd" fill="#D97757" opacity="0.2"/>
+  <!-- Mini Clawd parade (bottom-left) -->
+  <g transform="translate(30, 255) scale(0.8)" opacity="0.15">
+    <use href="#clawd" fill="#D97757"/>
   </g>
-  <g transform="translate(80, 258) scale(1.0)">
-    <use href="#clawd" fill="#D97757" opacity="0.25"/>
+  <g transform="translate(55, 253) scale(0.9)" opacity="0.2">
+    <use href="#clawd" fill="#D97757"/>
   </g>
-  <g transform="translate(115, 255) scale(1.1)">
-    <use href="#clawd" fill="#D97757" opacity="0.3"/>
+  <g transform="translate(85, 250) scale(1.0)" opacity="0.25">
+    <use href="#clawd" fill="#D97757"/>
   </g>
-  <g transform="translate(155, 252) scale(1.2)">
-    <use href="#clawd" fill="#D97757" opacity="0.35"/>
+  <g transform="translate(120, 247) scale(1.1)" opacity="0.3">
+    <use href="#clawd" fill="#D97757"/>
+  </g>
+  <g transform="translate(160, 244) scale(1.2)" opacity="0.35">
+    <use href="#clawd" fill="#D97757"/>
   </g>
 </svg>
