@@ -1,4 +1,6 @@
-# Claude Code Templates
+<p align="center">
+  <img src="assets/banner.svg" alt="Claude Code Template" width="700"/>
+</p>
 
 Claude Code 설정을 위한 스타터 템플릿과 가이드. 이 리포지토리를 클론하고, 템플릿을 프로젝트에 복사한 뒤, 예시를 참고하여 내용을 채우세요.
 

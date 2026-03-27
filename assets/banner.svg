@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="800" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1a1b2e"/>
+      <stop offset="100%" stop-color="#2d1b4e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="300" rx="12" fill="url(#bg)"/>
+
+  <!-- Terminal dots -->
+  <circle cx="28" cy="20" r="5" fill="#ff5f56"/>
+  <circle cx="46" cy="20" r="5" fill="#ffbd2e"/>
+  <circle cx="64" cy="20" r="5" fill="#27c93f"/>
+
+  <!-- ===== Clawd pixel mascot (left side) ===== -->
+  <g transform="translate(60, 55) scale(1.6)">
+    <!-- Ears -->
+    <rect x="10" y="0" width="12" height="10" rx="1" fill="#D08B6A"/>
+    <rect x="68" y="0" width="12" height="10" rx="1" fill="#D08B6A"/>
+
+    <!-- Head/Body -->
+    <rect x="4" y="8" width="82" height="70" rx="2" fill="#D08B6A"/>
+
+    <!-- Eyes -->
+    <rect x="22" y="30" width="12" height="12" rx="1" fill="#1a1b2e"/>
+    <rect x="56" y="30" width="12" height="12" rx="1" fill="#1a1b2e"/>
+
+    <!-- Eye shine -->
+    <rect x="24" y="32" width="4" height="4" fill="rgba(255,255,255,0.3)"/>
+    <rect x="58" y="32" width="4" height="4" fill="rgba(255,255,255,0.3)"/>
+
+    <!-- Legs -->
+    <rect x="12" y="78" width="16" height="22" rx="1" fill="#D08B6A"/>
+    <rect x="62" y="78" width="16" height="22" rx="1" fill="#D08B6A"/>
+
+    <!-- Speech bubble -->
+    <rect x="90" y="5" width="50" height="26" rx="6" fill="white" opacity="0.9"/>
+    <polygon points="92,28 98,28 90,36" fill="white" opacity="0.9"/>
+    <text x="96" y="18" font-family="monospace" font-size="7" fill="#1a1b2e" font-weight="bold">CLAUDE</text>
+    <text x="100" y="26" font-family="monospace" font-size="6" fill="#1a1b2e">.md !</text>
+  </g>
+
+  <!-- ===== Text content (right side) ===== -->
+
+  <!-- Main title -->
+  <text x="480" y="105" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="bold" font-size="40" fill="white">Claude Code</text>
+  <text x="480" y="145" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="bold" font-size="40" fill="#D08B6A">Template</text>
+
+  <!-- Humorous tagline -->
+  <text x="480" y="180" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="15" fill="#a0a0c0">Because even AI deserves a proper onboarding</text>
+
+  <!-- Terminal command preview -->
+  <rect x="320" y="200" width="320" height="34" rx="6" fill="#0d0d1a" stroke="#333355" stroke-width="1"/>
+  <text x="332" y="221" font-family="monospace" font-size="12" fill="#555577">&gt;</text>
+  <text x="346" y="221" font-family="monospace" font-size="12" fill="#D08B6A">@../Claude-Code-Template/setup-prompt.md</text>
+
+  <!-- Bottom tags -->
+  <text x="355" y="268" font-size="11" fill="#666688" font-family="monospace">templates</text>
+  <text x="440" y="268" font-size="11" fill="#666688" font-family="monospace">guides</text>
+  <text x="510" y="268" font-size="11" fill="#666688" font-family="monospace">setup-prompt</text>
+  <text x="615" y="268" font-size="11" fill="#666688" font-family="monospace">statusline</text>
+
+  <!-- Dots between tags -->
+  <circle cx="430" cy="265" r="2" fill="#444466"/>
+  <circle cx="500" cy="265" r="2" fill="#444466"/>
+  <circle cx="605" cy="265" r="2" fill="#444466"/>
+</svg>

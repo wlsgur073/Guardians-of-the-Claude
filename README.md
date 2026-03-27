@@ -1,4 +1,6 @@
-# Claude Code Template
+<p align="center">
+  <img src="assets/banner.svg" alt="Claude Code Template" width="700"/>
+</p>
 
 Starter templates and guides for configuring Claude Code. Clone this repo,
 copy the scaffolds into your project, and fill them in using the examples
