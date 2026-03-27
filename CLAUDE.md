@@ -11,12 +11,15 @@ This is a documentation and template repository — it contains no application c
 - `templates-ko/advanced/` — Korean translation of advanced scaffolds
 - `examples/` — Filled-out configuration for a fictional "TaskFlow" Node.js/Express project, demonstrating what completed templates look like
 - `examples/advanced/` — Filled advanced feature examples (hooks, agents, skills)
+- `setup-prompt.md` / `setup-prompt-ko.md` — Automated setup prompts referenced via `@` import from user projects
 - `.claude/` — This repo's own Claude Code settings
 
 ## Contribution Rules
 
 - Templates must remain minimal scaffolds — section headers and HTML comment placeholders only, no filled-in content
 - Examples must all reference the fictional "TaskFlow" project — do not introduce other fictional projects
+- Templates (under `templates/`) have no YAML frontmatter. Examples (under `examples/`) and guides (under `docs/`) use YAML frontmatter with `title`, `description`, and `date` fields
+- When modifying files under `templates/`, mirror the same changes to `templates-ko/` to maintain Korean translation parity
 - Guides in `docs/` should stay under ~130 lines each; they teach conciseness, so they should model it
 - This CLAUDE.md should stay under 200 lines, matching the repo's own recommendation in `docs/claude-md-guide.md`
 - There is no source code — all content is Markdown. Review for clarity, accuracy, and consistency across files
@@ -25,6 +28,4 @@ This is a documentation and template repository — it contains no application c
 
 ## Key Context
 
-- `settings.local.json` uses `"outputStyle": "Learning"` — this repo is configured for educational interaction
-- The `docs/superpowers/` directory contains the original plan and design spec for this repository
 - All example configurations reference a fictional "TaskFlow" project — this is intentional and must stay consistent
