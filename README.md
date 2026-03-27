@@ -155,6 +155,25 @@ Install via `/install-plugin` in Claude Code, or see
 | [claude-code-setup](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-code-setup) | Scans your codebase and recommends the best hooks, skills, MCP servers, and subagents for your project |
 | [claude-md-management](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-md-management) | Audit CLAUDE.md quality + capture session learnings with `/revise-claude-md` |
 
+## Statusline
+
+Customize the Claude Code status bar to show model, context usage, cost, duration, and git branch at a glance:
+
+```
+[Opus 4.6 (1M context)] 📁 my-project
+ 🌿 feature/auth | ████████░░ 80% | $1.25 | ⏱️ 3m 42s
+```
+
+**One-line setup:**
+
+```bash
+cp Claude-Code-Templates/templates/statusline.sh ~/.claude/statusline.sh
+```
+
+Claude Code automatically detects `~/.claude/statusline.sh` — no additional configuration needed.
+
+> **Prerequisite:** [jq](https://jqlang.org) must be installed (`brew install jq` / `apt install jq` / `choco install jq`).
+
 ## Contributing
 
 Contributing? In this repo? Just tell Claude to do it.

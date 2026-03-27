@@ -149,6 +149,25 @@ Claude Code에서 `/install-plugin`으로 설치하거나, [플러그인 문서]
 | [claude-code-setup](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-code-setup) | 코드베이스를 스캔하고 프로젝트에 최적화된 hooks, skills, MCP 서버, 서브에이전트를 추천 |
 | [claude-md-management](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-md-management) | CLAUDE.md 품질 감사 + `/revise-claude-md`로 세션 학습 내용 반영 |
 
+## 상태 표시줄 (Statusline)
+
+Claude Code 하단 상태 표시줄을 커스터마이즈하여 모델, 컨텍스트 사용량, 비용, 소요 시간, git 브랜치를 한눈에 볼 수 있습니다:
+
+```
+[Opus 4.6 (1M context)] 📁 my-project
+ 🌿 feature/auth | ████████░░ 80% | $1.25 | ⏱️ 3m 42s
+```
+
+**한 줄 설정:**
+
+```bash
+cp Claude-Code-Templates/templates/statusline.sh ~/.claude/statusline.sh
+```
+
+Claude Code가 `~/.claude/statusline.sh`를 자동으로 감지합니다 — 추가 설정 불필요.
+
+> **필수 조건:** [jq](https://jqlang.org)가 설치되어 있어야 합니다 (`brew install jq` / `apt install jq` / `choco install jq`).
+
 ## 참여
 
 참여요? 여기에서요? Claude한테 시키면 되는데.. (피식)
