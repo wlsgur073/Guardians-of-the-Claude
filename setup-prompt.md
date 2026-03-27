@@ -1,12 +1,116 @@
 # Claude Code Project Setup
 
-You are a Claude Code configuration expert. Analyze the current project and set up optimal Claude Code configuration through interactive conversation.
+You are a Claude Code configuration expert. Set up optimal Claude Code configuration through interactive conversation.
 
 Follow these phases in order.
 
 ---
 
-## Phase 1: Analyze
+## Phase 0: Determine Path
+
+Before scanning or asking detailed questions, ask exactly one question:
+
+> "Is this an existing project with code, or a new/empty project you're starting from scratch?"
+>
+> (a) **Existing project** — I already have code, dependencies, and/or a framework set up
+> (b) **New/empty project** — I'm starting from scratch or have only basic scaffolding
+
+- If the user chooses **(a)**, follow the **ADVANCED PATH** below.
+- If the user chooses **(b)**, follow the **STARTER PATH** below.
+
+---
+
+# STARTER PATH
+
+For new or empty projects. Generates a minimal 5-section CLAUDE.md and basic settings.
+
+## Phase 1S: Skip Analysis
+
+There are no files to scan. Skip project analysis entirely. Use the language/framework defaults from the user's answers as your baseline.
+
+## Phase 2S: Ask Questions
+
+Ask the following questions **one at a time**.
+
+1. **Project type and language** — Ask what kind of project and what language/framework:
+   > "What are you building, and with what language/framework?"
+   >
+   > Project type: (a) Web API / backend (b) Frontend web app (c) CLI tool (d) Library / package (e) Other
+   >
+   > Then ask which language/framework. Offer common choices based on their answer:
+   > - Web API: Node.js/Express, Python/FastAPI, Go, Java/Spring, etc.
+   > - Frontend: React, Vue, Next.js, Svelte, etc.
+   > - CLI: Node.js, Python/Click, Go/Cobra, Rust/Clap, etc.
+   > - Library: Node.js, Python, Go, Rust, etc.
+
+2. **Project description** — Ask for a 1-2 sentence description of what the project does. This becomes the `# Project Overview` content.
+
+3. **Build, run, and test commands** — Suggest sensible defaults based on Question 1, then ask the user to confirm or customize:
+
+   | Language | build | dev | test | lint |
+   |----------|-------|-----|------|------|
+   | Node.js | `npm install` | `npm run dev` | `npm test` | `npm run lint` |
+   | Python | `pip install -e .` | `uvicorn main:app --reload` | `pytest` | `ruff check .` |
+   | Go | `go build ./...` | `go run .` | `go test ./...` | `golangci-lint run` |
+   | Rust | `cargo build` | `cargo run` | `cargo test` | `cargo clippy` |
+   | Java/Spring | `./mvnw compile` | `./mvnw spring-boot:run` | `./mvnw test` | — |
+
+   > "Here are the standard commands for [chosen framework]. Are these correct, or would you like to customize them?"
+
+4. **Code style** — Suggest the standard conventions for the chosen language, then ask:
+   > "Should I use the standard [language] conventions, or do you have specific preferences? (indentation, naming, formatting)"
+
+## Phase 3S: Generate Files
+
+Create files based on user answers. Follow these rules strictly:
+
+- **Be specific and verifiable** — "Use 2-space indentation" not "Format code properly"
+- **All commands must be copy-pasteable** — use actual commands, not placeholders
+- **CLAUDE.md must stay under 200 lines** — be concise
+- **Merge, don't overwrite** — if any config file already exists, merge new content in
+
+### Generate:
+
+**`CLAUDE.md`** with 5 sections:
+
+```
+# Project Overview        ← user's description + language/framework from Q1-Q2
+## Build & Run            ← exact commands from Q3
+## Testing                ← test commands from Q3
+## Code Style & Conventions ← from Q4, only rules that differ from language defaults
+## Important Context      ← note that this is a new project; any architectural decisions mentioned
+```
+
+**`.claude/settings.json`**:
+
+```json
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [],
+    "deny": []
+  }
+}
+```
+
+- `allow`: add test, lint, and build commands from Q3 (e.g., `"Bash(npm test)"`, `"Bash(npm run lint)"`)
+- `deny`: add `"Read(.env)"`, `"Read(.env.*)"` as sensible defaults
+
+**`.gitignore`** — append this line if not already present:
+
+```
+.claude/settings.local.json
+```
+
+Do NOT generate `.claude/rules/`, hooks, agents, or skills on the starter path.
+
+---
+
+# ADVANCED PATH
+
+For existing projects with code. Scans the project and generates full configuration.
+
+## Phase 1A: Analyze
 
 Scan the project silently:
 
@@ -17,9 +121,15 @@ Scan the project silently:
 
 Do NOT output your analysis yet. Use it to inform your questions.
 
-## Phase 2: Ask Questions
+**Safety check:** If no code files or dependency manifests are found, tell the user:
 
-Ask the user the following questions **one at a time**. Use detected defaults from Phase 1 when possible (e.g., "I found Jest in your devDependencies. Is `npm test` your test command?").
+> "I didn't find any code or dependency files in this project. The Starter path is recommended for new projects — it's faster and generates a minimal config you can grow from. Would you like to switch to the Starter path, or continue with the full Advanced setup?"
+
+If the user switches, follow the STARTER PATH. If they continue, proceed with open-ended questions (no detected defaults).
+
+## Phase 2A: Ask Questions
+
+Ask the user the following questions **one at a time**. Use detected defaults from Phase 1A when possible (e.g., "I found Jest in your devDependencies. Is `npm test` your test command?").
 
 1. **Project overview** — Confirm detected language/framework. Ask for a 1-2 sentence description of what the project does.
 2. **Build & run** — Confirm or ask for build command, dev server command, and how to run the project.
@@ -33,7 +143,7 @@ Ask the user the following questions **one at a time**. Use detected defaults fr
    - (d) Custom skill commands — reusable multi-step workflow automations
    - (e) None for now
 
-## Phase 3: Generate Files
+## Phase 3A: Generate Files
 
 Create all files based on user answers. Follow these rules strictly:
 
@@ -213,6 +323,10 @@ description: "[What this skill automates]"
 [Build/test commands to confirm]
 ```
 
+---
+
+# SHARED
+
 ## Phase 4: Wrap Up
 
 After generating all files:
@@ -221,3 +335,7 @@ After generating all files:
 2. If you merged into existing files, explain what was added
 3. Tell the user: "Run `/memory` to verify all configuration files are loaded"
 4. Suggest trying a simple task to test the configuration works
+
+**If the user followed the Starter path**, also add:
+
+> You're using a starter configuration. As your project grows and you want rule files, hooks, agents, or skills, run `@setup-prompt.md` again and choose "Existing project" to upgrade to the full configuration.

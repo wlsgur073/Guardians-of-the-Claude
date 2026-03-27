@@ -31,20 +31,15 @@ from day one.
    > `@` imports the file's content into the conversation — Claude reads
    > the setup instructions and follows them automatically.
 
-3. **Answer a few questions** — Claude analyzes your project, then asks about
-   your language/framework, test setup, code style, and workflow preferences.
+3. **Choose your path** — Claude asks whether this is a new or existing project:
 
-4. **Done** — Claude generates all configuration files:
+   | Path | Questions | Generated files |
+   | ---- | --------- | --------------- |
+   | **New project** | 4 quick questions (tech stack, description, commands, style) | `CLAUDE.md` (5 sections) + `.claude/settings.json` |
+   | **Existing project** | 6 questions with auto-detected defaults | `CLAUDE.md` (8 sections) + `.claude/settings.json` + `.claude/rules/*.md` + optional hooks/agents/skills |
 
-   | Generated file | Purpose |
-   | -------------- | ------- |
-   | `CLAUDE.md` | Project overview, commands, style, workflow |
-   | `.claude/settings.json` | Permissions (allow/deny) and optional hooks |
-   | `.claude/rules/*.md` | Code style, testing, architecture, workflow rules |
-   | `.gitignore` entry | Excludes `.claude/settings.local.json` |
-
-   Optionally, Claude can also set up auto-linting hooks, file protection,
-   agent roles, and skill commands if you choose them during setup.
+4. **Done** — Claude generates all configuration files and prints a summary table.
+   Run `/memory` to verify everything loaded correctly.
 
 > **Tip:** Run `/init` in your project first — Claude auto-generates a starter
 > CLAUDE.md. Then merge our template to fill gaps `/init` misses.

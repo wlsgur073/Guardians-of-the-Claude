@@ -17,7 +17,9 @@ This guide walks you through setting up Claude Code configuration for your proje
 
 Start by running `/init` inside Claude Code. This is the [officially recommended first step](https://code.claude.com/docs/en/best-practices) -- Claude analyzes your codebase and auto-generates a CLAUDE.md tailored to your project.
 
-**Prefer a one-step setup?** Use our automated setup prompt instead -- it runs `/init`-style analysis plus generates rules, permissions, and optional advanced features in one go. See [Quick Start Option A](../README.md#quick-start) for details.
+**Prefer a one-step setup?** Use our automated setup prompt instead -- it runs `/init`-style analysis plus generates rules, permissions, and optional advanced features in one go. See the [Quick Start](../README.md#quick-start) for details.
+
+**Starting a brand new project?** The setup prompt supports empty projects too. Run `@setup-prompt.md` and choose "New/empty project" -- Claude guides you through selecting a tech stack and generates a minimal starter configuration. No existing code required.
 
 ```text
 claude
@@ -26,9 +28,11 @@ claude
 
 The output from `/init` gives you a solid starting point. Our templates fill gaps that `/init` typically misses -- things like permission configuration, modular rule files, and folder-level instructions. The two are complementary: merge them rather than choosing one over the other.
 
-## Step 2: Copy the Templates
+## Step 2: Copy the Templates (Manual Alternative)
 
-Clone this repository, then copy the scaffolds into your project. Choose your starting point:
+If you used `@setup-prompt.md` in Step 1, skip this step -- your files are already generated. The setup prompt's starter path produces output matching the `starter/` template, and the advanced path matches `advanced/`.
+
+If you prefer to copy templates manually, choose your starting point:
 
 **Starter** (recommended for beginners):
 
