@@ -4,7 +4,7 @@
 <!--  -->
 <!-- 중요: 디렉토리명 "subdirectory-claude-md"는 플레이스홀더입니다. -->
 <!-- 실제 디렉토리에 맞게 이름을 변경하세요. 예: -->
-<!--   cp templates-ko/subdirectory-claude-md/CLAUDE.md your-project/src/CLAUDE.md -->
+<!--   cp ko-KR/templates/subdirectory-claude-md/CLAUDE.md your-project/src/CLAUDE.md -->
 
 # 디렉토리 용도
 <!-- 이 디렉토리에는 무엇이 포함되어 있나요? 프로젝트에서의 역할은? -->
