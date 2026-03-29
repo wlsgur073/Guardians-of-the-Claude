@@ -31,29 +31,22 @@ claude
 
 ## Step 2: 템플릿 복사 (수동 대안)
 
-1단계에서 `/claude-code-template:generate`을 사용했다면 이 단계를 건너뛰세요 — 파일이 이미 생성되었습니다. 설정 커맨드의 스타터 경로는 `starter/` 템플릿 구조와, 고급 경로는 `advanced/` 구조와 동일한 결과를 생성합니다.
+1단계에서 `/claude-code-template:generate`을 사용했다면 이 단계를 건너뛰세요 — 파일이 이미 생성되었습니다.
 
-수동으로 템플릿을 복사하려면, 시작점을 선택하세요:
+수동으로 참고하려면 `templates/starter/`와 `templates/advanced/`의 완성 예시(가상 "TaskFlow" 프로젝트)를 확인하세요. 각 경로의 완성된 설정이 어떤 모습인지 보여줍니다:
 
 **Starter** (입문자 추천):
 
 ```bash
-# 미니멀 CLAUDE.md 스캐폴드 복사 (5섹션)
-cp Claude-Code-Template/starter/CLAUDE.md your-project/CLAUDE.md
-
-# settings 스캐폴드 복사
-mkdir -p your-project/.claude
-cp Claude-Code-Template/starter/.claude/settings.json your-project/.claude/settings.json
+# 스타터 예시를 참고하세요
+# templates/starter/CLAUDE.md 및 templates/starter/.claude/settings.json 참조
 ```
 
 **Advanced** (전체 설정):
 
 ```bash
-# 전체 CLAUDE.md 스캐폴드 복사 (8섹션)
-cp Claude-Code-Template/advanced/CLAUDE.md your-project/CLAUDE.md
-
-# settings, rules, 고급 기능 복사
-cp -r Claude-Code-Template/advanced/.claude your-project/.claude
+# 고급 예시를 참고하세요
+# templates/advanced/CLAUDE.md 및 templates/advanced/.claude/ 참조
 ```
 
 `/init`으로 이미 CLAUDE.md를 생성했다면, 템플릿의 섹션을 기존 파일에 병합하세요. 템플릿은 일관된 섹션 구조를 제공하고, `/init`은 프로젝트에 특화된 내용을 제공합니다. 양쪽의 장점을 결합하세요.

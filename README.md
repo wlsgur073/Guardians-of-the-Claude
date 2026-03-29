@@ -58,32 +58,29 @@ from day one.
 
 ```text
 Claude-Code-Template/
-├── .claude-plugin/        ← Marketplace manifest (makes this repo a plugin marketplace)
-├── plugin/                ← Plugin package
+├── .claude-plugin/          ← Marketplace manifest (makes this repo a plugin marketplace)
+├── plugin/                  ← Plugin package
 │   ├── .claude-plugin/
 │   │   └── plugin.json
+│   ├── hooks/
+│   │   ├── hooks.json       ← SessionStart hook
+│   │   └── session-start.sh
 │   └── skills/
 │       └── generate/
-│           └── SKILL.md   ← Generate skill (/claude-code-template:generate)
-├── starter/               ← Minimal scaffold for beginners (CLAUDE.md + settings.json)
-├── advanced/              ← Full scaffold (rules, hooks, agents, skills, statusline)
-├── ecosystem/             ← Ready-to-use components catalog (coming soon)
-├── examples/starter/      ← Filled starter example (fictional "TaskFlow" project)
-├── examples/advanced/     ← Filled advanced example (rules, hooks, agents, skills)
-├── guide/                 ← Guides explaining each concept
-├── docs/                  ← GitHub community health files (CoC, Contributing, Security)
-└── ko-KR/                 ← Korean translations (mirrors root structure)
+│           └── SKILL.md     ← Generate skill (/claude-code-template:generate)
+├── templates/starter/       ← Filled starter example (fictional "TaskFlow" project)
+├── templates/advanced/      ← Filled advanced example (rules, hooks, agents, skills)
+├── guide/                   ← Guides explaining each concept
+├── docs/                    ← GitHub community health files (CoC, Contributing, Security)
+└── ko-KR/                   ← Korean translations
 ```
 
 | Directory | Purpose |
 | ------------- | --------- |
-| `starter/` | Minimal scaffold — 5-section CLAUDE.md + settings.json, for quick setup |
-| `advanced/` | Full scaffold — rules, hooks, agents, skills, statusline |
-| `ecosystem/` | Ready-to-use skills, hooks, and agents — copy directly into your project |
-| `examples/starter/` | Filled starter example — minimal TaskFlow configuration |
-| `examples/advanced/` | Filled advanced example — rules, hooks, agents, skills |
+| `templates/starter/` | Filled starter example — minimal TaskFlow configuration |
+| `templates/advanced/` | Filled advanced example — rules, hooks, agents, skills |
 | `guide/` | Standalone guides — read any one without the others |
-| `ko-KR/` | Korean translations — same structure as root |
+| `ko-KR/` | Korean translations |
 
 ## How Claude Code Memory Works
 
@@ -165,7 +162,7 @@ Customize the Claude Code status bar to show model, context usage, cost, duratio
 **One-line setup:**
 
 ```bash
-cp Claude-Code-Template/advanced/statusline.sh ~/.claude/statusline.sh
+cp Claude-Code-Template/statusline.sh ~/.claude/statusline.sh
 ```
 
 Claude Code automatically detects `~/.claude/statusline.sh` — no additional configuration needed.

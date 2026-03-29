@@ -31,29 +31,22 @@ claude
 
 ## Step 2: Copy the Templates (Manual Alternative)
 
-If you used `/claude-code-template:generate` in Step 1, skip this step -- your files are already generated. The setup command's starter path produces output matching the `starter/` template, and the advanced path matches `advanced/`.
+If you used `/claude-code-template:generate` in Step 1, skip this step -- your files are already generated.
 
-If you prefer to copy templates manually, choose your starting point:
+If you prefer to reference templates manually, see `templates/starter/` and `templates/advanced/` for filled examples (fictional "TaskFlow" project). These show what a completed configuration looks like for each path:
 
 **Starter** (recommended for beginners):
 
 ```bash
-# Copy the minimal CLAUDE.md scaffold (5 sections)
-cp Claude-Code-Template/starter/CLAUDE.md your-project/CLAUDE.md
-
-# Copy settings scaffold
-mkdir -p your-project/.claude
-cp Claude-Code-Template/starter/.claude/settings.json your-project/.claude/settings.json
+# Use the starter example as reference
+# See templates/starter/CLAUDE.md and templates/starter/.claude/settings.json
 ```
 
 **Advanced** (for full configuration):
 
 ```bash
-# Copy the full CLAUDE.md scaffold (8 sections)
-cp Claude-Code-Template/advanced/CLAUDE.md your-project/CLAUDE.md
-
-# Copy settings, rules, and advanced features
-cp -r Claude-Code-Template/advanced/.claude your-project/.claude
+# Use the advanced example as reference
+# See templates/advanced/CLAUDE.md and templates/advanced/.claude/
 ```
 
 If `/init` already created a CLAUDE.md, merge the template sections into it. The template provides a consistent section structure; `/init` provides project-specific content. Combine the best of both.

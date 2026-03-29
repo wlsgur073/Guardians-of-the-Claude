@@ -1,0 +1,15 @@
+{
+  "description": "Suggests running /claude-code-template:generate when no Claude Code configuration is found",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}

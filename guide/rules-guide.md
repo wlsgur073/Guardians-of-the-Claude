@@ -88,7 +88,7 @@ paths:
 ---
 ```
 
-See `examples/.claude/rules/api-endpoints.md` for a complete path-scoped rule example.
+See `templates/advanced/.claude/rules/api-endpoints.md` for a complete path-scoped rule example.
 
 ## User-Level Rules
 

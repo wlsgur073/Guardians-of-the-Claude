@@ -11,8 +11,7 @@ This is a **documentation and template repository** — it contains no applicati
 We welcome the following types of contributions:
 
 - **Guide improvements** — Clarify explanations, fix inaccuracies, or add missing details in `guide/`
-- **Template enhancements** — Improve scaffolds in `starter/` and `advanced/` (must remain minimal with placeholder comments only)
-- **Example additions** — Expand or refine the TaskFlow examples in `examples/`
+- **Template improvements** — Expand or refine the TaskFlow examples in `templates/`
 - **Translations** — Add or improve Korean translations in `ko-KR/`
 - **Typo and grammar fixes** — Always welcome
 
@@ -20,11 +19,9 @@ We welcome the following types of contributions:
 
 Please read the root [`CLAUDE.md`](../CLAUDE.md) file — it contains the detailed contribution rules for this repository, including:
 
-- Templates must remain minimal scaffolds (section headers and HTML comment placeholders only)
-- All examples must reference the fictional "TaskFlow" project
-- Guides and examples use YAML frontmatter (`title`, `description`, `date`)
+- All templates must reference the fictional "TaskFlow" project
+- Templates and guides use YAML frontmatter (`title`, `description`, `date`)
 - Guides should stay under ~130 lines
-- Changes to `starter/`, `advanced/`, or `ecosystem/` must be mirrored in `ko-KR/`
 
 ## Getting Started
 
@@ -57,7 +54,7 @@ Keep the subject line concise (under 72 characters). Use the commit body for add
 - **Describe your changes** — Explain what you changed and why
 - **Reference issues** — Link related issues if applicable (e.g., `Closes #12`)
 - **Check cross-references** — If you rename or move files, update all links that point to them
-- **Translation parity** — If you modify `starter/`, `advanced/`, or `ecosystem/`, update `ko-KR/` accordingly
+- **Translation parity** — If you modify `templates/`, update `ko-KR/` accordingly
 
 ## Code of Conduct
 

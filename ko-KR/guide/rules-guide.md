@@ -88,7 +88,7 @@ paths:
 ---
 ```
 
-경로 범위가 지정된 규칙 파일의 전체 예시는 `examples/.claude/rules/api-endpoints.md`를 참고하세요.
+경로 범위가 지정된 규칙 파일의 전체 예시는 `templates/advanced/.claude/rules/api-endpoints.md`를 참고하세요.
 
 ## 사용자 수준 규칙
 

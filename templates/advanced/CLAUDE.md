@@ -1,6 +1,7 @@
 ---
-title: "TaskFlow CLAUDE.md (Starter)"
-description: "Minimal 5-section example for a Node.js/Express REST API project"
+title: "TaskFlow CLAUDE.md"
+description: "Example root CLAUDE.md for a Node.js/Express REST API project"
+date: "2026-03-18"
 ---
 
 # Project Overview
@@ -31,9 +32,32 @@ Run `docker compose up -d` before running tests.
 - Database queries go in src/repositories/, never in route handlers
 - All async route handlers must use the asyncHandler wrapper
 
+## Workflow
+
+- Branch naming: `feat/`, `fix/`, `chore/` prefixes
+- Commit messages: conventional commits format
+- Run full test suite before pushing: `npm test && npm run lint`
+- All PRs require passing CI and one review approval
+
+## Project Structure
+
+- src/api/         → Express route handlers and middleware
+- src/models/      → TypeScript interfaces and Zod validation schemas
+- src/repos/       → Database access layer (one file per entity)
+- src/services/    → Business logic (called by handlers, calls repos)
+- src/errors/      → Custom error types extending AppError
+- tests/           → Mirrors src/ structure
+- db/migrations/   → SQL migration files (run with npm run migrate)
+
 ## Important Context
 
 - Auth uses JWT with refresh tokens stored in Redis
 - All API responses follow the envelope format in src/api/response.ts
 - Rate limiting is configured per-route in src/api/middleware/rateLimit.ts
 - Environment variables are validated at startup via src/config.ts
+
+## References
+
+@docs/architecture.md
+@docs/api-conventions.md
+@README.md

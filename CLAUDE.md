@@ -5,29 +5,23 @@ This is a documentation and template repository — it contains no application c
 ## Repository Structure
 
 - `.claude-plugin/` — Marketplace manifest (makes this repo a plugin marketplace)
-- `plugin/` — Plugin package containing `.claude-plugin/plugin.json` and `skills/generate/SKILL.md` (`/claude-code-template:generate`)
-- `starter/` — Minimal scaffold for beginners (CLAUDE.md with 5 sections + settings.json)
-- `advanced/` — Full scaffold including rules, hooks, agents, skills, and statusline
-- `ecosystem/` — Ready-to-use components catalog (skills, hooks, agents) — structure only, content coming soon
-- `examples/starter/` — Minimal filled example for TaskFlow (5-section CLAUDE.md + basic settings.json)
-- `examples/advanced/` — Full filled example for TaskFlow (rules, hooks, agents, skills)
+- `plugin/` — Plugin package containing `.claude-plugin/plugin.json`, `skills/generate/SKILL.md` (`/claude-code-template:generate`), and `hooks/hooks.json`
+- `templates/starter/` — Minimal filled example for TaskFlow (5-section CLAUDE.md + basic settings.json)
+- `templates/advanced/` — Full filled example for TaskFlow (rules, hooks, agents, skills)
 - `guide/` — Guides covering each Claude Code configuration concept (CLAUDE.md writing, rules, settings, directory structure, effective usage patterns)
-- `ko-KR/` — Korean translations mirroring the root structure (`starter/`, `advanced/`, `ecosystem/`, `guide/`, `README.md`)
+- `ko-KR/` — Korean translations (`guide/`, `README.md`)
 - `docs/` — GitHub community health files (CODE_OF_CONDUCT.md, CONTRIBUTING.md, SECURITY.md)
 - `.claude/` — This repo's own Claude Code settings
 
 ## Contribution Rules
 
-- Scaffolds in `starter/` and `advanced/` must remain minimal — section headers and HTML comment placeholders only, no filled-in content
-- Examples must all reference the fictional "TaskFlow" project — do not introduce other fictional projects
-- Scaffolds (under `starter/`, `advanced/`) have no YAML frontmatter. Examples (under `examples/`) and guides (under `guide/`) use YAML frontmatter with `title`, `description`, and `date` fields
-- When modifying files under `starter/`, `advanced/`, or `ecosystem/`, mirror the same changes to `ko-KR/` to maintain Korean translation parity
-- `ecosystem/` contains ready-to-use components, not scaffolds — these are meant to be copied directly into projects
+- Templates must all reference the fictional "TaskFlow" project — do not introduce other fictional projects
+- Templates (under `templates/`) and guides (under `guide/`) use YAML frontmatter with `title`, `description`, and `date` fields
 - Guides in `guide/` should stay under ~130 lines each; they teach conciseness, so they should model it
 - This CLAUDE.md should stay under 200 lines, matching the repo's own recommendation in `guide/claude-md-guide.md`
 - There is no source code — all content is Markdown. Review for clarity, accuracy, and consistency across files
 - When adding a new guide, follow the existing frontmatter format (`title`, `description`, `date`) and add cross-links from `guide/getting-started.md`
-- CLAUDE.md files under `starter/`, `advanced/`, and `examples/` are repo content, not instructions for this repo — Claude will lazy-load them when working in those directories, so keep them clearly framed as examples
+- CLAUDE.md files under `templates/` are repo content, not instructions for this repo — Claude will lazy-load them when working in those directories, so keep them clearly framed as examples
 
 ## Plugin Development Rules
 
@@ -36,6 +30,3 @@ This is a documentation and template repository — it contains no application c
 - Plugin version is managed in `plugin/.claude-plugin/plugin.json` only — do NOT duplicate version in `.claude-plugin/marketplace.json`
 - Marketplace name (`wlsgur073-plugins`) must NOT match the GitHub repo name case pattern to avoid Windows NTFS rename failures
 
-## Key Context
-
-- All example configurations reference a fictional "TaskFlow" project — this is intentional and must stay consistent

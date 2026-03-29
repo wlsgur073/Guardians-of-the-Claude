@@ -125,7 +125,7 @@ Run build and tests to confirm everything works.
 
 ## 템플릿
 
-`advanced/`의 고급 스캐폴드를 프로젝트의 `.claude/` 디렉터리에 복사하세요. 이미 기본 `settings.json`이 있다면, 파일을 덮어쓰지 말고 `hooks`, `env`, `enabledPlugins` 키만 추가하세요. 완성된 TaskFlow 버전은 `examples/advanced/`를 참고하세요.
+완성된 예시(가상 "TaskFlow" 프로젝트)는 `templates/advanced/`를 참고하세요. hooks, agents, skills, rules가 어떻게 함께 동작하는지 보여줍니다. 이미 기본 `settings.json`이 있다면, 파일을 덮어쓰지 말고 `hooks`, `env`, `enabledPlugins` 키만 추가하세요.
 
 ## 추가 자료
 
