@@ -1,0 +1,26 @@
+{
+  "name": "wlsgur073-claude-code-template",
+  "owner": {
+    "name": "wlsgur073",
+    "email": "wlsgur073@gmail.com"
+  },
+  "metadata": {
+    "description": "Claude Code project setup plugin — generates configuration through guided interview"
+  },
+  "plugins": [
+    {
+      "name": "claude-code-template",
+      "source": ".",
+      "description": "Guided Claude Code setup — generates CLAUDE.md, settings, rules, hooks, agents, and skills for any project",
+      "version": "2.1.0",
+      "author": {
+        "name": "wlsgur073"
+      },
+      "homepage": "https://github.com/wlsgur073/Claude-Code-Template",
+      "repository": "https://github.com/wlsgur073/Claude-Code-Template",
+      "license": "MIT",
+      "category": "development",
+      "tags": ["setup", "configuration", "template", "onboarding"]
+    }
+  ]
+}

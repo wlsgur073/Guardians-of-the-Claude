@@ -13,11 +13,12 @@ from day one.
 
 ## Quick Start
 
-1. **Install the plugin** in Claude Code:
+1. **Add the marketplace and install the plugin** in Claude Code:
 
    ```
    claude
-   > /install-plugin https://github.com/wlsgur073/Claude-Code-Template
+   > /plugin marketplace add wlsgur073/Claude-Code-Template
+   > /plugin install claude-code-template@wlsgur073-claude-code-template
    ```
 
 2. **Run the setup command** in your project:
@@ -32,8 +33,8 @@ from day one.
 
    | Method | Command |
    | ------ | ------- |
-   | Clone + `@` import | `@../Claude-Code-Template/commands/setup.md` |
-   | Absolute path | `@~/Claude-Code-Template/commands/setup.md` |
+   | Local plugin | `claude --plugin-dir /path/to/Claude-Code-Template` |
+   | `@` import | `@../Claude-Code-Template/commands/setup.md` |
    | Direct paste | Copy the contents of `commands/setup.md` and paste directly into the conversation |
 
 3. **Choose your path** — Claude asks whether this is a new or existing project:
@@ -113,8 +114,8 @@ Start here, then follow the path that matches your level:
 ## Recommended Plugins
 
 Claude Code supports official plugins that extend its capabilities.
-Install via `/install-plugin` in Claude Code, or see
-[Plugin docs](https://docs.anthropic.com/en/docs/claude-code/plugins) for details.
+Browse available plugins with `/plugin` in Claude Code, or see
+[Plugin docs](https://code.claude.com/docs/en/discover-plugins) for details.
 
 ### Development Workflow
 

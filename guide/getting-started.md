@@ -27,7 +27,7 @@ claude
 > /init
 ```
 
-**`/claude-code-template:setup`** runs `/init`-style analysis plus generates rules, permissions, and optional advanced features. Install the plugin first (`/install-plugin https://github.com/wlsgur073/Claude-Code-Template`). **Using both?** Run `/init` first, then `/claude-code-template:setup` choosing "Existing project" — it detects your existing CLAUDE.md and merges rather than overwrites.
+**`/claude-code-template:setup`** runs `/init`-style analysis plus generates rules, permissions, and optional advanced features. Install the plugin first (`/plugin marketplace add wlsgur073/Claude-Code-Template`, then `/plugin install claude-code-template@wlsgur073-claude-code-template`). **Using both?** Run `/init` first, then `/claude-code-template:setup` choosing "Existing project" — it detects your existing CLAUDE.md and merges rather than overwrites.
 
 ## Step 2: Copy the Templates (Manual Alternative)
 
