@@ -389,4 +389,4 @@ After generating all files:
 
 **If the user followed the Starter path**, also add:
 
-> You're using a starter configuration. As your project grows and you want rule files, hooks, agents, or skills, run `/claude-code-template:setup` again and choose "Existing project" to upgrade to the full configuration.
+> You're using a starter configuration. As your project grows and you want rule files, hooks, agents, or skills, run `/claude-code-template:generate` again and choose "Existing project" to upgrade to the full configuration.

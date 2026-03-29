@@ -52,7 +52,7 @@
   <!-- Terminal command preview -->
   <rect x="400" y="195" width="320" height="32" rx="6" fill="#0d0d1a" stroke="#333355" stroke-width="1"/>
   <text x="412" y="215" font-family="monospace" font-size="11" fill="#555577">&gt;</text>
-  <text x="425" y="215" font-family="monospace" font-size="11" fill="#D97757">/claude-code-template:setup</text>
+  <text x="425" y="215" font-family="monospace" font-size="11" fill="#D97757">/claude-code-template:generate</text>
 
   <!-- File tags (centered text) -->
   <g transform="translate(445, 240)">

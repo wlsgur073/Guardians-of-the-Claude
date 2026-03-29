@@ -18,7 +18,7 @@ date: 2026-03-18
 | 옵션 | 하는 일 | 적합한 경우 |
 | ---- | ------ | ---------- |
 | `/init` | 코드 분석 후 기본 CLAUDE.md 생성 | 빠른 시작 — 대부분의 프로젝트에 적합 |
-| `/claude-code-template:setup` | 대화형 인터뷰 → CLAUDE.md + 설정 + 규칙 + 선택적 기능 | 종합적인 설정 ([빠른 시작](../README.md#quick-start)) |
+| `/claude-code-template:generate` | 대화형 인터뷰 → CLAUDE.md + 설정 + 규칙 + 선택적 기능 | 종합적인 설정 ([빠른 시작](../README.md#quick-start)) |
 
 **`/init`**은 [공식 권장 첫 단계](https://code.claude.com/docs/en/best-practices)입니다 -- Claude가 코드베이스를 분석하고 CLAUDE.md를 자동 생성합니다:
 
@@ -27,11 +27,11 @@ claude
 > /init
 ```
 
-**`/claude-code-template:setup`**은 `/init` 스타일 분석에 더해 규칙, 권한, 선택적 고급 기능을 한 번에 생성합니다. 먼저 플러그인을 설치하세요 (`/plugin marketplace add wlsgur073/Claude-Code-Template` 후 `/plugin install claude-code-template@wlsgur073-plugins`). **둘 다 사용?** `/init`을 먼저 실행한 후, `/claude-code-template:setup`에서 "기존 프로젝트"를 선택하세요 — 기존 CLAUDE.md를 감지하여 덮어쓰지 않고 병합합니다.
+**`/claude-code-template:generate`**은 `/init` 스타일 분석에 더해 규칙, 권한, 선택적 고급 기능을 한 번에 생성합니다. 먼저 플러그인을 설치하세요 (`/plugin marketplace add wlsgur073/Claude-Code-Template` 후 `/plugin install claude-code-template@wlsgur073-plugins`). **둘 다 사용?** `/init`을 먼저 실행한 후, `/claude-code-template:generate`에서 "기존 프로젝트"를 선택하세요 — 기존 CLAUDE.md를 감지하여 덮어쓰지 않고 병합합니다.
 
 ## Step 2: 템플릿 복사 (수동 대안)
 
-1단계에서 `/claude-code-template:setup`을 사용했다면 이 단계를 건너뛰세요 — 파일이 이미 생성되었습니다. 설정 커맨드의 스타터 경로는 `starter/` 템플릿 구조와, 고급 경로는 `advanced/` 구조와 동일한 결과를 생성합니다.
+1단계에서 `/claude-code-template:generate`을 사용했다면 이 단계를 건너뛰세요 — 파일이 이미 생성되었습니다. 설정 커맨드의 스타터 경로는 `starter/` 템플릿 구조와, 고급 경로는 `advanced/` 구조와 동일한 결과를 생성합니다.
 
 수동으로 템플릿을 복사하려면, 시작점을 선택하세요:
 
@@ -117,7 +117,7 @@ Rules를 사용하면 좋은 경우:
 
 기본 설정이 잘 동작하면, hooks, agents, skills 같은 고급 기능을 탐색해 보세요. [고급 기능 가이드](advanced-features-guide.md)를 참고하세요.
 
-**스타터에서 고급으로 업그레이드:** `/claude-code-template:setup`을 다시 실행하고, 첫 번째 질문에서 "기존 프로젝트"를 선택한 후 6개의 고급 질문에 답하세요. Claude가 기존 구성을 감지하여 새로운 섹션을 병합합니다.
+**스타터에서 고급으로 업그레이드:** `/claude-code-template:generate`을 다시 실행하고, 첫 번째 질문에서 "기존 프로젝트"를 선택한 후 6개의 고급 질문에 답하세요. Claude가 기존 구성을 감지하여 새로운 섹션을 병합합니다.
 
 ## 다음 단계
 

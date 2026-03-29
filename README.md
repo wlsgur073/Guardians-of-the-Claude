@@ -3,7 +3,7 @@
 </p>
 
 Starter templates and guides for configuring Claude Code. Install the
-plugin, run `/claude-code-template:setup`, and Claude generates all
+plugin, run `/claude-code-template:generate`, and Claude generates all
 configuration files through a guided interview.
 
 **Audience:** Developers new to Claude Code who want a working configuration
@@ -26,7 +26,7 @@ from day one.
    ```
    cd your-project
    claude
-   > /claude-code-template:setup
+   > /claude-code-template:generate
    ```
 
    **Alternative methods** (without installing the plugin):
@@ -34,8 +34,8 @@ from day one.
    | Method | Command |
    | ------ | ------- |
    | Local plugin | `claude --plugin-dir /path/to/Claude-Code-Template/plugin` |
-   | `@` import | `@../Claude-Code-Template/plugin/commands/setup.md` |
-   | Direct paste | Copy the contents of `plugin/commands/setup.md` and paste directly into the conversation |
+   | `@` import | `@../Claude-Code-Template/plugin/commands/generate.md` |
+   | Direct paste | Copy the contents of `plugin/commands/generate.md` and paste directly into the conversation |
 
 3. **Choose your path** — Claude asks whether this is a new or existing project:
 
@@ -51,7 +51,7 @@ from day one.
    Run `/memory` to verify everything loaded correctly.
 
 > **Tip:** Run `/init` in your project first — Claude auto-generates a starter
-> CLAUDE.md. Then run `/claude-code-template:setup` choosing "Existing project"
+> CLAUDE.md. Then run `/claude-code-template:generate` choosing "Existing project"
 > to fill gaps `/init` misses.
 
 ## What's Inside
@@ -63,7 +63,7 @@ Claude-Code-Template/
 │   ├── .claude-plugin/
 │   │   └── plugin.json
 │   └── commands/
-│       └── setup.md       ← Setup command (/claude-code-template:setup)
+│       └── generate.md    ← Generate command (/claude-code-template:generate)
 ├── starter/               ← Minimal scaffold for beginners (CLAUDE.md + settings.json)
 ├── advanced/              ← Full scaffold (rules, hooks, agents, skills, statusline)
 ├── ecosystem/             ← Ready-to-use components catalog (coming soon)
