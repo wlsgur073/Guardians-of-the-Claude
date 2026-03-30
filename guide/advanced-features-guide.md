@@ -6,7 +6,7 @@ date: 2026-03-23
 
 # Advanced Features
 
-Three features for teams that have outgrown basic CLAUDE.md + rules configuration. Start with the [Getting Started Guide](getting-started.md) before adding these.
+Three features for teams that have outgrown basic CLAUDE.md + rules. Start with the [Getting Started Guide](getting-started.md) before adding these. See `templates/advanced/` for a complete filled example.
 
 ## Hooks
 
@@ -48,16 +48,15 @@ Hooks are shell commands that run automatically before or after Claude uses a to
 Key concepts:
 
 - **`matcher`** -- pipe-separated tool names or regex (e.g., `"Edit|Write"`, `"mcp__.*"`)
-- **`$CLAUDE_FILE_PATH`** -- the file path Claude is editing, injected automatically
-- **`$CLAUDE_PROJECT_DIR`** -- the project root directory
+- **`$CLAUDE_FILE_PATH`** / **`$CLAUDE_PROJECT_DIR`** -- injected path variables
 - **`statusMessage`** -- text shown in the UI while the hook runs
-- **`PreToolUse` + `exit 1`** -- blocks the tool action (file protection pattern)
-- **`PostToolUse` + `|| true`** -- runs after the action; prevents lint errors from interrupting Claude
-- Other events: `Notification`, `Stop`, `SessionStart`, `SubagentStop` — see [hooks docs](https://code.claude.com/docs/en/hooks) for all event types
+- **`PreToolUse` + `exit 1`** blocks the action; **`PostToolUse` + `|| true`** runs after it
+- Other events: `Notification`, `Stop`, `SessionStart`, `SessionEnd`, `SubagentStop`, `UserPromptSubmit`, `PreCompact` — see [hooks docs](https://code.claude.com/docs/en/hooks) for all event types
+- **Hook types:** `"type": "command"` (shell) or `"type": "prompt"` (LLM-driven, for `PreToolUse`, `Stop`, `SubagentStop`, `UserPromptSubmit`)
 
 ## Agents
 
-Agents are custom role definitions in `.claude/agents/`. Each agent has a specialized scope, toolset, and model -- useful for large codebases where different areas need different expertise. Use them for role specialization (frontend, backend, testing), scope constraints, model selection, or team workflows with parallel dispatch.
+Agents are custom role definitions in `.claude/agents/` with specialized scope, toolset, and model. Useful for role specialization, scope constraints, and parallel dispatch in large codebases.
 
 ### Configuration
 
@@ -73,6 +72,7 @@ tools:
   - Write
   - Bash
 model: "sonnet"
+color: "green"
 ---
 
 # Scope
@@ -86,15 +86,13 @@ Only modify files under `src/api/`, `src/services/`, and `src/repos/`.
 Key fields:
 
 - **`name`** / **`description`** -- identity and specialization
-- **`tools`** -- allowed tools (Read, Edit, Write, Bash, Grep, Glob, Agent, Skill)
-- **`model`** -- which model (sonnet, opus, haiku)
-- **`effort`** -- processing effort level (high, medium, low)
-
-The body after frontmatter defines scope and rules in natural language.
+- **`tools`** -- allowed tools (Read, Edit, Write, Bash, Grep, Glob, etc.)
+- **`model`** -- which model (`sonnet`, `opus`, `haiku`, `inherit`)
+- **`color`** -- UI display color (`blue`, `cyan`, `green`, `yellow`, `magenta`, `red`)
 
 ## Skills
 
-Skills are reusable multi-step workflows in `.claude/skills/`. Each becomes a slash command that automates repeatable processes like scaffolding features or adding components. Use them for repeated scaffolding, standardized workflows, or multi-phase processes.
+Skills are reusable multi-step workflows in `.claude/skills/`. Each becomes a slash command that automates repeatable processes like scaffolding features or adding components.
 
 ### Configuration
 
@@ -121,11 +119,18 @@ Create model, repository, service, handler, and test files.
 Run build and tests to confirm everything works.
 ```
 
-The four-step pattern (gather, validate, execute, verify) keeps skills predictable. Step 1 uses `AskUserQuestion` to collect inputs; Step 4 runs build/test commands to confirm the work. Each skill becomes a slash command — `/add-endpoint` invokes `.claude/skills/add-endpoint/SKILL.md`.
+Key fields:
 
-## Templates
+- **`name`** / **`description`** -- identity and purpose
+- **`allowed-tools`** -- restrict available tools (note: skills use `allowed-tools`, agents use `tools`)
+- **`argument-hint`** -- usage hint for slash command menu (e.g., `"<resource> [operations]"`)
+- **`user-invocable`** -- show in slash command menu (default: `true`)
+- **`disable-model-invocation`** -- prevent Claude from auto-triggering (default: `false`)
+- **`model`** -- override model when skill is active
 
-See `templates/advanced/` for a complete filled example (fictional "TaskFlow" project) showing how hooks, agents, skills, and rules work together. If you already have a basic `settings.json`, add the `hooks`, `env`, and `enabledPlugins` keys rather than overwriting.
+Skills come in two types: **user-invoked** (slash command) and **model-invoked** (auto-triggered by Claude). Model-invoked descriptions should include trigger phrases: `"Use when the user asks to 'do X' or 'do Y'."` Skills can include supporting files alongside SKILL.md: `references/`, `examples/`, `scripts/`.
+
+> **Note:** The legacy `commands/` directory is deprecated. Use `skills/<name>/SKILL.md` for all skill types.
 
 ## Further Reading
 

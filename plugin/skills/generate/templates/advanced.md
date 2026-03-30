@@ -4,20 +4,22 @@ For existing projects with code. Scans the project and generates full configurat
 
 ## Phase 1A: Analyze
 
-Scan the project silently:
+Scan the project silently, checking for **actual source code and dependency manifests**:
 
-- Read dependency files: `package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `pom.xml`, `Gemfile`, etc.
-- Identify primary language, framework, project type, and directory structure
-- Detect test frameworks, linters, formatters, and build tools from dependencies
-- Check for existing `CLAUDE.md`, `.claude/` directory, or `.claude/rules/`
+1. Search for dependency manifests: `package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `pom.xml`, `Gemfile`, etc.
+2. Search for source code files: `*.ts`, `*.js`, `*.py`, `*.go`, `*.rs`, `*.java`, etc.
+3. If manifests or code found: identify language, framework, project type, directory structure, test frameworks, linters, and formatters
+4. Check for existing `CLAUDE.md`, `.claude/` directory, or `.claude/rules/`
+
+**IMPORTANT:** `.claude/` configuration files, `CLAUDE.md`, rule files, agent definitions, and skill files are NOT source code. Do NOT infer project type from these files alone. Only actual source code files and dependency manifests count as evidence of an existing project.
 
 Do NOT output your analysis yet. Use it to inform your questions.
 
-**Safety check:** If no code files or dependency manifests are found, tell the user:
+**Safety check (MANDATORY):** If no source code files AND no dependency manifests are found, you MUST tell the user — regardless of what they selected in Phase 0:
 
-> "I didn't find any code or dependency files in this project. The Starter path is recommended for new projects — it's faster and generates a minimal config you can grow from. Would you like to switch to the Starter path, or continue with the full Advanced setup?"
+> "I scanned this project but didn't find any source code files or dependency manifests (e.g., package.json, pyproject.toml). This looks like a new or empty project. The Starter path is recommended — it's faster and generates a minimal config you can grow from. Would you like to switch to the Starter path, or continue with the full Advanced setup?"
 
-If the user switches, follow the STARTER PATH (read `templates/starter.md`). If they continue, use the **Open-ended** variant for every question in Phase 2A. Generate the same full Advanced output files.
+If the user switches, follow the STARTER PATH (read `templates/starter.md`). If they continue, use the **Open-ended** variant for every question in Phase 2A. Do NOT assume or hallucinate project details — ask the user directly.
 
 ## Phase 2A: Ask Questions
 
@@ -222,6 +224,7 @@ tools:
   - Grep
   - Glob
 model: "sonnet"
+color: "blue"
 ---
 
 # Scope
@@ -230,6 +233,8 @@ model: "sonnet"
 ## Rules
 [Domain-specific rules]
 ```
+
+Available `color` values: `blue`, `cyan`, `green`, `yellow`, `magenta`, `red`.
 
 After creating each agent, ask:
 
@@ -243,6 +248,9 @@ Repeat until the user says to move on.
 ---
 name: "[skill-name]"
 description: "[What this skill automates]"
+# Optional fields:
+# allowed-tools: [Read, Edit, Write, Bash, Grep, Glob]
+# argument-hint: "<required-arg> [optional-arg]"
 ---
 
 # Steps
