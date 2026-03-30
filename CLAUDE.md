@@ -27,6 +27,7 @@ This is a documentation and template repository — it contains no application c
 
 - Skills go in `plugin/skills/<name>/SKILL.md` — do NOT use `commands/` (legacy)
 - Each skill must have YAML frontmatter with `name` and `description` fields
+- Skills use `allowed-tools` for tool restriction; agents use `tools` — do not mix these fields
 - Plugin version is managed in `plugin/.claude-plugin/plugin.json` only — do NOT duplicate version in `.claude-plugin/marketplace.json`
 - Marketplace name (`wlsgur073-plugins`) must NOT match the GitHub repo name case pattern to avoid Windows NTFS rename failures
 
