@@ -1,7 +1,7 @@
 {
   "name": "claude-code-template",
-  "version": "2.2.0",
-  "description": "Guided Claude Code setup — generates CLAUDE.md, settings, rules, hooks, agents, and skills for any project",
+  "version": "2.2.1",
+  "description": "Guided Claude Code setup — generates CLAUDE.md, settings.json, rules, and optional hooks/agents/skills for any project",
   "author": {
     "name": "wlsgur073"
   },
