@@ -90,6 +90,8 @@ Only modify files under `src/api/`, `src/services/`, and `src/repos/`.
 - **`model`** -- 사용할 모델 (`sonnet`, `opus`, `haiku`, `inherit`)
 - **`color`** -- UI 표시 색상 (`blue`, `cyan`, `green`, `yellow`, `magenta`, `red`)
 
+> **예시:** 완성된 agent 정의는 `templates/advanced/.claude/agents/backend-developer.md`를 참고하세요.
+
 ## Skills
 
 Skills는 `.claude/skills/`에 정의하는 재사용 가능한 다단계 워크플로우입니다. 각 skill은 슬래시 명령이 되어 기능 스캐폴딩이나 컴포넌트 추가 같은 반복 작업을 자동화합니다.
@@ -134,6 +136,8 @@ Run build and tests to confirm everything works.
 Skill은 두 가지 유형이 있습니다: **user-invoked** (슬래시 명령)와 **model-invoked** (Claude가 컨텍스트 기반으로 자동 트리거). model-invoked의 description에는 트리거 문구를 포함하세요: `"Use when the user asks to 'do X' or 'do Y'."` Skill은 SKILL.md 외에 보조 파일을 포함할 수 있습니다: `references/`, `examples/`, `scripts/`.
 
 > **참고:** 레거시 `commands/` 디렉터리는 deprecated되었습니다. 모든 skill 유형에 `skills/<name>/SKILL.md`를 사용하세요.
+
+> **예시:** 완성된 skill 구조는 `templates/advanced/.claude/skills/add-endpoint/`를 참고하세요.
 
 ## 추가 자료
 

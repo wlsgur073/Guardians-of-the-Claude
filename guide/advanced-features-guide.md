@@ -90,6 +90,8 @@ Key fields:
 - **`model`** -- which model (`sonnet`, `opus`, `haiku`, `inherit`)
 - **`color`** -- UI display color (`blue`, `cyan`, `green`, `yellow`, `magenta`, `red`)
 
+> **Example:** See `templates/advanced/.claude/agents/backend-developer.md` for a complete agent definition.
+
 ## Skills
 
 Skills are reusable multi-step workflows in `.claude/skills/`. Each becomes a slash command that automates repeatable processes like scaffolding features or adding components.
@@ -134,6 +136,8 @@ Key fields:
 Skills come in two types: **user-invoked** (slash command) and **model-invoked** (auto-triggered by Claude). Model-invoked descriptions should include trigger phrases: `"Use when the user asks to 'do X' or 'do Y'."` Skills can include supporting files alongside SKILL.md: `references/`, `examples/`, `scripts/`.
 
 > **Note:** The legacy `commands/` directory is deprecated. Use `skills/<name>/SKILL.md` for all skill types.
+
+> **Example:** See `templates/advanced/.claude/skills/add-endpoint/` for a complete skill with references.
 
 ## Further Reading
 
