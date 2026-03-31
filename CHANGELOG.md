@@ -107,7 +107,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **Breaking:** Refactored `docs/` → `guide/` to reserve `docs/` for GitHub community health files
 - Replaced cost display with 5-hour rate limit bar in statusline
 
-## [1.0.0] - 2026-03-27
+## [1.0.0] - 2026-03-27 [DEPRECATED]
+
+> **Deprecated:** v1.0.0 is no longer supported. The directory structure, plugin system, and usage workflow changed significantly in v2.0.0. Please use v2.4.0 or later.
 
 ### Added
 
