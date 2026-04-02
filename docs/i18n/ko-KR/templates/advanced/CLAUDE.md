@@ -1,7 +1,7 @@
 ---
 title: "TaskFlow CLAUDE.md"
 description: "Node.js/Express REST API 프로젝트를 위한 루트 CLAUDE.md 예시"
-date: 2026-03-18
+version: 2.4.0
 ---
 
 # 프로젝트 개요

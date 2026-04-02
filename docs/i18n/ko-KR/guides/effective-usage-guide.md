@@ -1,7 +1,7 @@
 ---
 title: "효과적인 사용 패턴"
 description: "Claude Code를 효과적으로 사용하기 위한 필수 패턴"
-date: 2026-03-18
+version: 2.4.0
 ---
 
 # 효과적인 사용 패턴

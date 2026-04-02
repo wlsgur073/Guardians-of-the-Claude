@@ -1,7 +1,7 @@
 ---
 title: "TaskFlow .claude/CLAUDE.md (Alternative Location)"
 description: "Demo stub showing the .claude/ placement option for project instructions"
-date: 2026-03-18
+version: 2.4.0
 ---
 
 <!-- These two files form a "pick one" pair — use root OR .claude/, not both. -->

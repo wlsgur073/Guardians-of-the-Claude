@@ -19,11 +19,11 @@ This is a documentation and template repository — it contains no application c
 ## Contribution Rules
 
 - Templates must all reference the fictional "TaskFlow" project — do not introduce other fictional projects
-- Templates (under `templates/`) and guides (under `docs/guides/`) use YAML frontmatter with `title`, `description`, and `date` fields
+- Templates (under `templates/`) and guides (under `docs/guides/`) use YAML frontmatter with `title`, `description`, and `version` fields — `version` tracks the plugin release version (`plugin/.claude-plugin/plugin.json`) at which the file was last updated
 - Guides in `docs/guides/` should stay under ~130 lines each; they teach conciseness, so they should model it
 - This CLAUDE.md should stay under 200 lines, matching the repo's own recommendation in `docs/guides/claude-md-guide.md`
 - There is no source code — all content is Markdown. Review for clarity, accuracy, and consistency across files
-- When adding a new guide, follow the existing frontmatter format (`title`, `description`, `date`) and add cross-links from `docs/guides/getting-started.md`
+- When adding a new guide, follow the existing frontmatter format (`title`, `description`, `version`) and add cross-links from `docs/guides/getting-started.md`
 - CLAUDE.md files under `templates/` are repo content, not instructions for this repo — Claude will lazy-load them when working in those directories, so keep them clearly framed as examples
 
 ## Plugin Development Rules

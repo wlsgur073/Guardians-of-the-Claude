@@ -1,7 +1,7 @@
 ---
 title: "Effective Usage Patterns"
 description: "Essential day-one patterns for using Claude Code effectively"
-date: 2026-03-18
+version: 2.4.0
 ---
 
 # Effective Usage Patterns

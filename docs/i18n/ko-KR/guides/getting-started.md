@@ -1,7 +1,7 @@
 ---
 title: "시작하기"
 description: "프로젝트에 Claude Code 설정을 구성하는 단계별 가이드"
-date: 2026-03-18
+version: 2.4.0
 ---
 
 # 시작하기

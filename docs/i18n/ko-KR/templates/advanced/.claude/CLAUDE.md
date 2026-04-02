@@ -1,7 +1,7 @@
 ---
 title: "TaskFlow .claude/CLAUDE.md (대안 위치)"
 description: ".claude/ 디렉터리 내 프로젝트 지시문 배치 옵션을 보여주는 데모 스텁"
-date: 2026-03-18
+version: 2.4.0
 ---
 
 <!-- 이 두 파일은 "하나만 선택" 쌍입니다 — 루트 또는 .claude/ 중 하나만 사용하세요. -->

@@ -1,7 +1,7 @@
 ---
 title: "TaskFlow CLAUDE.md (Advanced)"
 description: "Example root CLAUDE.md for a Node.js/Express REST API project"
-date: 2026-03-18
+version: 2.4.0
 ---
 
 # Project Overview
