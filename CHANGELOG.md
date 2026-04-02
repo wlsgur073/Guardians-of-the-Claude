@@ -24,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Three new best-practice rules: security pattern detection, model comment rationale, multi-select for features
 - Emoji legend (🟢🟡⚪) in `/audit` summary output
 - Date indicator (`<!-- Last reviewed -->`) in root CLAUDE.md
+- Incremental mode in `/generate` — detects existing config, adds only missing features
+- Self-verification phase (3.5) in `/generate` — validates output before wrapping up
+- "Next Steps" section in `/audit` — bridges to `/generate` for fixing detected issues
 
 ### Changed
 

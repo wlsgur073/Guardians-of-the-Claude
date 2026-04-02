@@ -2,6 +2,46 @@
 
 For existing projects with code. Scans the project and generates full configuration.
 
+## Phase 2A-Incremental: Add Missing Features
+
+**Use this path when Phase 0 detected existing Claude Code configuration.**
+
+Scan the current configuration silently:
+
+1. Read `CLAUDE.md` — check which sections exist (Overview, Build, Test, Code Style, Workflow, etc.)
+2. Read `.claude/settings.json` — check for permissions, hooks, env
+3. Check `.claude/rules/` — list existing rule files
+4. Check `.claude/agents/` — list existing agent files
+5. Check `.claude/skills/` — list existing skill directories
+
+Present a checklist of what's already configured and what's missing:
+
+> "Here's what I found in your current setup:"
+>
+> ✓ CLAUDE.md (with [N] sections)
+> ✓ settings.json (permissions configured)
+> ✗ Security rule file
+> ✓ code-style.md rule
+> ✗ Hooks (no auto-linting or file protection)
+> ✗ Agents (none defined)
+> ✗ Skills (none defined)
+>
+> "Which of the missing items would you like to add? (pick all that apply)"
+> - (a) Security rule file
+> - (b) Auto-linting hooks
+> - (c) File protection hooks
+> - (d) Custom agent roles
+> - (e) Custom skill commands
+> - (f) Other (describe what you need)
+
+Adjust the checklist based on what actually exists and what's missing. Only show unconfigured items as options.
+
+For each selected item, follow the corresponding generation logic in Phase 3A below (jump directly to the relevant conditional section). Skip Phase 1A and Phase 2A — the project is already analyzed and configured.
+
+After generating all selected items, return to SKILL.md for Phase 4.
+
+---
+
 ## Phase 1A: Analyze
 
 Scan the project silently, checking for **actual source code and dependency manifests**:

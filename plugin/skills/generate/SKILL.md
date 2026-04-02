@@ -13,7 +13,24 @@ Follow these phases in order.
 
 ## Phase 0: Determine Path
 
-Before scanning or asking detailed questions, ask exactly one question:
+First, silently check if Claude Code configuration already exists:
+
+1. Check for `CLAUDE.md` (root or `.claude/CLAUDE.md`)
+2. Check for `.claude/settings.json`
+3. Check for `.claude/rules/` directory
+
+**If both CLAUDE.md and settings.json exist** → ask:
+
+> "I see you already have Claude Code configuration set up. What would you like to do?"
+>
+> (a) **Add missing features** — keep existing config, add what's missing (rules, hooks, agents, skills, security)
+> (b) **Start fresh** — regenerate configuration from scratch (existing files will be merged, not overwritten)
+
+If the user chooses (a), read `references/best-practices.md` then `templates/advanced.md` and follow the **Incremental path** (Phase 2A-Incremental).
+
+If the user chooses (b), continue to the question below.
+
+**If no existing config (or user chose "start fresh")** → ask:
 
 > "Is this an existing project with code, or a new/empty project you're starting from scratch?"
 >
@@ -37,6 +54,20 @@ Based on the user's choice, read the generation rules and the appropriate path f
 2. Read `templates/advanced.md` — follow the Advanced path instructions
 
 After completing all generation steps from the path file, return here for Phase 4.
+
+---
+
+## Phase 3.5: Quick Verify
+
+After generating files, run a quick sanity check before wrapping up:
+
+1. **CLAUDE.md** — confirm it has at least: Project Overview, Build & Run, Testing sections
+2. **settings.json** — confirm it has valid `permissions` with both `allow` and `deny` arrays
+3. **Rule files** (if created) — confirm each has YAML frontmatter with at least a `#` heading
+4. **Agent files** (if created) — confirm each has `model:` in frontmatter and a Scope section
+5. **Cross-references** — confirm any directories mentioned in CLAUDE.md actually exist in the project
+
+If any check fails, fix it immediately before proceeding. Do not ask the user — just correct the issue and note it in the Phase 4 summary.
 
 ---
 

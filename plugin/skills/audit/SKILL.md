@@ -208,6 +208,12 @@ Suggestions
 
 Score: 87/100
   Essential: 60/70  |  Alignment: 27/30
+
+Next Steps
+  → Run /claude-code-template:generate to add missing items interactively
+  → Or ask Claude Code directly: "add a security rule for my project"
 ```
 
 Adjust the table to reflect actual findings. Calculate the real score based on the point system above. Only show suggestions that apply to this project. Do not show Phase/Step labels — use the friendly format above.
+
+**Next Steps section:** Always include this at the end if there are any WARN or FAIL results. If the score is 100/100, replace with: "Your configuration is in great shape. No changes needed."
