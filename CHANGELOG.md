@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Model routing guidance table (haiku/sonnet/opus) in advanced features guide
+- `UserPromptSubmit` hook event explanation in guide and key concepts
+
+### Changed
+
+- Restructured agent example from 2-section (Scope/Rules) to 4-section pattern (Scope/Rules/Constraints/Verification)
+- Expanded hook examples from single PostToolUse to PreToolUse + PostToolUse with file protection pattern
+- Added YAML model comment pattern (`# sonnet: ...`) for self-documenting agent definitions
+- Aligned hook order (PreToolUse → PostToolUse) between guide and template
+- Relaxed `advanced-features-guide.md` line limit from ~130 to ~160 (now 157 lines)
+- Korean translations synced for advanced features guide, agent template, and settings
+
+### Fixed
+
+- Hook exit code `exit 1` → `exit 2` for proper Claude feedback on blocked actions
+- Added `migrations/` and `package-lock.json` to hook file protection pattern in guide
+- Agent template heading `# Scope` → `## Scope` for markdownlint MD025 compliance
+
 ## [2.4.0] - 2026-03-31
 
 ### Added

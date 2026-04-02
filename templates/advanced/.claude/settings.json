@@ -17,6 +17,18 @@
     ]
   },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"$CLAUDE_FILE_PATH\" | grep -qE '(package-lock\\.json|\\.env|migrations/)' && echo 'Protected file' && exit 2 || exit 0",
+            "statusMessage": "Checking for protected files"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
@@ -25,18 +37,6 @@
             "type": "command",
             "command": "npx eslint --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
             "statusMessage": "Auto-linting edited file"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo \"$CLAUDE_FILE_PATH\" | grep -qE '(package-lock\\.json|\\.env)' && echo 'BLOCK: Protected file' && exit 1 || exit 0",
-            "statusMessage": "Checking for protected files"
           }
         ]
       }
