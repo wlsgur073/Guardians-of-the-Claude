@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Hook practical combinations guidance in advanced features guide
 - Model cost/quality tradeoff note in advanced features guide
 - Three new best-practice rules: security pattern detection, model comment rationale, multi-select for features
+- Emoji legend (🟢🟡⚪) in `/audit` summary output
+- Date indicator (`<!-- Last reviewed -->`) in root CLAUDE.md
 
 ### Changed
 
@@ -34,6 +36,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `/audit` scoring rebalanced from 60/40 to 70/30 (Essential/Alignment) to reflect security importance
 - `/generate` Question 6 expanded from 5 to 6 options with multi-select support
 - Korean translations synced for guide additions (hook combos, cost tradeoff)
+- Expanded `.claude/CLAUDE.md` stub from pointer to placement decision guide (EN+KO)
+- Added `npm run lint` to advanced template Build & Run section (EN+KO)
+- Added `.claude/rules/` to advanced template Project Structure section (EN+KO)
+- Unified YAML frontmatter date format (removed quotes) across Korean template files
 
 ### Fixed
 

@@ -178,7 +178,7 @@ Calculate the score using this weighted point system (100 points total):
 
 **SKIP handling:** If a check is SKIP, remove its points from the denominator and scale proportionally to 100.
 
-Present results as a summary table with emoji indicators:
+Present results as a summary table with emoji indicators (🟢 pass, 🟡 warn, ⚪ skip):
 
 ```
 Configuration Audit Results

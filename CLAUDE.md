@@ -1,4 +1,5 @@
 # CLAUDE.md
+<!-- Last reviewed: 2026-04-02 -->
 
 This is a documentation and template repository — it contains no application code, no build system, and no tests. Its purpose is to teach developers how to configure Claude Code for their own projects.
 

@@ -14,6 +14,7 @@ PostgreSQL for persistence, Redis for session caching.
 npm install
 npm run dev          # starts dev server on :3000 with hot reload
 npm run build        # compiles TypeScript to dist/
+npm run lint         # runs ESLint across the project
 
 ## Testing
 
@@ -55,6 +56,7 @@ Run `docker compose up -d` before running tests.
 - src/errors/      → Custom error types extending AppError
 - tests/           → Mirrors src/ structure
 - db/migrations/   → SQL migration files (run with npm run migrate)
+- .claude/rules/   → Detailed guidelines (code style, architecture, testing, workflow)
 
 ## Important Context
 

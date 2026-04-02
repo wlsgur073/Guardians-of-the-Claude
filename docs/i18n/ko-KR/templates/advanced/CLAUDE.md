@@ -1,7 +1,7 @@
 ---
 title: "TaskFlow CLAUDE.md"
 description: "Node.js/Express REST API 프로젝트를 위한 루트 CLAUDE.md 예시"
-date: "2026-03-18"
+date: 2026-03-18
 ---
 
 # 프로젝트 개요
@@ -14,6 +14,7 @@ TaskFlow는 작업 관리를 위한 REST API로, Node.js와 Express로 구축되
 npm install
 npm run dev          # :3000 포트에서 핫 리로드 개발 서버 시작
 npm run build        # TypeScript를 dist/로 컴파일
+npm run lint         # ESLint 전체 프로젝트 실행
 
 ## 테스트
 
@@ -55,6 +56,7 @@ npm run test:cov     # 커버리지 리포트와 함께 테스트 실행
 - src/errors/      → AppError를 확장하는 커스텀 에러 타입
 - tests/           → src/ 구조를 미러링
 - db/migrations/   → SQL 마이그레이션 파일 (npm run migrate로 실행)
+- .claude/rules/   → 상세 가이드라인 (코드 스타일, 아키텍처, 테스트, 워크플로우)
 
 ## 중요 컨텍스트
 

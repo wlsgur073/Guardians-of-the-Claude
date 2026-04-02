@@ -4,12 +4,18 @@ description: "Demo stub showing the .claude/ placement option for project instru
 date: 2026-03-18
 ---
 
-<!-- This is the ALTERNATIVE location for project instructions (.claude/CLAUDE.md). -->
-<!-- The fully realized example is at templates/advanced/CLAUDE.md (root placement). -->
 <!-- These two files form a "pick one" pair — use root OR .claude/, not both. -->
-<!--  -->
-<!-- Choose root ./CLAUDE.md if you want the file visible at a glance. -->
-<!-- Choose .claude/CLAUDE.md if you prefer a cleaner project root. -->
 
-# Project Instructions
-See templates/advanced/CLAUDE.md for the full example of what goes here.
+# Project Instructions (Alternative Location)
+
+This demonstrates placing project instructions in `.claude/CLAUDE.md` instead of the project root. The full example is at `templates/advanced/CLAUDE.md` (root placement).
+
+## When to use `.claude/CLAUDE.md`
+- You prefer a clean project root with fewer dotfiles
+- Your root is already crowded with config files (eslint, prettier, tsconfig, etc.)
+- You want instructions bundled alongside other Claude Code settings (.claude/rules/, .claude/agents/)
+
+## When to use root `./CLAUDE.md` instead
+- You want the file visible at a glance when browsing the repository
+- You have a small project with few config files
+- You want maximum discoverability for new contributors
