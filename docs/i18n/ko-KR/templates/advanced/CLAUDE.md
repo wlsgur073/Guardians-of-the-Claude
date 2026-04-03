@@ -1,7 +1,7 @@
 ---
 title: "TaskFlow CLAUDE.md"
 description: "Node.js/Express REST API 프로젝트를 위한 루트 CLAUDE.md 예시"
-version: 1.0.0
+version: 1.1.0
 ---
 
 # 프로젝트 개요
@@ -57,6 +57,21 @@ npm run test:cov     # 커버리지 리포트와 함께 테스트 실행
 - tests/           → src/ 구조를 미러링
 - db/migrations/   → SQL 마이그레이션 파일 (npm run migrate로 실행)
 - .claude/rules/   → 상세 가이드라인 (코드 스타일, 아키텍처, 테스트, 워크플로우)
+
+## 사용 가능한 스킬
+
+| 스킬 | 용도 |
+| ---- | ---- |
+| `/add-endpoint` | 핸들러, 서비스, 테스트가 포함된 새 API 엔드포인트 스캐폴딩 |
+| `/run-checks` | 빌드, 린트, 테스트를 순서대로 실행 |
+
+## 사용 가능한 에이전트
+
+| 에이전트 | 모델 | 역할 |
+| -------- | ---- | ---- |
+| `backend-developer` | sonnet | API 구현, 서비스, 데이터베이스 접근 |
+| `security-reviewer` | opus | 보안 취약점 분석 (읽기 전용) |
+| `test-writer` | haiku | 프로젝트 컨벤션에 맞는 테스트 생성 |
 
 ## 중요 컨텍스트
 

@@ -1,7 +1,7 @@
 ---
 title: "Writing Effective CLAUDE.md Files"
 description: "How to write, organize, and maintain CLAUDE.md files for Claude Code"
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Writing Effective CLAUDE.md Files
@@ -85,6 +85,25 @@ Key details:
 - **Max depth** is 5 hops -- an imported file can import another, up to 5 levels deep.
 
 Use `@import` to point Claude at existing documentation rather than duplicating content in your CLAUDE.md.
+
+## Organizing at Scale
+
+When your project has multiple custom skills and agents, add quick-reference tables to your CLAUDE.md:
+
+```markdown
+## Available Skills
+| Skill | Purpose |
+| /add-endpoint | Scaffold new API endpoint with handler, service, tests |
+| /run-checks | Run build, lint, and test suite in sequence |
+
+## Available Agents
+| Agent | Model | Role |
+| backend-developer | sonnet | API implementation |
+| security-reviewer | opus | Vulnerability analysis (read-only) |
+| test-writer | haiku | Test generation |
+```
+
+These tables help Claude (and your team) discover what is available without browsing `.claude/agents/` and `.claude/skills/` directories. Agent definitions and skill instructions stay in their respective files -- the CLAUDE.md table is just a reference.
 
 ## Pruning Your CLAUDE.md
 

@@ -1,7 +1,7 @@
 ---
 title: "Effective Usage Patterns"
 description: "Essential day-one patterns for using Claude Code effectively"
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Effective Usage Patterns
@@ -86,6 +86,14 @@ from src/api/middleware.ts. Follow the pattern in src/api/users.ts.
 **Delegate, don't dictate.** Give context and direction, let Claude figure out the implementation details. Over-specifying every step wastes your time and Claude's context.
 
 **Provide rich content.** Use `@` to reference files, paste images of errors or designs, pipe data with `cat error.log | claude`. The more relevant context Claude has upfront, the fewer back-and-forth corrections needed.
+
+## Adopting Claude Code in Existing Projects
+
+When adding Claude Code to a project that already has established conventions:
+
+1. **Explore existing tooling first** -- Check for linter configs (`.eslintrc`, `ruff.toml`), test frameworks (`jest.config`, `pytest.ini`), and build tools. Add their commands to your CLAUDE.md.
+2. **Use `/init` or `/claude-code-template:generate`** -- Both detect existing project structure and generate a CLAUDE.md based on what they find. Choose "Existing project" when prompted.
+3. **Grow incrementally** -- Start with `CLAUDE.md` + `settings.json`. Add rules when CLAUDE.md exceeds 200 lines. Add hooks, agents, and skills only when you encounter a repeatable need.
 
 ## Common Failure Patterns
 

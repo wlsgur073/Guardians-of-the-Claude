@@ -1,7 +1,7 @@
 ---
 title: "Advanced Features"
 description: "Hooks, agents, and skills -- extending Claude Code beyond basic configuration"
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Advanced Features
@@ -57,6 +57,29 @@ Key concepts:
 - **Practical combinations:** `SessionStart` for project context injection at startup, `PreCompact` for preserving critical notes before auto-compaction, `SubagentStop` for validating agent output before returning to the parent session
 - **Hook types:** `"type": "command"` (shell) or `"type": "prompt"` (LLM-driven, for `PreToolUse`, `Stop`, `SubagentStop`, `UserPromptSubmit`)
 
+### Script-Based Hooks
+
+For complex logic, use external scripts instead of inline commands. Scripts are testable, version-controlled, and easier to maintain:
+
+```json
+{
+  "UserPromptSubmit": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "bash \"${CLAUDE_PROJECT_DIR}/scripts/validate-prompt.sh\"",
+          "timeout": 5000,
+          "statusMessage": "Validating input"
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Timeout guidelines:** Input validation 3-5s, lint/format 10-15s, build/test 30s+. Always set `timeout` explicitly for script-based hooks.
+
 ## Agents
 
 Agents are custom role definitions in `.claude/agents/` with specialized scope, toolset, and model. Useful for role specialization, scope constraints, and parallel dispatch in large codebases.
@@ -101,7 +124,7 @@ Four sections keep agent prompts focused: **Scope** defines what the agent can t
 ### Model Selection
 
 | Model | Best for | Example agents |
-|-------|----------|----------------|
+| ----- | -------- | -------------- |
 | `haiku` | Fast lookup, file search, exploration | explorer, linter |
 | `sonnet` | Implementation, debugging, test writing | backend-dev, debugger |
 | `opus` | Architecture review, deep analysis | code-reviewer, architect |
@@ -109,6 +132,14 @@ Four sections keep agent prompts focused: **Scope** defines what the agent can t
 Use `"inherit"` to match the parent session's model. Put the reasoning in a YAML comment (`# opus: needs deep analysis for security review`) so the choice is self-documenting.
 
 **Cost tradeoff:** `haiku` is ~60x cheaper than `opus`. Default to `sonnet`; use `haiku` for high-volume read-only tasks, `opus` only when a single mistake is expensive (security review, architecture decisions).
+
+### Agent Design Patterns
+
+**One agent, one perspective.** Don't combine implementation, review, and testing in a single agent -- split them into focused roles.
+
+**Read-only agents:** Remove Edit and Write from `tools` to create analysis-only agents. Useful for security review, architecture analysis, and code exploration.
+
+**Agent pipeline:** Chain agents for multi-stage workflows: `backend-developer` (implement) → `security-reviewer` (review) → `test-writer` (test).
 
 ## Skills
 
@@ -151,10 +182,19 @@ Key fields:
 
 Skills come in two types: **user-invoked** (slash command) and **model-invoked** (auto-triggered by Claude). Model-invoked descriptions should include trigger phrases: `"Use when the user asks to 'do X' or 'do Y'."` Skills can include supporting files alongside SKILL.md: `references/`, `examples/`, `scripts/`.
 
+### Skill Design Patterns
+
+**Argument parsing:** Use `$ARGUMENTS` to accept parameters. Parse flags and positional args in Step 1 -- if empty, ask the user.
+
+**Reference files:** Put project conventions, examples, or API docs in `references/` alongside SKILL.md. Read them at the step where they're needed, not upfront -- this saves context.
+
+**Fallback pattern:** When a skill depends on an optional tool (MCP server, CI system), provide two paths: Path A uses the tool when available, Path B falls back to a manual alternative.
+
 > **Note:** The legacy `commands/` directory is deprecated. Use `skills/<name>/SKILL.md` for all skill types.
 
 ## Further Reading
 
 - [Getting Started](getting-started.md) -- Basic setup walkthrough
 - [Settings Guide](settings-guide.md) -- Permissions and other settings
+- [MCP Integration Guide](mcp-guide.md) -- Connecting to external tools via MCP
 - [Rules Guide](rules-guide.md) -- Modular instruction files

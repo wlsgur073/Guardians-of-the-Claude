@@ -1,7 +1,7 @@
 ---
 title: "TaskFlow CLAUDE.md (Advanced)"
 description: "Example root CLAUDE.md for a Node.js/Express REST API project"
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Project Overview
@@ -57,6 +57,21 @@ Run `docker compose up -d` before running tests.
 - tests/           → Mirrors src/ structure
 - db/migrations/   → SQL migration files (run with npm run migrate)
 - .claude/rules/   → Detailed guidelines (code style, architecture, testing, workflow)
+
+## Available Skills
+
+| Skill | Purpose |
+| ----- | ------- |
+| `/add-endpoint` | Scaffold new API endpoint with handler, service, and tests |
+| `/run-checks` | Run build, lint, and test suite in sequence |
+
+## Available Agents
+
+| Agent | Model | Role |
+| ----- | ----- | ---- |
+| `backend-developer` | sonnet | API implementation, services, database access |
+| `security-reviewer` | opus | Vulnerability analysis (read-only) |
+| `test-writer` | haiku | Test generation following project conventions |
 
 ## Important Context
 

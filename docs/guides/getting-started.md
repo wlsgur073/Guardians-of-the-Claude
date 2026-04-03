@@ -1,7 +1,7 @@
 ---
 title: "Getting Started"
 description: "Step-by-step guide to set up Claude Code configuration for your project"
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Getting Started
@@ -18,7 +18,7 @@ This guide walks you through setting up Claude Code configuration for your proje
 | Option | What it does | Best for |
 | ------ | ------------ | -------- |
 | `/init` | Analyzes code, generates basic CLAUDE.md | Quick start -- good for many projects |
-| `/claude-code-template:generate` | Guided interview → CLAUDE.md + settings + rules + optional features | Comprehensive setup ([Quick Start](../README.md#quick-start)) |
+| `/claude-code-template:generate` | Guided interview → CLAUDE.md + settings + rules + optional features | Comprehensive setup ([Quick Start](../../README.md#quick-start)) |
 
 **`/init`** is the [officially recommended first step](https://code.claude.com/docs/en/best-practices) -- Claude analyzes your codebase and auto-generates a CLAUDE.md:
 
@@ -122,3 +122,4 @@ Once your basic configuration is working, explore hooks, agents, and skills for 
 - [Directory Structure Guide](directory-structure-guide.md) -- Understanding the .claude/ ecosystem
 - [Effective Usage Guide](effective-usage-guide.md) -- Day-one usage patterns and anti-patterns to avoid
 - [Advanced Features Guide](advanced-features-guide.md) -- Hooks, agents, and skills for teams
+- [MCP Integration Guide](mcp-guide.md) -- Connecting Claude to external tools and services

@@ -123,6 +123,7 @@ Start here, then follow the path that matches your level:
 | 5 | [Directory Structure](docs/guides/directory-structure-guide.md) | When you want to understand `.claude/` |
 | 6 | [Effective Usage](docs/guides/effective-usage-guide.md) | After your first day with Claude Code |
 | 7 | [Advanced Features](docs/guides/advanced-features-guide.md) | When you need hooks, agents, or skills |
+| 8 | [MCP Integration](docs/guides/mcp-guide.md) | When you want to connect external tools |
 
 ## Recommended Plugins
 

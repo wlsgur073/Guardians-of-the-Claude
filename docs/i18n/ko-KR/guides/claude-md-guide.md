@@ -1,7 +1,7 @@
 ---
 title: "효과적인 CLAUDE.md 파일 작성법"
 description: "Claude Code를 위한 CLAUDE.md 파일의 작성, 구성, 관리 방법"
-version: 1.0.0
+version: 1.1.0
 ---
 
 # 효과적인 CLAUDE.md 파일 작성법
@@ -85,6 +85,25 @@ See @README.md for project overview
 - **최대 깊이**는 5단계입니다 -- 임포트된 파일이 다른 파일을 임포트할 수 있으며, 최대 5단계까지 가능합니다.
 
 CLAUDE.md에 내용을 복제하지 말고, `@import`를 사용하여 기존 문서를 가리키세요.
+
+## 대규모 프로젝트에서의 조직화
+
+프로젝트에 커스텀 skill과 agent가 여러 개 있을 때, CLAUDE.md에 빠른 참조 테이블을 추가하세요:
+
+```markdown
+## Available Skills
+| Skill | Purpose |
+| /add-endpoint | Scaffold new API endpoint with handler, service, tests |
+| /run-checks | Run build, lint, and test suite in sequence |
+
+## Available Agents
+| Agent | Model | Role |
+| backend-developer | sonnet | API implementation |
+| security-reviewer | opus | Vulnerability analysis (read-only) |
+| test-writer | haiku | Test generation |
+```
+
+이 테이블은 Claude(와 팀원)가 `.claude/agents/`와 `.claude/skills/` 디렉토리를 탐색하지 않고도 사용 가능한 것을 파악하는 데 도움을 줍니다. Agent 정의와 skill 지침은 각자의 파일에 유지하세요 -- CLAUDE.md 테이블은 참조용일 뿐입니다.
 
 ## CLAUDE.md 정리하기
 

@@ -1,7 +1,7 @@
 ---
 title: "효과적인 사용 패턴"
 description: "Claude Code를 효과적으로 사용하기 위한 필수 패턴"
-version: 1.0.0
+version: 1.1.0
 ---
 
 # 효과적인 사용 패턴
@@ -87,6 +87,14 @@ from src/api/middleware.ts. Follow the pattern in src/api/users.ts.
 
 **풍부한 콘텐츠를 제공하세요.** `@`를 사용하여 파일을 참조하고, 오류나 디자인의 이미지를 붙여넣고, `cat error.log | claude`로 데이터를 파이프하세요. Claude가 처음부터 관련 컨텍스트를 많이 가질수록 수정을 위한 반복이 줄어듭니다.
 
+## 기존 프로젝트에 Claude Code 도입하기
+
+이미 확립된 규칙이 있는 프로젝트에 Claude Code를 추가할 때:
+
+1. **기존 도구를 먼저 확인하세요** -- 린터 설정(`.eslintrc`, `ruff.toml`), 테스트 프레임워크(`jest.config`, `pytest.ini`), 빌드 도구를 확인하세요. 해당 명령어를 CLAUDE.md에 추가하세요.
+2. **`/init` 또는 `/claude-code-template:generate`를 사용하세요** -- 둘 다 기존 프로젝트 구조를 감지하고 발견한 내용을 기반으로 CLAUDE.md를 생성합니다. 프롬프트에서 "기존 프로젝트"를 선택하세요.
+3. **점진적으로 확장하세요** -- `CLAUDE.md` + `settings.json`으로 시작하세요. CLAUDE.md가 200줄을 초과하면 rules를 추가하세요. 반복적인 필요가 발생할 때만 hooks, agents, skills를 추가하세요.
+
 ## 흔한 실패 패턴
 
 피해야 할 다섯 가지 안티패턴:
@@ -107,7 +115,7 @@ from src/api/middleware.ts. Follow the pattern in src/api/users.ts.
 
 긴 CLAUDE.md 파일은 너무 많은 지침에 걸쳐 Claude의 주의를 분산시킵니다.
 
-**해결:** 가차 없이 정리하거나, [규칙 파일](rules-guide.md)로 분리하세요. 자세한 내용은 [CLAUDE.md 가이드](claude-md-guide.md#common-mistakes)를 참고하세요.
+**해결:** 가차 없이 정리하거나, [규칙 파일](rules-guide.md)로 분리하세요. 자세한 내용은 [CLAUDE.md 가이드](claude-md-guide.md#흔한-실수)를 참고하세요.
 
 ### 4. 신뢰 후 검증 격차
 
