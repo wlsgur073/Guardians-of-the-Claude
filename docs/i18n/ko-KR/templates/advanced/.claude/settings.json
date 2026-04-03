@@ -40,6 +40,18 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/scripts/validate-prompt.sh\"",
+            "timeout": 5000,
+            "statusMessage": "Checking for migration keywords"
+          }
+        ]
+      }
     ]
   },
   "env": {
