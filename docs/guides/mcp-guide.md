@@ -1,7 +1,7 @@
 ---
 title: "MCP Integration"
 description: "Connecting Claude Code to external tools and services via Model Context Protocol"
-version: 1.0.0
+version: 1.0.1
 ---
 
 # MCP Integration
@@ -106,7 +106,7 @@ A TaskFlow project might connect to a PostgreSQL MCP server for direct database 
 }
 ```
 
-With this configured, Claude can query the database directly — checking schema, verifying migrations, or debugging data issues without you writing SQL manually.
+With this configured, Claude can query the database directly — checking schema, verifying migrations, or debugging data issues.
 
 ## Common MCP Servers
 
@@ -117,12 +117,9 @@ With this configured, Claude can query the database directly — checking schema
 | `@anthropic-ai/claude-code-mcp-server` | Run Claude Code as an MCP tool |
 | `mcp-server-fetch` (Python) | Fetch and parse web content |
 
-See the [MCP server directory](https://github.com/modelcontextprotocol/servers) for the full list of community servers.
-
 ## Security Considerations
 
 - **Only register servers you trust** -- MCP servers can execute arbitrary code on your machine
-- **Review server permissions** -- some servers access the filesystem, network, or databases
 - **Keep secrets out of committed files** -- use environment variables or `.gitignore` your `.mcp.json`
 - **Pin server versions** -- use exact package versions in args to avoid unexpected updates
 
@@ -130,4 +127,3 @@ See the [MCP server directory](https://github.com/modelcontextprotocol/servers) 
 
 - [Settings Guide](settings-guide.md) -- Permissions and preferences
 - [Advanced Features Guide](advanced-features-guide.md) -- Hooks, agents, and skills
-- [Getting Started](getting-started.md) -- Full setup walkthrough

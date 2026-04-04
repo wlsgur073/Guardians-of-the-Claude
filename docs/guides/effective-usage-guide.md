@@ -1,7 +1,7 @@
 ---
 title: "Effective Usage Patterns"
 description: "Essential day-one patterns for using Claude Code effectively"
-version: 1.1.0
+version: 1.1.1
 ---
 
 # Effective Usage Patterns
@@ -89,15 +89,11 @@ from src/api/middleware.ts. Follow the pattern in src/api/users.ts.
 
 ## Adopting Claude Code in Existing Projects
 
-When adding Claude Code to a project that already has established conventions:
-
-1. **Explore existing tooling first** -- Check for linter configs (`.eslintrc`, `ruff.toml`), test frameworks (`jest.config`, `pytest.ini`), and build tools. Add their commands to your CLAUDE.md.
-2. **Use `/init` or `/claude-code-template:generate`** -- Both detect existing project structure and generate a CLAUDE.md based on what they find. Choose "Existing project" when prompted.
-3. **Grow incrementally** -- Start with `CLAUDE.md` + `settings.json`. Add rules when CLAUDE.md exceeds 200 lines. Add hooks, agents, and skills only when you encounter a repeatable need.
+1. **Explore existing tooling first** -- Check for linter configs, test frameworks, and build tools. Add their commands to your CLAUDE.md.
+2. **Use `/init` or `/claude-code-template:generate`** -- Both detect existing project structure. Choose "Existing project" when prompted.
+3. **Grow incrementally** -- Start with `CLAUDE.md` + `settings.json`. Add rules, hooks, agents, and skills only when you encounter a repeatable need.
 
 ## Common Failure Patterns
-
-Five anti-patterns to avoid:
 
 ### 1. Kitchen Sink Session
 
@@ -113,9 +109,7 @@ Repeated corrections pollute context with failed attempts. Each correction adds 
 
 ### 3. Over-Specified CLAUDE.md
 
-Long CLAUDE.md files dilute Claude's attention across too many instructions.
-
-**Fix:** Ruthlessly prune, or split into [rule files](rules-guide.md). See the [CLAUDE.md Guide](claude-md-guide.md#common-mistakes) for details.
+Long CLAUDE.md files dilute Claude's attention. **Fix:** Ruthlessly prune, or split into [rule files](rules-guide.md).
 
 ### 4. Trust-Then-Verify Gap
 
@@ -127,7 +121,7 @@ Accepting plausible-looking output without verification. Claude's code compiles 
 
 Asking Claude to "investigate the codebase" without scope. It reads dozens of files, fills context, and loses focus.
 
-**Fix:** Scope the investigation narrowly: "Check only `src/auth/` for token expiration handling" instead of "investigate the codebase."
+**Fix:** Scope narrowly: "Check only `src/auth/` for token expiration handling" instead of "investigate the codebase."
 
 ## Further Reading
 

@@ -28,7 +28,7 @@ These checks form the **Foundation Gate** — they determine what percentage of 
 Check if `CLAUDE.md` exists at the project root or `.claude/CLAUDE.md`.
 
 - Found → **PASS**
-- Neither exists → **FAIL** — stop and recommend running `/claude-code-template:generate` first
+- Neither exists → **FAIL** — stop and recommend running `/claude-code-template:generate` first. Do NOT proceed to T1.2 or any subsequent phase. Use the Early Halt output format (see scoring-model.md)
 
 ### 1.2 Test Command
 
@@ -54,8 +54,8 @@ Search CLAUDE.md for a build/compile command (e.g., `npm run build`, `tsc`, `go 
 Check if CLAUDE.md has a project description in the first 20 lines (a heading followed by text explaining what the project is/does).
 
 - Clear description with language/framework mentioned → **PASS**
-- Heading exists but vague or too brief (under 10 words) → **PARTIAL**
-- Empty or only commands → **FAIL** — "Add a brief project overview so Claude understands context"
+- Heading exists with some descriptive text but vague or too brief (under 10 words) → **PARTIAL**
+- Heading exists but no descriptive text follows (title only), or only commands with no context → **FAIL** — "Add a brief project overview so Claude understands context"
 
 ## Phase 2: Protection Checks (T2)
 

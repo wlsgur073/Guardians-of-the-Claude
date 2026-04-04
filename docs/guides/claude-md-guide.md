@@ -1,7 +1,7 @@
 ---
 title: "Writing Effective CLAUDE.md Files"
 description: "How to write, organize, and maintain CLAUDE.md files for Claude Code"
-version: 1.1.0
+version: 1.1.1
 ---
 
 # Writing Effective CLAUDE.md Files
@@ -88,22 +88,7 @@ Use `@import` to point Claude at existing documentation rather than duplicating 
 
 ## Organizing at Scale
 
-When your project has multiple custom skills and agents, add quick-reference tables to your CLAUDE.md:
-
-```markdown
-## Available Skills
-| Skill | Purpose |
-| /add-endpoint | Scaffold new API endpoint with handler, service, tests |
-| /run-checks | Run build, lint, and test suite in sequence |
-
-## Available Agents
-| Agent | Model | Role |
-| backend-developer | sonnet | API implementation |
-| security-reviewer | opus | Vulnerability analysis (read-only) |
-| test-writer | haiku | Test generation |
-```
-
-These tables help Claude (and your team) discover what is available without browsing `.claude/agents/` and `.claude/skills/` directories. Agent definitions and skill instructions stay in their respective files -- the CLAUDE.md table is just a reference.
+When your project has multiple skills and agents, add quick-reference tables to your CLAUDE.md listing each skill's name/purpose and each agent's name/model/role. This helps Claude discover what is available without browsing directories. Keep definitions in their respective files -- the CLAUDE.md table is just a reference.
 
 ## Pruning Your CLAUDE.md
 
@@ -127,20 +112,4 @@ Reserve emphasis for rules that truly matter. If everything is marked IMPORTANT,
 
 ## The /init Shortcut
 
-If you are starting from scratch, Claude can generate a CLAUDE.md for you:
-
-```text
-claude
-> /init
-```
-
-Claude analyzes your codebase and produces a starting CLAUDE.md based on what it finds. This is the officially recommended starting point per [best practices](https://code.claude.com/docs/en/best-practices).
-
-For a more interactive experience with a multi-phase flow, set the environment variable before launching:
-
-```bash
-CLAUDE_CODE_NEW_INIT=true claude
-> /init
-```
-
-Either way, treat the output as a draft. Review it, merge in sections from our templates, and prune anything unnecessary.
+If you are starting from scratch, run `/init` inside Claude Code. Claude analyzes your codebase and produces a starting CLAUDE.md. This is the officially recommended starting point per [best practices](https://code.claude.com/docs/en/best-practices). Treat the output as a draft -- review it, merge in sections from our templates, and prune anything unnecessary.

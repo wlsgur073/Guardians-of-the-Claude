@@ -44,9 +44,19 @@ Ask the following questions **one at a time**.
 4. **Code style** — Suggest the standard conventions for the chosen language, then ask:
    > "Should I use the standard [language] conventions, or do you have specific preferences? (indentation, naming, formatting)"
 
+## Phase 2.5S: Pre-Generation Scan
+
+Before writing any files, silently scan the project to ground your output in reality:
+
+1. List all files and directories in the project (use `find . -maxdepth 3 -not -path './.git/*'` or equivalent)
+2. Read the dependency manifest (requirements.txt, package.json, Cargo.toml, go.mod, pom.xml) to know exactly what packages are available
+3. Skim the main source file(s) to note actual endpoints, routes, commands, or entry points
+
+Use these findings in Phase 3S — reference only directories that exist, suggest only commands for installed packages, and mention at least one concrete detail from the actual code.
+
 ## Phase 3S: Generate Files
 
-Create files based on user answers. Follow the generation rules in `references/best-practices.md`.
+Create files based on user answers AND the scan results from Phase 2.5S. Follow the generation rules in `references/best-practices.md`.
 
 ### Generate
 
@@ -86,7 +96,7 @@ The **Development Approach** section must include these rules:
 - `allow`: add test, lint, and build commands from Q3 (e.g., `"Bash(npm test)"`, `"Bash(npm run lint)"`)
 - `deny`: add `"Read(./.env)"`, `"Read(./.env.*)"` as sensible defaults
 
-**`.gitignore`** — append this line if not already present:
+**`.gitignore`** — if `.gitignore` exists, append this line if not already present. If `.gitignore` does not exist, create it with this line:
 
 ```gitignore
 .claude/settings.local.json

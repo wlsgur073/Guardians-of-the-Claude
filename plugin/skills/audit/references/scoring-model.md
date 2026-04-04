@@ -72,6 +72,11 @@ Final = min(FG x DS + SB + LQM, 100)
    If T3 is all SKIP: DS = T2_Score x 100.
    If both are all SKIP: DS = 0.
 
+   Display caveat: if fewer than 2 non-SKIP items remain in T2 or T3,
+   append "(based on N of M items — others not applicable)" to the
+   percentage display so users do not misread a high percentage as
+   comprehensive coverage.
+
 3. Synergy Bonus (SB)
    SB = sum of applicable bonuses             Max: +5
 
@@ -197,3 +202,24 @@ Suggestions
 Since last audit (2026-03-31): 65 -> 70 (+5). Note: scoring model changed (v1 -> v2).
 Still open: no MCP configuration, agent model diversity.
 ```
+
+## Early Halt Output Format
+
+When CLAUDE.md does not exist (T1.1 FAIL), the audit halts immediately. Use this output instead of the standard format:
+
+```
+Configuration Audit Results
+===========================
+
+Quality Gate: NOT READY
+
+CLAUDE.md not found at project root or .claude/CLAUDE.md.
+Cannot proceed with audit — CLAUDE.md is a prerequisite for all checks.
+
+Detected project signals:
+  * [list any dependency manifests, source files, or frameworks found]
+
+Recommendation: Run /claude-code-template:generate to create initial configuration.
+```
+
+Do not produce a numeric score, grade, or maturity level. The halt is not a score of zero — it means the audit could not be performed.

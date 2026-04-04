@@ -76,6 +76,7 @@ After generating files, run a quick sanity check before wrapping up:
 3. **Rule files** (if created) — confirm each has YAML frontmatter with at least a `#` heading
 4. **Agent files** (if created) — confirm each has `model:` in frontmatter and a Scope section
 5. **Cross-references** — confirm any directories mentioned in CLAUDE.md actually exist in the project
+6. **Command dependencies** — confirm every suggested command only references packages listed in the project's dependency manifest (e.g., if `pytest --cov` is suggested, verify `pytest-cov` is in requirements.txt; if `eslint` is suggested, verify it's in package.json)
 
 If any check fails, fix it immediately before proceeding. Do not ask the user — just correct the issue and note it in the Phase 4 summary.
 
