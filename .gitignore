@@ -15,9 +15,7 @@ Thumbs.db
 *.vsix
 
 # Claude Code (local dev config — not distributed with plugin)
-.claude/settings.local.json
-.claude/skills/
-.claude/agents/
+.claude/*
 
 # Internal plans, design specs, and eval tests (not user-facing)
 /plans/
