@@ -7,6 +7,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.7.1] - 2026-04-05
+
+### Fixed
+
+- `/generate` starter command defaults: add C/CMake and C++/CMake rows (were absent from table)
+- `/generate` starter: Python install command `pip install -e .` → `pip install -r requirements.txt`
+- `/generate` starter: Go lint default `golangci-lint run` → `go vet ./...` (external tool not guaranteed)
+- `/generate` starter: Java assumes `mvn` by default, with note to detect wrapper before suggesting `./mvnw`
+- `/generate` advanced: remove Node.js-specific passport.js reference from security rule template
+- `/audit` T2.2: add SKIP condition for projects with no security-relevant surface (CLI tools, libraries)
+- `/audit` T2.1/T2.3: define explicit behavior for malformed/unparseable settings.json
+
 ## [2.7.0] - 2026-04-03
 
 ### Changed
