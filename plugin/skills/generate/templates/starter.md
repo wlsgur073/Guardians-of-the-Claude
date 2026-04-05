@@ -34,10 +34,14 @@ Ask the following questions **one at a time**.
    | Language | build | dev | test | lint |
    | ---------- | ------- | ----- | ------ | ------ |
    | Node.js | `npm install` | `npm run dev` | `npm test` | `npm run lint` |
-   | Python | `pip install -e .` | `uvicorn main:app --reload` | `pytest` | `ruff check .` |
-   | Go | `go build ./...` | `go run .` | `go test ./...` | `golangci-lint run` |
+   | Python | `pip install -r requirements.txt` | `uvicorn main:app --reload` | `pytest` | `ruff check .` |
+   | Go | `go build ./...` | `go run .` | `go test ./...` | `go vet ./...` |
    | Rust | `cargo build` | `cargo run` | `cargo test` | `cargo clippy` |
-   | Java/Spring | `./mvnw compile` | `./mvnw spring-boot:run` | `./mvnw test` | — |
+   | Java/Maven | `mvn compile` | `mvn spring-boot:run` | `mvn test` | — |
+   | C/CMake | `cmake -B build && cmake --build build` | `./build/<binary>` | `ctest --test-dir build` | — |
+   | C++/CMake | `cmake -B build && cmake --build build` | `./build/<binary>` | `ctest --test-dir build` | — |
+
+   **Note:** If a Maven/Gradle wrapper exists (`mvnw`, `gradlew`), use the wrapper (`./mvnw`, `./gradlew`) instead of the bare command. Verify wrapper existence during Phase 2.5S scan before suggesting.
 
    > "Here are the standard commands for [chosen framework]. Are these correct, or would you like to customize them?"
 

@@ -65,6 +65,8 @@ These checks verify that the project is safe from common mistakes. (60% of Detai
 
 Check if `.claude/settings.json` exists and has `deny` patterns covering sensitive files.
 
+**If settings.json exists but cannot be parsed as valid JSON** (e.g., syntax errors, trailing commas), treat deny patterns as unverifiable → **FAIL** — "settings.json contains invalid JSON — fix syntax errors so deny patterns can be verified." Note the specific parse error in suggestions.
+
 Check for these patterns:
 - `.env` or `.env.*` in deny list
 - `secrets/` or similar in deny list
@@ -85,11 +87,14 @@ Check if the project has security-related configuration:
 Scoring:
 - Dedicated security rule file exists → **PASS**
 - No dedicated file but security keywords found in CLAUDE.md or rules → **PARTIAL** — "Consider extracting security rules into a dedicated `.claude/rules/security.md`"
-- No security rules found anywhere → **FAIL** — "No security rules detected. Consider adding rules for auth, input validation, and secrets handling"
+- No security rules found anywhere, but project has security-relevant surface (web framework, API endpoints, authentication, database access, secrets handling) → **FAIL** — "No security rules detected. Consider adding rules for auth, input validation, and secrets handling"
+- No security rules found and project has no security-relevant surface (pure CLI tool, library crate, utility script, documentation-only — no web framework, no auth, no API, no database) → **SKIP**
 
 ### 2.3 Hook Configuration Quality
 
 If `.claude/settings.json` has a `hooks` section:
+
+**If settings.json cannot be parsed as valid JSON**, the hooks section cannot be assessed → **SKIP** (the malformed JSON is already flagged in T2.1).
 
 1. Check that every hook entry has a `statusMessage` field
 2. Check that `PreToolUse` hooks use `exit 2` (not `exit 1`) for blocking — `exit 1` causes a generic error, `exit 2` provides Claude with the reason

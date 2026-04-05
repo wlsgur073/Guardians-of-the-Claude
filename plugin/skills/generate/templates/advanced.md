@@ -343,19 +343,19 @@ If the skill needs project-specific context (coding conventions, API patterns, e
 # Security Rules
 
 ## Authentication
-- [Detected auth pattern, e.g., "JWT with refresh tokens via passport.js" — or ask the user]
+- [Detected auth pattern — or ask the user what authentication method the project uses]
 - Never log authentication tokens or credentials
 - Never hardcode secrets — use environment variables
 
 ## Input Validation
-- All user input must be validated before use (Zod schemas, framework validators, etc.)
+- All user input must be validated before use (framework validators, schema libraries, etc.)
 - Never trust client-side validation alone — always validate server-side
-- Sanitize output to prevent XSS when rendering user content
+- Sanitize output to prevent injection attacks when rendering user content
 
 ## Secrets Handling
 - Never commit `.env`, `.pem`, `.key`, or credential files
 - Environment variables are validated at startup (fail fast on missing vars)
-- API keys must be loaded from environment, never from source code
+- API keys and connection strings must be loaded from environment, never from source code
 ```
 
 Customize the rules based on what you detected in the project (auth middleware, validation libraries, secret management patterns). If nothing was detected, use the generic template above and ask the user to fill in project-specific details.
