@@ -1,7 +1,7 @@
 ---
 title: "The .claude/ Directory Structure"
 description: "Understanding the .claude/ ecosystem, auto memory, and what to version control"
-version: 1.0.0
+version: 1.2.0
 ---
 
 # The .claude/ Directory Structure
@@ -23,9 +23,11 @@ your-project/
 │   │   └── ...
 │   ├── agents/                   # Agent definitions (advanced)
 │   │   └── developer.md
-│   └── skills/                   # Skill definitions (advanced)
-│       └── scaffold-feature/
-│           └── SKILL.md
+│   ├── skills/                   # Skill definitions (advanced)
+│   │   └── scaffold-feature/
+│   │       └── SKILL.md
+│   └── .plugin-cache/            # Plugin state files (auto-generated, gitignored)
+│       └── <plugin-name>/
 └── src/
     └── CLAUDE.md                 # Folder-level instructions (lazy-loaded)
 ```
@@ -58,6 +60,12 @@ Same number, different mechanisms. MEMORY.md has a strict cutoff; CLAUDE.md is a
 
 Auto memory lives outside your repository. You do not need to create, edit, or gitignore these files -- Claude manages them automatically. You can view what Claude has saved with `/memory`.
 
+## Plugin Cache
+
+Some plugins store per-project state in `.claude/.plugin-cache/<plugin-name>/`. This directory is **auto-generated** by plugins and should not be manually edited or committed to version control. Plugins manage their own `.gitignore` inside `.plugin-cache/` to ensure cache files are excluded from git.
+
+Example: The `claude-code-template` plugin stores audit scores and improvement history here using timestamped Markdown files (`{yyyyMMdd-HHmmss}-{type}.md`). These files let skills remember what was fixed, declined, or scored across sessions.
+
 ## What to .gitignore
 
 | File | Commit? | Why |
@@ -65,25 +73,28 @@ Auto memory lives outside your repository. You do not need to create, edit, or g
 | `.claude/settings.json` | Yes | Team-shared configuration -- everyone uses the same permissions |
 | `.claude/rules/` | Yes | Team-shared instruction files |
 | `.claude/settings.local.json` | No | Personal overrides -- each developer has their own |
+| `.claude/.plugin-cache/` | No | Plugin-managed state files -- auto-generated |
 | Auto memory (`~/.claude/...`) | N/A | Lives outside the repo, no action needed |
 
 Add this to your project's `.gitignore`:
 
 ```gitignore
 .claude/settings.local.json
+.claude/.plugin-cache/
 ```
 
-## The Three Systems
+## The Four Systems
 
-Claude Code has three distinct systems that are all loaded at session start but serve different purposes:
+Claude Code has four distinct systems that are all loaded at session start but serve different purposes:
 
 | System | Author | Purpose | Location |
 | -------- | -------- | --------- | ---------- |
 | **CLAUDE.md** | You | Instructions you write for Claude | Project root, `.claude/`, subdirectories |
 | **Auto memory** | Claude | Learnings Claude saves for itself | `~/.claude/projects/<project>/memory/` |
 | **Settings** | You | Behavior configuration (permissions, toggles) | `.claude/settings.json`, `.claude/settings.local.json` |
+| **Plugin cache** | Plugins | Per-project state managed by plugins | `.claude/.plugin-cache/<plugin-name>/` |
 
-The key insight: **CLAUDE.md is what you tell Claude. Auto memory is what Claude tells itself.** Both inform Claude's behavior, but they are written by different authors for different reasons.
+The key insight: **CLAUDE.md is what you tell Claude. Auto memory is what Claude tells itself. Plugin cache is what plugins tell themselves.** Each system is written by a different author for different reasons.
 
 ## Further Reading
 

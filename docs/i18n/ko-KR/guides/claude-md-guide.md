@@ -1,7 +1,7 @@
 ---
 title: "효과적인 CLAUDE.md 파일 작성법"
 description: "Claude Code를 위한 CLAUDE.md 파일의 작성, 구성, 관리 방법"
-version: 1.1.0
+version: 1.1.1
 ---
 
 # 효과적인 CLAUDE.md 파일 작성법
@@ -88,22 +88,7 @@ CLAUDE.md에 내용을 복제하지 말고, `@import`를 사용하여 기존 문
 
 ## 대규모 프로젝트에서의 조직화
 
-프로젝트에 커스텀 skill과 agent가 여러 개 있을 때, CLAUDE.md에 빠른 참조 테이블을 추가하세요:
-
-```markdown
-## Available Skills
-| Skill | Purpose |
-| /add-endpoint | Scaffold new API endpoint with handler, service, tests |
-| /run-checks | Run build, lint, and test suite in sequence |
-
-## Available Agents
-| Agent | Model | Role |
-| backend-developer | sonnet | API implementation |
-| security-reviewer | opus | Vulnerability analysis (read-only) |
-| test-writer | haiku | Test generation |
-```
-
-이 테이블은 Claude(와 팀원)가 `.claude/agents/`와 `.claude/skills/` 디렉토리를 탐색하지 않고도 사용 가능한 것을 파악하는 데 도움을 줍니다. Agent 정의와 skill 지침은 각자의 파일에 유지하세요 -- CLAUDE.md 테이블은 참조용일 뿐입니다.
+프로젝트에 커스텀 skill과 agent가 여러 개 있을 때, CLAUDE.md에 각 skill의 이름/용도와 각 agent의 이름/모델/역할을 나열하는 빠른 참조 테이블을 추가하세요. 이를 통해 Claude가 디렉토리를 탐색하지 않고도 사용 가능한 것을 파악할 수 있습니다. 정의는 각자의 파일에 유지하세요 -- CLAUDE.md 테이블은 참조용일 뿐입니다.
 
 ## CLAUDE.md 정리하기
 
@@ -127,20 +112,4 @@ CLAUDE.md를 코드처럼 다루세요 -- 정기적으로 검토하고 적극적
 
 ## /init 단축키
 
-처음부터 시작하는 경우, Claude가 CLAUDE.md를 생성해줄 수 있습니다:
-
-```text
-claude
-> /init
-```
-
-Claude가 코드베이스를 분석하고 발견한 내용을 기반으로 초기 CLAUDE.md를 생성합니다. 이것은 [모범 사례](https://code.claude.com/docs/en/best-practices)에 따른 공식 권장 시작점입니다.
-
-다단계 흐름의 더 대화형 경험을 원한다면, 실행 전에 환경 변수를 설정하세요:
-
-```bash
-CLAUDE_CODE_NEW_INIT=true claude
-> /init
-```
-
-어느 방법이든 출력 결과를 초안으로 취급하세요. 검토하고, 템플릿의 섹션을 병합하고, 불필요한 것은 정리하세요.
+처음부터 시작하는 경우, Claude Code에서 `/init`을 실행하세요. Claude가 코드베이스를 분석하고 초기 CLAUDE.md를 생성합니다. 이것은 [모범 사례](https://code.claude.com/docs/en/best-practices)에 따른 공식 권장 시작점입니다. 출력 결과를 초안으로 취급하세요 -- 검토하고, 템플릿의 섹션을 병합하고, 불필요한 것은 정리하세요.

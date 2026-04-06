@@ -1,7 +1,7 @@
 ---
 title: "MCP 연동"
 description: "Model Context Protocol을 통해 Claude Code를 외부 도구 및 서비스에 연결하는 방법"
-version: 1.0.0
+version: 1.0.1
 ---
 
 # MCP 연동
@@ -106,7 +106,7 @@ TaskFlow 프로젝트에서 개발 중 데이터베이스를 직접 쿼리하기
 }
 ```
 
-이렇게 설정하면 Claude가 데이터베이스에 직접 쿼리할 수 있습니다 -- 스키마 확인, 마이그레이션 검증, 데이터 문제 디버깅 등을 SQL을 직접 작성하지 않고도 수행할 수 있습니다.
+이렇게 설정하면 Claude가 데이터베이스에 직접 쿼리할 수 있습니다 -- 스키마 확인, 마이그레이션 검증, 데이터 문제 디버깅 등을 수행할 수 있습니다.
 
 ## 주요 MCP 서버
 
@@ -117,12 +117,9 @@ TaskFlow 프로젝트에서 개발 중 데이터베이스를 직접 쿼리하기
 | `@anthropic-ai/claude-code-mcp-server` | Claude Code를 MCP 도구로 실행 |
 | `mcp-server-fetch` (Python) | 웹 콘텐츠 가져오기 및 파싱 |
 
-전체 커뮤니티 서버 목록은 [MCP 서버 디렉터리](https://github.com/modelcontextprotocol/servers)를 참조하세요.
-
 ## 보안 고려사항
 
 - **신뢰할 수 있는 서버만 등록하세요** -- MCP 서버는 로컬 머신에서 임의의 코드를 실행할 수 있습니다
-- **서버 권한을 검토하세요** -- 일부 서버는 파일 시스템, 네트워크 또는 데이터베이스에 접근합니다
 - **커밋된 파일에 비밀 정보를 포함하지 마세요** -- 환경 변수를 사용하거나 `.mcp.json`을 `.gitignore`에 추가하세요
 - **서버 버전을 고정하세요** -- 예기치 않은 업데이트를 방지하기 위해 args에 정확한 패키지 버전을 사용하세요
 
@@ -130,4 +127,3 @@ TaskFlow 프로젝트에서 개발 중 데이터베이스를 직접 쿼리하기
 
 - [설정 가이드](settings-guide.md) -- 권한 및 환경설정
 - [고급 기능 가이드](advanced-features-guide.md) -- 훅, 에이전트, 스킬
-- [시작하기](getting-started.md) -- 전체 설정 안내

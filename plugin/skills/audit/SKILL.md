@@ -11,11 +11,12 @@ Follow these phases in order. After all phases, present a summary.
 
 ## Phase 0: Check Previous Audit
 
-Before starting checks, look for previous audit results in memory:
+Before starting checks, look for previous audit results:
 
-1. Read the user's MEMORY.md index — look for an `audit-history` entry
-2. If found, read the audit-history memory file and note the previous score, date, and top issues
-3. Keep previous results in mind — you will compare them in Phase 4
+1. Check if `.claude/.plugin-cache/claude-code-template/` directory exists
+2. If it does, glob `*-audit.md` files, sort by filename (lexical = chronological)
+3. Read the latest file and note the previous score, date, and top issues
+4. Keep previous results in mind — you will compare them in Phase 4
 
 If no previous audit exists, skip this and proceed to Phase 1.
 
@@ -28,7 +29,7 @@ These checks form the **Foundation Gate** — they determine what percentage of 
 Check if `CLAUDE.md` exists at the project root or `.claude/CLAUDE.md`.
 
 - Found → **PASS**
-- Neither exists → **FAIL** — stop and recommend running `/claude-code-template:generate` first. Do NOT proceed to T1.2 or any subsequent phase. Use the Early Halt output format (see scoring-model.md)
+- Neither exists → **FAIL** — stop and recommend running `/claude-code-template:create` first. Do NOT proceed to T1.2 or any subsequent phase. Use the Early Halt output format (see scoring-model.md)
 
 ### 1.2 Test Command
 
@@ -205,35 +206,46 @@ Present results using the output format defined in the scoring model reference. 
 **If previous audit results exist (from Phase 0):** Add a comparison line at the end:
 > "Since your last audit (DATE): score changed from X → Y. Resolved: [issues]. Still open: [issues]."
 
-**Next Steps section:** Always include this at the end if there are any non-PASS results. If the score is 100/100, replace with: "Your configuration is in great shape. No changes needed."
+**Next Steps section:** Always include this at the end if there are any non-PASS results:
+
+- If any T2.1 (deny patterns), T2.2 (security rules), or file protection issues exist:
+  > "Security improvements needed: run `/claude-code-template:secure` to fix protection gaps."
+
+- If any T2.3 (hook quality) or T3 (optimization) issues exist:
+  > "Configuration improvements available: run `/claude-code-template:optimize` to improve organization."
+
+- If both categories have issues, show both lines (secure first).
+
+- If the score is 100/100, replace with: "Your configuration is in great shape. No changes needed."
 
 ## Phase 5: Save Audit Results
 
-After presenting the summary, save results to memory:
+After presenting the summary, save results to the plugin cache:
 
-1. Read MEMORY.md — check if `audit-history` entry exists
-2. Write (or update) the audit-history memory file:
+1. Check if `.claude/.plugin-cache/claude-code-template/` directory exists; if not, create it
+2. Check if `.claude/.plugin-cache/.gitignore` exists; if not, create it with content: `*`
+3. Glob existing `*-audit.md` files in the directory; read the latest one (if it exists) — this becomes the "Previous" section in the new file
+4. Write `{yyyyMMdd-HHmmss}-audit.md` (use current timestamp, e.g., `20260406-143022-audit.md`):
 
 ```markdown
----
-name: audit-history
-description: Previous /audit results for tracking configuration health over time
-type: project
----
+## Audit Results
+- Date: {today's date}
+- Model: v2 (foundation-gated)
+- Score: {XX}/100
+- Grade: {X}
+- Gate: {READY/NOT READY}
+- Maturity: Level {N} — {Name}
+- Top issues:
+  - {2-3 bullet summary of non-PASS items}
 
-## Latest (YYYY-MM-DD)
-Model: v2 (foundation-gated)
-Score: XX/100 (Grade: X)
-Gate: READY/NOT READY
-Maturity: Level N — Name
-Top issues: [2-3 bullet summary of non-PASS items]
-
-## Previous (YYYY-MM-DD)
-Score: XX/100 (Grade: X)
-Top issues: [2-3 bullet summary]
+## Previous
+- Date: {previous audit date}
+- Score: {XX}/100
+- Grade: {X}
+- Top issues:
+  - {previous issues}
 ```
 
-- If an existing "Latest" entry exists, move it to "Previous" (keep only 2 snapshots)
-- Write new "Latest" with today's results
-3. Update MEMORY.md index if the `audit-history` entry doesn't exist yet:
-   - Add: `- [Audit history](audit-history.md) — Latest /audit score and top issues`
+If no previous audit exists, omit the "## Previous" section.
+
+5. Glob all `*.md` files in the plugin-cache directory; extract dates from filename prefixes; delete files older than 14 days

@@ -7,6 +7,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.8.0] - 2026-04-06
+
+### Added
+
+- `/create` skill — renamed from `/generate` with same functionality, updated memory strategy
+- `/secure` skill — fixes security/protection gaps (deny patterns, security rules, file protection hooks)
+- `/optimize` skill — improves configuration quality (rules splitting, agent diversity, MCP, hook quality)
+- Shared `plugin/references/security-patterns.md` — common security templates for `/create` and `/secure`
+- Plugin-cache memory system at `.claude/.plugin-cache/claude-code-template/` — timestamped Markdown files with 14-day Sliding Window retention
+- Skill-aware Next Steps in `/audit` — directs users to `/secure` or `/optimize` based on findings
+
+### Changed
+
+- `/audit` Phase 4: Next Steps now references specific skills instead of generic suggestions
+- `/audit` Phase 5: writes to plugin-cache instead of auto-memory (MEMORY.md)
+- `/create` Phase 4.5: writes to plugin-cache instead of auto-memory (MEMORY.md)
+- `/create` templates: `"Read(secrets/)"` added to default deny patterns (starter + advanced)
+- `templates/advanced/.claude/CLAUDE.md`: added auto-discovery behavior note (EN/KR, v1.1.0)
+- Hook `session-start.sh`: references `/create` instead of `/generate`
+- Plugin description updated to reflect all 4 skills
+
+### Fixed
+
+- `directory-structure-guide.md`: "The Three Systems" → "The Four Systems" to match 4-row table (EN/KR)
+- `README.md`: plugin cache added to memory system description (EN/KR)
+- ko-KR translation sync: removed extra content not present in English originals (mcp-guide, effective-usage-guide)
+- ko-KR translation quality: fixed 9 awkward literal translations across 6 guide files
+
+### Deprecated
+
+- `/generate` skill — redirects to `/create`. Will be removed in next major version.
+
 ## [2.7.1] - 2026-04-05
 
 ### Fixed

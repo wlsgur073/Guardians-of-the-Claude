@@ -1,7 +1,7 @@
 ---
 title: "Advanced Features"
 description: "Hooks, agents, and skills -- extending Claude Code beyond basic configuration"
-version: 1.1.0
+version: 1.2.0
 ---
 
 # Advanced Features
@@ -191,6 +191,19 @@ Skills come in two types: **user-invoked** (slash command) and **model-invoked**
 **Fallback pattern:** When a skill depends on an optional tool (MCP server, CI system), provide two paths: Path A uses the tool when available, Path B falls back to a manual alternative.
 
 > **Note:** The legacy `commands/` directory is deprecated. Use `skills/<name>/SKILL.md` for all skill types.
+
+### Plugin Skills in Practice
+
+The `claude-code-template` plugin demonstrates a skill-per-role workflow with four skills that chain together:
+
+| Skill | Purpose |
+| ----- | ------- |
+| `/claude-code-template:create` | Guided setup wizard -- generates CLAUDE.md, settings, rules, and optional features |
+| `/claude-code-template:audit` | Comprehensive configuration evaluation with scoring |
+| `/claude-code-template:secure` | Fixes security gaps -- deny patterns, security rules, file protection hooks |
+| `/claude-code-template:optimize` | Improves config quality -- rules splitting, agent diversity, MCP, hook quality |
+
+**Recommended workflow:** `/create` → `/audit` → `/secure` or `/optimize` → `/audit` (re-verify). Each skill hands off to the next, and they share state via timestamped files in `.claude/.plugin-cache/`.
 
 ## Further Reading
 

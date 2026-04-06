@@ -1,12 +1,12 @@
 {
   "name": "claude-code-template",
-  "version": "2.7.1",
-  "description": "Guided Claude Code setup — generates CLAUDE.md, settings.json, rules, and optional hooks/agents/skills for any project",
+  "version": "2.8.0",
+  "description": "Guided Claude Code setup — creates, audits, secures, and optimizes your CLAUDE.md, settings.json, rules, hooks, agents, and skills",
   "author": {
     "name": "wlsgur073"
   },
   "homepage": "https://github.com/wlsgur073/Claude-Code-Template",
   "repository": "https://github.com/wlsgur073/Claude-Code-Template",
   "license": "MIT",
-  "keywords": ["claude-code", "setup", "configuration", "template", "onboarding", "CLAUDE.md"]
+  "keywords": ["claude-code", "setup", "configuration", "template", "onboarding", "CLAUDE.md", "audit", "security"]
 }

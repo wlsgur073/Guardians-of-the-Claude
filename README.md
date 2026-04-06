@@ -3,7 +3,7 @@
 </p>
 
 Starter templates and guides for configuring Claude Code. Install the
-plugin, run `/claude-code-template:generate`, and Claude generates all
+plugin, run `/claude-code-template:create`, and Claude generates all
 configuration files through a guided interview.
 
 **Audience:** Developers new to Claude Code who want a working configuration
@@ -33,7 +33,7 @@ from day one.
    ```text
    cd your-project
    claude
-   > /claude-code-template:generate
+   > /claude-code-template:create
    ```
 
    **Alternative methods** (without installing the plugin):
@@ -41,8 +41,8 @@ from day one.
    | Method | Command |
    | ------ | ------- |
    | Local plugin | `claude --plugin-dir /path/to/Claude-Code-Template/plugin` |
-   | `@` import | `@../Claude-Code-Template/plugin/skills/generate/SKILL.md` |
-   | Direct paste | Copy the contents of `plugin/skills/generate/SKILL.md` and paste directly into the conversation |
+   | `@` import | `@../Claude-Code-Template/plugin/skills/create/SKILL.md` |
+   | Direct paste | Copy the contents of `plugin/skills/create/SKILL.md` and paste directly into the conversation |
 
 3. **Choose your path** — Claude detects your project state and asks what to do:
 
@@ -62,7 +62,7 @@ from day one.
    tailored recommendations for MCP servers, hooks, and skills based on your stack.
 
 > **Tip:** Run `/init` in your project first — Claude auto-generates a starter
-> CLAUDE.md. Then run `/claude-code-template:generate` choosing "Existing project"
+> CLAUDE.md. Then run `/claude-code-template:create` choosing "Existing project"
 > to fill gaps `/init` misses.
 
 ## What's Inside
@@ -76,14 +76,22 @@ Claude-Code-Template/
 │   ├── hooks/
 │   │   ├── hooks.json       ← SessionStart hook
 │   │   └── session-start.sh
+│   ├── references/
+│   │   └── security-patterns.md  ← Shared security templates (used by /create and /secure)
 │   └── skills/
-│       ├── generate/
-│       │   ├── SKILL.md     ← Generate skill (/claude-code-template:generate)
+│       ├── create/
+│       │   ├── SKILL.md     ← Create skill (/claude-code-template:create)
 │       │   ├── references/  ← Generation best practices
 │       │   └── templates/   ← Starter & Advanced path instructions
-│       └── audit/
-│           ├── SKILL.md     ← Audit skill (/claude-code-template:audit)
-│           └── references/  ← Scoring model and formulas
+│       ├── audit/
+│       │   ├── SKILL.md     ← Audit skill (/claude-code-template:audit)
+│       │   └── references/  ← Scoring model and formulas
+│       ├── secure/
+│       │   └── SKILL.md     ← Secure skill (/claude-code-template:secure)
+│       ├── optimize/
+│       │   └── SKILL.md     ← Optimize skill (/claude-code-template:optimize)
+│       └── generate/
+│           └── SKILL.md     ← Deprecated — redirects to /create
 ├── templates/starter/       ← Filled starter example (fictional "TaskFlow" project)
 ├── templates/advanced/      ← Filled advanced example (rules, hooks, agents, skills)
 ├── docs/
@@ -105,7 +113,7 @@ Claude-Code-Template/
 
 ## How Claude Code Memory Works
 
-Claude Code uses a layered memory system: CLAUDE.md (your instructions), `.claude/rules/` (modular rule files), and auto memory (Claude's own notes). See the [Directory Structure Guide](docs/guides/directory-structure-guide.md) for details.
+Claude Code uses a layered memory system: CLAUDE.md (your instructions), `.claude/rules/` (modular rule files), auto memory (Claude's own notes), and plugin cache (plugin-managed state). See the [Directory Structure Guide](docs/guides/directory-structure-guide.md) for details.
 
 > **The #1 Rule:** Give Claude a way to verify its work — include test commands,
 > lint commands, and build commands in your CLAUDE.md. This is the single

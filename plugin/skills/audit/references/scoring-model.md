@@ -219,7 +219,7 @@ Cannot proceed with audit — CLAUDE.md is a prerequisite for all checks.
 Detected project signals:
   * [list any dependency manifests, source files, or frameworks found]
 
-Recommendation: Run /claude-code-template:generate to create initial configuration.
+Recommendation: Run /claude-code-template:create to create initial configuration.
 ```
 
 Do not produce a numeric score, grade, or maturity level. The halt is not a score of zero — it means the audit could not be performed.

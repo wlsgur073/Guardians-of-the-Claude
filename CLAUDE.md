@@ -1,12 +1,12 @@
 # CLAUDE.md
-<!-- Last reviewed: 2026-04-03 -->
+<!-- Last reviewed: 2026-04-06 -->
 
 This is a documentation and template repository — it contains no application code, no build system, and no tests. Its purpose is to teach developers how to configure Claude Code for their own projects.
 
 ## Repository Structure
 
 - `.claude-plugin/` — Marketplace manifest (makes this repo a plugin marketplace)
-- `plugin/` — Plugin package containing `.claude-plugin/plugin.json`, `skills/generate/SKILL.md` (`/claude-code-template:generate`), `skills/audit/SKILL.md` (`/claude-code-template:audit`), and `hooks/hooks.json`
+- `plugin/` — Plugin package containing `.claude-plugin/plugin.json`, `skills/create/SKILL.md` (`/claude-code-template:create`), `skills/audit/SKILL.md` (`/claude-code-template:audit`), `skills/secure/SKILL.md` (`/claude-code-template:secure`), `skills/optimize/SKILL.md` (`/claude-code-template:optimize`), `skills/generate/SKILL.md` (deprecated redirect to `/create`), `references/security-patterns.md` (shared), and `hooks/hooks.json`
 - `CHANGELOG.md` — Version history in Keep a Changelog format
 - `templates/starter/` — Minimal filled example for TaskFlow (5-section CLAUDE.md + basic settings.json)
 - `templates/advanced/` — Full filled example for TaskFlow (rules, hooks, agents, skills, MCP)
@@ -24,7 +24,7 @@ This is a documentation and template repository — it contains no application c
 - This CLAUDE.md should stay under 200 lines, matching the repo's own recommendation in `docs/guides/claude-md-guide.md`
 - There is no source code — all content is Markdown. Review for clarity, accuracy, and consistency across files
 - When adding a new guide, follow the existing frontmatter format (`title`, `description`, `version`) and add cross-links from `docs/guides/getting-started.md`
-- When modifying guides or templates, verify `/generate` and `/audit` skills still align — check that skill templates, checklists, and suggestions reflect the updated patterns
+- When modifying guides or templates, verify `/create`, `/audit`, `/secure`, and `/optimize` skills still align — check that skill templates, checklists, and suggestions reflect the updated patterns
 - CLAUDE.md files under `templates/` are repo content, not instructions for this repo — Claude will lazy-load them when working in those directories, so keep them clearly framed as examples
 
 ## Plugin Development Rules

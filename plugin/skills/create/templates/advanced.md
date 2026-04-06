@@ -164,7 +164,7 @@ The **Development Approach** section must include these rules:
 ```
 
 - `allow`: add test, lint, and build commands (e.g., `"Bash(npm test)"`, `"Bash(npm run lint)"`)
-- `deny`: add sensitive file patterns (e.g., `"Read(./.env)"`, `"Read(./.env.*)"`)
+- `deny`: add sensitive file patterns (e.g., `"Read(./.env)"`, `"Read(./.env.*)"`, `"Read(secrets/)"`)
 
 **`.claude/rules/code-style.md`**:
 
@@ -337,7 +337,7 @@ Parse `$ARGUMENTS` for the required parameters. If `$ARGUMENTS` is empty, ask th
 
 If the skill needs project-specific context (coding conventions, API patterns, example files), create a `references/` directory alongside SKILL.md with supporting markdown files.
 
-**Security rule file** — create `.claude/rules/security.md`:
+**Security rule file** — read `../../references/security-patterns.md` for the template, then create `.claude/rules/security.md`:
 
 ```markdown
 # Security Rules
