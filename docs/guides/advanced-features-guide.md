@@ -1,7 +1,7 @@
 ---
 title: "Advanced Features"
 description: "Hooks, agents, and skills -- extending Claude Code beyond basic configuration"
-version: 1.2.0
+version: 1.2.1
 ---
 
 # Advanced Features
@@ -59,26 +59,7 @@ Key concepts:
 
 ### Script-Based Hooks
 
-For complex logic, use external scripts instead of inline commands. Scripts are testable, version-controlled, and easier to maintain:
-
-```json
-{
-  "UserPromptSubmit": [
-    {
-      "hooks": [
-        {
-          "type": "command",
-          "command": "bash \"${CLAUDE_PROJECT_DIR}/scripts/validate-prompt.sh\"",
-          "timeout": 5000,
-          "statusMessage": "Validating input"
-        }
-      ]
-    }
-  ]
-}
-```
-
-**Timeout guidelines:** Input validation 3-5s, lint/format 10-15s, build/test 30s+. Always set `timeout` explicitly for script-based hooks.
+For complex logic, use external scripts: `"command": "bash \"${CLAUDE_PROJECT_DIR}/scripts/my-hook.sh\""`. Scripts are testable, version-controlled, and easier to maintain. See `templates/advanced/.claude/settings.json` for a complete example. Always set `timeout` explicitly — input validation 3-5s, lint/format 10-15s, build/test 30s+.
 
 ## Agents
 
