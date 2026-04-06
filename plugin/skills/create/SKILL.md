@@ -62,7 +62,7 @@ Based on the user's choice, read the generation rules and the appropriate path f
 **If the user chooses (a) Existing project:**
 
 1. Read `references/best-practices.md` — common generation rules
-2. Read `templates/advanced.md` — follow the Advanced path instructions
+2. Read `templates/advanced.md` — follow the Advanced path instructions (references `../references/security-patterns.md` for security configuration)
 
 After completing all generation steps from the path file, return here for Phase 4.
 

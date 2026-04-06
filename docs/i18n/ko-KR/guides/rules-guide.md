@@ -1,7 +1,7 @@
 ---
 title: ".claude/rules/ 사용하기"
 description: "프로젝트 지침을 모듈화된 경로 범위 규칙 파일로 구성하는 방법"
-version: 1.0.1
+version: 1.0.0
 ---
 
 # .claude/rules/ 사용하기

@@ -164,7 +164,7 @@ The **Development Approach** section must include these rules:
 ```
 
 - `allow`: add test, lint, and build commands (e.g., `"Bash(npm test)"`, `"Bash(npm run lint)"`)
-- `deny`: add sensitive file patterns (e.g., `"Read(./.env)"`, `"Read(./.env.*)"`, `"Read(secrets/)"`)
+- `deny`: add sensitive file patterns (e.g., `"Read(./.env)"`, `"Read(./.env.*)"`, `"Read(./secrets/)"`)
 
 **`.claude/rules/code-style.md`**:
 
