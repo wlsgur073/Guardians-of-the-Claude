@@ -7,7 +7,7 @@ The scoring model uses a **Foundation-Gated Multiplicative** structure. Foundati
 ```
 Final = min(max(FG x DS + SB + LAV, 0), 100)
          |       |      |     |
-         |       |      |     +-- LAV: LLM Accuracy Verification (-5 ~ +8)
+         |       |      |     +-- LAV: LLM Accuracy Verification (-9 ~ +10)
          |       |      +-------- Synergy Bonus: complementary item pairs (max +5)
          |       +--------------- Detail Score: Protection (T2) + Optimization (T3)
          +----------------------- Foundation Gate: T1 items as a multiplier
@@ -82,12 +82,24 @@ Final = min(max(FG x DS + SB + LAV, 0), 100)
    SB = sum of applicable bonuses             Max: +5
 
 4. LAV (LLM Accuracy Verification)
-   LAV = sum of L1–L4 scores                  Range: -5 ~ +8
+   LAV = sum of L1–L6 scores                  Range: -9 ~ +10
    See references/checks/lav.md for evaluation structure.
 
-5. Final Score
-   Final = min(max(FG x DS + SB + LAV, 0), 100)   Range: 0 – 100
-   The max(..., 0) floor prevents negative final scores when LAV is negative.
+5. Quality Cap
+   If LAV < 0, the final score is capped to prevent high mechanical scores
+   from masking quality issues detected by LLM evaluation:
+
+   LAV >= 0  →  cap = 100 (no restriction)
+   LAV < 0   →  cap = 90 + LAV
+                 LAV = -1  → cap = 89
+                 LAV = -4  → cap = 86
+                 LAV = -9  → cap = 81
+
+6. Final Score
+   Raw   = max(FG x DS + SB + LAV, 0)
+   Final = min(Raw, cap)                       Range: 0 – 100
+   The max(..., 0) floor prevents negative scores.
+   The Quality Cap prevents high DS from masking LAV-detected quality issues.
 ```
 
 ## Synergy Bonus

@@ -61,12 +61,13 @@ Apply the scoring model in this order:
 2. **Calculate Foundation Gate** — `FG_raw = weighted average of non-SKIP T1 items`, `FG = 0.15 + 0.85 × FG_raw`
 3. **Calculate Detail Score** — `DS = (T2_weighted × 0.60 + T3_weighted × 0.40) × 100`
 4. **Calculate Synergy Bonus** — check qualifying pairs
-5. **Calculate LAV** — sum of L1–L4 scores from Phase 3.5
-6. **Calculate Final** — `min(max(FG × DS + SB + LAV, 0), 100)`
-7. **Check Quality Gate** — CLAUDE.md exists AND test command present; test condition waived if SKIP
-8. **Determine Grade** and **Maturity Level**
+5. **Calculate LAV** — sum of L1–L6 scores from Phase 3.5
+6. **Apply Quality Cap** — if LAV < 0, cap = 90 + LAV; otherwise cap = 100
+7. **Calculate Final** — `min(max(FG × DS + SB + LAV, 0), cap)`
+8. **Check Quality Gate** — CLAUDE.md exists AND test command present; test condition waived if SKIP
+9. **Determine Grade** and **Maturity Level**
 
-Read `references/output-format.md` and present results using the defined format. Include LAV Findings if any LAV items scored 0 or below. Include conditional suggestions from check files.
+Read `references/output-format.md` and present results using the defined format. Include LAV Findings if any LAV items scored 0 or below. Include conditional suggestions from check files. Generate the Insights & Recommendations section based on audit findings — prioritize improvements by score impact and provide educational context.
 
 **If previous audit results exist (from Phase 0):** Add a comparison line at the end:
 > "Since your last audit (DATE): score changed from X → Y. [If /secure or /optimize ran since the last audit, list them.] Resolved: [issues]. Still open: [issues]."

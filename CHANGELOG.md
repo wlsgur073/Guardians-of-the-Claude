@@ -14,12 +14,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `/audit` T3.1: tree diagram parsing — extracts nested paths from `├──`/`└──` characters and inline comments
 - `/audit` T3.3: tool config verification — checks ESLint, TypeScript, Vitest config file existence beyond manifest
 - `/audit` T3.7: environment variable documentation check — scans `.npmrc`, `.env.example`, `docker-compose.yml`, `Dockerfile` for undocumented `${VAR}` references
-- `/audit` LAV (LLM Accuracy Verification) phase — replaces LQM with bidirectional scoring (-5 to +8) that cross-references CLAUDE.md claims against actual project state
+- `/audit` LAV (LLM Accuracy Verification) phase — replaces LQM with bidirectional scoring (-9 to +10) that cross-references CLAUDE.md claims against actual project state
+- `/audit` LAV L5 (Conciseness) — penalizes redundant, generic, or filler content that wastes LLM context
+- `/audit` LAV L6 (Actionability) — rewards copy-paste ready, concrete instructions
 - `/audit` LAV improvement suggestions — outputs specific fixes for accuracy issues found
+- `/audit` Quality Cap — prevents high mechanical scores from masking LAV-detected quality issues (LAV < 0 → cap = 90 + LAV)
+- `/audit` Insights & Recommendations section — educational feedback with prioritized improvements, maturity path guidance, and project-specific tips
 
 ### Changed
 
-- `/audit` scoring model: v2 → v3 (`LQM` → `LAV`, added `max(..., 0)` score floor)
+- `/audit` scoring model: v2 → v3 (`LQM` → `LAV`, `max(..., 0)` score floor, Quality Cap, L1–L6 expanded evaluation)
 - `/audit` T3 weights redistributed: T3.4 0.15→0.10, T3.5 0.20→0.15, new T3.7 0.10
 - `/audit` architecture: monolithic SKILL.md refactored into orchestrator (~120 lines) + on-demand reference files in `references/checks/`
 - `/audit` Phase 3.5 suggestions migrated into individual check reference files
