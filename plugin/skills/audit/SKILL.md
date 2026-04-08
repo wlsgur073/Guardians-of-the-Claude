@@ -9,18 +9,16 @@ You are a Claude Code configuration auditor. Analyze the user's project and repo
 
 Follow these phases in order. Each phase references a check file — read it and execute the checks defined within.
 
-## Phase 0: Check Previous Audit
+## Phase 0: Load Context & Learn
 
-Before starting checks, look for previous audit results:
+Read `../../references/learning-system.md` and follow the **Common Phase 0** steps with these audit-specific overrides:
 
-1. Check if `.claude/.plugin-cache/claude-code-template/` directory exists
-2. If it does, glob `*-audit.md` files, sort by filename (lexical = chronological)
-3. Read the latest file and note the previous score, date, and top issues
-4. Also glob `*-secure.md` and `*-optimize.md` files; read the latest of each if they exist
-5. Note which skills ran since the last audit — use this to attribute improvements in Phase 4
-6. Keep previous results in mind — you will compare them in Phase 4
+- **Step 2 override:** No additional latest files needed beyond `latest-audit.md`.
+- **Step 3 override:** Read the **full** `config-changelog.md` (both Compacted History and Recent Activity), not just Recent Activity. This enables trend analysis across the project's entire configuration history.
 
-If no previous audit exists, skip this and proceed to Phase 1.
+After completing Common Phase 0, also check for legacy data:
+1. If `local/latest-audit.md` was not found AND legacy `*-audit.md` files exist in the parent directory, read the latest legacy file for previous score and top issues
+2. Also check for legacy `*-secure.md` and `*-optimize.md` — note which skills ran since the last audit
 
 ## Phase 1: Foundation Checks (T1)
 
@@ -72,34 +70,28 @@ Read `references/output-format.md` and present results using the defined format.
 **If previous audit results exist (from Phase 0):** Add a comparison line at the end:
 > "Since your last audit (DATE): score changed from X → Y. [If /secure or /optimize ran since the last audit, list them.] Resolved: [issues]. Still open: [issues]."
 
-## Phase 5: Save Audit Results
+## Phase 5: Persist Results & Learn
 
-After presenting the summary, save results to the plugin cache:
+Read `../../references/learning-system.md` and follow the **Common Final Phase** steps with these audit-specific overrides:
 
-1. Check if `.claude/.plugin-cache/claude-code-template/` directory exists; if not, create it
-2. Check if `.claude/.plugin-cache/.gitignore` exists; if not, create it with content: `*`
-3. Glob existing `*-audit.md` files in the directory; read the latest one (if it exists) — this becomes the "Previous" section in the new file
-4. Write `{yyyyMMdd-HHmmss}-audit.md` (use current timestamp, e.g., `20260408-143022-audit.md`):
+- **Step 1 override (Write Latest Result):** `latest-audit.md` must include the score as a user-facing snapshot:
 
-```markdown
-## Audit Results
-- Date: {today's date}
-- Model: v3 (foundation-gated + LAV)
-- Score: {XX}/100
-- Grade: {X}
-- Gate: {READY/NOT READY}
-- Maturity: Level {N} — {Name}
-- Top issues:
-  - {2-3 bullet summary of non-PASS items}
+  ```markdown
+  ## Audit Results
+  - Date: {today's date}
+  - Model: v3 (foundation-gated + LAV)
+  - Score: {XX}/100
+  - Grade: {X}
+  - Gate: {READY/NOT READY}
+  - Maturity: Level {N} — {Name}
+  - Top issues:
+    - {2-3 bullet summary of non-PASS items}
+  ```
 
-## Previous
-- Date: {previous audit date}
-- Score: {XX}/100
-- Grade: {X}
-- Top issues:
-  - {previous issues}
-```
+  Note: Score is written to `latest-audit.md` (user-facing) but NOT to `config-changelog.md` (learning data).
 
-If no previous audit exists, omit the "## Previous" section.
+- **Step 2 override (Update Profile):** Always regenerate the entire `project-profile.md` from scratch, regardless of whether changes were detected. Audit is the authoritative full refresh (Layer 3 of stale prevention).
 
-5. Glob all `*.md` files in the plugin-cache directory; extract dates from filename prefixes; delete files older than 14 days
+- **Step 3 (Append to Changelog):** Follow standard append. Entry must NOT include score. Record: detected changes, profile updates, applied changes, recommendations with status.
+
+After completing Common Final Phase, run **Critical Thinking & Insight Delivery** from the learning system reference. Apply Socratic verification to audit recommendations before presenting them.

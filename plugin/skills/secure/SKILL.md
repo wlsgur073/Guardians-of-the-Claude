@@ -11,14 +11,15 @@ Follow these phases in order.
 
 ---
 
-## Phase 0: Read Context
+## Phase 0: Load Context & Learn
 
-1. Check if `.claude/.plugin-cache/claude-code-template/` directory exists
-2. If it does, glob `*-audit.md` and `*-secure.md` files
-3. Sort by filename (lexical = chronological), read the latest of each
-4. From audit history: note any T2.1 (deny patterns) and T2.2 (security rules) issues
-5. From secure history: note any previously declined items — do NOT re-suggest them
-6. If no files exist, this is the first run — proceed to Phase 1
+Read `../../references/learning-system.md` and follow the **Common Phase 0** steps with these secure-specific overrides:
+
+- **Step 2 override:** Also read `local/latest-audit.md` to check for T2.1 (deny patterns) and T2.2 (security rules) issues flagged by the last audit.
+
+After completing Common Phase 0:
+- If `local/latest-secure.md` was found: note previously declined items. Do NOT re-suggest them.
+- If legacy files exist (migration): read the latest `*-audit.md` and `*-secure.md` for the same information.
 
 ## Phase 1: Scan Protection State
 
@@ -58,7 +59,7 @@ Present the current security state:
 
 **If secure history exists:** exclude items the user previously declined.
 
-**If all items are already configured:**
+If all items are already configured:
 > "Your security configuration looks solid. No changes needed. Run `/claude-code-template:audit` for a full evaluation."
 
 Then skip to **Write History** (Phase 4.2) to record the result (Fixed: none, Declined: none).
@@ -97,22 +98,26 @@ Merge with existing hooks — do not overwrite. Ensure `exit 2` (not `exit 1`) f
 
 Fix any issues immediately without asking.
 
-### 4.2 Write History
+### 4.2 Persist Results & Learn
 
-1. Check if `.claude/.plugin-cache/claude-code-template/` exists; if not, create it
-2. Check if `.claude/.plugin-cache/.gitignore` exists; if not, create it with content: `*`
-3. Write `{yyyyMMdd-HHmmss}-secure.md` (use current timestamp, e.g., `20260406-160000-secure.md`):
+Read `../../references/learning-system.md` and follow the **Common Final Phase** steps with these secure-specific overrides:
 
-```markdown
-## Secure Results
-- Date: {today's date}
-- Fixed:
-  - {list of items fixed}
-- Declined:
-  - {list of items user skipped}
-```
+- **Step 1 override (Write Latest Result):** `latest-secure.md` must include:
 
-4. Glob all `*.md` files in the plugin-cache directory; extract dates from filename prefixes; delete files older than 14 days
+  ```markdown
+  ## Secure Results
+  - Date: {today's date}
+  - Fixed:
+    - {list of items fixed}
+  - Declined:
+    - {list of items user skipped}
+  ```
+
+- **Step 2 override (Update Profile):** Update the "Claude Code Configuration State" section of the profile — specifically Hooks and Rules counts if they changed.
+
+- **Step 3 (Append to Changelog):** Record fixed items as Applied, skipped items as DECLINED. If a previously PENDING recommendation from `/audit` was addressed, mark it as RESOLVED.
+
+After completing Common Final Phase, run **Critical Thinking & Insight Delivery**.
 
 ### 4.3 Summary & Handoff
 

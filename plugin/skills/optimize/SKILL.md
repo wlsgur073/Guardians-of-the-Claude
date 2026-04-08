@@ -11,15 +11,16 @@ Follow these phases in order.
 
 ---
 
-## Phase 0: Read Context
+## Phase 0: Load Context & Learn
 
-1. Check if `.claude/.plugin-cache/claude-code-template/` directory exists
-2. If it does, glob `*-audit.md`, `*-optimize.md`, and `*-secure.md` files
-3. Sort by filename (lexical = chronological), read the latest of each
-4. From audit history: note any T2.3 (hook quality) and T3 (optimization) issues
-5. From optimize history: note any previously declined items — do NOT re-suggest them
-6. From secure history: note any declined items — avoid re-suggesting related improvements (e.g., if hooks were declined in /secure, do not suggest hook quality fixes)
-7. If no files exist, this is the first run — proceed to Phase 1
+Read `../../references/learning-system.md` and follow the **Common Phase 0** steps with these optimize-specific overrides:
+
+- **Step 2 override:** Also read `local/latest-audit.md` (for T2.3 hook quality and T3 optimization issues) and `local/latest-secure.md` (to avoid re-suggesting items declined there).
+
+After completing Common Phase 0:
+- If `local/latest-optimize.md` was found: note previously declined items. Do NOT re-suggest them.
+- From secure history: if hooks were declined in /secure, do not suggest hook quality fixes.
+- If legacy files exist (migration): read the latest `*-audit.md`, `*-secure.md`, and `*-optimize.md` for the same information.
 
 ## Phase 1: Scan Optimization State
 
@@ -73,7 +74,7 @@ Present the optimization opportunities found:
 
 Only show items that actually need improvement. If audit history exists, pre-highlight items flagged there. If optimize history exists, exclude previously declined items.
 
-**If nothing needs improvement:**
+If nothing needs improvement:
 > "Your configuration is well-organized. No optimizations needed. Run `/claude-code-template:audit` for a full evaluation."
 
 Then skip to **Write History** (Phase 4.2) to record the result (Fixed: none, Declined: none).
@@ -134,22 +135,26 @@ If selected:
 
 Fix any issues immediately without asking.
 
-### 4.2 Write History
+### 4.2 Persist Results & Learn
 
-1. Check if `.claude/.plugin-cache/claude-code-template/` exists; if not, create it
-2. Check if `.claude/.plugin-cache/.gitignore` exists; if not, create it with content: `*`
-3. Write `{yyyyMMdd-HHmmss}-optimize.md` (use current timestamp, e.g., `20260406-120000-optimize.md`):
+Read `../../references/learning-system.md` and follow the **Common Final Phase** steps with these optimize-specific overrides:
 
-```markdown
-## Optimize Results
-- Date: {today's date}
-- Fixed:
-  - {list of items improved}
-- Declined:
-  - {list of items user skipped}
-```
+- **Step 1 override (Write Latest Result):** `latest-optimize.md` must include:
 
-4. Glob all `*.md` files in the plugin-cache directory; extract dates from filename prefixes; delete files older than 14 days
+  ```markdown
+  ## Optimize Results
+  - Date: {today's date}
+  - Fixed:
+    - {list of items improved}
+  - Declined:
+    - {list of items user skipped}
+  ```
+
+- **Step 2 override (Update Profile):** Update the "Claude Code Configuration State" section — specifically Rules count, Agents count, MCP status, and Hooks status if they changed.
+
+- **Step 3 (Append to Changelog):** Record improved items as Applied, skipped items as DECLINED. If a previously PENDING recommendation from `/audit` was addressed, mark it as RESOLVED.
+
+After completing Common Final Phase, run **Critical Thinking & Insight Delivery**.
 
 ### 4.3 Summary & Handoff
 

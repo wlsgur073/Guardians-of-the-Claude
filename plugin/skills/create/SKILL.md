@@ -11,20 +11,19 @@ Follow these phases in order.
 
 ---
 
-## Phase 0: Check Previous Generation
+## Phase 0: Load Context & Learn
 
-Before determining the path, check for previous generation results:
+Read `../../references/learning-system.md` and follow the **Common Phase 0** steps with these create-specific overrides:
 
-1. Check if `.claude/.plugin-cache/claude-code-template/` directory exists
-2. If it does, glob `*-create.md` files, sort by filename, read the latest
-3. Note what features were previously generated and what features the user explicitly declined
-4. Also glob `*-secure.md` and `*-optimize.md` files; read the latest of each if they exist
-5. Note what settings/files other skills have added — do NOT overwrite or duplicate them (applies to both incremental and fresh paths)
-6. Do NOT re-suggest declined features during the advanced features question (Phase 2A Question 6) unless the user asks
+- **Step 2 override:** Also read `local/latest-secure.md` and `local/latest-optimize.md` (to avoid overwriting other skills' changes). This is declared in `learning-system.md` as a create-specific cross-skill override.
 
-If no previous generation exists, skip this and proceed.
+After completing Common Phase 0:
+- If `local/latest-create.md` was found: note previously generated features and explicitly declined features. Do NOT re-suggest declined features in Phase 2A Question 6 unless the user asks.
+- If legacy `*-create.md` files exist (migration): read the latest one for the same information.
 
 ## Phase 0.5: Determine Path
+
+**If project-profile.md was loaded in Phase 0:** The project type is already known. Use the profile's "Project Structure" section to determine if this is an existing project. If CLAUDE.md and settings.json are listed in the profile's "Claude Code Configuration State", route directly to the Incremental path (Phase 2A-Incremental) without asking. Otherwise, skip to the "existing vs new" question below.
 
 First, silently check if Claude Code configuration already exists:
 
@@ -56,12 +55,12 @@ If the user chooses (b), continue to the question below.
 
 Based on the user's choice, read the generation rules and the appropriate path file (Phases 1–3 are defined in each path file):
 
-**If the user chooses (b) New/empty project:**
+If the user chooses (b) New/empty project:
 
 1. Read `references/best-practices.md` — common generation rules
 2. Read `templates/starter.md` — follow the Starter path instructions
 
-**If the user chooses (a) Existing project:**
+If the user chooses (a) Existing project:
 
 1. Read `references/best-practices.md` — common generation rules
 2. Read `templates/advanced.md` — follow the Advanced path instructions (references `../references/security-patterns.md` for security configuration)
@@ -100,22 +99,22 @@ After generating all files:
 
 > You're using a starter configuration. As your project grows and you want rule files, hooks, agents, or skills, run `/claude-code-template:create` again and choose "Existing project" to upgrade to the full configuration.
 
-## Phase 4.5: Save Generation Results
+## Phase 4.5: Persist Results & Learn
 
-After the wrap-up, save results to the plugin cache:
+Read `../../references/learning-system.md` and follow the **Common Final Phase** steps with these create-specific overrides:
 
-1. Check if `.claude/.plugin-cache/claude-code-template/` directory exists; if not, create it
-2. Check if `.claude/.plugin-cache/.gitignore` exists; if not, create it with content: `*`
-3. Write `{yyyyMMdd-HHmmss}-create.md` (use current timestamp, e.g., `20260406-143022-create.md`):
+- **Step 1 override (Write Latest Result):** `latest-create.md` must include:
 
-```markdown
-## Create Results
-- Date: {today's date}
-- Path: starter | advanced | incremental
-- Generated:
-  - {list of files created or modified}
-- Declined:
-  - {features user explicitly skipped in Question 6}
-```
+  ```markdown
+  ## Create Results
+  - Date: {today's date}
+  - Path: starter | advanced | incremental
+  - Generated:
+    - {list of files created or modified}
+  - Declined:
+    - {features user explicitly skipped in Question 6}
+  ```
 
-4. Glob all `*.md` files in the plugin-cache directory; for each, extract the date from the filename prefix (first 8 characters); delete files where the date is more than 14 days ago
+- **Step 3 (Append to Changelog):** The changelog entry must explicitly list declined features in the Recommendations section with DECLINED status. This enables Learning Rule 2 (Preference Respect) in future runs.
+
+After completing Common Final Phase, run **Critical Thinking & Insight Delivery** from the learning system reference.
