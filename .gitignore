@@ -18,10 +18,7 @@ Thumbs.db
 .claude/*
 
 # Internal plans, design specs, and eval tests (not user-facing)
-/plans/
 /test/
-docs/plans/
-docs/superpowers/
 
 # Node (if contributors install anything for tooling)
 node_modules/
