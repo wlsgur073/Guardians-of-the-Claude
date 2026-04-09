@@ -48,11 +48,21 @@ If `.claude/settings.json` has a `hooks` section:
 1. Check that every hook entry has a `statusMessage` field
 2. Check that `PreToolUse` hooks use `exit 2` (not `exit 1`) for blocking — `exit 1` causes a generic error, `exit 2` provides Claude with the reason
 3. Check for hooks with no `matcher` (runs on every tool use — usually unintentional)
+4. **Portability check:** Flag known non-portable patterns in hook commands that silently fail on some platforms:
+   - `grep -P` or `grep -oP` → PCRE not available on macOS/Windows Git Bash; use `grep -E` (extended regex) or `sed` instead
+   - `readlink -f` → not supported on macOS; use `realpath` or `cd "$(dirname "$0")" && pwd` instead
+   - `sed -i ''` vs `sed -i` → BSD sed (macOS) requires empty string arg, GNU sed does not; use `sed -i.bak` with cleanup or a temp file instead
+   - `date -d` → GNU-only flag for date parsing; macOS uses `date -j -f`; avoid date arithmetic in hooks or use portable alternatives
+   - `xargs -r` → `--no-run-if-empty` not available on macOS/BSD; use `xargs` with an `if` guard instead
+5. **Silent failure detection:** Flag patterns where command errors are suppressed in a way that masks complete hook failure:
+   - Variable assignment with `2>/dev/null` (e.g., `VAR=$(cmd 2>/dev/null)`) — if `cmd` fails, `VAR` is empty and subsequent conditions silently never trigger
+   - Piped commands where intermediate failures are hidden (e.g., `cmd1 | cmd2` without `set -o pipefail`)
 
 Scoring:
-- All hooks well-configured → **PASS**
+- All hooks well-configured, no portability issues → **PASS**
 - Minor issues (missing statusMessage on some hooks) → **PARTIAL**
-- Serious issues (wrong exit codes, no matchers) → **MINIMAL** — list specific issues
+- Portability issues found (non-portable commands in hook) → **PARTIAL** — list specific patterns with portable alternatives
+- Serious issues (wrong exit codes, no matchers, silent failure patterns masking protection logic) → **MINIMAL** — list specific issues
 - No hooks section → **SKIP**
 
 ### Conditional Suggestion
