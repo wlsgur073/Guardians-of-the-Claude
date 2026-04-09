@@ -1,5 +1,5 @@
 {
-  "description": "Suggests running /claude-code-template:create when no Claude Code configuration is found",
+  "description": "Checks project state on session start — suggests /create if no config, /audit if no profile, or re-audit if profile is stale",
   "hooks": {
     "SessionStart": [
       {
