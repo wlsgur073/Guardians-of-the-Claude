@@ -16,7 +16,7 @@ These checks form the **Foundation Gate** — they determine what percentage of 
 Check if `CLAUDE.md` exists at the project root or `.claude/CLAUDE.md`.
 
 - Found → **PASS**
-- Neither exists → **FAIL** — stop and recommend running `/claude-code-template:create` first. Do NOT proceed to T1.2 or any subsequent phase. Use the Early Halt output format (see output-format.md)
+- Neither exists → **FAIL** — stop and recommend running `/guardians-of-the-claude:create` first. Do NOT proceed to T1.2 or any subsequent phase. Use the Early Halt output format (see output-format.md)
 
 ## T1.2 Test Command
 

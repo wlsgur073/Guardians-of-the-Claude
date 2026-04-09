@@ -1,6 +1,6 @@
 # Privacy Policy
 
-## claude-code-template plugin
+## guardians-of-the-claude plugin
 
 This plugin does not collect, store, or transmit any user data.
 
@@ -20,4 +20,4 @@ All generated files are written locally to your working directory. The plugin ha
 
 ### Contact
 
-If you have questions about this privacy policy, open an issue at [github.com/wlsgur073/Claude-Code-Template](https://github.com/wlsgur073/Claude-Code-Template/issues).
+If you have questions about this privacy policy, open an issue at [github.com/wlsgur073/Guardians-of-the-Claude](https://github.com/wlsgur073/Guardians-of-the-Claude/issues).

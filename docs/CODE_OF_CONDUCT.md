@@ -55,7 +55,7 @@ When using AI tools to contribute to this project:
 
 Tensions can occur between community members even when they are trying their best to collaborate. Not every conflict represents a code of conduct violation, and this Code of Conduct reinforces encouraged behaviors and norms that can help avoid conflicts and minimize harm.
 
-When an incident does occur, it is important to report it promptly. To report a possible violation, [open an issue on GitHub](https://github.com/wlsgur073/Claude-Code-Template/issues) with the `[Code of Conduct]` prefix, or contact the maintainers directly through their GitHub profiles.
+When an incident does occur, it is important to report it promptly. To report a possible violation, [open an issue on GitHub](https://github.com/wlsgur073/Guardians-of-the-Claude/issues) with the `[Code of Conduct]` prefix, or contact the maintainers directly through their GitHub profiles.
 
 Community Moderators take reports of violations seriously and will make every effort to respond in a timely manner. They will investigate all reports of code of conduct violations, reviewing messages, logs, and recordings, or interviewing witnesses and other participants. Community Moderators will keep investigation and enforcement actions as transparent as possible while prioritizing safety and confidentiality. In order to honor these values, enforcement actions are carried out in private with the involved parties, but communicating to the whole community may be part of a mutually agreed upon resolution.
 

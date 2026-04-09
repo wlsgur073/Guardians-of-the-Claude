@@ -1,12 +1,12 @@
 {
-  "name": "claude-code-template",
+  "name": "guardians-of-the-claude",
   "version": "2.9.0",
   "description": "Guided Claude Code setup — creates, audits, secures, and optimizes your CLAUDE.md, settings.json, rules, hooks, agents, and skills",
   "author": {
     "name": "wlsgur073"
   },
-  "homepage": "https://github.com/wlsgur073/Claude-Code-Template",
-  "repository": "https://github.com/wlsgur073/Claude-Code-Template",
+  "homepage": "https://github.com/wlsgur073/Guardians-of-the-Claude",
+  "repository": "https://github.com/wlsgur073/Guardians-of-the-Claude",
   "license": "MIT",
   "keywords": ["claude-code", "setup", "configuration", "template", "onboarding", "CLAUDE.md", "audit", "security"]
 }

@@ -59,10 +59,10 @@ Still open: no MCP configuration, agent model diversity.
 **Next Steps section:** Always include if there are any non-PASS results:
 
 - If any T2.1 (deny patterns), T2.2 (security rules), or file protection issues:
-  > "Security improvements needed: run `/claude-code-template:secure` to fix protection gaps."
+  > "Security improvements needed: run `/guardians-of-the-claude:secure` to fix protection gaps."
 
 - If any T2.3 (hook quality) or T3 (optimization) issues:
-  > "Configuration improvements available: run `/claude-code-template:optimize` to improve organization."
+  > "Configuration improvements available: run `/guardians-of-the-claude:optimize` to improve organization."
 
 - If both categories have issues, show both lines (secure first).
 
@@ -93,7 +93,7 @@ Cannot proceed with audit — CLAUDE.md is a prerequisite for all checks.
 Detected project signals:
   * [list any dependency manifests, source files, or frameworks found]
 
-Recommendation: Run /claude-code-template:create to create initial configuration.
+Recommendation: Run /guardians-of-the-claude:create to create initial configuration.
 ```
 
 Do not produce a numeric score, grade, or maturity level. The halt is not a score of zero — it means the audit could not be performed.

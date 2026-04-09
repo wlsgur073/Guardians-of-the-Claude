@@ -75,7 +75,7 @@ Present the optimization opportunities found:
 Only show items that actually need improvement. If audit history exists, pre-highlight items flagged there. If optimize history exists, exclude previously declined items.
 
 If nothing needs improvement:
-> "Your configuration is well-organized. No optimizations needed. Run `/claude-code-template:audit` for a full evaluation."
+> "Your configuration is well-organized. No optimizations needed. Run `/guardians-of-the-claude:audit` for a full evaluation."
 
 Then skip to **Write History** (Phase 4.2) to record the result (Fixed: none, Declined: none).
 
@@ -160,4 +160,4 @@ After completing Common Final Phase, run **Critical Thinking & Insight Delivery*
 
 Print a summary of improvements made, then:
 
-> "Configuration has been optimized. Run `/claude-code-template:audit` to verify with a full evaluation."
+> "Configuration has been optimized. Run `/guardians-of-the-claude:audit` to verify with a full evaluation."

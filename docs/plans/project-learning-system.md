@@ -44,7 +44,7 @@ Transform the plugin from a one-time setup tool into a **continuous configuratio
 ### Layout
 
 ```markdown
-.claude/.plugin-cache/claude-code-template/
+.claude/.plugin-cache/guardians-of-the-claude/
 ├── .gitignore                       ← "* !remote/"
 └── local/
     ├── project-profile.md           ← Auto-detected project state (~30 lines)
@@ -69,14 +69,14 @@ Transform the plugin from a one-time setup tool into a **continuous configuratio
 
 The parent directory `.claude/.plugin-cache/` already has a `.gitignore` with `*` that blocks all contents from git tracking. For Phase 1, no additional `.gitignore` changes are needed — the `local/` directory is automatically excluded by the parent rule.
 
-For Phase 2 (remote/), the `.gitignore` at the `claude-code-template/` level would need to be created with `* !remote/`, and the parent `.gitignore` would need a `!claude-code-template/` exception. This is deferred.
+For Phase 2 (remote/), the `.gitignore` at the `guardians-of-the-claude/` level would need to be created with `* !remote/`, and the parent `.gitignore` would need a `!guardians-of-the-claude/` exception. This is deferred.
 
 ### Legacy File Paths
 
-Before the learning system, skills stored results as timestamped files directly in `.claude/.plugin-cache/claude-code-template/`:
+Before the learning system, skills stored results as timestamped files directly in `.claude/.plugin-cache/guardians-of-the-claude/`:
 
 ```
-.claude/.plugin-cache/claude-code-template/
+.claude/.plugin-cache/guardians-of-the-claude/
 ├── 20260408-143022-create.md    ← legacy (no local/ subdirectory)
 ├── 20260410-091500-audit.md     ← legacy
 └── ...
@@ -98,7 +98,7 @@ A single document capturing the auto-detected current state of the project. All 
 ---
 title: Project Profile
 description: Auto-detected project environment for consistent Claude Code recommendations
-generated_by: claude-code-template
+generated_by: guardians-of-the-claude
 last_updated: 2026-04-08
 source_files_checked:
   - package.json
@@ -434,7 +434,7 @@ fi
 
 ```bash
 #!/usr/bin/env bash
-PROFILE=".claude/.plugin-cache/claude-code-template/local/project-profile.md"
+PROFILE=".claude/.plugin-cache/guardians-of-the-claude/local/project-profile.md"
 
 # Case 1: No Claude Code configuration at all
 if [ ! -f "CLAUDE.md" ] && [ ! -f ".claude/settings.json" ]; then
@@ -442,7 +442,7 @@ if [ ! -f "CLAUDE.md" ] && [ ! -f ".claude/settings.json" ]; then
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
-    "additionalContext": "This project has no Claude Code configuration yet. The claude-code-template plugin is installed — suggest the user run /claude-code-template:create to set up CLAUDE.md and .claude/ configuration through a guided interview."
+    "additionalContext": "This project has no Claude Code configuration yet. The guardians-of-the-claude plugin is installed — suggest the user run /guardians-of-the-claude:create to set up CLAUDE.md and .claude/ configuration through a guided interview."
   }
 }
 EOF
@@ -455,7 +455,7 @@ if [ ! -f "$PROFILE" ]; then
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
-    "additionalContext": "Claude Code configuration exists but no project profile has been generated yet. Running /claude-code-template:audit will generate a project profile for more accurate recommendations across all skills."
+    "additionalContext": "Claude Code configuration exists but no project profile has been generated yet. Running /guardians-of-the-claude:audit will generate a project profile for more accurate recommendations across all skills."
   }
 }
 EOF
@@ -478,7 +478,7 @@ if [ "$STALE" = "true" ]; then
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
-    "additionalContext": "Project profile may be outdated — $STALE_FILE was modified since the last profile update. Running /claude-code-template:audit will refresh the profile and check for new recommendations."
+    "additionalContext": "Project profile may be outdated — $STALE_FILE was modified since the last profile update. Running /guardians-of-the-claude:audit will refresh the profile and check for new recommendations."
   }
 }
 EOF
@@ -631,7 +631,7 @@ Every skill's Phase 0 gains this block before its existing logic:
 ## Phase 0: Load Context & Learn
 
 ### Step 0 — Directory Check
-1. Check if `.claude/.plugin-cache/claude-code-template/local/` directory exists
+1. Check if `.claude/.plugin-cache/guardians-of-the-claude/local/` directory exists
 2. If the directory does not exist: this is a cold start.
    Skip Steps 1-3 entirely and proceed to this skill's existing Phase 0 logic.
    The Final Phase will create the directory and all initial files.
@@ -649,7 +649,7 @@ Every skill's Phase 0 gains this block before its existing logic:
    - `/create`: also read `local/latest-secure.md` and `local/latest-optimize.md` (to avoid overwriting other skills' changes)
    - `/audit`: no additional files needed
 3. If no latest file found: check parent directory
-   (`.claude/.plugin-cache/claude-code-template/`) for legacy
+   (`.claude/.plugin-cache/guardians-of-the-claude/`) for legacy
    `*-{skill}.md` files. If found, read the most recent one.
 
 ### Step 3 — Load Changelog & Apply Learning Rules
@@ -670,7 +670,7 @@ Every skill's final phase gains this block after its existing logic:
 ## Final Phase: Persist Results
 
 ### Step 1 — Write Latest Result
-1. Create `.claude/.plugin-cache/claude-code-template/local/` if it does not exist
+1. Create `.claude/.plugin-cache/guardians-of-the-claude/local/` if it does not exist
 2. Write `latest-{this-skill}.md` with current execution results
    (overwrite if exists)
 
@@ -776,10 +776,10 @@ The learning system reduces per-invocation cost by avoiding redundant manifest s
 
 ### Concept
 
-For team projects, a `remote/` directory within `.plugin-cache/claude-code-template/` could hold git-tracked, team-shared data:
+For team projects, a `remote/` directory within `.plugin-cache/guardians-of-the-claude/` could hold git-tracked, team-shared data:
 
 ```
-.claude/.plugin-cache/claude-code-template/
+.claude/.plugin-cache/guardians-of-the-claude/
 ├── .gitignore          ← "* !remote/"
 ├── local/              ← Per-developer (current implementation)
 └── remote/             ← Team-shared (Phase 2)
@@ -883,7 +883,7 @@ Skills should not force dialogue on every run. But when self-verification reveal
 
 ### Phase 1: Storage & Hook (foundation)
 
-- [x] Create `local/` directory structure in `.plugin-cache/claude-code-template/` — created at runtime by Final Phase Step 1
+- [x] Create `local/` directory structure in `.plugin-cache/guardians-of-the-claude/` — created at runtime by Final Phase Step 1
 - [N/A] Update `.gitignore` to `* !remote/` — deferred to Phase 2 (remote/); parent `.plugin-cache/.gitignore` already blocks local/
 - [x] Define `project-profile.md` template with frontmatter — in `references/learning-system.md`
 - [x] Define `config-changelog.md` template with frontmatter — in `references/learning-system.md`

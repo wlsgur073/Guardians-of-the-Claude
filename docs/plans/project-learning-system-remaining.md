@@ -144,7 +144,7 @@ Replace Phase 1 section with:
 ```markdown
 ### Phase 1: Storage & Hook (foundation)
 
-- [x] Create `local/` directory structure in `.plugin-cache/claude-code-template/` — created at runtime by Final Phase Step 1
+- [x] Create `local/` directory structure in `.plugin-cache/guardians-of-the-claude/` — created at runtime by Final Phase Step 1
 - [N/A] Update `.gitignore` to `* !remote/` — deferred to Phase 2 (remote/); parent `.plugin-cache/.gitignore` already blocks local/
 - [x] Define `project-profile.md` template with frontmatter — in `references/learning-system.md`
 - [x] Define `config-changelog.md` template with frontmatter — in `references/learning-system.md`
@@ -221,7 +221,7 @@ This task cannot be executed in this repository. It requires a separate test pro
 **Test environment setup:**
 1. Create or use an existing project with source code (e.g., a Node.js/TypeScript project)
 2. Install the plugin: ensure `.claude/plugins/` points to this branch's version
-3. Clear any existing `.claude/.plugin-cache/claude-code-template/` directory
+3. Clear any existing `.claude/.plugin-cache/guardians-of-the-claude/` directory
 
 **Scenario scripts:**
 

@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
-PROFILE=".claude/.plugin-cache/claude-code-template/local/project-profile.md"
+PROFILE=".claude/.plugin-cache/guardians-of-the-claude/local/project-profile.md"
+OLD_CACHE=".claude/.plugin-cache/claude-code-template"
+NEW_CACHE=".claude/.plugin-cache/guardians-of-the-claude"
+
+# Migration: rename old cache directory if it exists
+if [ -d "$OLD_CACHE" ] && [ ! -d "$NEW_CACHE" ]; then
+  mv "$OLD_CACHE" "$NEW_CACHE"
+fi
 
 # Case 1: No Claude Code configuration at all
 if [ ! -f "CLAUDE.md" ] && [ ! -f ".claude/settings.json" ]; then
@@ -7,7 +14,7 @@ if [ ! -f "CLAUDE.md" ] && [ ! -f ".claude/settings.json" ]; then
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
-    "additionalContext": "This project has no Claude Code configuration yet. The claude-code-template plugin is installed — suggest the user run /claude-code-template:create to set up CLAUDE.md and .claude/ configuration through a guided interview."
+    "additionalContext": "This project has no Claude Code configuration yet. The guardians-of-the-claude plugin is installed — suggest the user run /guardians-of-the-claude:create to set up CLAUDE.md and .claude/ configuration through a guided interview."
   }
 }
 EOF
@@ -20,7 +27,7 @@ if [ ! -f "$PROFILE" ]; then
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
-    "additionalContext": "Claude Code configuration exists but no project profile has been generated yet. Running /claude-code-template:audit will generate a project profile for more accurate recommendations across all skills."
+    "additionalContext": "Claude Code configuration exists but no project profile has been generated yet. Running /guardians-of-the-claude:audit will generate a project profile for more accurate recommendations across all skills."
   }
 }
 EOF
@@ -43,7 +50,7 @@ if [ "$STALE" = "true" ]; then
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
-    "additionalContext": "Project profile may be outdated — $STALE_FILE was modified since the last profile update. Running /claude-code-template:audit will refresh the profile and check for new recommendations."
+    "additionalContext": "Project profile may be outdated — $STALE_FILE was modified since the last profile update. Running /guardians-of-the-claude:audit will refresh the profile and check for new recommendations."
   }
 }
 EOF

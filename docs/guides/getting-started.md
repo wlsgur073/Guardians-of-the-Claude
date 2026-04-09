@@ -18,7 +18,7 @@ This guide walks you through setting up Claude Code configuration for your proje
 | Option | What it does | Best for |
 | ------ | ------------ | -------- |
 | `/init` | Analyzes code, generates basic CLAUDE.md | Quick start -- good for many projects |
-| `/claude-code-template:create` | Guided interview → CLAUDE.md + settings + rules + optional features | Comprehensive setup ([Quick Start](../../README.md#quick-start)) |
+| `/guardians-of-the-claude:create` | Guided interview → CLAUDE.md + settings + rules + optional features | Comprehensive setup ([Quick Start](../../README.md#quick-start)) |
 
 **`/init`** is the [officially recommended first step](https://code.claude.com/docs/en/best-practices) -- Claude analyzes your codebase and auto-generates a CLAUDE.md:
 
@@ -27,11 +27,11 @@ claude
 > /init
 ```
 
-**`/claude-code-template:create`** runs `/init`-style analysis plus generates rules, permissions, and optional advanced features. Install the plugin first (`/plugin marketplace add wlsgur073/Claude-Code-Template`, then `/plugin install claude-code-template@wlsgur073-plugins`). **Using both?** Run `/init` first, then `/claude-code-template:create` choosing "Existing project" -- it detects your existing CLAUDE.md and merges rather than overwrites.
+**`/guardians-of-the-claude:create`** runs `/init`-style analysis plus generates rules, permissions, and optional advanced features. Install the plugin first (`/plugin marketplace add wlsgur073/Guardians-of-the-Claude`, then `/plugin install guardians-of-the-claude`). **Using both?** Run `/init` first, then `/guardians-of-the-claude:create` choosing "Existing project" -- it detects your existing CLAUDE.md and merges rather than overwrites.
 
 ## Step 2: Copy the Templates (Manual Alternative)
 
-If you used `/claude-code-template:create` in Step 1, skip this step -- your files are already generated.
+If you used `/guardians-of-the-claude:create` in Step 1, skip this step -- your files are already generated.
 
 If you prefer to reference templates manually, see `templates/starter/` and `templates/advanced/` for filled examples (fictional "TaskFlow" project). These show what a completed configuration looks like for each path:
 
@@ -110,7 +110,7 @@ Launch Claude Code in your project and confirm everything is loaded:
 
 Once your basic configuration is working, explore hooks, agents, and skills for more sophisticated workflows. See the [Advanced Features Guide](advanced-features-guide.md).
 
-**Upgrading from Starter to Advanced:** Run `/claude-code-template:create` again, choose "Existing project" at the first prompt, and answer the 6 Advanced questions. Claude detects your existing configuration and merges the new sections in.
+**Upgrading from Starter to Advanced:** Run `/guardians-of-the-claude:create` again, choose "Existing project" at the first prompt, and answer the 6 Advanced questions. Claude detects your existing configuration and merges the new sections in.
 
 > **Tip:** The `claude-code-setup` plugin can recommend additional automations (MCP servers, hooks, skills) tailored to your detected stack. Install it from the official marketplace for post-setup suggestions.
 

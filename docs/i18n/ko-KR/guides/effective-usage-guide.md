@@ -90,7 +90,7 @@ from src/api/middleware.ts. Follow the pattern in src/api/users.ts.
 ## 기존 프로젝트에 Claude Code 도입하기
 
 1. **기존 도구를 먼저 확인하세요** -- 린터 설정, 테스트 프레임워크, 빌드 도구를 확인하세요. 해당 명령어를 CLAUDE.md에 추가하세요.
-2. **`/init` 또는 `/claude-code-template:create`를 사용하세요** -- 둘 다 기존 프로젝트 구조를 감지합니다. 프롬프트에서 "기존 프로젝트"를 선택하세요.
+2. **`/init` 또는 `/guardians-of-the-claude:create`를 사용하세요** -- 둘 다 기존 프로젝트 구조를 감지합니다. 프롬프트에서 "기존 프로젝트"를 선택하세요.
 3. **점진적으로 확장하세요** -- `CLAUDE.md` + `settings.json`으로 시작하세요. 반복적인 필요가 발생할 때만 rules, hooks, agents, skills를 추가하세요.
 
 ## 흔한 실패 패턴
