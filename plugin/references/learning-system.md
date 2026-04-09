@@ -48,7 +48,7 @@ Rule 3 — Stagnation Detection
 - Context: Last 3+ entries in changelog (any skill, not audit-only).
 - Signal: Same PENDING recommendation appears in 3+ entries consecutively (non-audit entries that don't mention the item do not break the chain). OR `Applied: (none)` in 3 consecutive entries.
 - Action: Ask user to (a) apply now, (b) mark declined, (c) defer. If user defers, increment PENDING count per Rule 1. No response after prompt → STALE on next compaction.
-- STALE application: During compaction (Step 3b), if an item was prompted via Rule 3 and the user did not respond (no apply/decline/defer recorded), mark it STALE in the compacted summary.
+- STALE application: During compaction (Step 3b), if an item is PENDING with count N≥3 and no apply/decline/defer action was recorded in any entry since the count reached 3, mark it STALE in the compacted summary. The (Nx) count itself is sufficient evidence — no intermediate status tracking is needed.
 
 Rule 4 — Profile Drift Response
 
@@ -106,7 +106,7 @@ After (14:15:00 run merged):
 ## Compaction Algorithm (Step 3b)
 
 1. Count entries in Recent Activity. If >10, trigger compaction.
-2. Select entries older than 30 days, group by quarter (`YYYY-QN`).
+2. Select entries strictly older than 30 days (entry date < today - 30; entries exactly 30 days old stay in Recent Activity), group by quarter (`YYYY-QN`).
 3. Produce compacted summary per quarter. Append to Compacted History, remove originals.
 4. Three-tier resolution: **year-level** (>2 years) → **quarter-level** (older than current quarter) → **entry-level** (recent, full detail).
 5. Update frontmatter: `compacted_at`, `entry_count`.

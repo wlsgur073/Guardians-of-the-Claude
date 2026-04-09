@@ -287,7 +287,7 @@ Compaction runs during any skill's final phase (when writing to the changelog). 
 ```
 1. Count entries in Recent Activity
 2. If count > 10:
-   a. Select entries older than 30 days
+   a. Select entries strictly older than 30 days (entry date < today - 30; entries exactly 30 days old stay in Recent Activity)
    b. Group by quarter (YYYY-QN)
    c. For each quarter group, produce a compacted summary
    d. Append summaries to Compacted History
@@ -606,6 +606,8 @@ STALE items are mentioned once more in the next audit entry,
 then archived in Compacted History as "(no response, archived)".
 ```
 
+**"No response" detection:** Since conversations are stateless, there is no way to record that a Rule 3 prompt was issued. Instead, use the PENDING count as evidence: if an item is PENDING (N≥3) at compaction time and no apply/decline/defer action was recorded in any entry since the count reached 3, mark it STALE. The (Nx) count itself is sufficient evidence — no intermediate `PROMPTED` status is needed.
+
 This prevents infinite PENDING accumulation.
 
 ### Learning Effectiveness by Run Count
@@ -879,26 +881,30 @@ Skills should not force dialogue on every run. But when self-verification reveal
 
 ### Phase 1: Storage & Hook (foundation)
 
-- [ ] Create `local/` directory structure in `.plugin-cache/claude-code-template/`
-- [ ] Update `.gitignore` to `* !remote/`
-- [ ] Define `project-profile.md` template with frontmatter
-- [ ] Define `config-changelog.md` template with frontmatter
-- [ ] Rewrite `hooks/session-start.sh` with 3-case detection
-- [ ] Update `hooks/hooks.json` if needed
+- [x] Create `local/` directory structure in `.plugin-cache/claude-code-template/` — created at runtime by Final Phase Step 1
+- [N/A] Update `.gitignore` to `* !remote/` — deferred to Phase 2 (remote/); parent `.plugin-cache/.gitignore` already blocks local/
+- [x] Define `project-profile.md` template with frontmatter — in `references/learning-system.md`
+- [x] Define `config-changelog.md` template with frontmatter — in `references/learning-system.md`
+- [x] Rewrite `hooks/session-start.sh` with 3-case detection — commit `3640c59`
+- [x] Update `hooks/hooks.json` if needed — description updated for 3-case detection
 
 ### Phase 2: Skill Integration
 
-- [ ] Add Common Phase 0 (Load Context & Learn) to all 4 skills
-- [ ] Add Common Final Phase (Persist Results) to all 4 skills
-- [ ] Add Learning Rules section to each skill's Phase 0
-- [ ] Add Self-Verification checklist to each skill's final phase (before presenting results)
-- [ ] Add Insight delivery guidance to each skill
-- [ ] Add skill-specific variations (audit reads full changelog, create records declines, etc.)
-- [ ] Add compaction logic to the Final Phase
-- [ ] Add same-day duplicate handling logic to changelog append step
-- [ ] Add legacy migration logic to Phase 0
+- [x] Add Common Phase 0 (Load Context & Learn) to all 4 skills — commit `5bd6b1a`
+- [x] Add Common Final Phase (Persist Results) to all 4 skills — commit `5bd6b1a`
+- [x] Add Learning Rules section to each skill's Phase 0 — via `references/learning-system.md`
+- [x] Add Self-Verification checklist to each skill's final phase — via Critical Thinking reference
+- [x] Add Insight delivery guidance to each skill — via Critical Thinking reference
+- [x] Add skill-specific variations (audit reads full changelog, create records declines, etc.) — commit `5bd6b1a`
+- [x] Add compaction logic to the Final Phase — in `references/learning-system.md`
+- [x] Add same-day duplicate handling logic to changelog append step — in `references/learning-system.md`
+- [x] Add legacy migration logic to Phase 0 — in each skill's Phase 0 override
 
 ### Phase 3: Validation
+
+> Manual E2E testing — requires running skills against a real project with the plugin installed.
+> Initial testing completed (commit `7a277c2` fixed spec ambiguities found during E2E).
+> Full validation deferred to post-merge acceptance testing.
 
 - [ ] Test cold start (no existing files)
 - [ ] Test second run (profile exists, one changelog entry)
@@ -912,7 +918,7 @@ Skills should not force dialogue on every run. But when self-verification reveal
 
 ### Phase 4: Documentation
 
-- [ ] Update plugin CHANGELOG.md
-- [ ] Bump plugin version in plugin.json
-- [ ] Update CLAUDE.md if repository structure description changes
-- [ ] Sync i18n files (ko-KR, ja-JP) if guides are affected
+- [x] Update plugin CHANGELOG.md — commit `bb2a172`
+- [x] Bump plugin version in plugin.json — already 2.9.0 (matches CHANGELOG)
+- [x] Update CLAUDE.md if repository structure description changes — commit `bb2a172`
+- [N/A] Sync i18n files (ko-KR, ja-JP) if guides are affected — no English guides modified
