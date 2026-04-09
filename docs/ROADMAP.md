@@ -18,7 +18,7 @@ See [CHANGELOG.md](../CHANGELOG.md) for version history.
 
 Have an idea or suggestion for this roadmap?
 
-1. Open a new discussion in [GitHub Discussions](https://github.com/wlsgur073/Claude-Code-Template/discussions)
+1. Open a new discussion in [GitHub Discussions](https://github.com/wlsgur073/Guardians-of-the-Claude/discussions)
 2. Describe your idea and why it would help
 3. The community discusses, then the maintainer decides
 

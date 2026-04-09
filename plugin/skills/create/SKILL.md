@@ -93,11 +93,11 @@ After generating all files:
 3. Tell the user: "Run `/memory` to verify all configuration files are loaded"
 4. Suggest trying a simple task to test the configuration works
 
-5. Suggest: "Run `/claude-code-template:audit` to evaluate your new configuration."
+5. Suggest: "Run `/guardians-of-the-claude:audit` to evaluate your new configuration."
 
 **If the user followed the Starter path**, also add:
 
-> You're using a starter configuration. As your project grows and you want rule files, hooks, agents, or skills, run `/claude-code-template:create` again and choose "Existing project" to upgrade to the full configuration.
+> You're using a starter configuration. As your project grows and you want rule files, hooks, agents, or skills, run `/guardians-of-the-claude:create` again and choose "Existing project" to upgrade to the full configuration.
 
 ## Phase 4.5: Persist Results & Learn
 

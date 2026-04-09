@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "wlsgur073-plugins",
+  "name": "guardians",
   "owner": {
     "name": "wlsgur073",
     "email": "wlsgur073@gmail.com"
@@ -10,14 +10,14 @@
   },
   "plugins": [
     {
-      "name": "claude-code-template",
+      "name": "guardians-of-the-claude",
       "source": "./plugin",
       "description": "Guided Claude Code setup — generates CLAUDE.md, settings, rules, hooks, agents, and skills for any project",
       "author": {
         "name": "wlsgur073"
       },
-      "homepage": "https://github.com/wlsgur073/Claude-Code-Template",
-      "repository": "https://github.com/wlsgur073/Claude-Code-Template",
+      "homepage": "https://github.com/wlsgur073/Guardians-of-the-Claude",
+      "repository": "https://github.com/wlsgur073/Guardians-of-the-Claude",
       "license": "MIT",
       "category": "development",
       "tags": ["setup", "configuration", "template", "onboarding"]

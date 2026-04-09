@@ -175,14 +175,14 @@ Skills come in two types: **user-invoked** (slash command) and **model-invoked**
 
 ### Plugin Skills in Practice
 
-The `claude-code-template` plugin demonstrates a skill-per-role workflow with four skills that chain together:
+The `guardians-of-the-claude` plugin demonstrates a skill-per-role workflow with four skills that chain together:
 
 | Skill | Purpose |
 | ----- | ------- |
-| `/claude-code-template:create` | Guided setup wizard -- generates CLAUDE.md, settings, rules, and optional features |
-| `/claude-code-template:audit` | Comprehensive configuration evaluation with scoring |
-| `/claude-code-template:secure` | Fixes security gaps -- deny patterns, security rules, file protection hooks |
-| `/claude-code-template:optimize` | Improves config quality -- rules splitting, agent diversity, MCP, hook quality |
+| `/guardians-of-the-claude:create` | Guided setup wizard -- generates CLAUDE.md, settings, rules, and optional features |
+| `/guardians-of-the-claude:audit` | Comprehensive configuration evaluation with scoring |
+| `/guardians-of-the-claude:secure` | Fixes security gaps -- deny patterns, security rules, file protection hooks |
+| `/guardians-of-the-claude:optimize` | Improves config quality -- rules splitting, agent diversity, MCP, hook quality |
 
 **Recommended workflow:** `/create` → `/audit` → `/secure` or `/optimize` → `/audit` (re-verify). Each skill hands off to the next, and they share state via timestamped files in `.claude/.plugin-cache/`.
 

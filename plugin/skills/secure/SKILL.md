@@ -60,7 +60,7 @@ Present the current security state:
 **If secure history exists:** exclude items the user previously declined.
 
 If all items are already configured:
-> "Your security configuration looks solid. No changes needed. Run `/claude-code-template:audit` for a full evaluation."
+> "Your security configuration looks solid. No changes needed. Run `/guardians-of-the-claude:audit` for a full evaluation."
 
 Then skip to **Write History** (Phase 4.2) to record the result (Fixed: none, Declined: none).
 
@@ -123,4 +123,4 @@ After completing Common Final Phase, run **Critical Thinking & Insight Delivery*
 
 Print a summary of changes made, then:
 
-> "Security configuration has been improved. Run `/claude-code-template:audit` to verify with a full evaluation."
+> "Security configuration has been improved. Run `/guardians-of-the-claude:audit` to verify with a full evaluation."

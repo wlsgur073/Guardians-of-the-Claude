@@ -1,4 +1,4 @@
-# Contributing to Claude Code Template
+# Contributing to Guardians of the Claude
 
 Thank you for your interest in contributing! This project helps developers configure Claude Code effectively through guides, templates, and examples.
 
@@ -13,7 +13,7 @@ We welcome the following types of contributions:
 - **Guide improvements** — Clarify explanations, fix inaccuracies, or add missing details in `docs/guides/`
 - **Template improvements** — Expand or refine the TaskFlow examples in `templates/`
 - **Translations** — Add or improve Korean translations in `docs/i18n/ko-KR/`
-- **Roadmap proposals** — Suggest new directions or features via [Discussions (Roadmap category)](https://github.com/wlsgur073/Claude-Code-Template/discussions). See [ROADMAP.md](ROADMAP.md) for details.
+- **Roadmap proposals** — Suggest new directions or features via [Discussions (Roadmap category)](https://github.com/wlsgur073/Guardians-of-the-Claude/discussions). See [ROADMAP.md](ROADMAP.md) for details.
 - **Typo and grammar fixes** — Always welcome
 
 ## Before You Start

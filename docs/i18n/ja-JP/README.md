@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="../../../assets/banner-v2.svg" alt="Claude Code Template" width="700"/>
+  <img src="../../../assets/banner-v2.svg" alt="Guardians of the Claude" width="700"/>
 </p>
 
 Claude Code設定のためのスターターテンプレートとガイド。プラグインをインストールし、
-`/claude-code-template:create`を実行すると、Claudeが対話形式のインタビューを通じて
+`/guardians-of-the-claude:create`を実行すると、Claudeが対話形式のインタビューを通じて
 すべての設定ファイルを自動生成します。
 
 **対象:** 初日から使える設定が欲しいClaude Code入門開発者。
@@ -21,8 +21,8 @@ Claude Code設定のためのスターターテンプレートとガイド。プ
 
    ```text
    claude
-   > /plugin marketplace add wlsgur073/Claude-Code-Template
-   > /plugin install claude-code-template@wlsgur073-plugins
+   > /plugin marketplace add wlsgur073/Guardians-of-the-Claude
+   > /plugin install guardians-of-the-claude
    ```
 
 2. **プロジェクトでセットアップコマンドを実行**:
@@ -30,15 +30,15 @@ Claude Code設定のためのスターターテンプレートとガイド。プ
    ```text
    cd your-project
    claude
-   > /claude-code-template:create
+   > /guardians-of-the-claude:create
    ```
 
    **代替方法**（プラグインインストールなし）:
 
    | 方法 | コマンド |
    | ---- | ------- |
-   | ローカルプラグイン | `claude --plugin-dir /path/to/Claude-Code-Template/plugin` |
-   | `@` import | `@../Claude-Code-Template/plugin/skills/create/SKILL.md` |
+   | ローカルプラグイン | `claude --plugin-dir /path/to/Guardians-of-the-Claude/plugin` |
+   | `@` import | `@../Guardians-of-the-Claude/plugin/skills/create/SKILL.md` |
    | 直接貼り付け | `plugin/skills/create/SKILL.md`の内容をコピーして会話に直接貼り付け |
 
 3. **パスを選択** — Claudeがプロジェクトの状態を検出して質問します:
@@ -59,13 +59,13 @@ Claude Code設定のためのスターターテンプレートとガイド。プ
    プロジェクトのスタックに合わせたMCPサーバー、hooks、skillsの推奨を受けられます。
 
 > **ヒント:** まずプロジェクトで`/init`を実行してください — Claudeがスターター
-> CLAUDE.mdを自動生成します。その後`/claude-code-template:create`で「既存プロジェクト」を
+> CLAUDE.mdを自動生成します。その後`/guardians-of-the-claude:create`で「既存プロジェクト」を
 > 選択すると、`/init`が見逃した部分を補完できます。
 
 ## テンプレート構造
 
 ```text
-Claude-Code-Template/
+Guardians-of-the-Claude/
 ├── .claude-plugin/          ← マーケットプレイスマニフェスト（プラグインマーケットプレイス）
 ├── plugin/                  ← プラグインパッケージ
 │   ├── .claude-plugin/
@@ -74,21 +74,20 @@ Claude-Code-Template/
 │   │   ├── hooks.json       ← SessionStartフック
 │   │   └── session-start.sh
 │   ├── references/
-│   │   └── security-patterns.md  ← 共有セキュリティテンプレート（/createと/secure共用）
+│   │   ├── security-patterns.md  ← 共有セキュリティテンプレート（/createと/secure共用）
+│   │   └── learning-system.md   ← 共有学習システムリファレンス（全スキル共用）
 │   └── skills/
 │       ├── create/
-│       │   ├── SKILL.md     ← 生成スキル（/claude-code-template:create）
+│       │   ├── SKILL.md     ← 生成スキル（/guardians-of-the-claude:create）
 │       │   ├── references/  ← 生成ベストプラクティス
 │       │   └── templates/   ← Starter & Advancedパス指示
 │       ├── audit/
-│       │   ├── SKILL.md     ← 監査スキル（/claude-code-template:audit）
+│       │   ├── SKILL.md     ← 監査スキル（/guardians-of-the-claude:audit）
 │       │   └── references/  ← スコアリングモデルと計算式
 │       ├── secure/
-│       │   └── SKILL.md     ← セキュリティ強化スキル（/claude-code-template:secure）
-│       ├── optimize/
-│       │   └── SKILL.md     ← 最適化スキル（/claude-code-template:optimize）
-│       └── generate/
-│           └── SKILL.md     ← 非推奨 — /createにリダイレクト
+│       │   └── SKILL.md     ← セキュリティ強化スキル（/guardians-of-the-claude:secure）
+│       └── optimize/
+│           └── SKILL.md     ← 最適化スキル（/guardians-of-the-claude:optimize）
 ├── templates/starter/       ← スターター実例（架空の「TaskFlow」プロジェクト）
 ├── templates/advanced/      ← 上級機能実例（rules, hooks, agents, skills）
 ├── docs/
@@ -154,7 +153,7 @@ Claude Code下部のステータスバーをカスタマイズして、モデル
 ワンライン設定:
 
 ```bash
-cp Claude-Code-Template/statusline.sh ~/.claude/statusline.sh
+cp Guardians-of-the-Claude/statusline.sh ~/.claude/statusline.sh
 ```
 
 Claude Codeが`~/.claude/statusline.sh`を自動検出します — 追加設定不要。
@@ -165,7 +164,7 @@ Claude Codeが`~/.claude/statusline.sh`を自動検出します — 追加設定
 
 コントリビュート？ここで？Claudeにやらせればいいのに...（笑）
 ...冗談です、もちろん歓迎します。IssueやPRをお気軽にどうぞ。
-プロジェクトの方向性と提案は[ROADMAP.md](../../ROADMAP.md)を確認し、[GitHub Discussions](https://github.com/wlsgur073/Claude-Code-Template/discussions)で参加してください。
+プロジェクトの方向性と提案は[ROADMAP.md](../../ROADMAP.md)を確認し、[GitHub Discussions](https://github.com/wlsgur073/Guardians-of-the-Claude/discussions)で参加してください。
 
 ## ライセンス
 

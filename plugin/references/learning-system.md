@@ -1,6 +1,6 @@
 # Learning System
 
-Shared reference for `/create`, `/audit`, `/secure`, `/optimize`. Defines common Phase 0, Final Phase, learning rules, changelog management, and critical thinking standards. All paths relative to `.claude/.plugin-cache/claude-code-template/`.
+Shared reference for `/create`, `/audit`, `/secure`, `/optimize`. Defines common Phase 0, Final Phase, learning rules, changelog management, and critical thinking standards. All paths relative to `.claude/.plugin-cache/guardians-of-the-claude/`.
 
 ---
 
@@ -159,7 +159,7 @@ Frontmatter:
 ---
 title: Project Profile
 description: Auto-detected project environment for consistent Claude Code recommendations
-generated_by: claude-code-template
+generated_by: guardians-of-the-claude
 last_updated: {YYYY-MM-DD}
 source_files_checked:
   - {manifest files checked}

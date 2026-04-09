@@ -43,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `/secure`: reads latest-audit for T2 references; resolves audit recommendations when addressed
 - `/optimize`: reads latest-audit + latest-secure; respects cross-skill declined items
 - File storage: `{timestamp}-{skill}.md` pattern replaced by `latest-{skill}.md` (overwrite, max 7 files)
-- Storage path: `.plugin-cache/claude-code-template/` → `.plugin-cache/claude-code-template/local/`
+- Storage path: `.plugin-cache/guardians-of-the-claude/` → `.plugin-cache/guardians-of-the-claude/local/`
 
 ### Migration
 
@@ -84,7 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `/secure` skill — fixes security/protection gaps (deny patterns, security rules, file protection hooks)
 - `/optimize` skill — improves configuration quality (rules splitting, agent diversity, MCP, hook quality)
 - Shared `plugin/references/security-patterns.md` — common security templates for `/create` and `/secure`
-- Plugin-cache memory system at `.claude/.plugin-cache/claude-code-template/` — timestamped Markdown files with 14-day Sliding Window retention
+- Plugin-cache memory system at `.claude/.plugin-cache/guardians-of-the-claude/` — timestamped Markdown files with 14-day Sliding Window retention
 - Skill-aware Next Steps in `/audit` — directs users to `/secure` or `/optimize` based on findings
 
 ### Changed

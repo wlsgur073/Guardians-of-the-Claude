@@ -27,7 +27,7 @@ Since this repository contains no executable code or user data, **public reporti
 
 To report a security concern:
 
-1. [Open a new issue](https://github.com/wlsgur073/Claude-Code-Template/issues/new) with the `[Security]` prefix in the title
+1. [Open a new issue](https://github.com/wlsgur073/Guardians-of-the-Claude/issues/new) with the `[Security]` prefix in the title
 2. Describe which file contains the insecure pattern
 3. Explain the potential impact if the pattern were adopted by a real project
 4. Suggest a fix if possible

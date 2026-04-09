@@ -90,7 +90,7 @@ from src/api/middleware.ts. Follow the pattern in src/api/users.ts.
 ## Adopting Claude Code in Existing Projects
 
 1. **Explore existing tooling first** -- Check for linter configs, test frameworks, and build tools. Add their commands to your CLAUDE.md.
-2. **Use `/init` or `/claude-code-template:create`** -- Both detect existing project structure. Choose "Existing project" when prompted.
+2. **Use `/init` or `/guardians-of-the-claude:create`** -- Both detect existing project structure. Choose "Existing project" when prompted.
 3. **Grow incrementally** -- Start with `CLAUDE.md` + `settings.json`. Add rules, hooks, agents, and skills only when you encounter a repeatable need.
 
 ## Common Failure Patterns

@@ -64,7 +64,7 @@ Auto memory lives outside your repository. You do not need to create, edit, or g
 
 Some plugins store per-project state in `.claude/.plugin-cache/<plugin-name>/`. This directory is **auto-generated** by plugins and should not be manually edited or committed to version control. Plugins manage their own `.gitignore` inside `.plugin-cache/` to ensure cache files are excluded from git.
 
-Example: The `claude-code-template` plugin stores audit scores and improvement history here using timestamped Markdown files (`{yyyyMMdd-HHmmss}-{type}.md`). These files let skills remember what was fixed, declined, or scored across sessions.
+Example: The `guardians-of-the-claude` plugin stores audit scores and improvement history here using timestamped Markdown files (`{yyyyMMdd-HHmmss}-{type}.md`). These files let skills remember what was fixed, declined, or scored across sessions.
 
 ## What to .gitignore
 

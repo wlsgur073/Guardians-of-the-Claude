@@ -1,13 +1,13 @@
 <p align="center">
-  <img src="assets/banner-v2.svg" alt="Claude Code Template" width="700"/>
+  <img src="assets/banner-v2.svg" alt="Guardians of the Claude" width="700"/>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-2.8.1-brightgreen.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Version-2.9.0-brightgreen.svg" alt="Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg" alt="Claude Code Plugin">
   <img src="https://img.shields.io/badge/Skills-4_Commands-orange.svg" alt="4 Skills">
-  <a href="https://github.com/wlsgur073/Claude-Code-Template/stargazers"><img src="https://img.shields.io/github/stars/wlsgur073/Claude-Code-Template?style=social" alt="GitHub Stars"></a>
+  <a href="https://github.com/wlsgur073/Guardians-of-the-Claude/stargazers"><img src="https://img.shields.io/github/stars/wlsgur073/Guardians-of-the-Claude?style=social" alt="GitHub Stars"></a>
 </p>
 
 <p align="center">
@@ -15,7 +15,7 @@
 </p>
 
 Starter templates and guides for configuring Claude Code. Install the
-plugin, run `/claude-code-template:create`, and Claude generates all
+plugin, run `/guardians-of-the-claude:create`, and Claude generates all
 configuration files through a guided interview.
 
 **Audience:** Developers new to Claude Code who want a working configuration from day one.
@@ -33,8 +33,8 @@ configuration files through a guided interview.
 
    ```text
    claude
-   > /plugin marketplace add wlsgur073/Claude-Code-Template
-   > /plugin install claude-code-template@wlsgur073-plugins
+   > /plugin marketplace add wlsgur073/Guardians-of-the-Claude
+   > /plugin install guardians-of-the-claude
    ```
 
 2. **Run the setup command** in your project:
@@ -42,15 +42,15 @@ configuration files through a guided interview.
    ```text
    cd your-project
    claude
-   > /claude-code-template:create
+   > /guardians-of-the-claude:create
    ```
 
    **Alternative methods** (without installing the plugin):
 
    | Method | Command |
    | ------ | ------- |
-   | Local plugin | `claude --plugin-dir /path/to/Claude-Code-Template/plugin` |
-   | `@` import | `@../Claude-Code-Template/plugin/skills/create/SKILL.md` |
+   | Local plugin | `claude --plugin-dir /path/to/Guardians-of-the-Claude/plugin` |
+   | `@` import | `@../Guardians-of-the-Claude/plugin/skills/create/SKILL.md` |
    | Direct paste | Copy the contents of `plugin/skills/create/SKILL.md` and paste directly into the conversation |
 
 3. **Choose your path** — Claude detects your project state and asks what to do:
@@ -71,13 +71,13 @@ configuration files through a guided interview.
    tailored recommendations for MCP servers, hooks, and skills based on your stack.
 
 > **Tip:** Run `/init` in your project first — Claude auto-generates a starter
-> CLAUDE.md. Then run `/claude-code-template:create` choosing "Existing project"
+> CLAUDE.md. Then run `/guardians-of-the-claude:create` choosing "Existing project"
 > to fill gaps `/init` misses.
 
 ## What's Inside
 
 ```text
-Claude-Code-Template/
+Guardians-of-the-Claude/
 ├── .claude-plugin/          ← Marketplace manifest (makes this repo a plugin marketplace)
 ├── plugin/                  ← Plugin package
 │   ├── .claude-plugin/
@@ -86,21 +86,20 @@ Claude-Code-Template/
 │   │   ├── hooks.json       ← SessionStart hook
 │   │   └── session-start.sh
 │   ├── references/
-│   │   └── security-patterns.md  ← Shared security templates (used by /create and /secure)
+│   │   ├── security-patterns.md  ← Shared security templates (used by /create and /secure)
+│   │   └── learning-system.md   ← Shared learning system reference (used by all skills)
 │   └── skills/
 │       ├── create/
-│       │   ├── SKILL.md     ← Create skill (/claude-code-template:create)
+│       │   ├── SKILL.md     ← Create skill (/guardians-of-the-claude:create)
 │       │   ├── references/  ← Generation best practices
 │       │   └── templates/   ← Starter & Advanced path instructions
 │       ├── audit/
-│       │   ├── SKILL.md     ← Audit skill (/claude-code-template:audit)
+│       │   ├── SKILL.md     ← Audit skill (/guardians-of-the-claude:audit)
 │       │   └── references/  ← Scoring model and formulas
 │       ├── secure/
-│       │   └── SKILL.md     ← Secure skill (/claude-code-template:secure)
-│       ├── optimize/
-│       │   └── SKILL.md     ← Optimize skill (/claude-code-template:optimize)
-│       └── generate/
-│           └── SKILL.md     ← Deprecated — redirects to /create
+│       │   └── SKILL.md     ← Secure skill (/guardians-of-the-claude:secure)
+│       └── optimize/
+│           └── SKILL.md     ← Optimize skill (/guardians-of-the-claude:optimize)
 ├── templates/starter/       ← Filled starter example (fictional "TaskFlow" project)
 ├── templates/advanced/      ← Filled advanced example (rules, hooks, agents, skills)
 ├── docs/
@@ -164,7 +163,7 @@ Customize the Claude Code status bar to show model, context usage, cost, duratio
 One-line setup:
 
 ```bash
-cp Claude-Code-Template/statusline.sh ~/.claude/statusline.sh
+cp Guardians-of-the-Claude/statusline.sh ~/.claude/statusline.sh
 ```
 
 Claude Code automatically detects `~/.claude/statusline.sh` — no additional configuration needed.
@@ -175,7 +174,7 @@ Claude Code automatically detects `~/.claude/statusline.sh` — no additional co
 
 Contributing? In this repo? Just tell Claude to do it.
 ...Fine, humans are welcome too. Open an issue or PR.
-See [ROADMAP.md](docs/ROADMAP.md) for the project direction and how to propose changes via [GitHub Discussions](https://github.com/wlsgur073/Claude-Code-Template/discussions).
+See [ROADMAP.md](docs/ROADMAP.md) for the project direction and how to propose changes via [GitHub Discussions](https://github.com/wlsgur073/Guardians-of-the-Claude/discussions).
 
 ## License
 
