@@ -5,7 +5,7 @@ These checks verify that the project is safe from common mistakes. (60% of Detai
 ## Weights
 
 | Item | Weight | Rationale |
-|------|--------|-----------|
+| ------ | -------- | ----------- |
 | T2.1 Sensitive file protection | 0.40 | Prevents real damage (secrets exposure) |
 | T2.2 Security rules | 0.35 | Defense-in-depth coverage |
 | T2.3 Hook configuration quality | 0.25 | Operational correctness |

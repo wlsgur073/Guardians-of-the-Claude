@@ -4,7 +4,7 @@ For existing projects with code. Scans the project and generates full configurat
 
 ## Phase 2A-Incremental: Add Missing Features
 
-**Use this path when Phase 0 detected existing Claude Code configuration.**
+Use this path when Phase 0 detected existing Claude Code configuration.
 
 Scan the current configuration silently:
 
@@ -54,7 +54,7 @@ Scan the project silently, checking for **actual source code and dependency mani
 3. If manifests or code found: identify language, framework, project type, directory structure, test frameworks, linters, and formatters
 4. Check for existing `CLAUDE.md`, `.claude/` directory, or `.claude/rules/`
 
-**CRITICAL — Config files are NOT evidence of a project:**
+CRITICAL — Config files are NOT evidence of a project:
 
 - `.claude/` configuration files, `CLAUDE.md`, rule files, agent definitions, and skill files are NOT source code
 - Even if `CLAUDE.md` or `.claude/` exists, they do NOT satisfy the safety check below
@@ -74,42 +74,42 @@ Ask the user the following questions **one at a time**. For each question, use t
 
 1. **Project overview**
 
-   **Detected:**
+   Detected:
    > "I found [language/framework] with [detected project type]. Is that correct? And in 1-2 sentences, what does this project do?"
 
-   **Open-ended:**
+   Open-ended:
    > "What language/framework is this project using, and what does it do in 1-2 sentences?"
 
 2. **Build & run**
 
-   **Detected:**
+   Detected:
    > "I see [build tool] in your project. Are these your commands? build: `[detected]`, dev: `[detected]`, run: `[detected]` — or would you like to change them?"
 
-   **Open-ended:**
+   Open-ended:
    > "What commands do you use to build, run a dev server, and run the project?"
 
 3. **Testing**
 
-   **Detected:**
+   Detected:
    > "I found [test framework] in your dependencies. Is `[detected test command]` your test command? Do you have a coverage target or preferred test patterns (factories, mocks, integration tests)?"
 
-   **Open-ended:**
+   Open-ended:
    > "What test framework and command will you use? Do you have a coverage target or preferred test patterns (factories, mocks, integration tests)?"
 
 4. **Code style**
 
-   **Detected:**
+   Detected:
    > "I see [formatter/linter config] in your project. Should I use those settings? Anything to add for naming conventions, indentation, line length, or import ordering?"
 
-   **Open-ended:**
+   Open-ended:
    > "What are your preferences for naming conventions, formatting (indentation size, line length), and import ordering? Or should I use standard [language] conventions?"
 
 5. **Workflow**
 
-   **Detected:**
+   Detected:
    > "I noticed [evidence, e.g., branch pattern in git log, commitlint config]. Is your branch convention `[detected]` and commit style `[detected]`? Any pre-development checklist items?"
 
-   **Open-ended:**
+   Open-ended:
    > "What branch naming convention and commit message style do you use? Any steps you always do before starting development?"
 
 6. **Advanced features** — Ask: "Would you like to set up any of these optional features? (pick all that apply)"

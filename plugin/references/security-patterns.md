@@ -21,7 +21,7 @@ Shared reference for `/create` and `/secure` skills. Contains templates for secu
 ### Extended (suggest when detected)
 
 | Pattern | When to suggest |
-|---------|----------------|
+| --------- | ---------------- |
 | `"Edit(./secrets/)"`, `"Write(./secrets/)"` | `secrets/` directory exists |
 | `"Read(./*.pem)"`, `"Read(./*.key)"` | `.pem` or `.key` files exist |
 | `"Read(./.aws/)"` | `.aws/` directory exists |
@@ -75,7 +75,7 @@ Always merge with existing hooks — never overwrite. Ensure `exit 2` (not `exit
 ## Project-Type Security Checkpoints
 
 | Project type | Additional checks |
-|-------------|-------------------|
+| ------------- | ------------------- |
 | Web API / backend | Auth middleware, CORS config, rate limiting, input sanitization |
 | Frontend web app | XSS prevention, CSP headers, secure cookie settings |
 | CLI tool | Input validation, file path traversal prevention |

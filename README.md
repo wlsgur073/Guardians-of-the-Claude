@@ -161,7 +161,7 @@ Customize the Claude Code status bar to show model, context usage, cost, duratio
  🌿 feature/auth | ████████░░ 80% | $1.25 | ⏱️ 3m 42s
 ```
 
-**One-line setup:**
+One-line setup:
 
 ```bash
 cp Claude-Code-Template/statusline.sh ~/.claude/statusline.sh

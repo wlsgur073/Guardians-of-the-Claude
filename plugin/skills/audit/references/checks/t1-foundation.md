@@ -5,7 +5,7 @@ These checks form the **Foundation Gate** — they determine what percentage of 
 ## Weights
 
 | Item | Weight | Rationale |
-|------|--------|-----------|
+| ------ | -------- | ----------- |
 | T1.1 CLAUDE.md existence | 0.25 | Prerequisite for all configuration |
 | T1.2 Test command | 0.35 | Highest-leverage single item |
 | T1.3 Build command | 0.20 | Compile-time error checking |

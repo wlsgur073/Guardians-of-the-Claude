@@ -4,7 +4,7 @@
 
 The scoring model uses a **Foundation-Gated Multiplicative** structure. Foundation (T1) acts as a gate multiplier on the Detail Score (T2 + T3), reflecting the reality that without solid foundations, protection and optimization scores are less meaningful.
 
-```
+```markdown
 Final = min(max(FG x DS + SB + LAV, 0), cap)
          |       |      |     |
          |       |      |     +-- LAV: LLM Accuracy Verification (-9 ~ +10)
@@ -18,7 +18,7 @@ Final = min(max(FG x DS + SB + LAV, 0), cap)
 ### T1 — Foundation (Gate)
 
 | Item | Weight | Rationale |
-|------|--------|-----------|
+| ------ | -------- | ----------- |
 | CLAUDE.md existence | 0.25 | Prerequisite for all configuration |
 | Test command | 0.35 | Highest-leverage single item |
 | Build command | 0.20 | Compile-time error checking |
@@ -27,7 +27,7 @@ Final = min(max(FG x DS + SB + LAV, 0), cap)
 ### T2 — Protection (Detail x 0.60)
 
 | Item | Weight | Rationale |
-|------|--------|-----------|
+| ------ | -------- | ----------- |
 | Sensitive file protection | 0.40 | Prevents real damage (secrets exposure) |
 | Security rules | 0.35 | Defense-in-depth coverage |
 | Hook configuration quality | 0.25 | Operational correctness |
@@ -35,7 +35,7 @@ Final = min(max(FG x DS + SB + LAV, 0), cap)
 ### T3 — Optimization (Detail x 0.40)
 
 | Item | Weight | Rationale |
-|------|--------|-----------|
+| ------ | -------- | ----------- |
 | Directory references | 0.20 | Configuration accuracy |
 | CLAUDE.md length | 0.10 | Maintainability signal |
 | Command availability | 0.20 | Tool chain integrity |
@@ -47,7 +47,7 @@ Final = min(max(FG x DS + SB + LAV, 0), cap)
 ## Item Scoring (4-Level Scale)
 
 | Result | Score | When to use |
-|--------|-------|-------------|
+| -------- | ------- | ------------- |
 | PASS | 1.0 | Fully implemented — meets all criteria |
 | PARTIAL | 0.6 | Exists but incomplete (e.g., `.env` in deny but `secrets/` missing) |
 | MINIMAL | 0.3 | Bare minimum present (e.g., CLAUDE.md exists but no test command or project overview) |
@@ -56,7 +56,7 @@ Final = min(max(FG x DS + SB + LAV, 0), cap)
 
 ## Formula
 
-```
+```markdown
 1. Foundation Gate (FG)
    FG_raw = Sigma(s_i x w_i) / Sigma(w_i)     for non-SKIP T1 items
    FG     = 0.15 + 0.85 x FG_raw              Range: 0.15 – 1.0
@@ -107,7 +107,7 @@ Final = min(max(FG x DS + SB + LAV, 0), cap)
 Complementary item pairs earn bonus points when BOTH achieve PASS (1.0):
 
 | Pair | Bonus | Rationale |
-|------|-------|-----------|
+| ------ | ------- | ----------- |
 | Test command + Build command | +2 | CI pipeline completeness |
 | Sensitive file protection + Security rules | +3 | Comprehensive security posture |
 
@@ -120,6 +120,7 @@ Both items in a pair must score PASS (1.0). If either item is SKIP, PARTIAL, MIN
 The Quality Gate is a **display-only label** independent of the score calculation. The Foundation Gate (FG) naturally suppresses scores when foundations are missing, making a separate score penalty redundant.
 
 Conditions (ALL applicable must be met for READY):
+
 - CLAUDE.md exists (root or `.claude/CLAUDE.md`) — always required
 - Test command is present in CLAUDE.md — waived if test command is SKIP
 
@@ -128,7 +129,7 @@ Display: **"Gate: READY"** or **"Gate: NOT READY"**
 ## Grade
 
 | Grade | Score Range |
-|-------|------------|
+| ------- | ------------ |
 | A | >= 80 |
 | B | >= 60 |
 | C | >= 40 |
@@ -140,7 +141,7 @@ Display: **"Gate: READY"** or **"Gate: NOT READY"**
 Maturity levels are cumulative — each level requires the previous level to be satisfied:
 
 | Level | Condition | Meaning |
-|-------|-----------|---------|
+| ------- | ----------- | --------- |
 | Level 1 — Basic | FG_raw >= 0.7 | Claude can work effectively |
 | Level 2 — Protected | Level 1 AND T2_Score >= 0.6 | Project is safe from common mistakes |
 | Level 3 — Optimized | Level 2 AND T3_Score >= 0.5 | Configuration is well-organized and maintainable |

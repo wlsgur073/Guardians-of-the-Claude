@@ -151,7 +151,7 @@ Claude Code下部のステータスバーをカスタマイズして、モデル
  🌿 feature/auth | ████████░░ 80% | $1.25 | ⏱️ 3m 42s
 ```
 
-**ワンライン設定:**
+ワンライン設定:
 
 ```bash
 cp Claude-Code-Template/statusline.sh ~/.claude/statusline.sh

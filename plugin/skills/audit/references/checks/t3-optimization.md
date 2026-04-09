@@ -5,7 +5,7 @@ These checks verify that the configuration is well-organized and maintainable. (
 ## Weights
 
 | Item | Weight | Rationale |
-|------|--------|-----------|
+| ------ | -------- | ----------- |
 | T3.1 Directory references | 0.20 | Configuration accuracy |
 | T3.2 CLAUDE.md length | 0.10 | Maintainability signal |
 | T3.3 Command availability | 0.20 | Tool chain integrity |
@@ -61,7 +61,7 @@ Check documented commands in CLAUDE.md against the project in two stages:
 If CLAUDE.md documents specific tool commands, check that the tool's config file exists:
 
 | Documented command | Config file check |
-|---|---|
+| --- | --- |
 | `lint` / `eslint` | `eslint.config.*` or `.eslintrc.*` exists |
 | `test` / `vitest` / `jest` | `vitest` or `jest` in devDependencies |
 | `build` / `next build` | `next.config.*` or build tool config exists |

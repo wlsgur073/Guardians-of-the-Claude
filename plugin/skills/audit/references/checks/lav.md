@@ -19,7 +19,7 @@ Mechanical checks and LAV form complementary layers, not redundant penalties.
 Answer each question after reviewing CLAUDE.md against the actual project state:
 
 | # | Question | Score | Nature |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | L1 | Is the documented project structure (directories, components, architecture) consistent with the actual codebase? | -3 / 0 / +2 | Accuracy |
 | L2 | Are all documented commands and workflows executable without undocumented prerequisites? | -2 / 0 / +2 | Reliability |
 | L3 | Are project-specific patterns, gotchas, or conventions (not derivable from code alone) documented? | 0 / +1 / +3 | Documentation quality |
@@ -27,36 +27,36 @@ Answer each question after reviewing CLAUDE.md against the actual project state:
 | L5 | Is the content concise and information-dense? (no redundancy, no generic/obvious content, no filler) | -3 / 0 / +1 | Conciseness |
 | L6 | Are instructions concrete and copy-paste ready? (exact commands, specific paths, not vague) | 0 / +1 | Actionability |
 
-**Range: -9 to +10**
+Range: -9 to +10
 
 ## Scoring Guidelines
 
-**L1 Structure Accuracy (-3/0/+2):**
+L1 Structure Accuracy (-3/0/+2):
 - **+2**: Documented structure matches reality exactly, all major directory/component info is current
 - **0**: Mostly matches but minor discrepancies exist
 - **-3**: Non-existent directories, wrong component names, or misleading architecture descriptions
 
-**L2 Command Reliability (-2/0/+2):**
+L2 Command Reliability (-2/0/+2):
 - **+2**: All documented commands reference correct tools and config files, immediately executable
 - **0**: Commands exist but some prerequisites unclear
 - **-2**: Non-executable commands documented, or required environment setup missing
 
-**L3 Patterns/Gotchas (0/+1/+3):**
+L3 Patterns/Gotchas (0/+1/+3):
 - **+3**: Project-specific gotchas, conventions, caveats well-documented (not inferable from code alone)
 - **+1**: Some non-obvious information present but incomplete
 - **0**: No project-specific patterns or gotchas documented
 
-**L4 Structural Quality (-1/0/+1):**
+L4 Structural Quality (-1/0/+1):
 - **+1**: Clear section organization, appropriate detail level, LLM can quickly find needed info
 - **0**: Acceptable structure with minor room for improvement
 - **-1**: Disorganized sections, inconsistent heading levels, important info buried or hard to locate
 
-**L5 Content Conciseness (-3/0/+1):**
+L5 Content Conciseness (-3/0/+1):
 - **+1**: Exceptionally concise — every line adds unique, project-specific value; no filler
 - **0**: Acceptable density — some generic content but overall informative
 - **-3**: Significant redundancy, generic advice (e.g., "write clean code"), obvious information that wastes LLM context, or duplicated content across CLAUDE.md and rule files
 
-**L6 Actionability (0/+1):**
+L6 Actionability (0/+1):
 - **+1**: All instructions include exact commands with flags, specific file paths, concrete steps — copy-paste ready
 - **0**: Instructions exist but are vague, require interpretation, or lack specifics (e.g., "run tests" instead of `pytest -v tests/`)
 
