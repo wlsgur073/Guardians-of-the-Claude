@@ -32,6 +32,16 @@ Final = min(max(FG x DS + SB + LAV, 0), cap)
 | Security rules | 0.35 | Defense-in-depth coverage |
 | Hook configuration quality | 0.25 | Operational correctness |
 
+#### T2.2 SKIP Condition
+
+T2.2 (Security Rules) is SKIP when the project has no network input surface:
+
+- **Evidence for SKIP:** No web framework in dependency manifest (no express, fastapi, flask, django, spring-boot, gin, actix-web, etc.) AND no HTTP server/router patterns in source code
+- **Default behavior:** SKIP for CLI tools, libraries, build tools, documentation-only projects
+- **Override:** Auditor may change SKIP to PARTIAL if file I/O based security risks are identified (e.g., CLI that parses untrusted files)
+
+The `/audit` skill determines this at runtime by inspecting the project, not from pre-declared metadata.
+
 ### T3 — Optimization (Detail x 0.40)
 
 | Item | Weight | Rationale |
