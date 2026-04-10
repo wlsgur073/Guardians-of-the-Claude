@@ -1,5 +1,5 @@
 # CLAUDE.md
-<!-- Last reviewed: 2026-04-09 -->
+<!-- Last reviewed: 2026-04-10 -->
 
 This is a documentation and template repository — it contains no application code, no build system, and no tests. Its purpose is to teach developers how to configure Claude Code for their own projects.
 
@@ -16,6 +16,8 @@ This is a documentation and template repository — it contains no application c
 - `docs/plans/` — Design and planning documents for feature work
 - `docs/*.md` — GitHub community health files and project governance (CODE_OF_CONDUCT.md, CONTRIBUTING.md, SECURITY.md, PRIVACY.md, ROADMAP.md)
 - `.claude/` — This repo's own Claude Code settings
+- `test/` — Skill evaluation framework (rubrics, scenarios, fixtures, scripts) and results. Not a unit test suite — used to grade skill output quality. See `test/testing-strategy.md`.
+- `.github/workflows/docs-check.yml` — CI with 6 jobs (link-check, frontmatter parity, JSON schema, i18n parity, shellcheck, encoding). Python validators live in `.github/scripts/`.
 
 ## Contribution Rules
 
@@ -24,7 +26,6 @@ This is a documentation and template repository — it contains no application c
 - Guides in `docs/guides/` should stay concise — most under ~130 lines, `advanced-features-guide.md` under ~200 (covers 3 topics with code examples)
 - This CLAUDE.md should stay under 200 lines, matching the repo's own recommendation in `docs/guides/claude-md-guide.md`
 - There is no source code — all content is Markdown. Review for clarity, accuracy, and consistency across files
-- When diagrams are needed in Markdown documents, use Mermaid syntax (`\`\`\`mermaid`) — it renders natively on GitHub and keeps everything in plain text without external image dependencies
 - When adding a new guide, follow the existing frontmatter format (`title`, `description`, `version`) and add cross-links from `docs/guides/getting-started.md`
 - CLAUDE.md files under `templates/` are repo content, not instructions for this repo — Claude will lazy-load them when working in those directories, so keep them clearly framed as examples
 
@@ -37,6 +38,15 @@ A single change can ripple across the repo. When modifying any file, check downs
 - **`templates/starter/` or `advanced/`** → `docs/i18n/ko-KR/templates/` — mirror structure and content
 - **Skill SKILL.md** (behavior change) → verify other skills' Phase 0 reading scope still covers the change; update `CHANGELOG.md`
 - **Deny pattern format change** → grep `Read\(.*secrets` or similar across all files to ensure consistency
+
+### Verifying Changes Locally
+
+Before pushing, run the same checks CI runs. First-time setup: `pip install pyyaml==6.0.2 jsonschema==4.23.0 requests==2.32.3`
+
+- `python .github/scripts/check-frontmatter-parity.py` — confirms EN and i18n files have matching `version` fields
+- `python .github/scripts/check-i18n-parity.py` — confirms i18n directories mirror EN structure (stdlib only)
+- `python .github/scripts/check-json-schemas.py` — validates `plugin.json`, `marketplace.json`, `settings.json` schemas
+- `lychee 'README.md' 'docs/**/*.md' 'plugin/**/*.md' 'CHANGELOG.md' 'templates/**/*.md'` — link check (requires [lychee](https://github.com/lycheeverse/lychee))
 
 ## Plugin Development Rules
 
