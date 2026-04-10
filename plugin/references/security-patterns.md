@@ -14,7 +14,9 @@ Shared reference for `/create` and `/secure` skills. Contains templates for secu
   "Edit(./.env.*)",
   "Write(./.env)",
   "Write(./.env.*)",
-  "Read(./secrets/)"
+  "Read(./secrets/)",
+  "Edit(./secrets/)",
+  "Write(./secrets/)"
 ]
 ```
 
@@ -22,7 +24,6 @@ Shared reference for `/create` and `/secure` skills. Contains templates for secu
 
 | Pattern | When to suggest |
 | --------- | ---------------- |
-| `"Edit(./secrets/)"`, `"Write(./secrets/)"` | `secrets/` directory exists |
 | `"Read(./*.pem)"`, `"Read(./*.key)"` | `.pem` or `.key` files exist |
 | `"Read(./.aws/)"` | `.aws/` directory exists |
 

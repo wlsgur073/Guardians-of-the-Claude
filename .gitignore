@@ -19,6 +19,7 @@ Thumbs.db
 
 # Internal plans, design specs, and eval tests (not user-facing)
 /test/
+docs/superpowers/
 
 # Node (if contributors install anything for tooling)
 node_modules/

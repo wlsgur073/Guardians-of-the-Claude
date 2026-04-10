@@ -100,7 +100,7 @@ The **Development Approach** section must include these rules:
 ```
 
 - `allow`: add test, lint, and build commands from Q3 (e.g., `"Bash(npm test)"`, `"Bash(npm run lint)"`)
-- `deny`: add Essential deny patterns as sensible defaults: `"Read(./.env)"`, `"Read(./.env.*)"`, `"Edit(./.env)"`, `"Edit(./.env.*)"`, `"Write(./.env)"`, `"Write(./.env.*)"`, `"Read(./secrets/)"`
+- `deny`: add Essential deny patterns as sensible defaults: `"Read(./.env)"`, `"Read(./.env.*)"`, `"Edit(./.env)"`, `"Edit(./.env.*)"`, `"Write(./.env)"`, `"Write(./.env.*)"`, `"Read(./secrets/)"`, `"Edit(./secrets/)"`, `"Write(./secrets/)"`
 
 **`.gitignore`** — if `.gitignore` exists, append this line if not already present. If `.gitignore` does not exist, create it with this line:
 

@@ -93,7 +93,7 @@ Guardians-of-the-Claude/
 ├── docs/
 │   ├── guides/              ← ガイド
 │   ├── i18n/ko-KR/          ← 韓国語翻訳（ガイド、テンプレート）
-│   ├── i18n/ja-JP/          ← 日本語翻訳（ガイド、テンプレート）
+│   ├── i18n/ja-JP/          ← 日本語README（ガイド翻訳は準備中）
 │   ├── plans/               ← 設計・計画ドキュメント
 │   └── *.md                 ← コミュニティファイルとプロジェクトロードマップ
 └── CHANGELOG.md             ← バージョン履歴（Keep a Changelog形式）
@@ -105,7 +105,7 @@ Guardians-of-the-Claude/
 | `templates/advanced/` | 上級実例 — rules, hooks, agents, skills |
 | `docs/guides/` | 独立ガイド — それぞれ単独で読める |
 | `docs/i18n/ko-KR/` | 韓国語翻訳（ガイド、テンプレート） |
-| `docs/i18n/ja-JP/` | 日本語翻訳（ガイド、テンプレート） |
+| `docs/i18n/ja-JP/` | 日本語README（ガイド翻訳は準備中） |
 | `docs/plans/` | 設計・計画ドキュメント |
 | `docs/*.md` | コミュニティファイルとプロジェクト[ロードマップ](../../ROADMAP.md) |
 
@@ -158,7 +158,9 @@ cp Guardians-of-the-Claude/statusline.sh ~/.claude/statusline.sh
 
 Claude Codeが`~/.claude/statusline.sh`を自動検出します — 追加設定不要。
 
-> **前提条件:** [jq](https://jqlang.org)がインストールされている必要があります（`brew install jq` / `apt install jq` / `choco install jq`）。
+> **前提条件:**
+> - [jq](https://jqlang.org)がインストールされている必要があります（`brew install jq` / `apt install jq` / `choco install jq`）
+> - Bash互換シェルが必要です。**Windows**では **Git Bash** または **WSL** を使用してください — プラグインフックと高度なテンプレートはUnixシェル構文（`bash`, `grep` など）を使用します
 
 ## コントリビュート
 

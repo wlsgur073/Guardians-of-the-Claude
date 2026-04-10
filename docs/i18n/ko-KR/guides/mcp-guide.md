@@ -1,7 +1,7 @@
 ---
 title: "MCP 연동"
 description: "Model Context Protocol을 통해 Claude Code를 외부 도구 및 서비스에 연결하는 방법"
-version: 1.0.1
+version: 1.0.2
 ---
 
 # MCP 연동
@@ -99,12 +99,14 @@ TaskFlow 프로젝트에서 개발 중 데이터베이스를 직접 쿼리하기
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-postgres"],
       "env": {
-        "POSTGRES_CONNECTION_STRING": "postgresql://dev:dev@localhost:5432/taskflow_dev"
+        "POSTGRES_CONNECTION_STRING": "${POSTGRES_CONNECTION_STRING}"
       }
     }
   }
 }
 ```
+
+Claude Code는 로드 시점에 `${POSTGRES_CONNECTION_STRING}`을 쉘 환경에서 확장합니다 — `.envrc`, `.bashrc`, 또는 CI secrets에 설정하세요. 실제 값을 git에 커밋하지 마세요.
 
 이렇게 설정하면 Claude가 데이터베이스에 직접 쿼리할 수 있습니다 -- 스키마 확인, 마이그레이션 검증, 데이터 문제 디버깅 등을 수행할 수 있습니다.
 

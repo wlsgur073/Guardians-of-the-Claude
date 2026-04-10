@@ -105,7 +105,7 @@ Guardians-of-the-Claude/
 ├── docs/
 │   ├── guides/              ← Guides explaining each concept
 │   ├── i18n/ko-KR/          ← Korean translations (guides, templates)
-│   ├── i18n/ja-JP/          ← Japanese translations (guides, templates)
+│   ├── i18n/ja-JP/          ← Japanese README (guides translation in progress)
 │   ├── plans/               ← Design and planning documents
 │   └── *.md                 ← Community health files and project roadmap
 └── CHANGELOG.md             ← Version history (Keep a Changelog format)
@@ -117,7 +117,7 @@ Guardians-of-the-Claude/
 | `templates/advanced/` | Filled advanced example — rules, hooks, agents, skills |
 | `docs/guides/` | Standalone guides — read any one without the others |
 | `docs/i18n/ko-KR/` | Korean translations (guides, templates) |
-| `docs/i18n/ja-JP/` | Japanese translations (guides, templates) |
+| `docs/i18n/ja-JP/` | Japanese README (guides translation in progress) |
 | `docs/plans/` | Design and planning documents |
 | `docs/*.md` | Community health files and project [roadmap](docs/ROADMAP.md) |
 
@@ -168,7 +168,9 @@ cp Guardians-of-the-Claude/statusline.sh ~/.claude/statusline.sh
 
 Claude Code automatically detects `~/.claude/statusline.sh` — no additional configuration needed.
 
-> **Prerequisite:** [jq](https://jqlang.org) must be installed (`brew install jq` / `apt install jq` / `choco install jq`).
+> **Prerequisites:**
+> - [jq](https://jqlang.org) must be installed (`brew install jq` / `apt install jq` / `choco install jq`)
+> - A Bash-compatible shell. On **Windows**, use **Git Bash** or **WSL** — plugin hooks and advanced templates use Unix shell syntax (`bash`, `grep`, etc.)
 
 ## Contributing
 

@@ -89,7 +89,7 @@ Guardians-of-the-Claude/
 │       │   ├── SKILL.md     ← 감사 스킬 (/guardians-of-the-claude:audit)
 │       │   └── references/  ← 스코어링 모델 및 산출 공식
 │       ├── secure/
-│       │   └── SKILL.md     ← ���안 강화 스킬 (/guardians-of-the-claude:secure)
+│       │   └── SKILL.md     ← 보안 강화 스킬 (/guardians-of-the-claude:secure)
 │       └── optimize/
 │           └── SKILL.md     ← 최적화 스킬 (/guardians-of-the-claude:optimize)
 ├── templates/starter/       ← 스타터 실전 예시 (가상 "TaskFlow" 프로젝트)
@@ -97,7 +97,7 @@ Guardians-of-the-Claude/
 ├── docs/
 │   ├── guides/              ← 가이드
 │   ├── i18n/ko-KR/          ← 한국어 번역 (가이드, 템플릿)
-│   ├── i18n/ja-JP/          ← 일본어 번역 (가이드, 템플릿)
+│   ├── i18n/ja-JP/          ← 일본어 README (가이드 번역 진행 중)
 │   ├── plans/               ← 설계 및 계획 문서
 │   └── *.md                 ← 커뮤니티 문서 및 프로젝트 로드맵
 └── CHANGELOG.md             ← 버전 이력 (Keep a Changelog 형식)
@@ -109,7 +109,7 @@ Guardians-of-the-Claude/
 | `templates/advanced/` | 고급 실전 예시 — rules, hooks, agents, skills |
 | `docs/guides/` | 독립 가이드 — 각각 따로 읽을 수 있음 |
 | `docs/i18n/ko-KR/` | 한국어 번역 (가이드, 템플릿) |
-| `docs/i18n/ja-JP/` | 일본어 번역 (가이드, 템플릿) |
+| `docs/i18n/ja-JP/` | 일본어 README (가이드 번역 진행 중) |
 | `docs/plans/` | 설계 및 계획 문서 |
 | `docs/*.md` | 커뮤니티 문서 및 프로젝트 [로드맵](../../ROADMAP.md) |
 
@@ -160,7 +160,9 @@ cp Guardians-of-the-Claude/statusline.sh ~/.claude/statusline.sh
 
 Claude Code가 `~/.claude/statusline.sh`를 자동으로 감지합니다 — 추가 설정 불필요.
 
-> **필수 조건:** [jq](https://jqlang.org)가 설치되어 있어야 합니다 (`brew install jq` / `apt install jq` / `choco install jq`).
+> **필수 조건:**
+> - [jq](https://jqlang.org)가 설치되어 있어야 합니다 (`brew install jq` / `apt install jq` / `choco install jq`)
+> - Bash 호환 쉘이 필요합니다. **Windows**에서는 **Git Bash** 또는 **WSL**을 사용하세요 — 플러그인 훅과 고급 템플릿이 Unix 쉘 구문(`bash`, `grep` 등)을 사용합니다
 
 ## 참여
 

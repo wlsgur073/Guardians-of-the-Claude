@@ -1,7 +1,7 @@
 ---
 title: "MCP Integration"
 description: "Connecting Claude Code to external tools and services via Model Context Protocol"
-version: 1.0.1
+version: 1.0.2
 ---
 
 # MCP Integration
@@ -99,12 +99,14 @@ A TaskFlow project might connect to a PostgreSQL MCP server for direct database 
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-postgres"],
       "env": {
-        "POSTGRES_CONNECTION_STRING": "postgresql://dev:dev@localhost:5432/taskflow_dev"
+        "POSTGRES_CONNECTION_STRING": "${POSTGRES_CONNECTION_STRING}"
       }
     }
   }
 }
 ```
+
+Claude Code expands `${POSTGRES_CONNECTION_STRING}` from your shell environment at load time — set it in your `.envrc`, `.bashrc`, or CI secrets. Never commit the actual value to git.
 
 With this configured, Claude can query the database directly — checking schema, verifying migrations, or debugging data issues.
 
