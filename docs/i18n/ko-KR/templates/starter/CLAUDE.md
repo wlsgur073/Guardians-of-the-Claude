@@ -4,6 +4,20 @@ description: "Node.js/Express REST API 프로젝트를 위한 최소 6섹션 예
 version: 1.0.0
 ---
 
+<!--
+  예시 스택 안내 (소스에는 보이지만 GitHub 렌더에서는 숨김)
+
+  이 템플릿은 Node.js + Express + TypeScript + PostgreSQL로 구현된
+  TaskFlow를 예시로 보여줍니다. TaskFlow는 가상의 레퍼런스 프로젝트이며,
+  Node/Express 스택은 하나의 구체적 구현일 뿐 확정된 기본값이 아닙니다.
+
+  섹션 구조와 패턴을 참고하세요. 실제 스택을 위해서는
+  `/guardians-of-the-claude:create`을 실행하세요 — Claude가 매니페스트를
+  탐지하여 동등한 명령어를 생성합니다.
+
+  전체 컨벤션은 templates/README.md를 참조하세요.
+-->
+
 # 프로젝트 개요
 
 TaskFlow는 작업 관리를 위한 REST API로, Node.js와 Express로 구축되었습니다.

@@ -1,7 +1,7 @@
 ---
 title: "Getting Started"
 description: "Step-by-step guide to set up Claude Code configuration for your project"
-version: 1.2.0
+version: 1.2.1
 ---
 
 # Getting Started
@@ -34,6 +34,8 @@ claude
 If you used `/guardians-of-the-claude:create` in Step 1, skip this step -- your files are already generated.
 
 If you prefer to reference templates manually, see `templates/starter/` and `templates/advanced/` for filled examples (fictional "TaskFlow" project). These show what a completed configuration looks like for each path:
+
+> **Note on the TaskFlow example stack:** The current filled templates use Node.js/Express/TypeScript/PostgreSQL as a concrete illustration. TaskFlow itself is a fictional reference project (see [`templates/README.md`](../../templates/README.md)). `/create` does **not** require your project to be Node/Express — it detects your actual manifest (`package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `pom.xml`, `Gemfile`) or asks stack questions for empty projects, then generates equivalent commands.
 
 **Starter** (recommended for beginners):
 

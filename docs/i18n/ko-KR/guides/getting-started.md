@@ -1,7 +1,7 @@
 ---
 title: "시작하기"
 description: "프로젝트에 Claude Code 설정을 구성하는 단계별 가이드"
-version: 1.2.0
+version: 1.2.1
 ---
 
 # 시작하기
@@ -34,6 +34,8 @@ claude
 1단계에서 `/guardians-of-the-claude:create`을 사용했다면 이 단계를 건너뛰세요 — 파일이 이미 생성되었습니다.
 
 수동으로 참고하려면 `templates/starter/`와 `templates/advanced/`의 완성 예시(가상 "TaskFlow" 프로젝트)를 확인하세요. 각 경로의 완성된 설정이 어떤 모습인지 보여줍니다:
+
+> **TaskFlow 예시 스택에 대한 안내:** 현재 완성된 템플릿은 Node.js/Express/TypeScript/PostgreSQL을 구체적 예시로 사용합니다. TaskFlow 자체는 가상의 레퍼런스 프로젝트입니다 (자세한 내용은 [`templates/README.md`](../../../templates/README.md) 참조). `/create`는 프로젝트가 **반드시** Node/Express여야 하는 것은 **아닙니다** — 실제 매니페스트(`package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `pom.xml`, `Gemfile`)를 탐지하거나 빈 프로젝트의 경우 스택 질문을 한 뒤, 동등한 명령어를 생성합니다.
 
 **Starter** (입문자 추천):
 

@@ -48,7 +48,7 @@ Items reviewed and accepted but not yet scheduled:
 
 - **Interactive plugin onboarding** — Improve the SessionStart hook experience with smarter project detection
 - **Additional language translations** — Expand beyond Korean (community-driven)
-- **Template variants** — Add examples for other stacks (Python/FastAPI, Go, etc.) alongside the existing Node.js/Express TaskFlow example
+- **Stack-adaptive improvements** — Enhance `/create` for better support of diverse stacks (improved manifest detection, stack-specific command defaults in question templates, expanded starter command table). Note: we intentionally do NOT maintain per-stack filled templates. TaskFlow is a fictional reference project, and the Node/Express example illustrates one concrete implementation. `/create` handles stack adaptation at runtime by detecting manifests or asking users. See [`templates/README.md`](../templates/README.md) for the convention
 - **Meta-system milestones** — Periodically review the North Star and propose discrete sub-projects that advance it (see [GitHub Discussions](https://github.com/wlsgur073/Guardians-of-the-Claude/discussions) for the current thread)
 
 See [CHANGELOG.md](../CHANGELOG.md) for version history.

@@ -4,6 +4,20 @@ description: "Example root CLAUDE.md for a Node.js/Express REST API project"
 version: 1.1.0
 ---
 
+<!--
+  EXAMPLE STACK NOTE (visible in source, hidden in GitHub render)
+
+  This template illustrates TaskFlow implemented with Node.js + Express +
+  TypeScript + PostgreSQL. TaskFlow is a fictional reference project; the
+  Node/Express stack is one concrete illustration, not a committed default.
+
+  Read this for section structure and patterns. For your actual stack,
+  run `/guardians-of-the-claude:create` — Claude detects your manifests
+  and generates equivalent commands.
+
+  See templates/README.md for the full convention.
+-->
+
 # Project Overview
 
 TaskFlow is a REST API for task management, built with Node.js and Express.
