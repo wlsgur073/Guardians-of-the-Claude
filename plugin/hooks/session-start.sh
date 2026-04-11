@@ -35,9 +35,17 @@ EOF
 fi
 
 # Case 3: Profile exists — check for staleness
+# Manifests AND lock files both trigger: a lock-file-only change (e.g., pnpm
+# update) often adds or bumps transitive deps without touching package.json.
 STALE="false"
-for f in package.json tsconfig.json pyproject.toml go.mod Cargo.toml \
-         pom.xml Gemfile requirements.txt .claude/settings.json; do
+for f in package.json package-lock.json pnpm-lock.yaml yarn.lock \
+         tsconfig.json \
+         pyproject.toml poetry.lock uv.lock requirements.txt \
+         go.mod go.sum \
+         Cargo.toml Cargo.lock \
+         pom.xml \
+         Gemfile Gemfile.lock \
+         .mcp.json .claude/settings.json; do
   if [ -f "$f" ] && [ "$f" -nt "$PROFILE" ]; then
     STALE="true"
     STALE_FILE="$f"

@@ -4,7 +4,7 @@ Thank you for your interest in contributing! This project helps developers confi
 
 ## How This Repo Works
 
-This is a **documentation and template repository** — it contains no application code, no build system, and no tests. All content is Markdown. Contributions focus on improving the quality and clarity of documentation, templates, and examples.
+This is a **documentation and template repository** — no application code and no runtime build system. All content is Markdown, but CI validates it via Python structural checks (frontmatter parity, JSON schemas, i18n parity), shellcheck, link checking, and an LLM-output eval framework in `test/`. See the root [`CLAUDE.md`](../CLAUDE.md) for local verification commands. Contributions focus on improving the quality and clarity of documentation, templates, and examples.
 
 ## Types of Contributions
 

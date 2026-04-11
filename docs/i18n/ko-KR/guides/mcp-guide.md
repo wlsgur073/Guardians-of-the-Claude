@@ -1,7 +1,7 @@
 ---
 title: "MCP 연동"
 description: "Model Context Protocol을 통해 Claude Code를 외부 도구 및 서비스에 연결하는 방법"
-version: 1.0.2
+version: 1.0.3
 ---
 
 # MCP 연동
@@ -127,5 +127,4 @@ Claude Code는 로드 시점에 `${POSTGRES_CONNECTION_STRING}`을 쉘 환경에
 
 ## 추가 자료
 
-- [설정 가이드](settings-guide.md) -- 권한 및 환경설정
-- [고급 기능 가이드](advanced-features-guide.md) -- 훅, 에이전트, 스킬
+- [설정 가이드](settings-guide.md) (권한) 및 [고급 기능 가이드](advanced-features-guide.md) (훅, 에이전트, 스킬)

@@ -29,6 +29,9 @@ A meta-system for Claude Code configuration. Start with a 2-minute guided setup,
 
 ## Day 1 — 2-Minute Quickstart
 
+> **Prerequisites:** Claude Code installed (`claude --version`).
+> **On Windows**, use **Git Bash** or **WSL** — the plugin's SessionStart hook and advanced templates run under bash. Without a bash-compatible shell, hooks silently exit and you lose the auto-guidance features (install-time check, staleness detection, re-audit prompts).
+
 1. **Add the marketplace and install the plugin** in Claude Code:
 
    ```text

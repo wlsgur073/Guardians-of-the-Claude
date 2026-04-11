@@ -13,8 +13,32 @@ permissions:
   contents: read
 
 jobs:
-  link-check:
-    name: Link check (lychee)
+  link-check-internal:
+    name: Link check (internal, PR gate)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run lychee (offline — internal links only)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --base .
+            --verbose
+            --no-progress
+            --offline
+            --exclude-path docs/superpowers
+            'README.md'
+            'docs/**/*.md'
+            'plugin/**/*.md'
+            'CHANGELOG.md'
+            'templates/**/*.md'
+          fail: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  link-check-external:
+    name: Link check (external, scheduled)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,7 +50,7 @@ jobs:
           key: cache-lychee-${{ github.sha }}
           restore-keys: cache-lychee-
 
-      - name: Run lychee
+      - name: Run lychee (full network check)
         uses: lycheeverse/lychee-action@v2
         with:
           args: >-
@@ -41,7 +65,7 @@ jobs:
             'plugin/**/*.md'
             'CHANGELOG.md'
             'templates/**/*.md'
-          fail: ${{ github.event_name == 'schedule' }}
+          fail: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
   frontmatter-parity:
