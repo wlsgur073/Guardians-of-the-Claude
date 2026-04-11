@@ -10,6 +10,7 @@ Configuration Audit Results
 
 Quality Gate: READY    (CLAUDE.md OK, test command OK)
 Score: 70/100 (Grade: B)  |  Maturity: Level 3 — Optimized
+[⚠ False-reassurance warning line — conditional, see "Score-line warning" below]
 
 ★ Most impactful: [Highest-impact change and why it matters]
 
@@ -48,6 +49,14 @@ LAV Findings
 All Suggestions
   * [actionable improvements from check files' conditional suggestions]
 
+Additional CLAUDE.md Files (informational)
+  Found 3 additional CLAUDE.md files in subpackages:
+    * packages/api/CLAUDE.md (47 lines)
+    * packages/web/CLAUDE.md (62 lines)
+    * packages/shared/CLAUDE.md (28 lines)
+  Note: Detected but not yet scored. Per-package scoring is planned
+  for a future audit release.
+
 Maturity path: [Current] → [Next level]: [specific requirement]
 
 Since last audit (2026-03-31): 65 -> 70 (+5). Note: scoring model changed (v2 -> v3).
@@ -55,6 +64,14 @@ Still open: no MCP configuration, agent model diversity.
 ```
 
 **Display caveat:** If fewer than 2 non-SKIP items remain in T2 or T3, append "(based on N of M items — others not applicable)" to the percentage display.
+
+**Score-line warning (false-reassurance guardrail):** Conditional — appears immediately under the `Score:` line when **`Final Score >= 75` AND `LAV L5 (Conciseness) == −3`**. The exact line is:
+
+> `⚠ High structural score with low conciseness signal — your CLAUDE.md may be over-configured. See L5 finding below for specifics.`
+
+This is informational only and does **not** affect the score. Omit the entire line when the condition is not met (do not render an empty placeholder). The trigger is defined in `SKILL.md` Phase 4 step 7.5. Rationale: the LAV L5 cap of −3 cannot fully offset an inflated Detail Score on Overconfigured CLAUDE.md files, so a high mechanical score can mask a severe conciseness failure. The full structural fix (LAV-as-multiplier model) is planned for a future release; this warning is the lightweight v2.10.0 stopgap.
+
+**Additional CLAUDE.md Files section:** Conditional — appears between "All Suggestions" and "Maturity path" only when Phase 1.5 found one or more `CLAUDE.md` files in subpackages outside the root and `.claude/`. List each path with its line count, limited to 20 entries; if more found, append `(+N more not shown)`. This is informational disclosure, not a scoring component. Per-package scoring is on the audit roadmap (Phase 2) but not in this release. When zero additional files are found, omit the entire section.
 
 **If previous audit results exist:** Add comparison at the end:
 > "Since your last audit (DATE): score changed from X → Y. [Skills applied since last audit: /secure, /optimize.] Resolved: [issues]. Still open: [issues]."

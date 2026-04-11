@@ -31,6 +31,18 @@ After T1 completes, note project signals for conditional loading:
 - Does `.claude/settings.json` exist?
 - Does `.claude/rules/` or `.claude/agents/` exist?
 
+## Phase 1.5: Subpackage CLAUDE.md Discovery
+
+Walk the project for additional `CLAUDE.md` files outside the root and `.claude/`. Use `Glob` with pattern `**/CLAUDE.md`, then filter the result set:
+
+- **Exclude** the root `CLAUDE.md` and `.claude/CLAUDE.md` (already counted in T1.1)
+- **Exclude** any path inside common build, cache, or vendor directories: `node_modules/`, `dist/`, `build/`, `target/`, `vendor/`, `.git/`, `.next/`, `.nuxt/`, `.venv/`, `venv/`, `.cache/`, `coverage/`, `out/`, `__pycache__/`, `.pytest_cache/`
+- **Limit** the displayed result to 20 files; if more remain after filtering, append `(+N more not shown)` in the output
+
+For each remaining file, record its repository-relative path and line count. **Do not score these files in this version** — this phase is disclosure only. If the filtered result is empty, do not render the "Additional CLAUDE.md Files" section in the output at all.
+
+Per-package scoring is planned for a future audit release (see `docs/ROADMAP.md` "Audit v4 Phase 2" entry).
+
 ## Phase 2: Protection Checks (T2)
 
 If no `.claude/settings.json` exists and no security-relevant surface detected (no web framework, no API, no database), you may skip loading `references/checks/t2-protection.md` — score all T2 items as SKIP.
@@ -62,6 +74,7 @@ Apply the scoring model in this order:
 5. **Calculate LAV** — sum of L1–L6 scores from Phase 3.5
 6. **Apply Quality Cap** — if LAV < 0, cap = 90 + LAV; otherwise cap = 100
 7. **Calculate Final** — `min(max(FG × DS + SB + LAV, 0), cap)`
+7.5. **Check false-reassurance condition** — if `Final >= 75` AND `L5 (Conciseness) == −3`, prepare a warning line for the output: "⚠ High structural score with low conciseness signal — your CLAUDE.md may be over-configured. See L5 finding below for specifics." This is **informational** and does NOT change the score. The intent is to surface the documented limitation that LAV L5's −3 cap cannot fully offset an inflated DS on Overconfigured CLAUDE.md files; the full structural fix (LAV-as-multiplier model) is planned for a future release. If the condition is not met, do not render the warning line at all.
 8. **Check Quality Gate** — CLAUDE.md exists AND test command present; test condition waived if SKIP
 9. **Determine Grade** and **Maturity Level**
 

@@ -7,6 +7,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.10.0] - 2026-04-11
+
+### Added
+
+- `/audit` Phase 1.5 (new): walks the project for additional `CLAUDE.md` files outside the root and `.claude/`, excluding common build/cache/vendor directories (`node_modules/`, `dist/`, `build/`, `target/`, `vendor/`, `.git/`, `.next/`, `.nuxt/`, `.venv/`, `venv/`, `.cache/`, `coverage/`, `out/`, `__pycache__/`, `.pytest_cache/`). When found, an "Additional CLAUDE.md Files" disclosure section is appended to the audit output, listing each path with its line count (limited to 20 entries; appends `(+N more not shown)` if more exist). **This version is disclosure-only — files are detected but not yet scored.** Per-package scoring is deferred to Audit v4 Phase 2 (see `docs/ROADMAP.md`). Closes the "monorepo silent under-coverage" gap from the v3 audit follow-up. Zero new flags, arguments, or skill surface — pure default-behavior expansion of the existing `/audit` skill.
+- `/audit` Phase 4 step 7.5 (new): false-reassurance guardrail. After computing the Final Score, if `Final >= 75` AND `LAV L5 (Conciseness) == −3`, an informational warning line is rendered immediately below the Score line: "⚠ High structural score with low conciseness signal — your CLAUDE.md may be over-configured. See L5 finding below for specifics." This does **not** change the score; it surfaces the documented limitation that LAV L5's −3 cap cannot fully offset an inflated Detail Score on Overconfigured CLAUDE.md files. The full structural fix (LAV-as-multiplier model rewrite) is deferred to Audit v4 Phase 2. Zero new flags or arguments.
+
+### Changed
+
+- `docs/ROADMAP.md`: Backlog section gains two new entries — **Audit v4 Phase 2** (per-package scoring + LAV-as-multiplier formula rewrite, both coupled to validation work) and **Audit Gap C decision** (automatic diff suggestions explicitly NOT closed inside `/audit`, with rationale referencing the zero-options principle and the Codex independent review).
+- `plugin/skills/audit/SKILL.md`: new Phase 1.5 inserted between Phase 1 and Phase 2 (subpackage discovery); new step 7.5 inserted into Phase 4 between Final Score calculation and Quality Gate check (false-reassurance condition).
+- `plugin/skills/audit/references/output-format.md`: new conditional "Additional CLAUDE.md Files (informational)" section spec inserted between "All Suggestions" and "Maturity path"; new conditional warning line spec inserted between the "Score:" line and the "★ Most impactful" line.
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.9.7` → `2.10.0`.
+- `README.md`: version badge updated `2.9.7` → `2.10.0`.
+
+### Notes
+
+- **SemVer rationale (minor bump despite no new flags or skills):** B1 (subpackage discovery) and A1 (false-reassurance guardrail) extend `/audit`'s scope to consider new files and a new warning condition that did not exist before. By the strict letter of the SemVer policy in `CLAUDE.md` ("minor only when adding user-callable surface — new skill, new SKILL.md frontmatter field, new template variant, new flag"), this is borderline between patch and minor. Treating it as minor (`2.10.0`) signals to users that `/audit` gained meaningful new capabilities (monorepo awareness, scoring transparency) even though no new commands, flags, or arguments were added. Users running the same command on the same project may see new output sections.
+- **Zero new options, flags, or `$ARGUMENTS`.** Both new behaviors are pure default-behavior changes. The "no skill options or arguments" principle (memory `feedback_no_skill_options_or_args`) was applied throughout — the independent review's earlier suggestion to add `/optimize --dry-run` for Gap C was rejected for the same reason, and Gap C was deferred entirely instead.
+- **Three-way prioritization (Claude + Codex + project owner)** drove this scope. Both AIs independently arrived at the same priority order (B → A → C). Codex caught a numbers-reversal bug in the original framing of the conciseness gap (the project owner had written "58 vs 85" with the directionality reversed) and surfaced the meta-critique that "B/A/C are different classes of gap (coverage / calibration / convenience), not three points on the same scale." The B/A split into pre/post sub-deliverables (B1 disclosure-first, A1 guardrail-first, B2 + A2 deferred to v2.11.0+) came from Codex; the rejection of `/optimize --dry-run` for Gap C came from the project owner's zero-options principle.
+- **Memory correction (project-internal):** the local memory file `project_audit_v3_gap.md` was updated to disambiguate the "(58 vs 85)" notation that originally caused the numbers-reversal bug — now explicitly written as `ours=85, theirs=58, +27 over-rating`. Future audits of audit v3 should not repeat the same mistake.
+- **Phase 2 (B2 + A2) is on the roadmap, not in this release.** It requires score-shift validation work and visible user messaging because existing audit scores may move when the LAV-as-multiplier model lands. Shipping it without that preparation would erode user trust in audit scores — exactly the failure mode the conciseness gap itself describes.
+- **Change Propagation Checklist:** the new audit behavior is plugin-only (`plugin/skills/audit/`), which is single-source. No i18n mirror updates needed (the i18n parity script checks `templates/` and `docs/guides/`, not `plugin/`). ROADMAP, CHANGELOG, plugin.json, README badge all updated.
+
 ## [2.9.7] - 2026-04-11
 
 ### Added
