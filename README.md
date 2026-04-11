@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-2.9.5-brightgreen.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Version-2.9.6-brightgreen.svg" alt="Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg" alt="Claude Code Plugin">
   <img src="https://img.shields.io/badge/Skills-4_Commands-orange.svg" alt="4 Skills">
@@ -192,7 +192,7 @@ Customize the Claude Code status bar to show model, context usage, cost, duratio
 One-line setup:
 
 ```bash
-cp Guardians-of-the-Claude/statusline.sh ~/.claude/statusline.sh
+cp ./statusline.sh ~/.claude/statusline.sh
 ```
 
 Claude Code automatically detects `~/.claude/statusline.sh` — no additional configuration needed.

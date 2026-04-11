@@ -232,6 +232,7 @@ Include `✗ bad / ✓ good` code examples for non-obvious rules.
         {
           "type": "command",
           "command": "[detected-linter-command] --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+          "timeout": 15,
           "statusMessage": "Auto-linting edited file"
         }
       ]
@@ -252,6 +253,7 @@ Replace `[detected-linter-command]` with the actual linter (e.g., `npx eslint`, 
       {
         "type": "command",
         "command": "echo \"$CLAUDE_FILE_PATH\" | grep -qE '\\.(env|pem|key)' && echo 'BLOCK: Protected file' && exit 2 || exit 0",
+        "timeout": 5,
         "statusMessage": "Checking for protected files"
       }
     ]

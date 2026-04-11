@@ -1,7 +1,7 @@
 # CLAUDE.md
 <!-- Last reviewed: 2026-04-10 -->
 
-This is a documentation and template repository — it contains no application code, no build system, and no tests. Its purpose is to teach developers how to configure Claude Code for their own projects.
+This is a documentation and template repository — no application source code and no runtime build system, but CI validates it via Python structural checks (frontmatter parity, i18n parity, JSON schemas), shellcheck, link checking, and an LLM-output eval framework in `test/`. Its purpose is to teach developers how to configure Claude Code for their own projects.
 
 ## Repository Structure
 
@@ -25,7 +25,7 @@ This is a documentation and template repository — it contains no application c
 - Templates (under `templates/`) and guides (under `docs/guides/`) use YAML frontmatter with `title`, `description`, and `version` fields — each file has its own independent semver starting from `1.0.0`; bump the version when modifying the file's content
 - Guides in `docs/guides/` should stay concise — most under ~130 lines, `advanced-features-guide.md` under ~200 (covers 3 topics with code examples)
 - This CLAUDE.md should stay under 200 lines, matching the repo's own recommendation in `docs/guides/claude-md-guide.md`
-- There is no source code — all content is Markdown. Review for clarity, accuracy, and consistency across files
+- There is no application source code — primary content is Markdown, supported by JSON/YAML configs, shell scripts (`plugin/hooks/*.sh`, `statusline.sh`, `templates/advanced/scripts/*.sh`), and Python CI validators in `.github/scripts/`. Review for clarity, accuracy, and consistency across files
 - When adding a new guide, follow the existing frontmatter format (`title`, `description`, `version`) and add cross-links from `docs/guides/getting-started.md`
 - CLAUDE.md files under `templates/` are repo content, not instructions for this repo — Claude will lazy-load them when working in those directories, so keep them clearly framed as examples
 
@@ -41,7 +41,7 @@ A single change can ripple across the repo. When modifying any file, check downs
 
 ### Verifying Changes Locally
 
-Before pushing, run the same checks CI runs. First-time setup: `pip install pyyaml==6.0.2 jsonschema==4.23.0 requests==2.32.3`
+Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetches the Claude Code settings schema from schemastore.org and degrades to required-field-only checks on network failure, so full schema validation locally requires connectivity. First-time setup: `pip install pyyaml==6.0.2 jsonschema==4.23.0 requests==2.32.3`
 
 - `python .github/scripts/check-frontmatter-parity.py` — confirms EN and i18n files have matching `version` fields
 - `python .github/scripts/check-i18n-parity.py` — confirms i18n directories mirror EN structure (stdlib only)

@@ -1,7 +1,7 @@
 ---
 title: "Advanced Features"
 description: "Hooks, agents, and skills -- extending Claude Code beyond basic configuration"
-version: 1.2.1
+version: 1.2.2
 ---
 
 # Advanced Features
@@ -24,6 +24,7 @@ Hooks are shell commands that run automatically before or after Claude uses a to
           {
             "type": "command",
             "command": "echo \"$CLAUDE_FILE_PATH\" | grep -qE '(package-lock\\.json|\\.env|migrations/)' && echo 'Protected file' && exit 2 || exit 0",
+            "timeout": 5,
             "statusMessage": "Checking for protected files"
           }
         ]
@@ -36,6 +37,7 @@ Hooks are shell commands that run automatically before or after Claude uses a to
           {
             "type": "command",
             "command": "npx eslint --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+            "timeout": 15,
             "statusMessage": "Auto-linting edited file"
           }
         ]

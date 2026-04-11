@@ -184,7 +184,7 @@ Claude Code 하단 상태 표시줄을 커스터마이즈하여 모델, 컨텍�
 한 줄 설정:
 
 ```bash
-cp Guardians-of-the-Claude/statusline.sh ~/.claude/statusline.sh
+cp ./statusline.sh ~/.claude/statusline.sh
 ```
 
 Claude Code가 `~/.claude/statusline.sh`를 자동으로 감지합니다 — 추가 설정 불필요.

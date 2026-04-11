@@ -182,7 +182,7 @@ Claude Code下部のステータスバーをカスタマイズして、モデル
 ワンライン設定:
 
 ```bash
-cp Guardians-of-the-Claude/statusline.sh ~/.claude/statusline.sh
+cp ./statusline.sh ~/.claude/statusline.sh
 ```
 
 Claude Codeが`~/.claude/statusline.sh`を自動検出します — 追加設定不要。
