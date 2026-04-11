@@ -44,7 +44,7 @@ Claude Code는 사용자의 실제 프로젝트에 적응합니다:
 - **진짜 제품은 `/create`** — Claude는 런타임에 적응하며, 이는 정적 템플릿이 따라올 수 없는 방식입니다. 정적 템플릿은 **읽기 위한** 출발점이고, `/create`는 **만들기 위한** 출발점입니다
 - **유지보수 역량은 유한합니다** — 하나의 고품질 예제가 5개의 반쯤 관리되는 예제보다 낫습니다
 
-프로젝트 방향과 "Stack-adaptive improvements" 백로그 항목은 [`docs/ROADMAP.md`](../../../docs/ROADMAP.md)를 참고하세요.
+프로젝트 방향과 "Stack-adaptive improvements" 백로그 항목은 [`docs/ROADMAP.md`](../../../ROADMAP.md)를 참고하세요.
 
 ## 이 템플릿들을 어떻게 읽어야 하는가
 
