@@ -23,7 +23,6 @@ jobs:
         uses: lycheeverse/lychee-action@v2
         with:
           args: >-
-            --base .
             --verbose
             --no-progress
             --offline
@@ -54,7 +53,6 @@ jobs:
         uses: lycheeverse/lychee-action@v2
         with:
           args: >-
-            --base .
             --verbose
             --no-progress
             --cache
