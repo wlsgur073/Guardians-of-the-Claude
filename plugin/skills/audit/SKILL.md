@@ -33,13 +33,26 @@ After T1 completes, note project signals for conditional loading:
 
 ## Phase 1.5: Subpackage CLAUDE.md Discovery
 
-Walk the project for additional `CLAUDE.md` files outside the root and `.claude/`. Use `Glob` with pattern `**/CLAUDE.md`, then filter the result set:
+Walk the project for additional `CLAUDE.md` files that represent true subpackage configs in a monorepo. Use `Glob` with pattern `**/CLAUDE.md`, then apply all filter layers below in order — a candidate must pass every layer to be reported.
 
-- **Exclude** the root `CLAUDE.md` and `.claude/CLAUDE.md` (already counted in T1.1)
-- **Exclude** any path inside common build, cache, or vendor directories: `node_modules/`, `dist/`, `build/`, `target/`, `vendor/`, `.git/`, `.next/`, `.nuxt/`, `.venv/`, `venv/`, `.cache/`, `coverage/`, `out/`, `__pycache__/`, `.pytest_cache/`
-- **Limit** the displayed result to 20 files; if more remain after filtering, append `(+N more not shown)` in the output
+**Path normalization (Windows):** Normalize candidate path separators to `/` before any comparison, and match directory names case-insensitively.
 
-For each remaining file, record its repository-relative path and line count. **Do not score these files in this version** — this phase is disclosure only. If the filtered result is empty, do not render the "Additional CLAUDE.md Files" section in the output at all.
+**Layer 1 — Root exclusion:** Exclude the root `CLAUDE.md` and the root `.claude/CLAUDE.md` (both already counted in T1.1).
+
+**Layer 2 — Build/cache/vendor exclusion:** Exclude candidates whose path contains any segment matching: `node_modules/`, `dist/`, `build/`, `target/`, `vendor/`, `.git/`, `.next/`, `.nuxt/`, `.venv/`, `venv/`, `.cache/`, `coverage/`, `out/`, `__pycache__/`, `.pytest_cache/`.
+
+**Layer 3 — Package root + manifest requirement:** Determine each candidate's **package root**:
+
+- Normal case: the directory immediately containing `CLAUDE.md`.
+- Nested `.claude/` exception: if the path is `…/.claude/CLAUDE.md`, the package root is the **parent of `.claude/`**. Example: `packages/api/.claude/CLAUDE.md` → package root `packages/api/`. This keeps legitimate subpackage `.claude/CLAUDE.md` layouts visible.
+
+Keep the candidate only if its package root contains at least one of these manifest files (literal filenames, no glob): `package.json`, `Cargo.toml`, `go.mod`, `pyproject.toml`, `build.gradle`, `build.gradle.kts`, `pom.xml`, `composer.json`, `Gemfile`. This list is deliberately conservative for v2.10.0; projects using `setup.py`, `setup.cfg`, `Package.swift`, `mix.exs`, `*.csproj`, or `*.gemspec` as the only manifest will be silently missed (documented false-negative tradeoff — see CHANGELOG).
+
+**Layer 4 — Git-ignore drop (best-effort):** If a `.git` entry (file or directory) exists at the project root — Git worktrees and submodules use a `.git` **file pointer** rather than a directory, so a plain directory check would incorrectly disable this layer for them — run `git check-ignore -q <path>` on each remaining candidate via `Bash`. `git check-ignore` returns exit `0` when the path is ignored (drop the candidate) or exit `1` when it is not ignored (keep the candidate). Any other exit code indicates a per-candidate error (broken index, unusual path, permission, etc.) — in that case, treat the candidate as **not ignored** (keep it, conservative default) and continue processing the remaining candidates, never aborting the layer. If there is no `.git` entry at the project root at all, or `git` is unavailable, or the `Bash` tool is not permitted, **silently skip this layer** — do not fail the audit and do not emit a warning.
+
+**Never walk ancestors** looking for a manifest — always use the immediate package root as defined in Layer 3. "Any ancestor up to repo root" would over-match on any repo whose root already has a `package.json` or equivalent.
+
+After filtering, limit displayed results to 20 files; if more remain, append `(+N more not shown)` in the output. For each reported file, record its repository-relative path and line count. **Do not score these files in this version** — this phase is disclosure only. If the filtered result is empty, do not render the "Additional CLAUDE.md Files" section in the output at all.
 
 Per-package scoring is planned for a future audit release (see `docs/ROADMAP.md` "Audit v4 Phase 2" entry).
 
@@ -74,7 +87,7 @@ Apply the scoring model in this order:
 5. **Calculate LAV** — sum of L1–L6 scores from Phase 3.5
 6. **Apply Quality Cap** — if LAV < 0, cap = 90 + LAV; otherwise cap = 100
 7. **Calculate Final** — `min(max(FG × DS + SB + LAV, 0), cap)`
-7.5. **Check false-reassurance condition** — if `Final >= 75` AND `L5 (Conciseness) == −3`, prepare a warning line for the output: "⚠ High structural score with low conciseness signal — your CLAUDE.md may be over-configured. See L5 finding below for specifics." This is **informational** and does NOT change the score. The intent is to surface the documented limitation that LAV L5's −3 cap cannot fully offset an inflated DS on Overconfigured CLAUDE.md files; the full structural fix (LAV-as-multiplier model) is planned for a future release. If the condition is not met, do not render the warning line at all.
+7.5. **Check false-reassurance condition** — if `Final` falls within the **Grade A range** defined in `references/scoring-model.md` (currently `Final >= 80`) AND `L5 (Conciseness) == −3`, prepare the warning line defined in `references/output-format.md`. **Use the exact line shown in the Standard Output sample there — copy verbatim, do not paraphrase.** Condition, placement, and rationale are specified in output-format.md's "Score-line warning" section. This is **informational** and does NOT change the score. If the condition is not met, do not render the warning line at all.
 8. **Check Quality Gate** — CLAUDE.md exists AND test command present; test condition waived if SKIP
 9. **Determine Grade** and **Maturity Level**
 

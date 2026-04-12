@@ -9,8 +9,8 @@ Configuration Audit Results
 ===========================
 
 Quality Gate: READY    (CLAUDE.md OK, test command OK)
-Score: 70/100 (Grade: B)  |  Maturity: Level 3 — Optimized
-[⚠ False-reassurance warning line — conditional, see "Score-line warning" below]
+Score: 83/100 (Grade: A)  |  Maturity: Level 3 — Optimized
+⚠ High structural score with low conciseness signal — your CLAUDE.md may be over-configured. See L5 finding below for specifics.
 
 ★ Most impactful: [Highest-impact change and why it matters]
 
@@ -19,26 +19,25 @@ Top 3 Priorities
   2. [Second priority] — [reason]
   3. [Third priority] — [reason]
 
-  Next step: run /guardians-of-the-claude:secure to fix protection gaps.
-  (or /optimize, or both — see "Next step line" rules below)
+  Next step: run /guardians-of-the-claude:optimize to improve organization.
 
 ---
 
 Score Breakdown
   Foundation Gate (FG):  1.00    ==================== 100%
-  Protection (T2):       0.70    ==============...... 70%
+  Protection (T2):       1.00    ==================== 100%
   Optimization (T3):     0.50    ==========.......... 50%
-  Detail Score (DS):     62.0    (T2: 0.70 x 60% + T3: 0.50 x 40%) x 100
-  Synergy: +2  (test + build)
-  LAV: +6  (L1: +2 + L2: +2 + L3: +1 + L4: 0 + L5: 0 + L6: +1)
+  Detail Score (DS):     80.0    (T2: 1.00 x 60% + T3: 0.50 x 40%) x 100
+  Synergy: +5  (test + build, sensitive + rules)
+  LAV: -2  (L1: 0 + L2: 0 + L3: +1 + L4: 0 + L5: -3 + L6: 0)
 
   Formula:
   FG: 0.15 + 0.85 x 1.00 = 1.00
-  DS: (0.70 x 0.60 + 0.50 x 0.40) x 100 = 62.0
-  SB: +2 (test + build)
-  LAV: +6 (L1: +2 + L2: +2 + L3: +1 + L4: 0 + L5: 0 + L6: +1)
-  Quality Cap: none (LAV >= 0)
-  Final: min(max(1.00 x 62.0 + 2 + 6, 0), cap=100) = 70
+  DS: (1.00 x 0.60 + 0.50 x 0.40) x 100 = 80.0
+  SB: +5 (test + build: +2, sensitive + rules: +3)
+  LAV: -2 (L1: 0 + L2: 0 + L3: +1 + L4: 0 + L5: -3 + L6: 0)
+  Quality Cap: 88 (LAV < 0: 90 + -2 = 88)
+  Final: min(max(1.00 x 80.0 + 5 + -2, 0), cap=88) = 83
 
 Detailed Findings
   [Detailed findings per item...]
@@ -59,17 +58,13 @@ Additional CLAUDE.md Files (informational)
 
 Maturity path: [Current] → [Next level]: [specific requirement]
 
-Since last audit (2026-03-31): 65 -> 70 (+5). Note: scoring model changed (v2 -> v3).
-Still open: no MCP configuration, agent model diversity.
+Since last audit (2026-03-31): 78 -> 83 (+5).
+Still open: L5 conciseness flag, no MCP configuration, agent model diversity.
 ```
 
 **Display caveat:** If fewer than 2 non-SKIP items remain in T2 or T3, append "(based on N of M items — others not applicable)" to the percentage display.
 
-**Score-line warning (false-reassurance guardrail):** Conditional — appears immediately under the `Score:` line when **`Final Score >= 75` AND `LAV L5 (Conciseness) == −3`**. The exact line is:
-
-> `⚠ High structural score with low conciseness signal — your CLAUDE.md may be over-configured. See L5 finding below for specifics.`
-
-This is informational only and does **not** affect the score. Omit the entire line when the condition is not met (do not render an empty placeholder). The trigger is defined in `SKILL.md` Phase 4 step 7.5. Rationale: the LAV L5 cap of −3 cannot fully offset an inflated Detail Score on Overconfigured CLAUDE.md files, so a high mechanical score can mask a severe conciseness failure. The full structural fix (LAV-as-multiplier model) is planned for a future release; this warning is the lightweight v2.10.0 stopgap.
+**Score-line warning (false-reassurance guardrail):** Conditional — rendered on the line **immediately below the combined `Score:` / `Maturity:` line**, above the blank line preceding `★ Most impactful`. Appears **only when BOTH** conditions hold: (1) `Final Score` falls within the **Grade A range** defined in `references/scoring-model.md` (currently `Final >= 80`), AND (2) `LAV L5 (Conciseness) == −3`. The exact wording is the line shown in the Standard Output sample above — **copy verbatim, do not paraphrase, do not reprint it here**. Omit the entire line when either condition is not met (do not render an empty placeholder). The trigger is defined in `SKILL.md` Phase 4 step 7.5. Rationale: the LAV L5 cap of −3 cannot fully offset an inflated Detail Score on Overconfigured CLAUDE.md files, so a high mechanical score can mask a severe conciseness failure. The full structural fix (LAV-as-multiplier model) is planned for a future release; this warning is the lightweight v2.10.0 stopgap.
 
 **Additional CLAUDE.md Files section:** Conditional — appears between "All Suggestions" and "Maturity path" only when Phase 1.5 found one or more `CLAUDE.md` files in subpackages outside the root and `.claude/`. List each path with its line count, limited to 20 entries; if more found, append `(+N more not shown)`. This is informational disclosure, not a scoring component. Per-package scoring is on the audit roadmap (Phase 2) but not in this release. When zero additional files are found, omit the entire section.
 
