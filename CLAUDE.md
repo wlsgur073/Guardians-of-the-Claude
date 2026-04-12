@@ -52,7 +52,7 @@ Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetc
 ### Release Process
 
 - **SemVer:** patch (z) for fixes and platform-compat work (e.g., adding a `.ps1` companion to an existing `.sh` hook — no new user-callable surface); minor (y) only when adding user-callable surface (new skill, new SKILL.md frontmatter field, new template variant, new `/audit` flag); major (x) for breaking contract changes
-- **GitHub Release title:** version only (`vX.Y.Z`) — no subtitle or theme. **Body:** copy the matching `CHANGELOG.md` section verbatim (`### Added`/`### Fixed`/`### Changed`/`### Notes`), no Highlights/Summary/curation. Past releases set the pattern: `gh release view <prev> --json name,body`
+- **GitHub Release title:** version only (`vX.Y.Z`) — no subtitle or theme. **Body:** copy the matching `CHANGELOG.md` section verbatim (`### Added`/`### Fixed`/`### Changed`/`### Notes`). An optional `## Highlights` section (3–5 short pointer bullets referencing CHANGELOG items without paraphrase) may precede the CHANGELOG content. No `## Summary` prose, no self-curated "What's new" headers, no emojis. Past releases set the pattern: `gh release view <prev> --json name,body`
 - **`gh release` with markdown body:** HEREDOC breaks on backticks and special chars in markdown — always write notes to a temp file and pass with `-F <file>`, then delete the file. Full sequence: stage specific files → commit → `git tag vX.Y.Z` → push commits → push tag → `gh release create vX.Y.Z --title "vX.Y.Z" -F notes.md`
 
 ## Plugin Development Rules
