@@ -7,6 +7,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.10.1] - 2026-04-13
+
+### Fixed
+
+- `plugin/skills/audit/references/output-format.md`: **saturated-case false-reassurance copy removed.** The 100/100 generation rule previously rendered "Your configuration is in great shape. No changes needed." unconditionally whenever `Final == 100`, even when `Raw = FG × DS + SB + LAV` exceeded the 100 cap and positive LAV headroom remained — meaning LAV-dimension refinements were still available but the visible copy denied their existence. This misrepresented real quality work as nonexistent, particularly frustrating for advanced (Day 100+) users whose documented LAV improvements (e.g., L1 structural accuracy 0 → +2) moved Raw but not Final. Replaced with a two-branch conditional: when `LAV == +10` (all six LAV items at their individual maximum), render "Configuration reaches the current scoring ceiling. Re-audit on major dependency or configuration changes."; when `LAV < +10`, render "Configuration reaches the current scoring ceiling. Remaining refinements live in LAV — see the LAV breakdown under Score Breakdown for items still below their maximum. Re-audit on major changes." Both branches preserve the existing "explore advanced features" suggestion. The rule now points users toward the LAV breakdown line already rendered in Score Breakdown (`LAV: +X (L1: a + L2: b + ... + L6: f)`) as the concrete next-look location, restoring actionable signal without introducing new output surfaces.
+
+### Changed
+
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.10.0` → `2.10.1`.
+- `README.md`: version badge updated `2.10.0` → `2.10.1`.
+
+### Notes
+
+- **Deliberate minimum-fix scope.** A fuller excellence-headroom surface — Raw exposure on the score line, a new Level 4 — Mastered maturity tier gated by `LAV >= 8`, a dedicated "Excellence Opportunities" output section listing LAV items below their max with concrete fix hints, and a Score-unchanged-but-Raw-improved comparison variant — was designed and fully staged during this work but **reverted before ship**. Rationale: the Audit v4 Phase 2 rewrite (LAV-as-multiplier, deferred per `docs/ROADMAP.md`) will shift LAV ranges and item thresholds; introducing a `LAV >= 8` Level 4 now would require re-baselining once v4 lands, forcing users who reached "Mastered" to see their Level 4 status revoked or renumbered. UX churn outweighed the marginal discriminative-power gain for the narrow subset of projects currently hitting saturation. The fuller design remains available as starting material when v4 Phase 2 ships.
+- **Inline deferral note in the generation rule.** The new `LAV < +10` branch includes a trailing sentence pointing at `docs/ROADMAP.md` "Audit v4 Phase 2" and naming the deferred surfaces explicitly (Raw exposure, Level 4 — Mastered tier, Excellence Opportunities section). This bakes the maintenance context into the spec itself rather than losing it to CHANGELOG archaeology — a future reader asking "why not add Raw exposure here too?" finds the answer immediately in the rule.
+- **Symmetry with 2.10.0 step 7.5.** The 2.10.0 release added a false-reassurance guardrail for the **inflated** direction (`Final >= 80 AND LAV L5 == −3` → render warning line). This release addresses the **saturated** direction (`Final == 100 AND LAV < +10` → render directional copy pointing at the LAV breakdown). Both are informational, neither changes the score. Together they form minimum coverage of the two ways `Final == 100` can misrepresent reality under the additive-LAV model; the structural fix for both remains the deferred LAV-as-multiplier rewrite.
+- **SemVer rationale.** Pure copy change in one output generation rule — no new flags, no new frontmatter fields, no new skill surface, no scoring-model math changes. Patch-level per the `CLAUDE.md` Release Process policy ("patch (z) for fixes").
+- **Validation.** Local CI-equivalent scripts passed — `check-frontmatter-parity.py` (18 guide pairs OK), `check-i18n-parity.py` (58 files across 4 pairs OK), `check-json-schemas.py` (11 JSON files OK). Change is plugin-only (`plugin/skills/audit/references/output-format.md`), which is single-source — no i18n mirror update needed (parity script scopes are `templates/` and `docs/guides/`, not `plugin/`).
+- **Change Propagation Checklist followed:** plugin.json, README badge, CHANGELOG entry. No i18n mirror. No `templates/`, `docs/guides/`, JSON schema, or shell-script surface touched.
+
 ## [2.10.0] - 2026-04-12
 
 ### Added
