@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "metadata": { "last_updated": "2026-04-14T09:30:00Z" },
+  "recommendations": [
+    {
+      "id": "deny-env",
+      "description": "Add deny patterns for .env / credential files",
+      "issued_by": "create",
+      "status": "PENDING",
+      "pending_count": 1,
+      "first_seen": "2026-04-14T09:00:00Z",
+      "last_seen": "2026-04-14T09:30:00Z",
+      "resolved_by": null,
+      "declined_reason": null
+    }
+  ]
+}

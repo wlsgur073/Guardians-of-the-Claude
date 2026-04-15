@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0.0",
+  "registry": [
+    {
+      "key": "deny-env",
+      "description": "Add deny patterns for .env / credential files",
+      "issuers": ["audit"],
+      "resolvers": ["secure", "audit"],
+      "aliases": ["audit-deny-env"],
+      "introduced_in": "2.11.0"
+    },
+    {
+      "key": "security-rule",
+      "description": "Create dedicated security rule file",
+      "issuers": ["audit"],
+      "resolvers": ["secure", "create"],
+      "aliases": ["audit-security-rule"],
+      "introduced_in": "2.11.0"
+    },
+    {
+      "key": "file-protection-hook",
+      "description": "Add PreToolUse hook for sensitive files",
+      "issuers": ["audit"],
+      "resolvers": ["secure"],
+      "aliases": ["audit-file-protection-hook"],
+      "introduced_in": "2.11.0"
+    },
+    {
+      "key": "split-rules",
+      "description": "Split CLAUDE.md into rule files",
+      "issuers": ["audit"],
+      "resolvers": ["optimize"],
+      "aliases": ["audit-split-rules"],
+      "introduced_in": "2.11.0"
+    },
+    {
+      "key": "agent-diversity",
+      "description": "Diversify agent models",
+      "issuers": ["audit"],
+      "resolvers": ["optimize"],
+      "aliases": ["audit-agent-diversity"],
+      "introduced_in": "2.11.0"
+    },
+    {
+      "key": "mcp-config",
+      "description": "Add MCP configuration",
+      "issuers": ["audit"],
+      "resolvers": ["optimize"],
+      "aliases": ["audit-mcp-config"],
+      "introduced_in": "2.11.0"
+    },
+    {
+      "key": "hook-quality",
+      "description": "Fix hook statusMessage / exit code / matcher",
+      "issuers": ["audit"],
+      "resolvers": ["optimize", "secure"],
+      "aliases": ["audit-hook-quality"],
+      "introduced_in": "2.11.0"
+    }
+  ]
+}

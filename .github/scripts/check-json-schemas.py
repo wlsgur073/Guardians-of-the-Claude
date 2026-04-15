@@ -62,6 +62,10 @@ LOCAL_SCHEMAS: list[tuple[str, str]] = [
         "plugin/references/schemas/recommendations.schema.json",
         "plugin/references/schemas/examples/recommendations.example.json",
     ),
+    (
+        "plugin/references/recommendation-registry.schema.json",
+        "plugin/references/recommendation-registry.json",
+    ),
 ]
 
 # Negative fixtures: (schema_path, negative_example_path) — each MUST be rejected

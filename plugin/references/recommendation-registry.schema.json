@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Recommendation Registry",
+  "type": "object",
+  "required": ["schema_version", "registry"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "registry": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["key", "description", "issuers", "resolvers", "introduced_in"],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "description": { "type": "string", "minLength": 1 },
+          "issuers": {
+            "type": "array",
+            "items": { "enum": ["audit", "create", "secure", "optimize"] },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "resolvers": {
+            "type": "array",
+            "items": { "enum": ["audit", "create", "secure", "optimize"] },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "aliases": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+            "uniqueItems": true,
+            "default": []
+          },
+          "introduced_in": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+          "deprecated_in": {
+            "anyOf": [
+              { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+              { "type": "null" }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
