@@ -332,6 +332,15 @@ def _value_or_null(value: str) -> str | None:
     return v
 
 
+# Known bullet keys per special section (not in BULLET_KEY_MAP).
+SPECIAL_SECTION_KEYS = {
+    "project_structure": {"Type", "Source convention", "Key directories"},
+    "claude_code_configuration_state": {
+        "CLAUDE.md", "settings.json", "Rules", "Agents", "Hooks", "MCP",
+    },
+}
+
+
 def parse_profile_md(text: str, source_file: str, pinned_utc: str) -> dict:
     """Parse legacy project-profile.md into profile.json dict.
 
@@ -341,9 +350,35 @@ def parse_profile_md(text: str, source_file: str, pinned_utc: str) -> dict:
       - "Not detected" values -> null
     The Claude Code Configuration State section and project_structure have
     special bullet handling (object shapes, lists).
+
+    Strictness (per Task 7 parser robustness cases 06/07/10/11):
+      - Body with no recognized `## <Section>` heading -> raise (covers empty
+        file + pre-v2.10 top-level bullets that never match v2.10 layout).
+      - Inside a recognized section, a `- ` line with no `:` -> raise
+        (corrupt key).
+      - Inside a recognized section, a `- Key: Value` whose key is not a
+        canonical field name for that section -> raise (bilingual / unknown
+        keys). Nested sub-bullets (`  - ...`) are not affected — they start
+        with whitespace and are not picked up by the `- ` guard.
+    A raise on any of these is caught by Step 0.5 phase 4 and routes the
+    migration into the fallback/empty-canonical branch.
     """
     fm, body = _strip_frontmatter(text)
     source_files = fm.get("source_files_checked") or [source_file]
+
+    # Strict pre-check: at least one recognized v2.10 section heading must
+    # appear in the body. Rejects empty files and pre-v2.10 top-level-bullet
+    # layouts without forcing the body-walker to guess.
+    recognized_headings = [
+        line[3:].strip()
+        for line in body.splitlines()
+        if line.startswith("## ") and line[3:].strip() in SECTION_TO_FIELD
+    ]
+    if not recognized_headings:
+        raise ValueError(
+            "legacy profile MD has no recognized v2.10 section headings "
+            "(empty body or pre-v2.10 format)"
+        )
 
     profile: dict = {
         "schema_version": "1.0.0",
@@ -381,9 +416,26 @@ def parse_profile_md(text: str, source_file: str, pinned_utc: str) -> dict:
             continue
         if not line.startswith("- ") or current_field is None:
             continue
+        # Strict: in a recognized section, every top-level `- ` bullet must
+        # have a colon separating key from value.
+        if ":" not in line[2:]:
+            raise ValueError(
+                f"malformed bullet in section {current_field!r}: "
+                f"expected `- Key: Value`, got {line!r}"
+            )
         key, _, value = line[2:].partition(":")
         key = key.strip()
         value = value.strip()
+        # Strict: key must be a canonical field name for the section.
+        if current_field in SPECIAL_SECTION_KEYS:
+            allowed = SPECIAL_SECTION_KEYS[current_field]
+        else:
+            allowed = set(BULLET_KEY_MAP.get(current_field, {}).keys())
+        if key not in allowed:
+            raise ValueError(
+                f"unknown field key {key!r} in section {current_field!r}; "
+                f"expected one of {sorted(allowed)}"
+            )
         if current_field == "project_structure":
             if key == "Type":
                 # e.g., "Single project (not monorepo)" -> "single_project"
@@ -435,10 +487,8 @@ def parse_profile_md(text: str, source_file: str, pinned_utc: str) -> dict:
                 elif key == "MCP":
                     ccs["mcp_servers_count"] = num
         else:
-            bullet_map = BULLET_KEY_MAP.get(current_field, {})
-            sub = bullet_map.get(key)
-            if sub is None:
-                continue
+            bullet_map = BULLET_KEY_MAP[current_field]
+            sub = bullet_map[key]
             profile[current_field][sub] = _value_or_null(value)
 
     return profile
@@ -746,8 +796,14 @@ def _state_root(ctx: RunContext) -> Path:
     """Canonical state directory: work_dir/local/ OR work_dir/ for the
     `migration` fixture (flat layout matching Task 5 golden).
     Determined by golden layout, since the fixture contract's golden is
-    the source of truth."""
+    the source of truth.
+
+    Local lane (Task 7 parser robustness cases): names of the form
+    `case-XX` also use the flat work_dir layout — they test the migration
+    parser in isolation and do not simulate a full project workspace."""
     if ctx.fixture_name == "migration":
+        return ctx.work_dir
+    if ctx.fixture_name.startswith("case-"):
         return ctx.work_dir
     return ctx.work_dir / "local"
 
@@ -1732,12 +1788,29 @@ def load_initial_state(ctx: RunContext) -> WorkspaceState:
     return state
 
 
-def run_fixture(name: str) -> tuple[bool, str]:
-    scenario = FIXTURE_SCENARIOS[name]
-    src = FIXTURES_DIR / name / "input"
+def run_fixture(
+    name: str,
+    src_dir: Path | None = None,
+    golden_dir: Path | None = None,
+    scenario: dict | None = None,
+) -> tuple[bool, str]:
+    """Run one fixture through Step 0.5 + (optional) skill handlers, then
+    assert semantics, then byte-diff work_dir against the frozen target.
+
+    Optional parameters let the local lane (LOCAL_FIXTURES_DIR, Task 7) reuse
+    the CI code path unchanged — each local case provides its own src_dir
+    (case/input) and golden_dir (case/expected), and optionally a per-case
+    scenario.json (fallback to a migration-only default when absent). All
+    5 semantic assertions are shared with the CI lane."""
+    if scenario is None:
+        scenario = FIXTURE_SCENARIOS[name]
+    if src_dir is None:
+        src_dir = FIXTURES_DIR / name / "input"
+    if golden_dir is None:
+        golden_dir = GOLDEN_DIR / name
     with tempfile.TemporaryDirectory() as tmpdir:
         work_dir = Path(tmpdir) / name
-        shutil.copytree(src, work_dir)
+        shutil.copytree(src_dir, work_dir)
         ctx = RunContext(
             pinned_utc=os.environ["SMOKE_PINNED_UTC"],
             work_dir=work_dir,
@@ -1761,7 +1834,7 @@ def run_fixture(name: str) -> tuple[bool, str]:
             return (False, "semantic: " + "; ".join(failures))
 
         # BYTE DIFF as last gate
-        diff = byte_diff_tree(work_dir, GOLDEN_DIR / name, input_dir=src)
+        diff = byte_diff_tree(work_dir, golden_dir, input_dir=src_dir)
         if diff:
             return (False, "byte diff:\n  " + diff)
         return (True, "ok")
@@ -1772,11 +1845,68 @@ def run_fixture(name: str) -> tuple[bool, str]:
 # ---------------------------------------------------------------------------
 
 
+# Default scenario applied to each local (LOCAL_FIXTURES_DIR) case that does
+# NOT ship its own scenario.json. Migration-only by design: Task 7 cases
+# exercise Step 0.5 (parser robustness) in isolation. Skill handlers rely on
+# hardcoded per-fixture presets (FIXTURE_SCENARIOS + _audit_detect_profile)
+# and would raise for unknown local case names. A case that needs skill
+# execution can override with its own scenario.json.
+LOCAL_DEFAULT_SCENARIO = {"skill_sequence": [], "pre_run": []}
+
+
+def run_local_lane(base: Path) -> int:
+    """Iterate case directories under `base` (sorted for deterministic order
+    per Primitive 5) and run each through run_fixture. Each case provides
+    input/ and expected/; scenario.json is optional. Returns 0 on all-pass."""
+    if not base.is_dir():
+        print(
+            f"[FATAL] LOCAL_FIXTURES_DIR={base} is not a directory",
+            file=sys.stderr,
+        )
+        return 2
+    case_dirs = sorted(p for p in base.iterdir() if p.is_dir())
+    if not case_dirs:
+        print(
+            f"[FATAL] LOCAL_FIXTURES_DIR={base} has no case subdirectories",
+            file=sys.stderr,
+        )
+        return 2
+    fail_count = 0
+    for case in case_dirs:
+        scenario_file = case / "scenario.json"
+        if scenario_file.exists():
+            scenario = json.loads(scenario_file.read_text(encoding="utf-8"))
+        else:
+            scenario = dict(LOCAL_DEFAULT_SCENARIO)
+        try:
+            passed, msg = run_fixture(
+                name=case.name,
+                src_dir=case / "input",
+                golden_dir=case / "expected",
+                scenario=scenario,
+            )
+        except Exception as exc:  # noqa: BLE001
+            passed = False
+            msg = f"exception: {exc.__class__.__name__}: {exc}"
+        tag = "PASS" if passed else "FAIL"
+        print(f"[{tag}] {case.name}: {msg}")
+        if not passed:
+            fail_count += 1
+    return 1 if fail_count else 0
+
+
 def main() -> int:
     if "SMOKE_PINNED_UTC" not in os.environ:
         print("[FATAL] SMOKE_PINNED_UTC env var is required", file=sys.stderr)
         return 2
 
+    # Local lane (Task 7): iterate test/fixtures/migration/case-*/ subdirs.
+    # Shared verifier, shared semantic assertions — no duplicated logic.
+    local_dir = os.environ.get("LOCAL_FIXTURES_DIR")
+    if local_dir:
+        return run_local_lane(Path(local_dir))
+
+    # CI lane: frozen 4-fixture manifest.
     fixtures = ["migration", "beginner-path", "warm-start", "monorepo"]
     fail_count = 0
     for name in fixtures:

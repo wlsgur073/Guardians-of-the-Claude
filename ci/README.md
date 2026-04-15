@@ -40,3 +40,21 @@ On Windows:
 ```powershell
 pwsh ci/scripts/run-smoke.ps1
 ```
+
+## Maintainer-only local lane (gitignored)
+
+The verifier also supports iterating over a local directory of case
+subdirectories via the `LOCAL_FIXTURES_DIR` environment variable. Used for
+Task 7 parser robustness cases under gitignored `test/fixtures/migration/`
+(not shipped; maintainer-local only):
+
+```bash
+LOCAL_FIXTURES_DIR=test/fixtures/migration \
+SMOKE_PINNED_UTC="2026-04-14T00:00:00Z" \
+python .github/scripts/check-smoke-fixtures.py
+```
+
+Each subdirectory (`case-XX/`) must contain `input/` and `expected/`. An
+optional `scenario.json` overrides the default migration-only scenario
+(`{"skill_sequence": [], "pre_run": []}`). Shared verifier — same 5
+semantic assertions as the CI lane, no duplicated logic.
