@@ -1,0 +1,78 @@
+name: Smoke
+
+on:
+  pull_request:
+    paths:
+      - 'plugin/**'
+      - 'templates/**'
+      - 'plugin/hooks/**'
+      - 'plugin/references/learning-system.md'
+      - 'ci/**'
+      - '.github/scripts/check-smoke-fixtures.py'
+      - '.github/workflows/smoke.yml'
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Smoke fixtures
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install jsonschema==4.23.0 pyyaml==6.0.2
+
+      - name: Run smoke verifier
+        env:
+          SMOKE_PINNED_UTC: "2026-04-14T00:00:00Z"
+        run: bash ci/scripts/run-smoke.sh
+
+  verifier-drift-tripwire:
+    # Catches the silent-omission failure mode: PRs that change skill logic
+    # without updating the verifier or fixtures. Per Codex Q5 (2026-04-14).
+    name: Verifier drift tripwire
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enforce drift tripwire
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          set -euo pipefail
+          changed=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          skill_changed=0
+          verifier_changed=0
+          if echo "$changed" | grep -qE '^(plugin/skills/|plugin/references/(learning-system\.md$|lib/))'; then
+            skill_changed=1
+          fi
+          if echo "$changed" | grep -qE '^(\.github/scripts/check-smoke-fixtures\.py|ci/fixtures/|ci/golden/)'; then
+            verifier_changed=1
+          fi
+          if [ $skill_changed -eq 1 ] && [ $verifier_changed -eq 0 ]; then
+            if echo "$LABELS" | grep -q 'no-verifier-impact'; then
+              echo "OK: skill logic changed but 'no-verifier-impact' label acknowledges."
+            else
+              echo "FAIL: skill logic changed (plugin/skills/** or learning-system.md)"
+              echo "  but no verifier or fixture changes detected."
+              echo "  Either update .github/scripts/check-smoke-fixtures.py,"
+              echo "  or update ci/fixtures/** / ci/golden/**,"
+              echo "  or add 'no-verifier-impact' PR label if truly unrelated."
+              exit 1
+            fi
+          else
+            echo "OK"
+          fi

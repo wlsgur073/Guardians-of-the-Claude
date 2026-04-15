@@ -1,7 +1,7 @@
 ---
 title: Per-Skill Merge Rules
 description: Canonical merge rules for profile.json, recommendations.json, and config-changelog.md. Each skill's Final Phase references this file instead of duplicating the rules inline.
-version: 1.1.0
+version: 1.2.0
 ---
 
 # Per-Skill Merge Rules
@@ -35,6 +35,10 @@ Each skill owns specific top-level sections of `profile.json`. It replaces **onl
 | `claude_code_configuration_state.mcp_servers_count` | Any skill that adds or removes MCP servers |
 
 `/secure` and `/optimize` **must not** touch the six project-structure sections (`runtime_and_language` through `project_structure`).
+
+### Bootstrap exception: first-run `settings_json` initialization
+
+When `current_profile` has no `claude_code_configuration_state.settings_json` at all (e.g., first run on a fresh workspace before `/secure` has executed), `/create` and `/audit` MAY initialize this field with their detection of whether `.claude/settings.json` exists (shape: `{"exists": bool, "has_permissions": bool}`). `/secure` owns all subsequent edits once the field is populated. This is the only ownership exception in the table above.
 
 ---
 
