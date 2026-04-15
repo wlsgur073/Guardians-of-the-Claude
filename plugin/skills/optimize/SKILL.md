@@ -13,7 +13,7 @@ Follow these phases in order.
 
 ## Phase 0: Load Context & Learn
 
-Read `../../references/learning-system.md` and follow the **Common Phase 0** steps with these optimize-specific overrides:
+Read `../../references/learning-system.md` and follow the **Common Phase 0** steps (including **Step 0.5 Migration & Stale Check**) with these optimize-specific overrides:
 
 - **Step 2 override:** Also read `local/latest-audit.md` (for T2.3 hook quality and T3 optimization issues) and `local/latest-secure.md` (to avoid re-suggesting items declined there).
 

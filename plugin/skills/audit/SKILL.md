@@ -11,7 +11,7 @@ Follow these phases in order. Each phase references a check file — read it and
 
 ## Phase 0: Load Context & Learn
 
-Read `../../references/learning-system.md` and follow the **Common Phase 0** steps with these audit-specific overrides:
+Read `../../references/learning-system.md` and follow the **Common Phase 0** steps (including **Step 0.5 Migration & Stale Check**) with these audit-specific overrides:
 
 - **Step 2 override:** No additional latest files needed beyond `latest-audit.md`.
 - **Step 3 override:** Read the **full** `config-changelog.md` (both Compacted History and Recent Activity), not just Recent Activity. This enables trend analysis across the project's entire configuration history.

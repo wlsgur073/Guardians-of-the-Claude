@@ -13,7 +13,8 @@ Follow these phases in order.
 
 ## Phase 0: Load Context & Learn
 
-Read `../../references/learning-system.md` and follow the **Common Phase 0** steps with these create-specific overrides:
+Read `../../references/learning-system.md` and follow the **Common Phase 0** steps
+(including **Step 0.5 Migration & Stale Check**) with these create-specific overrides:
 
 - **Step 2 override:** Also read `local/latest-secure.md` and `local/latest-optimize.md` (to avoid overwriting other skills' changes). This is declared in `learning-system.md` as a create-specific cross-skill override.
 

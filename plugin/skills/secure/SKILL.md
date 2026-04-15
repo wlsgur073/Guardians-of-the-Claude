@@ -13,7 +13,7 @@ Follow these phases in order.
 
 ## Phase 0: Load Context & Learn
 
-Read `../../references/learning-system.md` and follow the **Common Phase 0** steps with these secure-specific overrides:
+Read `../../references/learning-system.md` and follow the **Common Phase 0** steps (including **Step 0.5 Migration & Stale Check**) with these secure-specific overrides:
 
 - **Step 2 override:** Also read `local/latest-audit.md` to check for T2.1 (deny patterns) and T2.2 (security rules) issues flagged by the last audit.
 
