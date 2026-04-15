@@ -16,11 +16,10 @@ Follow these phases in order.
 Read `../../references/learning-system.md` and follow the **Common Phase 0** steps
 (including **Step 0.5 Migration & Stale Check**) with these create-specific overrides:
 
-- **Step 2 override:** Also read `local/latest-secure.md` and `local/latest-optimize.md` (to avoid overwriting other skills' changes). This is declared in `learning-system.md` as a create-specific cross-skill override.
+- **Step 2 override:** When filtering `local/recommendations.json`, focus on `issued_by in ["secure", "optimize"]` (to avoid overwriting changes those skills applied). This is declared in `learning-system.md` as a create-specific cross-skill override.
 
 After completing Common Phase 0:
-- If `local/latest-create.md` was found: note previously generated features and explicitly declined features. Do NOT re-suggest declined features in Phase 2A Question 6 unless the user asks.
-- If legacy `*-create.md` files exist (migration): read the latest one for the same information.
+- From `/create`-issued recommendations in `recommendations.json`: note previously DECLINED features. Do NOT re-suggest declined features in Phase 2A Question 6 unless the user asks.
 
 ## Phase 0.5: Determine Path
 
@@ -104,18 +103,12 @@ After generating all files:
 
 Read `../../references/learning-system.md` and follow the **Common Final Phase** steps with these create-specific overrides:
 
-- **Step 1 override (Write Latest Result):** `latest-create.md` must include:
+- **Step 1 override (Skill-specific data in changelog entry):**
+  The `config-changelog.md` entry for this skill must include:
+  - `Detected:` — include the path taken (`starter`, `advanced`, or `incremental`) so future runs can reason about what scaffold the project started from.
+  - `Applied:` — list of files created or modified this run (CLAUDE.md, settings.json, rules/*, agents/*, hooks, skills, MCP config).
+  - `Recommendations:` — features the user explicitly skipped in Phase 2A Question 6 marked as `DECLINED by user`. This enables Learning Rule 2 (Preference Respect) in future runs.
 
-  ```markdown
-  ## Create Results
-  - Date: {today's date}
-  - Path: starter | advanced | incremental
-  - Generated:
-    - {list of files created or modified}
-  - Declined:
-    - {features user explicitly skipped in Question 6}
-  ```
-
-- **Step 3 (Append to Changelog):** The changelog entry must explicitly list declined features in the Recommendations section with DECLINED status. This enables Learning Rule 2 (Preference Respect) in future runs.
+  Profile merge under the state-mutation lock: `/create` owns the project-structure sections (`runtime_and_language`, `framework_and_libraries`, `package_management`, `testing`, `build_and_dev`, `project_structure`) and `claude_code_configuration_state.claude_md`. It must update `claude_code_configuration_state.{rules_count, agents_count, hooks_count, mcp_servers_count}` for entity classes it added (see `plugin/references/lib/merge_rules.md` §profile.json merge rules). Sections owned exclusively by `/secure` (`settings_json`) must be preserved from the re-read `current_profile`.
 
 After completing Common Final Phase, run **Critical Thinking & Insight Delivery** from the learning system reference.

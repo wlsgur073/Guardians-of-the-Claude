@@ -15,11 +15,10 @@ Follow these phases in order.
 
 Read `../../references/learning-system.md` and follow the **Common Phase 0** steps (including **Step 0.5 Migration & Stale Check**) with these secure-specific overrides:
 
-- **Step 2 override:** Also read `local/latest-audit.md` to check for T2.1 (deny patterns) and T2.2 (security rules) issues flagged by the last audit.
+- **Step 2 override:** When filtering `local/recommendations.json` for `issued_by == "audit"`, focus on T2.1 (deny patterns) and T2.2 (security rules) recommendations flagged by the last audit.
 
 After completing Common Phase 0:
-- If `local/latest-secure.md` was found: note previously declined items. Do NOT re-suggest them.
-- If legacy files exist (migration): read the latest `*-audit.md` and `*-secure.md` for the same information.
+- Separately scan `recommendations.json` for entries with `issued_by == "secure"` and `status == "DECLINED"` — these are previously declined `/secure` suggestions and must not be re-suggested unless project scale/structure changed significantly (per Learning Rule 2 Preference Respect).
 
 ## Phase 1: Scan Protection State
 
@@ -102,20 +101,12 @@ Fix any issues immediately without asking.
 
 Read `../../references/learning-system.md` and follow the **Common Final Phase** steps with these secure-specific overrides:
 
-- **Step 1 override (Write Latest Result):** `latest-secure.md` must include:
+- **Step 1 override (Skill-specific data in changelog entry):**
+  The `config-changelog.md` entry for this skill must include:
+  - `Applied:` — list of items fixed (deny patterns added, security rule file created, file protection hooks added).
+  - `Recommendations:` — items the user skipped this run marked as `DECLINED by user`; any previously PENDING recommendation from `/audit` that was addressed this run marked as `RESOLVED`.
 
-  ```markdown
-  ## Secure Results
-  - Date: {today's date}
-  - Fixed:
-    - {list of items fixed}
-  - Declined:
-    - {list of items user skipped}
-  ```
-
-- **Step 2 override (Update Profile):** Update the "Claude Code Configuration State" section of the profile — specifically Hooks and Rules counts if they changed.
-
-- **Step 3 (Append to Changelog):** Record fixed items as Applied, skipped items as DECLINED. If a previously PENDING recommendation from `/audit` was addressed, mark it as RESOLVED.
+  Profile merge under the state-mutation lock must update the `claude_code_configuration_state.settings_json` section (owned by `/secure`), plus `hooks_count` and `rules_count` if they changed (see `plugin/references/lib/merge_rules.md` §profile.json merge rules).
 
 After completing Common Final Phase, run **Critical Thinking & Insight Delivery**.
 

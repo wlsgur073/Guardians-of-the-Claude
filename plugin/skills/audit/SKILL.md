@@ -13,12 +13,8 @@ Follow these phases in order. Each phase references a check file — read it and
 
 Read `../../references/learning-system.md` and follow the **Common Phase 0** steps (including **Step 0.5 Migration & Stale Check**) with these audit-specific overrides:
 
-- **Step 2 override:** No additional latest files needed beyond `latest-audit.md`.
-- **Step 3 override:** Read the **full** `config-changelog.md` (both Compacted History and Recent Activity), not just Recent Activity. This enables trend analysis across the project's entire configuration history.
-
-After completing Common Phase 0, also check for legacy data:
-1. If `local/latest-audit.md` was not found AND legacy `*-audit.md` files exist in the parent directory, read the latest legacy file for previous score and top issues
-2. Also check for legacy `*-secure.md` and `*-optimize.md` — note which skills ran since the last audit
+- **Step 2 override:** Read all recommendations in `local/recommendations.json` (no filter by `issued_by`). `/audit` surveys the entire recommendation history for trend analysis and stagnation detection.
+- **Step 3 override:** Read the **full** `config-changelog.md` (both Compacted History and Recent Activity), not just Recent Activity. This enables trend analysis across the project's entire configuration history, including which skills ran since the last audit.
 
 ## Phase 1: Foundation Checks (T1)
 
@@ -100,24 +96,15 @@ Read `references/output-format.md` and present results using the defined action-
 
 Read `../../references/learning-system.md` and follow the **Common Final Phase** steps with these audit-specific overrides:
 
-- **Step 1 override (Write Latest Result):** `latest-audit.md` must include the score as a user-facing snapshot:
+- **Step 1 override (Skill-specific data in changelog entry):**
+  The `config-changelog.md` entry for `/audit` must include:
+  - `Detected:` — project changes observed (framework/package manager/testing etc. diffs).
+  - `Profile updated:` — sections refreshed this run (for `/audit`, always all owned sections; see below).
+  - `Applied:` — always `(none)` for `/audit` (audit does not mutate user files).
+  - `Recommendations:` — all PENDING/DECLINED items emitted this run with appropriate status.
 
-  ```markdown
-  ## Audit Results
-  - Date: {today's date}
-  - Model: v3 (foundation-gated + LAV)
-  - Score: {XX}/100
-  - Grade: {X}
-  - Gate: {READY/NOT READY}
-  - Maturity: Level {N} — {Name}
-  - Top issues:
-    - {2-3 bullet summary of non-PASS items}
-  ```
+  The score itself (`XX/100`, grade, maturity level) is a user-facing snapshot surfaced in the terminal output of Phase 4 and in `state-summary.md`'s Recent Skill Results section. It must NOT be written into the `config-changelog.md` entry as a field — the changelog is learning data, not a report ledger.
 
-  Note: Score is written to `latest-audit.md` (user-facing) but NOT to `config-changelog.md` (learning data).
-
-- **Step 2 override (Update Profile):** Always regenerate the entire `project-profile.md` from scratch, regardless of whether changes were detected. Audit is the authoritative full refresh (Layer 3 of stale prevention).
-
-- **Step 3 (Append to Changelog):** Follow standard append. Entry must NOT include score. Record: detected changes, profile updates, applied changes, recommendations with status.
+  Profile merge under the state-mutation lock: `/audit` is the authoritative full refresh (Layer 3 of stale prevention). Always regenerate all `/audit`-owned sections — `runtime_and_language`, `framework_and_libraries`, `package_management`, `testing`, `build_and_dev`, `project_structure`, and `claude_code_configuration_state.claude_md` — from detected state, regardless of whether changes were detected. Other sections (e.g., `claude_code_configuration_state.settings_json` owned by `/secure`) must be preserved from the re-read `current_profile` (see `plugin/references/lib/merge_rules.md` §profile.json merge rules).
 
 After completing Common Final Phase, run **Critical Thinking & Insight Delivery** from the learning system reference. Apply Socratic verification to audit recommendations before presenting them.

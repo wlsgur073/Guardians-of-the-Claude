@@ -15,12 +15,11 @@ Follow these phases in order.
 
 Read `../../references/learning-system.md` and follow the **Common Phase 0** steps (including **Step 0.5 Migration & Stale Check**) with these optimize-specific overrides:
 
-- **Step 2 override:** Also read `local/latest-audit.md` (for T2.3 hook quality and T3 optimization issues) and `local/latest-secure.md` (to avoid re-suggesting items declined there).
+- **Step 2 override:** When filtering `local/recommendations.json` for `issued_by == "audit"`, focus on T2.3 (hook quality) and T3 (optimization) recommendations. Also include `issued_by == "secure"` entries (to avoid re-suggesting items declined there).
 
 After completing Common Phase 0:
-- If `local/latest-optimize.md` was found: note previously declined items. Do NOT re-suggest them.
-- From secure history: if hooks were declined in /secure, do not suggest hook quality fixes.
-- If legacy files exist (migration): read the latest `*-audit.md`, `*-secure.md`, and `*-optimize.md` for the same information.
+- Separately scan `recommendations.json` for entries with `issued_by == "optimize"` and `status == "DECLINED"` — these are previously declined `/optimize` suggestions and must not be re-suggested unless project scale/structure changed significantly (per Learning Rule 2 Preference Respect).
+- Separately scan `recommendations.json` for entries with `issued_by == "secure"` and `status == "DECLINED"` — if hook-related items are declined there, do not suggest hook quality fixes.
 
 ## Phase 1: Scan Optimization State
 
@@ -139,20 +138,12 @@ Fix any issues immediately without asking.
 
 Read `../../references/learning-system.md` and follow the **Common Final Phase** steps with these optimize-specific overrides:
 
-- **Step 1 override (Write Latest Result):** `latest-optimize.md` must include:
+- **Step 1 override (Skill-specific data in changelog entry):**
+  The `config-changelog.md` entry for this skill must include:
+  - `Applied:` — list of items improved (CLAUDE.md split, agent model diversification, MCP added, hook quality fixes).
+  - `Recommendations:` — items the user skipped this run marked as `DECLINED by user`; any previously PENDING recommendation from `/audit` that was addressed this run marked as `RESOLVED`.
 
-  ```markdown
-  ## Optimize Results
-  - Date: {today's date}
-  - Fixed:
-    - {list of items improved}
-  - Declined:
-    - {list of items user skipped}
-  ```
-
-- **Step 2 override (Update Profile):** Update the "Claude Code Configuration State" section — specifically Rules count, Agents count, MCP status, and Hooks status if they changed.
-
-- **Step 3 (Append to Changelog):** Record improved items as Applied, skipped items as DECLINED. If a previously PENDING recommendation from `/audit` was addressed, mark it as RESOLVED.
+  Profile merge under the state-mutation lock must update `claude_code_configuration_state.{rules_count, agents_count, hooks_count, mcp_servers_count}` for any entity classes changed by this run (see `plugin/references/lib/merge_rules.md` §profile.json merge rules). `/optimize` must NOT touch the six project-structure sections (`runtime_and_language` through `project_structure`).
 
 After completing Common Final Phase, run **Critical Thinking & Insight Delivery**.
 

@@ -1,7 +1,7 @@
 ---
 title: Learning System
 description: Shared state management reference for /create, /audit, /secure, /optimize
-version: 2.1.0
+version: 2.2.0
 ---
 
 # Learning System
@@ -92,13 +92,12 @@ After Step 0.5, proceed to Step 1 normally.
 If either mismatches, apply Rule 4 (Profile Drift Response) immediately before proceeding.
 If profile not found, note it will be generated in Final Phase and skip spot-check.
 
-**Step 2 — Load Previous Results**: Read `local/latest-{this-skill}.md`. Cross-skill overrides:
+**Step 2 — Load Previous Results**: Read `local/recommendations.json`. Cross-skill overrides:
 
-- `/secure`: also read `local/latest-audit.md` (T2 references).
-- `/optimize`: also read `local/latest-audit.md` + `local/latest-secure.md`.
-- `/create`: also read `local/latest-secure.md` + `local/latest-optimize.md` (to avoid overwriting other skills' changes).
-- `/audit`: no additional files.
-- If no latest file found: check parent directory for legacy `*-{this-skill}.md`. Read most recent if found.
+- `/secure`: filter for recommendations where `issued_by == "audit"` and `status == "PENDING"`.
+- `/optimize`: same, plus filter for `issued_by == "secure"`.
+- `/create`: filter for `issued_by in ["secure", "optimize"]` to avoid overwriting other skills' work.
+- `/audit`: all recommendations.
 
 **Step 3 — Load Changelog & Apply Learning Rules**: Read `local/config-changelog.md`. `/audit` reads full file; other skills read Recent Activity only. If found, apply Learning Rules below. Then proceed to skill's own Phase 0.
 
@@ -108,14 +107,14 @@ If profile not found, note it will be generated in Final Phase and skip spot-che
 
 Rule 1 — Recommendation Follow-up
 
-- Context: PENDING in `recommendations.json` (or changelog) + `latest-*.md` existence.
-- Signal: PENDING and corresponding skill's latest shows not addressed.
+- Context: PENDING entries in `recommendations.json` plus any matching unresolved entries in `config-changelog.md`'s Recent Activity.
+- Signal: PENDING status in `recommendations.json` and the most recent entry for the corresponding `resolvers[]` skill in `config-changelog.md` does not mark it RESOLVED.
 - Action: Re-state with `(Nx pending)` count where N = previous count + 1. Count increments across all skills (not just the current skill). Explain what remains unaddressed.
 
 Rule 2 — Preference Respect
 
-- Context: DECLINED in `recommendations.json` (or changelog) + `local/profile.json`.
-- Signal: Previously DECLINED feature in any skill's changelog entry (cross-skill scope).
+- Context: DECLINED entries in `recommendations.json` + `local/profile.json`.
+- Signal: `status == "DECLINED"` in `recommendations.json`, or DECLINED annotation in any skill's `config-changelog.md` entry (cross-skill scope).
 - Action: Do NOT re-suggest unless project scale/structure changed significantly. If re-suggesting, acknowledge the previous decline.
 
 Rule 3 — Stagnation Detection
@@ -137,13 +136,38 @@ Rule 4 — Profile Drift Response
 
 Insert after each skill's existing final phase logic.
 
-**Step 1 — Write Latest Result**: Create `local/` if not exists. Write `local/latest-{this-skill}.md` (overwrite). `latest-audit.md` includes score as user-facing snapshot; others include result summary, files created/modified, features declined.
+**Step 1 — Merge, Write, Render** (concurrency-aware, under state-mutation lock):
 
-**Step 2 — Update Profile**: If `local/profile.json` absent, generate from detected state. If present and changes detected, update relevant sections per merge rules (see `plugin/references/lib/merge_rules.md`). `/audit` always regenerates entirely. Update `metadata.last_updated`.
+The Final Phase does NOT blindly overwrite state with the snapshot read at Phase 0. Between Phase 0 and Final Phase, another skill run in a parallel shell may have modified canonical state. The sequence below protects against serialized lost updates (stale-snapshot overwrite) by re-reading under lock and merging this skill's deltas against current state. The Phase 0 snapshot is NOT the ground truth for write; `current_*` at step 2 is.
 
-**Step 3 — Append to Changelog**: If absent, create with frontmatter (`entry_count: 1`, `compacted_at: never`), `## Compacted History` section containing `(none)`, `## Recent Activity` section, and first entry. Run Same-Day Duplicate Check (Step 3a), then Compaction Check (Step 3b).
+1. **Acquire `local/.state.lock`** — See `plugin/references/lib/state_io.md` §state-mutation-lock (Final Phase: wait up to 30s behavior).
 
-**Step 4 — Legacy Cleanup**: Glob for `*-{this-skill}.md` in parent directory. Delete if found.
+2. **Re-read current canonical state under lock**:
+   - `current_profile` ← parse `local/profile.json`
+   - `current_recommendations` ← parse `local/recommendations.json`
+   - `current_changelog` ← read `local/config-changelog.md`
+
+3. **Apply this skill's deltas as a merge** (per-skill merge rules — see Per-Skill Merge Rules section below). Produce `new_profile`, `new_recommendations`, `new_changelog` in memory. The same-day duplicate handling of changelog entries (see §Same-Day Duplicate Check) and the compaction check (see §Compaction Algorithm) are applied in memory during this step, before the atomic write.
+
+4. **Render `new_state_summary`** from in-memory `new_profile` + `new_recommendations` + `new_changelog`. Do NOT re-read files from disk after step 2; rendering from in-memory state avoids TOCTOU races with step 5's writes.
+
+5. **Atomic write all four files** (see `plugin/references/lib/state_io.md` §atomic-write):
+   - `profile.json` ← `new_profile`
+   - `recommendations.json` ← `new_recommendations`
+   - `config-changelog.md` ← `new_changelog` (whole-file rewrite; DO NOT use `O_APPEND`)
+   - `state-summary.md` ← `new_state_summary`
+
+6. **Release `local/.state.lock`** — See `plugin/references/lib/state_io.md` §state-mutation-lock (release via `os.unlink`).
+
+Do NOT write `latest-{skill}.md` — legacy per-skill result files are deprecated; per-skill result info surfaces through `config-changelog.md` entries and `state-summary.md`'s Recent Skill Results section.
+
+---
+
+## Per-Skill Merge Rules (Final Phase under state-mutation lock)
+
+See `plugin/references/lib/merge_rules.md`.
+
+**Note**: `local/latest-{skill}.md` is deprecated. Skill-specific result info now lives in `config-changelog.md` entries and is surfaced in `state-summary.md`'s Recent Skill Results section. Migration in Step 0.5 moves any legacy `latest-*.md` files to `local/legacy-backup/`.
 
 ---
 
@@ -321,7 +345,7 @@ Fields with no data use `(none)`. Recommendation statuses:
 | DECLINED | User explicitly chose not to adopt |
 | STALE | PENDING 3+ times with no user response; auto-archived |
 
-Changelog entries must NOT include audit scores. Scores are user-facing snapshots in `local/latest-audit.md` only.
+Changelog entries must NOT include audit scores. Scores are user-facing snapshots shown in `/audit`'s terminal output and the Recent Skill Results section of `state-summary.md` only — never persisted in `config-changelog.md` or `recommendations.json`.
 
 ---
 
@@ -370,8 +394,8 @@ Skills write `profile.json` + `recommendations.json` as **canonical state**. The
 
 ## Recent Skill Results
 
-{For each skill in [create, audit, secure, optimize] with a latest-{skill} entry in config-changelog:}
-### /{skill} — {latest entry date}
+{For each skill in [create, audit, secure, optimize] with a most-recent entry in config-changelog's Recent Activity:}
+### /{skill} — {most recent entry date}
 {One-line summary from the entry's Applied or Detected field}
 ```
 
@@ -439,7 +463,7 @@ Per-data-source cost:
 | Data | Tokens | Read by |
 | ------ | -------- | --------- |
 | `profile.json` | ~300 | All skills |
-| `latest-{skill}.md` | ~200 | All skills |
+| `recommendations.json` (filtered) | ~200 | All skills |
 | `config-changelog.md` (Recent only) | ~550 | /create, /secure, /optimize |
 | `config-changelog.md` (full) | ~1,300 | /audit only |
 | Manifest spot-check | ~200 | All skills (Step 1) |
