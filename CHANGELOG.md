@@ -7,6 +7,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.11.0] - 2026-04-16
+
+### Added
+
+- JSON state schemas at `plugin/references/schemas/` (draft 2020-12): `profile.schema.json`, `recommendations.schema.json`. Each pins its version via `"schema_version": { "const": "1.0.0" }` for explicit version dispatch. `$id` is intentionally omitted (URL identifiers are mutable — repo rename / branch drift risk).
+- Recommendation registry at `plugin/references/recommendation-registry.json` + `plugin/references/schemas/recommendation-registry.schema.json`. Single source for recommendation keys, authorized issuers, resolvers, and aliases. 7 initial entries cover current `/audit` recommendations; each lists the legacy `audit-*` id as an alias for migration compatibility.
+- Shared validation library at `.github/scripts/lib/recommendation_registry.py` consumed by both `.github/scripts/check-recommendation-registry.py` (CLI lint) and `.github/scripts/check-smoke-fixtures.py` (smoke verifier) — single source for alias/key/issuer/resolver rules.
+- Shared **State Rendering** spec in `plugin/references/learning-system.md` producing read-only `local/state-summary.md` via atomic write (temp file + rename). Stale-vs-tampered semantics: summary older than any source = stale (regenerate); newer than all sources = tampered (warn, do not use as source).
+- **`Step 0.5 Migration & Stale Check`** (8-phase clean version) in Common Phase 0. Acquires state-mutation lock (`local/.state.lock`, 60s stale auto-release), classifies canonical files (5-axis state machine), validates per file, recovers from legacy with alias resolution, quarantines ALL examined legacy inputs to `local/legacy-backup/<ISO-8601-UTC>/` (single-source cutover), and regenerates or warns on `state-summary.md` before releasing the lock.
+- **Per-Skill Merge Rules** section in `learning-system.md`: `profile.json` section ownership, `recommendations.json` by-key merge (preserve untouched), `config-changelog.md` whole-file read-modify-write (no `O_APPEND`).
+- **Final Phase 6-step concurrency-aware sequence** in 4 skills (`/create`, `/audit`, `/secure`, `/optimize`): acquire lock → re-read current state → merge this skill's deltas → render summary from in-memory post-merge state → atomic-write all 4 files → release lock.
+- **Schema Evolution Policy** + **Recommendation ID Registry** + **Migration Notice** sections in `learning-system.md`.
+- Shared primitives at `plugin/references/lib/state_io.md` (atomic write + state-mutation lock + deterministic I/O) and `plugin/references/lib/merge_rules.md` (per-skill merge rules + bootstrap exception).
+- CI smoke lane at `ci/fixtures/` + `ci/golden/` with 4 canonical fixtures (`migration` / `beginner-path` / `warm-start` / `monorepo`) and Python reference verifier at `.github/scripts/check-smoke-fixtures.py`. Verifier uses functional dispatch + `FIXTURE_SCENARIOS` manifest, runs actual simulation for every fixture (not just expected==golden diff), and asserts 5 semantic invariants (schema valid, registry lint, aliases never persist, legacy quarantined, summary derived from current sources) before byte diff.
+- `.github/workflows/smoke.yml` with two jobs: `smoke` (runs verifier with `SMOKE_PINNED_UTC` for deterministic timestamps) and `verifier-drift-tripwire` (catches PRs that change skill markdown without updating the verifier or fixtures — requires `no-verifier-impact` PR label to bypass).
+- `.github/workflows/docs-check.yml` gains a `registry-lint` job running `check-recommendation-registry.py` on fixtures + negative examples.
+- `ci/scripts/run-smoke.{sh,ps1}` + `ci/scripts/compare-golden.{sh,ps1}` + `ci/scripts/build-manifest.{sh,ps1}` (cross-platform). `build-manifest` generates `eval-manifest.json` for releases (`maintainer_signoff` and `parser_robustness` fields filled post-hoc).
+- `.gitattributes` enforcing LF newlines under `ci/fixtures/**` + `ci/golden/**` for cross-platform byte equality.
+- `.github/scripts/check-skill-stability.py` enforcing the skill interface stability contract (frontmatter must not declare `options:`/`arguments:`; body must not embed `$ARGUMENTS`); wired as `skill-stability-lint` job in `.github/workflows/docs-check.yml`.
+
+### Changed
+
+- Four skills (`/create`, `/audit`, `/secure`, `/optimize`) write `profile.json` + `recommendations.json` in Final Phase Step 1 using the new 6-step sequence above. Legacy `latest-*.md` format retired.
+- `config-changelog.md` remains MD canonical (unchanged structure) but writes are now whole-file read-modify-write (atomic temp+rename) to support same-day entry updates without `O_APPEND` reliance.
+- Recommendation `id` model: stable kebab-case key (no skill prefix) + separate `issued_by` field. Cross-skill resolution via canonical key is natural; legacy `audit-*` prefixed ids are accepted on input via registry aliases but never persisted forward (Lint 3 enforces this).
+- `plugin/references/learning-system.md` cumulative bump from `1.x` to `2.2.0` (5 new sections — State Rendering, Schema Evolution Policy, Recommendation ID Registry, Per-Skill Merge Rules, Migration Notice — plus bootstrap exception clarification across two follow-up bumps).
+- All 4 skills' frontmatter `version` bumped one minor each (Phase 0 Step 0.5 + Final Phase Step 1 changes).
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.10.1` → `2.11.0`.
+- `README.md`: version badge updated `2.10.1` → `2.11.0`; new `v2.11 Migration` and `CI smoke lane (transitional bridge)` sections inserted after Day 100+.
+
+### Migration
+
+- Existing v2.10.x users: on first invocation of any skill, legacy MD files under `local/` are parsed into JSON (with alias resolution for recommendation ids) and moved to `local/legacy-backup/<ISO-8601-UTC>/`. A one-time notice is printed.
+- Partial recovery: if `profile.json` is corrupt but `recommendations.json` is valid, only the corrupt file is moved to backup; the valid file is preserved (Step 0.5 phase 4 per-file recovery).
+- Single-source cutover: once JSON canonical exists, any lingering legacy MD is quarantined to `legacy-backup/`; legacy MD never coexists with valid JSON in `local/`.
+- If parsing fails, failing files are preserved under `legacy-backup/`; skill continues with empty state (deny-and-continue). PENDING counts and DECLINED history are NOT auto-restored — see README `v2.11 Migration` section for manual restoration.
+- `state-summary.md` replaces separate `project-profile.md` + `latest-*.md` files as the read-only human-readable view. Derived from current JSON + `config-changelog.md` on every skill run.
+- **Forward-only migration:** once canonical JSON exists in `local/`, there is no automated path back to MD-primary state. Rollback requires manual restoration from `local/legacy-backup/<ISO-8601-UTC>/` and pinning v2.10.x.
+- **Stateless mode:** if `local/` is unwritable (privacy-sensitive projects, read-only mounts, user-disabled), the skill prints a one-time warning (`local/ not writable; stateless run — learning disabled`) and continues to its main work. No JSON state written, no recommendations persisted, no `state-summary.md` generated.
+
+### Notes
+
+- CI smoke lane is currently a **transitional bridge** to wider evaluation. Until v3.0 ships or a second maintainer joins (whichever comes first), the lane validates 4 canonical fixtures only. Wider evaluation runs maintainer-local in gitignored `test/` (14 parser robustness cases via `LOCAL_FIXTURES_DIR` env var).
+- Concurrency fixtures are out of Phase 1 scope; manual testing for multi-shell concurrent skill runs is recommended. Supported scope: multi-shell same-user on same machine (state-mutation lock covers it). Unsupported: multi-user shared `local/`.
+- 4 skills are hardcoded in registry schema enums (`["audit", "create", "secure", "optimize"]`). Adding a 5th skill is a breaking change requiring schema enum updates + per-skill merge rules + new schema-version dispatcher route.
+- **No telemetry collected.** Migration failure modes surface via user-visible warning + preserved `legacy-backup/`. Maintainers track recurring patterns in internal notes for Phase 2a fixes.
+- Versioned-dispatcher behavioral contract (per Schema Evolution Policy in `learning-system.md`) is declared in this release; first actual implementation arrives in Phase 2a (v2.12.0) when `profile.json.claude_code_configuration_state.model` is added as additive minor (1.0.0 → 1.1.0).
+
 ## [2.10.1] - 2026-04-13
 
 ### Fixed

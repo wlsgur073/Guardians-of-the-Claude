@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-2.10.1-brightgreen.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Version-2.11.0-brightgreen.svg" alt="Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg" alt="Claude Code Plugin">
   <img src="https://img.shields.io/badge/Skills-4_Commands-orange.svg" alt="4 Skills">
@@ -102,6 +102,24 @@ After multiple skill runs, the plugin activates its **meta-system layer** — pe
 - **Stagnation awareness** — If the same recommendation is ignored 3 times, the plugin asks whether to mark it as declined
 
 **You never need to read about this to use the plugin.** It runs automatically. See [learning-system.md](plugin/references/learning-system.md) if you want to understand the internals.
+
+## v2.11 Migration
+
+If you used v2.10.x, the state format changed from separate Markdown files to JSON as the source of truth. On first skill run after upgrade, `local/project-profile.md` and `local/latest-*.md` are auto-converted to `local/profile.json` + `local/recommendations.json`. A single human-readable view `local/state-summary.md` replaces the former MD files. Originals are preserved under `local/legacy-backup/<ISO-8601-UTC>/`.
+
+If any file fails to parse, the skill continues with empty state and Learning Rules (PENDING counts, DECLINED history) re-accumulate from that run forward. **To manually restore counts**, consult `legacy-backup` — e.g., if `latest-audit.md` in legacy-backup shows 2 PENDING items, run `/audit` again and those items re-surface as new PENDING entries (their counters restart from 1; they are not auto-carried).
+
+**Forward-only migration:** once `local/profile.json` exists, there is no automated path back to MD-primary state. Rollback requires manual restoration from `local/legacy-backup/<ISO-8601-UTC>/` and pinning v2.10.x.
+
+**Report migration failures** at https://github.com/wlsgur073/Guardians-of-the-Claude/issues with the warning output and (if possible) a redacted snippet of the file that failed to parse. No telemetry is collected automatically.
+
+**Stateless mode** (privacy-sensitive projects): if `local/` is unwritable, read-only, or intentionally absent, skills detect this and run in stateless mode (no JSON persistence, no recommendations stored, no `state-summary.md` generated). A one-time warning is printed; the skill's primary output still completes normally. Learning Rules are disabled in stateless mode.
+
+## CI smoke lane (transitional bridge)
+
+Until v3.0 ships or a second maintainer joins (whichever comes first), the CI smoke lane (`ci/fixtures/` + `ci/golden/`) validates a minimal 4-fixture set: migration / beginner-path / warm-start / monorepo. Wider evaluation remains maintainer-local.
+
+After the exit condition is met, the smoke lane will be promoted to cover all release-gate checks, and this transitional note will be removed from the README.
 
 ## What's Inside
 
