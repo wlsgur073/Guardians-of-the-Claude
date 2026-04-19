@@ -18,13 +18,16 @@ from pathlib import Path
 
 try:
     from jsonschema import Draft202012Validator, Draft7Validator
+    from referencing import Registry, Resource
 except ImportError as exc:
-    print(f"[FATAL] jsonschema not installed: {exc}", file=sys.stderr)
+    print(f"[FATAL] jsonschema or referencing not installed: {exc}", file=sys.stderr)
     print("Install with: pip install jsonschema==4.23.0", file=sys.stderr)
     sys.exit(1)
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-SCHEMA_PATH = ROOT / "plugin" / "references" / "schemas" / "profile.schema.v1.1.0.json"
+SCHEMAS_DIR = ROOT / "plugin" / "references" / "schemas"
+SCHEMA_PATH = SCHEMAS_DIR / "profile.schema.v1.1.0.json"
+BASE_PATH = SCHEMAS_DIR / "profile.schema.base.json"
 FIXTURES_DIR = ROOT / "ci" / "fixtures" / "preflight-schema"
 
 FIXTURE_1 = FIXTURES_DIR / "fixture-1-valid-v1.1.0.json"
@@ -38,9 +41,19 @@ def load_json(path: Path) -> dict:
         return json.load(f)
 
 
-def is_valid(validator_cls, schema: dict, instance: dict) -> tuple[bool, str]:
+def build_registry(base_schema: dict) -> Registry:
+    """Register the base schema so $ref resolution works for versioned wrappers."""
+    return Registry().with_resources(
+        [("profile.schema.base.json", Resource.from_contents(base_schema))]
+    )
+
+
+def is_valid(
+    validator_cls, schema: dict, instance: dict, registry: Registry | None = None
+) -> tuple[bool, str]:
     """Return (valid, error_message). error_message is empty string if valid."""
-    validator = validator_cls(schema)
+    kwargs = {"registry": registry} if registry is not None else {}
+    validator = validator_cls(schema, **kwargs)
     errors = list(validator.iter_errors(instance))
     if errors:
         return False, "; ".join(e.message for e in errors[:3])
@@ -58,6 +71,8 @@ def main() -> int:
         return 2
 
     print(f"Schema found: {SCHEMA_PATH.relative_to(ROOT)}")
+    base_schema = load_json(BASE_PATH)
+    registry = build_registry(base_schema)
     schema_v110 = load_json(SCHEMA_PATH)
     schema_draft07_control = load_json(FIXTURE_4_SCHEMA)
 
@@ -70,7 +85,7 @@ def main() -> int:
     # ------------------------------------------------------------------
     # Assertion 1: fixture-1 (valid v1.1.0 instance) must be ACCEPTED
     # ------------------------------------------------------------------
-    valid, err = is_valid(Draft202012Validator, schema_v110, fixture1)
+    valid, err = is_valid(Draft202012Validator, schema_v110, fixture1, registry=registry)
     if valid:
         print("[ASSERT 1] PASS — valid v1.1.0 instance accepted by Draft202012Validator")
     else:
@@ -80,7 +95,7 @@ def main() -> int:
     # ------------------------------------------------------------------
     # Assertion 2: fixture-2 (unknown root property) must be REJECTED
     # ------------------------------------------------------------------
-    valid, err = is_valid(Draft202012Validator, schema_v110, fixture2)
+    valid, err = is_valid(Draft202012Validator, schema_v110, fixture2, registry=registry)
     if not valid:
         print("[ASSERT 2] PASS — unknown root property rejected by unevaluatedProperties closure")
     else:
@@ -93,7 +108,7 @@ def main() -> int:
     # ------------------------------------------------------------------
     # Assertion 3: fixture-3 (unknown nested property) must be REJECTED
     # ------------------------------------------------------------------
-    valid, err = is_valid(Draft202012Validator, schema_v110, fixture3)
+    valid, err = is_valid(Draft202012Validator, schema_v110, fixture3, registry=registry)
     if not valid:
         print(
             "[ASSERT 3] PASS — unknown nested property rejected by"
@@ -110,6 +125,7 @@ def main() -> int:
     # Assertion 4: CONTROL — under draft-07 mislabel, fixtures 2+3 must be ACCEPTED
     # This proves that unevaluatedProperties enforcement is draft-2020-12-dependent.
     # The draft-07 validator ignores unevaluatedProperties (unknown keyword).
+    # draft-07 schema is self-contained (no $ref to base) — no registry needed.
     # ------------------------------------------------------------------
     valid2_draft07, err2 = is_valid(Draft7Validator, schema_draft07_control, fixture2)
     valid3_draft07, err3 = is_valid(Draft7Validator, schema_draft07_control, fixture3)

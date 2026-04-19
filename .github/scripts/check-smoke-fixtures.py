@@ -1608,13 +1608,21 @@ def _load_schema(name: str) -> dict:
 
 def assert_schema_valid(ctx: RunContext, state: WorkspaceState) -> list[str]:
     failures = []
-    profile_schema = _load_schema("profile.schema.json")
+    # Phase 1 smoke fixtures produce schema_version "1.0.0" profile instances.
+    # profile.schema.json was factored into base + versioned wrappers in v2.12.0 (T1).
+    # Use the v1.0.0 wrapper with a referencing registry so $ref resolves correctly.
+    from referencing import Registry, Resource  # noqa: PLC0415
+    base_schema = _load_schema("profile.schema.base.json")
+    registry = Registry().with_resources(
+        [("profile.schema.base.json", Resource.from_contents(base_schema))]
+    )
+    profile_schema = _load_schema("profile.schema.v1.0.0.json")
     recs_schema = _load_schema("recommendations.schema.json")
     if state.profile is None:
         failures.append("profile.json was not written")
     else:
         try:
-            jsonschema.validate(state.profile, profile_schema)
+            jsonschema.Draft202012Validator(profile_schema, registry=registry).validate(state.profile)
         except jsonschema.ValidationError as e:
             failures.append(f"profile.json schema invalid: {e.message}")
     if state.recommendations is None:
