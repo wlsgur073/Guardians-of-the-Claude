@@ -20,8 +20,10 @@ from pathlib import Path
 
 import jsonschema
 import requests
+from referencing import Registry, Resource
 
 ROOT = Path(__file__).resolve().parent.parent.parent
+PROFILE_SCHEMAS_DIR = ROOT / "plugin" / "references" / "schemas"
 
 CLAUDE_CODE_SETTINGS_SCHEMA_URL = (
     "https://json.schemastore.org/claude-code-settings.json"
@@ -52,12 +54,10 @@ RULES: list[tuple[str, str | None, list[str] | None]] = [
 ]
 
 
-# Local schema validation: (schema_path, example_path) relative to ROOT
+# Local schema validation: (schema_path, example_path) relative to ROOT.
+# Profile instances use the dispatcher (see select_profile_wrapper + _profile_registry);
+# other schemas are validated directly.
 LOCAL_SCHEMAS: list[tuple[str, str]] = [
-    (
-        "plugin/references/schemas/profile.schema.json",
-        "plugin/references/schemas/examples/profile.example.json",
-    ),
     (
         "plugin/references/schemas/recommendations.schema.json",
         "plugin/references/schemas/examples/recommendations.example.json",
@@ -68,16 +68,9 @@ LOCAL_SCHEMAS: list[tuple[str, str]] = [
     ),
 ]
 
-# Negative fixtures: (schema_path, negative_example_path) — each MUST be rejected
+# Negative fixtures: (schema_path, negative_example_path) — each MUST be rejected.
+# Profile negative fixtures are handled by validate_profile_negative_examples.
 NEGATIVE_LOCAL_SCHEMAS: list[tuple[str, str]] = [
-    (
-        "plugin/references/schemas/profile.schema.json",
-        "plugin/references/schemas/examples/negative/profile.missing-required.example.json",
-    ),
-    (
-        "plugin/references/schemas/profile.schema.json",
-        "plugin/references/schemas/examples/negative/profile.wrong-version.example.json",
-    ),
     (
         "plugin/references/schemas/recommendations.schema.json",
         "plugin/references/schemas/examples/negative/recommendations.invalid-id-format.example.json",
@@ -87,6 +80,46 @@ NEGATIVE_LOCAL_SCHEMAS: list[tuple[str, str]] = [
         "plugin/references/schemas/examples/negative/recommendations.resolved-without-by.example.json",
     ),
 ]
+
+# Profile positive examples — dispatcher selects wrapper by schema_version literal.
+PROFILE_POSITIVE_EXAMPLES: list[str] = [
+    "plugin/references/schemas/examples/profile.example.json",
+]
+
+# Profile negative examples — dispatcher selects wrapper; each MUST be rejected.
+PROFILE_NEGATIVE_EXAMPLES: list[str] = [
+    "plugin/references/schemas/examples/negative/profile.missing-required.example.json",
+    "plugin/references/schemas/examples/negative/profile.wrong-version.example.json",
+]
+
+
+def _profile_registry() -> Registry:
+    """Build a referencing Registry with the base profile schema registered.
+
+    The versioned wrappers use $ref to profile.schema.base.json; the registry
+    resolves those references without network I/O.
+    """
+    base = json.loads(
+        (PROFILE_SCHEMAS_DIR / "profile.schema.base.json").read_text(encoding="utf-8")
+    )
+    return Registry().with_resources(
+        [("profile.schema.base.json", Resource.from_contents(base))]
+    )
+
+
+def select_profile_wrapper(schema_version: str) -> tuple[dict, str]:
+    """Select the versioned profile schema wrapper by schema_version literal.
+
+    Returns (schema_dict, wrapper_filename). Raises ValueError on unknown version
+    with a diagnostic naming the literal and the candidate path that was tried.
+    """
+    candidate = PROFILE_SCHEMAS_DIR / f"profile.schema.v{schema_version}.json"
+    if not candidate.exists():
+        raise ValueError(
+            f"Unknown schema_version '{schema_version}': no wrapper found at"
+            f" {candidate.relative_to(ROOT)}"
+        )
+    return json.loads(candidate.read_text(encoding="utf-8")), candidate.name
 
 
 def validate_local_schemas(errors: list[str]) -> int:
@@ -115,6 +148,73 @@ def validate_local_schemas(errors: list[str]) -> int:
             continue
         checked += 1
     return checked
+
+
+def validate_profile_positive_examples(errors: list[str]) -> int:
+    """Validate profile positive examples via the schema_version dispatcher.
+
+    Returns the count of files checked.
+    """
+    registry = _profile_registry()
+    checked = 0
+    for example_path in PROFILE_POSITIVE_EXAMPLES:
+        e_rel = example_path
+        try:
+            instance = json.loads((ROOT / example_path).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"[example load error] {e_rel}: {exc}")
+            continue
+        sv = instance.get("schema_version")
+        if sv is None:
+            errors.append(f"[missing schema_version] {e_rel}: cannot dispatch without schema_version")
+            continue
+        try:
+            schema, wrapper_name = select_profile_wrapper(sv)
+        except ValueError as exc:
+            errors.append(f"[dispatcher error] {e_rel}: {exc}")
+            continue
+        try:
+            jsonschema.Draft202012Validator(schema, registry=registry).validate(instance)
+        except jsonschema.ValidationError as exc:
+            errors.append(
+                f"[schema violation] {e_rel} against {wrapper_name}: {exc.message}"
+            )
+            continue
+        checked += 1
+    return checked
+
+
+def validate_profile_negative_examples(errors: list[str]) -> None:
+    """Assert that profile negative examples are REJECTED by the dispatcher.
+
+    Unknown schema_version → dispatcher error (also counted as a rejection).
+    Known schema_version + invalid shape → wrapper rejects.
+    """
+    registry = _profile_registry()
+    for fixture_path in PROFILE_NEGATIVE_EXAMPLES:
+        f_rel = fixture_path
+        try:
+            instance = json.loads((ROOT / fixture_path).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"[fixture load error] {f_rel}: {exc}")
+            continue
+        sv = instance.get("schema_version")
+        if sv is None:
+            # Missing schema_version is itself a rejection — no need to validate.
+            continue
+        try:
+            schema, wrapper_name = select_profile_wrapper(sv)
+        except ValueError:
+            # Unknown schema_version — dispatcher correctly rejects; expected for negative fixtures.
+            continue
+        try:
+            jsonschema.Draft202012Validator(schema, registry=registry).validate(instance)
+            # If we reach here, the fixture was NOT rejected — schema regression.
+            errors.append(
+                f"[schema regression] {f_rel} was accepted by {wrapper_name} but must be rejected"
+            )
+        except jsonschema.ValidationError:
+            pass  # expected: fixture correctly rejected
 
 
 def validate_negative_fixtures(errors: list[str]) -> None:
@@ -199,7 +299,9 @@ def main() -> int:
             total_checked += 1
 
     total_checked += validate_local_schemas(errors)
+    total_checked += validate_profile_positive_examples(errors)
     validate_negative_fixtures(errors)
+    validate_profile_negative_examples(errors)
 
     if errors:
         print("JSON schema errors:")
