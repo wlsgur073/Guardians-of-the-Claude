@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0.0",
+  "metadata": {
+    "generated_by": "guardians-of-the-claude",
+    "last_updated": "2026-04-14T00:00:00Z",
+    "source_files_checked": ["package.json", "tsconfig.json", ".claude/settings.json"]
+  },
+  "runtime_and_language": {
+    "runtime": "Node.js 22.x",
+    "language": "TypeScript 5.7",
+    "module_system": "ESM"
+  },
+  "framework_and_libraries": {
+    "framework": "Next.js 15 (App Router)",
+    "ui": "React 19",
+    "styling": "Tailwind CSS v4"
+  },
+  "package_management": {
+    "manager": "pnpm",
+    "lock_file": "pnpm-lock.yaml"
+  },
+  "testing": {
+    "unit": "Vitest",
+    "e2e": null
+  },
+  "build_and_dev": {
+    "bundler": "Turbopack",
+    "linter": "ESLint 9 (flat config)",
+    "formatter": "Prettier"
+  },
+  "project_structure": {
+    "type": "single_project",
+    "source_convention": "src/",
+    "key_directories": ["src/app/", "src/components/", "src/lib/"]
+  },
+  "claude_code_configuration_state": {
+    "claude_md": { "exists": true, "section_count": 5 },
+    "settings_json": { "exists": true, "has_permissions": true },
+    "rules_count": 7,
+    "agents_count": 0,
+    "hooks_count": 4,
+    "mcp_servers_count": 0
+  }
+}

@@ -1093,11 +1093,20 @@ def merge_profile(current: dict | None, delta: dict, skill: str) -> dict:
             ccs_m = merged.setdefault("claude_code_configuration_state", {})
             if "settings_json" in ccs_d:
                 ccs_m["settings_json"] = ccs_d["settings_json"]
-        # Phase 1 scope: /secure also co-owns rules_count/agents_count/hooks_count/
-        # mcp_servers_count per merge_rules.md §profile.json merge rules, but no
-        # Phase 1 fixture exercises /secure with count changes. Implement when
-        # a Phase 2 fixture adds /secure to its skill_sequence with rule/hook
-        # additions; byte-diff against golden will surface the missing update.
+            # C2 (T7): /secure co-owns counts per merge_rules.md §profile.json
+            for count_key in ("rules_count", "agents_count", "hooks_count", "mcp_servers_count"):
+                if count_key in ccs_d:
+                    ccs_m[count_key] = ccs_d[count_key]
+
+    if skill == "optimize":
+        if "claude_code_configuration_state" in delta:
+            ccs_d = delta["claude_code_configuration_state"]
+            ccs_m = merged.setdefault("claude_code_configuration_state", {})
+            # C2 (T7): /optimize co-owns counts per merge_rules.md §profile.json;
+            # must NOT touch settings_json (owned by /secure) or claude_md (owned by /create+/audit).
+            for count_key in ("rules_count", "agents_count", "hooks_count", "mcp_servers_count"):
+                if count_key in ccs_d:
+                    ccs_m[count_key] = ccs_d[count_key]
 
     return _ordered_profile(merged)
 
@@ -1547,19 +1556,68 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
 
 
 def handle_secure(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
-    """Not exercised by Phase 1 fixtures — Phase 2+ will expand scenarios."""
-    raise NotImplementedError(
-        "handle_secure not exercised by Phase 1 fixtures; "
-        "implement when a fixture adds /secure to its skill_sequence"
+    """Process /secure fixture run: profile merge + changelog + recommendations.
+
+    Per-fixture detection presets live in _secure_detect_profile. Phase 1
+    FIXTURE_SCENARIOS does not include /secure; Phase 2a T7 atomic runners
+    (ci/scripts/t7_secure_*_check.py) exercise /secure via SKILL_HANDLERS
+    monkey-patch for fixture-specific behavior. Adding a /secure entry to
+    FIXTURE_SCENARIOS requires adding a per-fixture branch in
+    _secure_detect_profile."""
+    date = ctx.pinned_utc.split("T")[0]
+    profile_delta = _secure_detect_profile(ctx)
+    state.profile = merge_profile(state.profile, profile_delta, "secure")
+    state.recommendations = merge_recommendations(
+        state.recommendations, [], ctx.pinned_utc
     )
+    entry = (
+        f"### {date} — /secure\n"
+        f"- Detected: fixture-driven\n"
+        f"- Profile updated: claude_code_configuration_state\n"
+        f"- Applied: (fixture-specific)\n"
+        f"- Resolved: (none)\n"
+        f"- Recommendations: (none)"
+    )
+    state.changelog = _changelog_with_entry(state.changelog, entry)
+    _final_phase_write(ctx, state)
+    return state
+
+
+def _secure_detect_profile(ctx: RunContext) -> dict:
+    """Per-fixture /secure deltas. Add branches as Phase 2+ fixtures land."""
+    raise KeyError(f"no /secure detection preset for fixture {ctx.fixture_name!r}")
 
 
 def handle_optimize(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
-    """Not exercised by Phase 1 fixtures — Phase 2+ will expand scenarios."""
-    raise NotImplementedError(
-        "handle_optimize not exercised by Phase 1 fixtures; "
-        "implement when a fixture adds /optimize to its skill_sequence"
+    """Process /optimize fixture run: counts merge + changelog + recommendations.
+
+    Per-fixture detection presets live in _optimize_detect_profile. Phase 1
+    FIXTURE_SCENARIOS does not include /optimize; Phase 2a T7 atomic runners
+    (ci/scripts/t7_optimize_e2e_check.py) exercise /optimize via SKILL_HANDLERS
+    monkey-patch. Adding an /optimize entry to FIXTURE_SCENARIOS requires
+    adding a per-fixture branch in _optimize_detect_profile."""
+    date = ctx.pinned_utc.split("T")[0]
+    profile_delta = _optimize_detect_profile(ctx)
+    state.profile = merge_profile(state.profile, profile_delta, "optimize")
+    state.recommendations = merge_recommendations(
+        state.recommendations, [], ctx.pinned_utc
     )
+    entry = (
+        f"### {date} — /optimize\n"
+        f"- Detected: fixture-driven\n"
+        f"- Profile updated: counts\n"
+        f"- Applied: (fixture-specific)\n"
+        f"- Resolved: (none)\n"
+        f"- Recommendations: (none)"
+    )
+    state.changelog = _changelog_with_entry(state.changelog, entry)
+    _final_phase_write(ctx, state)
+    return state
+
+
+def _optimize_detect_profile(ctx: RunContext) -> dict:
+    """Per-fixture /optimize deltas. Add branches as Phase 2+ fixtures land."""
+    raise KeyError(f"no /optimize detection preset for fixture {ctx.fixture_name!r}")
 
 
 SKILL_HANDLERS = {
