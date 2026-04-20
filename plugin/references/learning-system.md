@@ -220,7 +220,7 @@ b. **Sort each skill's entries by `date` descending** (most-recent first).
 
 c. **Compute `last_entry_date`** = the skill's most-recent entry's `date` (always non-null — entry dates are required by the entry format).
 
-d. **Compute `last_model`** = the skill's most-recent entry whose `bullet_model` is non-null (the `- Model:` bullet value parsed per `§2.5 Addition A`). If all the skill's entries in this bucket lack a bullet (pre-v2.12.0 legacy OR `§3.1 Row 3` delta-omit path), `last_model = null` per `§2.5 line 288` generalized null rule.
+d. **Compute `last_model`** = the skill's most-recent entry whose `bullet_model` is non-null (the `- Model:` bullet value parsed per `§2.5 Addition A`). If all the skill's entries in this bucket lack a bullet (pre-v2.12.0 legacy OR `§3.1 Row 3` delta-omit path), `last_model = null` per `§2.5 line 314` generalized null rule.
 
 e. **Compute `last_capability_fingerprint`** = `§3.5 normalize_model_id(last_model)` when `last_model` is non-null. `§3.5` may return `null` even on non-null input (DEC-2 fail-safe propagation) — propagate `null` rather than raising. When `last_model` is `null`, `last_capability_fingerprint = null`.
 
