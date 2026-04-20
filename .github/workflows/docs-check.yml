@@ -258,3 +258,16 @@ jobs:
 
       - name: Changelog parser check
         run: python ci/scripts/check-changelog-parser.py
+
+  sample-list-preconditions:
+    name: Sample list preconditions (Phase 2a T2c-Curation)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Check sample list preconditions
+        run: python ci/scripts/check-sample-list-preconditions.py
