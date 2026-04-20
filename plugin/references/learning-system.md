@@ -207,6 +207,45 @@ After (14:15:00 run merged):
 1. Count entries in Recent Activity. If >10, trigger compaction.
 2. Select entries strictly older than 30 days (entry date < today - 30; entries exactly 30 days old stay in Recent Activity), group by quarter (`YYYY-QN`).
 3. Produce compacted summary per quarter. Append to Compacted History, remove originals.
+
+**Step 3b — Per-skill structured anchor emission** (DEC-9; `phase-2a-contracts.md §3.2` pseudocode authority, lines 436-473; `§2.5 Addition B` anchor shape authority, lines 297-319):
+
+For each bucket being rolled into Compacted History at this compaction pass, emit a structured anchor per skill that appeared in the bucket. Anchors embed in the bucket's Compacted History metadata alongside the narrative summary produced by Step 3 — they do not replace the §Lossless Anchors narrative preservation below.
+
+Algorithm (per bucket):
+
+a. **Group `bucket_entries` by `skill`** — up to 4 skills per Phase 1 Environmental Assumption: `/audit`, `/create`, `/secure`, `/optimize`. A skill absent from the bucket has no anchor emitted for this bucket.
+
+b. **Sort each skill's entries by `date` descending** (most-recent first).
+
+c. **Compute `last_entry_date`** = the skill's most-recent entry's `date` (always non-null — entry dates are required by the entry format).
+
+d. **Compute `last_model`** = the skill's most-recent entry whose `bullet_model` is non-null (the `- Model:` bullet value parsed per `§2.5 Addition A`). If all the skill's entries in this bucket lack a bullet (pre-v2.12.0 legacy OR `§3.1 Row 3` delta-omit path), `last_model = null` per `§2.5 line 288` generalized null rule.
+
+e. **Compute `last_capability_fingerprint`** = `§3.5 normalize_model_id(last_model)` when `last_model` is non-null. `§3.5` may return `null` even on non-null input (DEC-2 fail-safe propagation) — propagate `null` rather than raising. When `last_model` is `null`, `last_capability_fingerprint = null`.
+
+f. **Emit anchor dict** `{"skill": skill, "last_entry_date": last_entry_date, "last_model": last_model, "last_capability_fingerprint": last_capability_fingerprint}` into the bucket's Compacted History metadata. Anchor key order matches `§2.5 Addition B` shape.
+
+**Cardinality**: at most one anchor per skill per bucket; up to 4 anchors per bucket maximum (`§2.5 Addition B` line 317). A 5th skill is BREAKING per Phase 1 four-skill environmental assumption.
+
+**Bucket-local sourcing**: the algorithm scans only entries within the current bucket. It does not look back to prior buckets or to Recent Activity to recover a missing `last_model` for this skill (`§3.2 line 479`). If a bucket's `/audit` anchor ends up with `last_model = null`, that anchor carries null forward to `§4.1` reader-time baseline derivation — the consumer-side contract (see **Interactions** below) handles this case without skip-and-continue.
+
+**Fingerprint write-time semantics**: `last_capability_fingerprint` is a write-time informational snapshot. `§4.1` re-normalizes `last_model` at *read* time for `baseline_fp` derivation; the stored fingerprint is not authoritative for drift evaluation (`§2.5 line 321` baseline-anchor-authority resolution). Stale stored values are tolerated and not rewritten on read.
+
+**Stateless mode**: Step 3b is skipped transitively when Phase 1 Global Invariant #6 skips the changelog write (`local/` unwritable; see `phase-2a-contracts.md §6.1`). DEC-11 does not enumerate Step 3b separately — no Step 3b-specific stateless logic is required.
+
+**Lock integration**: Step 3b executes within Final Phase Step 3 (merge deltas) per `§6.2` DEC-12 insertion map — anchors are part of the in-memory merged changelog; persistence occurs at Final Phase Step 5 (atomic write of the full changelog file). No separate lock acquisition — Step 3b rides the existing Final Phase state-mutation lock.
+
+**Interactions** (consumer-side contract — documented here per Codex 3-way 2026-04-20 Q2 verdict, so T6 plan drafting inherits the rule verbatim; `§4.1` is the authoritative specification for reader behavior):
+
+- **`§4.1 DEC-6` scan order for `/audit` baseline derivation**: consumers read `bullet_model` from Recent Activity (reverse-chronological) first; if exhausted, fall through to Compacted History buckets (reverse-chronological); within each bucket, the first `/audit` anchor reached supplies `baseline_last_model` for `baseline_fp` normalization. If exhausted across all Compacted History buckets, `baseline_present = false` → `missing_baseline` silence per `§4.1` silence evaluation order.
+
+- **First-anchor-wins** (`§3.2 line 479` + `§4.1` silence evaluation order step 1 at `contracts.md:669`): if the first `/audit` anchor reached by the scan has `last_model = null`, `§4.1` yields `normalization_null` silence (`baseline_present == true` AND `baseline_fp == null` → `normalization_null`). `§4.1` does **NOT** skip past this anchor to search for an older non-null anchor. Step 3b emits bucket-local `last_model` values faithfully (per-bucket most-recent non-null); the first-anchor-wins semantics are a reader-side terminator contract, not an emit-side filter.
+
+- **Anchor-vs-bullet authority per skill**: `/audit` always-emits the `- Model:` bullet (`§3.1 Row 3` writer policy), so any `/audit` anchor in a bucket has a non-null `last_model` **unless** the bucket's `/audit` entries are all pre-v2.12.0 legacy (legacy entries have no bullet, mapping to `null` per `§2.5 Addition A`). Non-/audit anchors (`/create`, `/secure`, `/optimize`) may have `last_model = null` when all that skill's entries in the bucket delta-omitted (per `§3.1 Row 3` delta-emit policy). These null-anchor cases are the exact trigger for the first-anchor-wins rule above.
+
+- **§Lossless Anchors interaction** (narrative preservation below): §3.2 structured anchors are a supplement to, not a replacement for, the narrative §Lossless Anchors preservation. The narrative summary (dates, skill names+counts, applied changes, etc.) preserves human-readable audit trail; the structured anchors provide machine-readable state for `§4.1` drift derivation. Both are emitted during Step 3's per-bucket output.
+
 4. Three-tier resolution: **year-level** (>2 years) → **quarter-level** (older than current quarter) → **entry-level** (recent, full detail).
 5. Update frontmatter: `compacted_at`, `entry_count`.
 
