@@ -291,3 +291,16 @@ jobs:
             exit 0
           fi
           exit "$EXIT_CODE"
+
+  audit-drift-aware-check:
+    name: Audit drift-aware recommendation structure (Phase 2a T5)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Run drift-aware validator
+        run: python ci/scripts/check-audit-drift-aware.py
