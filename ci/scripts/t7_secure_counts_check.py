@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-"""T7 C2 fixture runner — /secure counts co-ownership.
+"""/secure counts co-ownership fixture runner.
 
 Exercises the merge_profile /secure branch's counts update (rules_count,
-agents_count, hooks_count, mcp_servers_count) added in Phase 2a T7 C2.
-Before T7 implementation: these counts were NOT updated by the /secure branch.
-After T7 C2: merge_profile propagates counts from /secure delta.
+agents_count, hooks_count, mcp_servers_count).
 
 Fixture: ci/fixtures/t7-secure-counts/
   input/local/ — baseline post-/audit state (rules_count=5, hooks_count=3)

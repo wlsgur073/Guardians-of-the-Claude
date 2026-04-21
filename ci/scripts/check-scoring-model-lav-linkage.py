@@ -1,15 +1,15 @@
-"""4-assertion structural verifier for LAV-axis <-> scoring-model.md linkage (Phase 2a T2b).
+"""4-assertion structural verifier for LAV-axis <-> scoring-model.md linkage.
 
 Assertions:
     1. scoring-model.md contains `## LAV Axis Summary` heading with 6 table rows
        covering L1 through L6 with numeric ranges matching lav.md:23-28.
     2. scoring-model.md contains `### LAV/T3 Boundary Rule` heading with the 3 boundary
        pairs (T3.1<->L1, T3.3<->L2, T3.7<->L2).
-    3. scoring-model.md contains the count-source footnote body referencing T7(C2)
+    3. scoring-model.md contains the count-source footnote body referencing
        commit `4499893`.
     4. scoring-model.md DS/SB/cap-tier formula block (## Formula ```markdown...```) is
-       byte-identical to the content-anchor hash captured post-T2b -- ensures no formula
-       drift. Uses content-anchor (section-header search) not line numbers, so T2b
+       byte-identical to the content-anchor hash -- ensures no formula drift.
+       Uses content-anchor (section-header search) not line numbers, so later
        line insertions do not cause false failures.
 
 Exit codes:

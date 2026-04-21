@@ -1974,7 +1974,7 @@ def run_fixture(
     """Run one fixture through Step 0.5 + (optional) skill handlers, then
     assert semantics, then byte-diff work_dir against the frozen target.
 
-    Optional parameters let the local lane (LOCAL_FIXTURES_DIR, Task 7) reuse
+    Optional parameters let the local lane (LOCAL_FIXTURES_DIR) reuse
     the CI code path unchanged — each local case provides its own src_dir
     (case/input) and golden_dir (case/expected), and optionally a per-case
     scenario.json (fallback to a migration-only default when absent). All
@@ -2077,7 +2077,7 @@ def main() -> int:
         print("[FATAL] SMOKE_PINNED_UTC env var is required", file=sys.stderr)
         return 2
 
-    # Local lane (Task 7): iterate test/fixtures/migration/case-*/ subdirs.
+    # Local lane: iterate LOCAL_FIXTURES_DIR case subdirs.
     # Shared verifier, shared semantic assertions — no duplicated logic.
     local_dir = os.environ.get("LOCAL_FIXTURES_DIR")
     if local_dir:

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Preflight schema probe — Phase 2a T0 gate (§5.3 4-assertion probe).
+"""Preflight schema probe — 4-assertion schema closure probe.
 
 Validates that profile.schema.v1.1.0.json enforces unevaluatedProperties
 closure correctly under JSON Schema draft 2020-12, and that this enforcement
 is draft-version-dependent (control assertion via draft-07 mislabel).
 
 Exit codes:
-    0 — all 4 assertions pass (T1 schema correct)
-    1 — one or more assertions fail (T1 schema broken)
-    2 — profile.schema.v1.1.0.json not yet committed (pre-T1 state)
+    0 — all 4 assertions pass (schema correct)
+    1 — one or more assertions fail (schema broken)
+    2 — profile.schema.v1.1.0.json not yet committed
 """
 from __future__ import annotations
 

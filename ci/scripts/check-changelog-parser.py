@@ -1,4 +1,4 @@
-"""6-assertion changelog parser verifier (Phase 2a T4a quality gate).
+"""6-assertion changelog parser verifier.
 
 Validates that _parse_changelog_entries in check-smoke-fixtures.py correctly
 handles the v1.1.0 format (bullet_model field + frontmatter dispatcher +
@@ -12,7 +12,7 @@ Assertions:
     A5 — v1.1.0 full fixture with Compacted History: anchors is non-empty list
          with "skill" + "last_model" keys per entry
     A6 — v1.1.0 synthetic "- Model: (none)" → bullet_model is None
-         (DEC-8 line 244 defense-in-depth: forbidden literal must not leak)
+         (defense-in-depth: forbidden literal must not leak)
 
 Exit codes:
     0 — all 6 assertions PASS
@@ -148,9 +148,9 @@ def run_assertions(parse_fn):
         results.append(("A5", "FAIL", f"exception: {exc}"))
 
     # A6: v1.1.0 synthetic "- Model: (none)" → bullet_model is None
-    # Defense-in-depth per DEC-8 line 244: the "(none)" literal is forbidden for
-    # writers (design.md v4); parser must coerce it to None if it ever appears
-    # (e.g., from a hand-edited changelog or a third-party writer violation).
+    # Defense-in-depth: the "(none)" literal is forbidden for writers;
+    # parser must coerce it to None if it ever appears (e.g., from a
+    # hand-edited changelog or a third-party writer violation).
     try:
         synthetic_text = (
             "---\n"
@@ -171,7 +171,7 @@ def run_assertions(parse_fn):
         else:
             actual = entries[0]["bullet_model"]
             if actual is None:
-                results.append(("A6", "PASS", "- Model: (none) coerced to None (DEC-8 defense-in-depth)"))
+                results.append(("A6", "PASS", "- Model: (none) coerced to None (defense-in-depth)"))
             else:
                 results.append(("A6", "FAIL", f"- Model: (none) leaked as {actual!r}; expected None"))
     except Exception as exc:

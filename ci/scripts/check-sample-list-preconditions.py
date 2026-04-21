@@ -1,14 +1,7 @@
 #!/usr/bin/env python3
-"""Assert Phase 2a sample list preconditions (authority-backed only).
+"""Assert sample list preconditions for the curated sample set.
 
-Authority:
-- DEC-5 (design.md:206-215): bucket rubric + language ecosystem >=4 precondition.
-- contracts.md:534 (§3.3): fixture sample set ecosystem precondition.
-- plan.md:403 (Task 2c): 8-10 real-project samples.
-
-Assertions (per Codex 3-way 2026-04-20 second META=AMEND Q3=III — no per-bucket
-count floor; DEC-5/contracts authority is ecosystem + count only):
-
+Assertions:
   A1: sample-list file exists
   A2: frontmatter status == "ready"
   A3: frontmatter version == "2.0.0"
@@ -16,8 +9,8 @@ count floor; DEC-5/contracts authority is ecosystem + count only):
   A5: distinct real ecosystems >= 4 (meta-only samples excluded from count)
   A6: no "TBD" literal in any sample row cell
 
-Soft-skip rationale: sample-list.md lives under docs/superpowers/ (gitignored
-local-only file). Contributors without the local list should see CI green.
+Soft-skip rationale: sample-list.md is a local-only curation artifact (not
+shipped). Contributors without the local list should see CI green.
 
 Exit codes:
   0 - all assertions passed, OR soft-skip (file absent OR status=draft)
@@ -79,7 +72,7 @@ def main() -> int:
     # A1: file exists (soft-skip if absent)
     if not SAMPLE_LIST.exists():
         print(f"SKIP - sample-list not present at {SAMPLE_LIST.relative_to(REPO_ROOT)}")
-        print("       (docs/superpowers/ is gitignored; sample-list is local-only per repo policy)")
+        print("       (sample-list is a local-only curation artifact, not shipped)")
         return 0
 
     text = SAMPLE_LIST.read_text(encoding="utf-8")
@@ -88,7 +81,7 @@ def main() -> int:
 
     # A2 soft-skip path: draft status (curation not yet complete)
     if status == "draft":
-        print(f"SKIP - sample-list status=draft (T2c-Curation not yet complete)")
+        print(f"SKIP - sample-list status=draft (curation not yet complete)")
         return 0
 
     errors: list[str] = []
@@ -108,7 +101,7 @@ def main() -> int:
     count = len(rows)
     if not (8 <= count <= 10):
         errors.append(
-            f"A4 FAIL: sample count must be in [8, 10] per plan.md:403; got {count}"
+            f"A4 FAIL: sample count must be in [8, 10]; got {count}"
         )
 
     # A5: distinct real ecosystems >= 4 (exclude meta self-reference)
@@ -119,8 +112,8 @@ def main() -> int:
             ecosystems.add(eco)
     if len(ecosystems) < 4:
         errors.append(
-            f"A5 FAIL: distinct real ecosystems must be >= 4 per DEC-5 line 206 + "
-            f"contracts.md:534; got {len(ecosystems)} ({sorted(ecosystems)})"
+            f"A5 FAIL: distinct real ecosystems must be >= 4; "
+            f"got {len(ecosystems)} ({sorted(ecosystems)})"
         )
 
     # A6: no "TBD" literal in any cell
@@ -133,13 +126,13 @@ def main() -> int:
                 )
 
     if errors:
-        print("FAIL - sample-list authority-backed preconditions NOT met:")
+        print("FAIL - sample-list preconditions NOT met:")
         for err in errors:
             print(f"  {err}")
         return 1
 
     print(
-        f"PASS - 6/6 authority-backed assertions satisfied "
+        f"PASS - 6/6 assertions satisfied "
         f"({count} samples, {len(ecosystems)} distinct real ecosystems, "
         f"status=ready, version={version})"
     )

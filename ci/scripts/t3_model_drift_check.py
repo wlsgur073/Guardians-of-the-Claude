@@ -1,11 +1,11 @@
-"""T3 normalization-table fixture validator (Phase 2a v2.12.0).
+"""Normalization-table fixture validator.
 
-Reference implementation of normalize_model_id per `phase-2a-contracts.md` §3.5:
+Reference implementation of normalize_model_id:
 - Parses the Normalization Table section from plugin/references/model-drift-rules.md
-- Applies longest-match + fail-safe null (contracts §3.5 #3 + #4)
+- Applies longest-match + fail-safe null
 - Validates all test cases in ci/fixtures/t3-model-drift/test-cases.json
 
-This is the TABLE validator only. Runtime /audit integration is T5 scope.
+This is the TABLE validator only. Runtime /audit integration is handled separately.
 
 Exit codes:
     0 — all test cases PASS
@@ -21,8 +21,8 @@ ROOT = Path(__file__).resolve().parents[2]
 RULES_FILE = ROOT / "plugin" / "references" / "model-drift-rules.md"
 TESTS_FILE = ROOT / "ci" / "fixtures" / "t3-model-drift" / "test-cases.json"
 
-# Canonical axis value sets per contracts §1.3 (closed enumerations).
-# Used for post-match validation (contract #2: canonicalization guard).
+# Canonical axis value sets (closed enumerations).
+# Used for post-match validation (canonicalization guard).
 VALID_FAMILY_TIER = {"opus", "sonnet", "haiku"}
 VALID_CONTEXT_WINDOW = {"200k", "1M"}
 VALID_REASONING = {"none", "extended_any"}
@@ -39,7 +39,7 @@ def parse_normalization_table(md_text: str) -> list[dict]:
         reasoning_class, context_management_class, evidence_status
 
     Only rows with evidence_status == 'observed' are returned
-    (hypothesized / extrapolated are inactive per model-drift-rules.md §Evidence Status Labels).
+    (hypothesized / extrapolated are inactive per model-drift-rules.md Evidence Status Labels section).
     """
     # Locate the Normalization Table section.
     section_match = re.search(
@@ -100,11 +100,11 @@ def pattern_to_regex(raw_pattern: str) -> re.Pattern:
 
 
 def normalize_model_id(raw: str, rules: list[dict]) -> dict | None:
-    """Longest-match normalization per contracts §3.5.
+    """Longest-match normalization.
 
     Contracts implemented:
     #1 Totality   — always returns fingerprint dict or None; never raises.
-    #2 Canonical  — returned axis values are in §1.3 closed sets.
+    #2 Canonical  — returned axis values are in the closed enumeration sets.
     #3 Fail-safe  — unrecognized / unparseable / out-of-space → None.
     #4 Longest-match — most-specific (longest raw_pattern string) wins.
     #5 Determinism — pure function; no I/O, no state, no randomness.
@@ -129,7 +129,7 @@ def normalize_model_id(raw: str, rules: list[dict]) -> dict | None:
                 break
 
         if matched_rule is None:
-            return None  # §3.5 #3: no matching rule
+            return None  # #3 Fail-safe: no matching rule
 
         # Build fingerprint dict from matched rule.
         fp = {
@@ -139,7 +139,7 @@ def normalize_model_id(raw: str, rules: list[dict]) -> dict | None:
             "context_management_class": matched_rule["context_management_class"],
         }
 
-        # §3.5 #2 + #3: canonicalization guard — axis values must be in §1.3 sets.
+        # #2 + #3: canonicalization guard — axis values must be in the closed enumeration sets.
         if fp["family_tier"] not in VALID_FAMILY_TIER:
             return None
         if fp["context_window_class"] not in VALID_CONTEXT_WINDOW:
@@ -152,7 +152,7 @@ def normalize_model_id(raw: str, rules: list[dict]) -> dict | None:
         return fp
 
     except Exception:
-        # §3.5 #1 Totality: never propagate exceptions.
+        # #1 Totality: never propagate exceptions.
         return None
 
 

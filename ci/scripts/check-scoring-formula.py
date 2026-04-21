@@ -1,13 +1,13 @@
-"""5-sample DEC-1 formula simulation verifier (Phase 2a Quality Gate G-C prep).
+"""5-sample scoring formula simulation verifier.
 
 Validates that the scoring formula declared in plugin/references/scoring-model.md
-produces the 5 expected Final values per DEC-1 line 95-103. Drift between the
-declared formula and the expected goldens fails this check.
+produces the 5 expected Final values. Drift between the declared formula and
+the expected goldens fails this check.
 
 Exit codes:
     0 — all 5 samples match expected
     1 — at least one sample mismatches
-    2 — plugin/references/scoring-model.md not yet committed (pre-T2a state)
+    2 — plugin/references/scoring-model.md not yet committed
 """
 import sys
 from pathlib import Path

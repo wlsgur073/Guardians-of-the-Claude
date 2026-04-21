@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""T7 C1 fixture runner — /secure end-to-end (first exerciser of handle_secure).
+"""/secure end-to-end fixture runner.
 
 Exercises handle_secure Final Phase end-to-end: profile merge (settings_json +
 counts), recommendation resolution, changelog entry, state-summary render.
-Phase 2a is the first to exercise /secure end-to-end per design §1.2 C1.
 
 Fixture: ci/fixtures/t7-secure-e2e/
   input/local/ — post-/audit state with PENDING add-deny-patterns recommendation

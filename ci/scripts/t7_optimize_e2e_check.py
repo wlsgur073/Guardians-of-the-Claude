@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""T7 C1 fixture runner — /optimize end-to-end (first exerciser of handle_optimize).
+"""/optimize end-to-end fixture runner.
 
 Exercises handle_optimize Final Phase end-to-end: profile merge (counts for
 changed entity classes only), recommendation resolution, changelog entry,
-state-summary render. Phase 2a is the first to exercise /optimize end-to-end
-per design §1.2 C1.
+state-summary render.
 
 Fixture: ci/fixtures/t7-optimize-e2e/
   input/local/ — post-/audit state with PENDING split-rules + agent-diversity

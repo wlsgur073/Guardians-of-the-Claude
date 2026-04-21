@@ -1,26 +1,19 @@
 #!/usr/bin/env python3
-"""Re-apply T2a DEC-1 formula + DEC-5 bucket rubric to T2c-main real-project goldens.
-
-Authority:
-- §1.1 (contracts.md:57-73): scoring-contract ID "audit-score-v4.0.0" canonical source.
-- §3.3 (contracts.md:497-553): formula + bucket rubric contract guarantees.
-- DEC-1 (design.md:83-103): LAV item-aware multiplier + cap tier trichotomy.
-- DEC-5 (design.md:206-215): 4-bucket rubric verbatim.
-- plan.md:507: self-score G-B gate Final in [53, 63].
+"""Re-apply scoring formula + bucket rubric to real-project audit goldens.
 
 Assertions per golden (6 always + A7 self-only):
   A1: JSON schema required keys present
   A2: scoring_contract_id == "audit-score-v4.0.0"
-  A3: LAV_nonL5 == L1 + L2 + L3 + L4 + L6 (L5 excluded per §3.3 line 515)
-  A4: cap matches DEC-1 tier rule (60 / 50 / 100)
+  A3: LAV_nonL5 == L1 + L2 + L3 + L4 + L6 (L5 routed via cap tier instead)
+  A4: cap matches cap tier rule (60 / 50 / 100)
   A5: re-computed Final matches expected_final_score within +/-0.001
-  A6: expected_bucket matches DEC-5 rubric applied to profile
+  A6: expected_bucket matches bucket rubric applied to profile
   A7 (slug == "guardians-of-the-claude"): expected_final_score in [53, 63]
 
 Exit codes:
   0 - all goldens pass
   1 - one or more assertions failed
-  2 - ci/fixtures/audit-goldens/ absent (pre-T2c-main state; CI soft-skip)
+  2 - ci/fixtures/audit-goldens/ absent (CI soft-skip)
 """
 from __future__ import annotations
 
@@ -63,13 +56,13 @@ SELF_SCORE_MAX = 63.0
 
 def compute_final(DS: float, SB: float, L1: int, L2: int, L3: int, L4: int,
                   L6: int, cap: int) -> float:
-    """DEC-1 formula: Final = min(DS * (1 + LAV_nonL5 / 50) + SB, cap)."""
+    """Scoring formula: Final = min(DS * (1 + LAV_nonL5 / 50) + SB, cap)."""
     lav_non_l5 = L1 + L2 + L3 + L4 + L6
     return min(DS * (1 + lav_non_l5 / 50.0) + SB, cap)
 
 
 def compute_expected_cap(L1: int, L2: int, L4: int, L5: int) -> int:
-    """DEC-1 cap tier rule (§3.3 lines 516; line 508-510)."""
+    """Cap tier rule."""
     if L5 == -3:
         # Check if any other Li at its minimum (L1=-3, L2=-2, L4=-1)
         if L1 == -3 or L2 == -2 or L4 == -1:
@@ -79,8 +72,8 @@ def compute_expected_cap(L1: int, L2: int, L4: int, L5: int) -> int:
 
 
 def classify_bucket(profile: dict) -> str:
-    """Apply DEC-5 rubric to profile signals. Returns bucket name."""
-    # Short-circuits per §3.3 line 532 + line 213
+    """Apply bucket rubric to profile signals. Returns bucket name."""
+    # Short-circuits for Outlier bucket
     if profile["is_monorepo"]:
         return "Outlier"
     if profile["claude_md_lines"] is not None and profile["claude_md_lines"] > 250:
@@ -150,7 +143,7 @@ def validate_golden(path: Path) -> list[str]:
     # A2: scoring_contract_id
     if data["scoring_contract_id"] != "audit-score-v4.0.0":
         errors.append(
-            f"{slug} A2: scoring_contract_id must be 'audit-score-v4.0.0' per §1.1; "
+            f"{slug} A2: scoring_contract_id must be 'audit-score-v4.0.0'; "
             f"got {data['scoring_contract_id']!r}"
         )
 
@@ -160,15 +153,15 @@ def validate_golden(path: Path) -> list[str]:
     expected_lav = si["L1"] + si["L2"] + si["L3"] + si["L4"] + si["L6"]
     if si["LAV_nonL5"] != expected_lav:
         errors.append(
-            f"{slug} A3: LAV_nonL5 must equal L1+L2+L3+L4+L6 per §3.3 line 515; "
+            f"{slug} A3: LAV_nonL5 must equal L1+L2+L3+L4+L6; "
             f"stored={si['LAV_nonL5']} computed={expected_lav}"
         )
 
-    # A4: cap matches DEC-1 tier rule
+    # A4: cap matches cap tier rule
     expected_cap = compute_expected_cap(si["L1"], si["L2"], si["L4"], si["L5"])
     if si["cap"] != expected_cap:
         errors.append(
-            f"{slug} A4: cap must be {expected_cap} per DEC-1 cap tier rule "
+            f"{slug} A4: cap must be {expected_cap} per cap tier rule "
             f"(L5={si['L5']}, L1={si['L1']}, L2={si['L2']}, L4={si['L4']}); "
             f"got {si['cap']}"
         )
@@ -182,27 +175,27 @@ def validate_golden(path: Path) -> list[str]:
     stored_final = data["expected_final_score"]
     if abs(stored_final - expected_final) > 0.001:
         errors.append(
-            f"{slug} A5: expected_final_score mismatch per DEC-1 formula; "
+            f"{slug} A5: expected_final_score mismatch per scoring formula; "
             f"stored={stored_final} computed={expected_final:.4f}"
         )
 
-    # A6: expected_bucket matches DEC-5 rubric applied to profile
+    # A6: expected_bucket matches bucket rubric applied to profile
     computed_bucket = classify_bucket(data["profile"])
     stored_bucket = data["expected_bucket"]
     if stored_bucket not in VALID_BUCKETS:
         errors.append(f"{slug} A6: bucket must be in {VALID_BUCKETS}; got {stored_bucket!r}")
     elif computed_bucket != stored_bucket:
         errors.append(
-            f"{slug} A6: expected_bucket does not match DEC-5 rubric applied to profile; "
+            f"{slug} A6: expected_bucket does not match bucket rubric applied to profile; "
             f"stored={stored_bucket!r} computed={computed_bucket!r}"
         )
 
-    # A7: self-reference G-B gate
+    # A7: self-reference quality gate
     if slug == SELF_SLUG:
         if not (SELF_SCORE_MIN <= stored_final <= SELF_SCORE_MAX):
             errors.append(
                 f"{slug} A7: self Final must be in [{SELF_SCORE_MIN}, {SELF_SCORE_MAX}] "
-                f"per plan.md:507 G-B gate; got {stored_final}"
+                f"per self-reference quality gate; got {stored_final}"
             )
 
     return errors
@@ -212,7 +205,7 @@ def main() -> int:
     if not GOLDENS_DIR.exists():
         print(
             f"SKIP - audit-goldens directory not present at "
-            f"{GOLDENS_DIR.relative_to(REPO_ROOT)} (pre-T2c-main state)"
+            f"{GOLDENS_DIR.relative_to(REPO_ROOT)}"
         )
         return 2
 
@@ -240,7 +233,7 @@ def main() -> int:
     print(
         f"PASS - {pass_count}/{len(golden_paths)} goldens passed all assertions "
         f"(A1 schema / A2 contract-ID / A3 LAV_nonL5 / A4 cap tier / A5 Final +/-0.001 / "
-        f"A6 DEC-5 bucket / A7 self G-B gate)"
+        f"A6 bucket rubric / A7 self quality gate)"
     )
     return 0
 
