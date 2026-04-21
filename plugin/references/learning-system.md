@@ -1,7 +1,7 @@
 ---
 title: Learning System
 description: Shared state management reference for /create, /audit, /secure, /optimize
-version: 2.2.0
+version: 2.3.0
 ---
 
 # Learning System
@@ -46,6 +46,7 @@ Every transition below is explicit. Implicit behavior is forbidden.
    - If parse succeeds → write canonical file via atomic write (see `plugin/references/lib/state_io.md` §atomic-write); preserve other valid canonicals untouched.
    - If parse fails OR no legacy source available → initialize empty: `profile.json = {schema_version, metadata}` only; `recommendations.json = {schema_version, metadata, recommendations: []}`. Atomic write (same spec).
    - Move ANY corrupt canonical to backup (phase 5) before overwriting (data preservation).
+   - **Phase 2a additive field** (per `phase-2a-contracts.md §3.4` Write Point 1): when emitting `profile.json` here, include `claude_code_configuration_state.model = <resolver output>` as a non-null string per `§2.3` field type. This Step 0.5 write path applies to every skill's emission — migration, fresh bootstrap, post-validation re-write — with no new sub-phase and no `/audit`-specific branching. Stateless mode inherits Phase 1 Global Invariant #6 no-op.
 
 5. **Quarantine ALL examined legacy inputs** (success AND failure):
    - Backup path: `local/legacy-backup/{ISO-8601-UTC, e.g., 2026-04-14T13-42-09Z}/`.

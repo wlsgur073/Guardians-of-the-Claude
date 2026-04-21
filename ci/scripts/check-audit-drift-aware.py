@@ -101,11 +101,41 @@ def check_a1_state_machine() -> list[str]:
 
 
 # ---------------------------------------------------------------------------
+# A2: Step 0.5 Write Point 1 — .model field emission in profile.json write set
+# ---------------------------------------------------------------------------
+
+
+def check_a2_write_point_1() -> list[str]:
+    """Verify .model field is part of the Step 0.5 profile.json write set."""
+    failures = []
+    learning_md = (
+        REPO_ROOT / "plugin" / "references" / "learning-system.md"
+    ).read_text(encoding="utf-8")
+
+    step_05_match = re.search(
+        r"\*\*Step 0\.5 — Migration & Stale Check\*\*.*?(?=\n## |\n---)",
+        learning_md,
+        flags=re.DOTALL,
+    )
+    if not step_05_match:
+        failures.append("A2: Step 0.5 section not found in learning-system.md")
+        return failures
+
+    step_05 = step_05_match.group(0)
+
+    if ".model" not in step_05:
+        failures.append("A2: Step 0.5 missing .model field in profile.json write set")
+
+    return failures
+
+
+# ---------------------------------------------------------------------------
 # Driver
 # ---------------------------------------------------------------------------
 
 CHECKS = [
     ("A1 drift state machine", check_a1_state_machine),
+    ("A2 Step 0.5 Write Point 1", check_a2_write_point_1),
 ]
 
 
