@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **GitHub Releases — all 27 versions (v1.0.0 through v2.11.2) compacted to the Option A "Highlights + CHANGELOG link" pattern.** Each release body is now ~500–1200 bytes (down from up to 12163 bytes for v2.10.0, median ~700), showing a `## Highlights` section with 3–5 short pointer bullets plus a `**Full details:**` link to the matching CHANGELOG section. Per-release reduction: 50–94%. Releases that already had human-curated `## Highlights` blocks (v2.11.x, v2.10.x, v2.9.0, v2.6.0, v2.5.0) preserved those blocks verbatim. Older releases synthesized bullets from CHANGELOG via first-sentence extraction with priority Added → Fixed → Changed (trivial version-bump Changed entries filtered out). v1.0.0 (pre-CHANGELOG era) manually curated. CHANGELOG.md itself unchanged — it remains the source of truth for full rationale, validation notes, and SemVer reasoning. Motivation: prior "copy CHANGELOG verbatim" bodies created heavy redundancy between the Releases page and CHANGELOG.md on the same repo.
 - `CLAUDE.md` Release Process L60: rewrote the `**Body:**` rule from "copy CHANGELOG verbatim + optional Highlights" to "`## Highlights` + `**Full details:**` CHANGELOG link". Added the anchor URL slug convention (drop `[ ] .`, spaces → hyphens, lowercase) so future releases follow the compact pattern by default.
 
+### Fixed
+
+- `docs/i18n/ko-KR/README.md` line 199 and `docs/i18n/ja-JP/README.md` line 199 (Statusline section example): model label `Opus 4.6` → `Opus 4.7`. EN `README.md` line 207 was already updated to `Opus 4.7`; both i18n mirrors carried the stale 4.6 label. Pure drift-to-parity fix — no frontmatter version bump (README has no frontmatter, and per `MEMORY.md` i18n-bump semantics parity-restoration is not a semantic change warranting a bump).
+
 ## [2.11.2] - 2026-04-22
 
 ### Fixed

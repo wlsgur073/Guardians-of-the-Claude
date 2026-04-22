@@ -196,7 +196,7 @@ Claude Code에서 `/plugin`으로 탐색하거나, [플러그인 문서](https:/
 Claude Code 하단 상태 표시줄을 커스터마이즈하여 모델, 컨텍스트 사용량, 비용, 소요 시간, git 브랜치를 한눈에 볼 수 있습니다:
 
 ```text
-[Opus 4.6 (1M context)] 📁 my-project
+[Opus 4.7 (1M context)] 📁 my-project
  🌿 feature/auth | ████████░░ 80% | $1.25 | ⏱️ 3m 42s
 ```
 
