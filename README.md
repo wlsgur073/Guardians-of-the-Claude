@@ -153,7 +153,7 @@ Guardians-of-the-Claude/
 ├── docs/
 │   ├── guides/              ← Guides explaining each concept
 │   ├── i18n/ko-KR/          ← Korean translations (guides, templates)
-│   ├── i18n/ja-JP/          ← Japanese translations (README, guides, partial templates)
+│   ├── i18n/ja-JP/          ← Japanese translations (guides, templates)
 │   ├── plans/               ← Design and planning documents
 │   └── *.md                 ← Community health files and project roadmap
 └── CHANGELOG.md             ← Version history (Keep a Changelog format)
@@ -165,7 +165,7 @@ Guardians-of-the-Claude/
 | `templates/advanced/` | Filled advanced example — rules, hooks, agents, skills |
 | `docs/guides/` | Standalone guides — read any one without the others |
 | `docs/i18n/ko-KR/` | Korean translations (guides, templates) |
-| `docs/i18n/ja-JP/` | Japanese translations (guides; templates deferred) |
+| `docs/i18n/ja-JP/` | Japanese translations (guides, templates) |
 | `docs/plans/` | Design and planning documents |
 | `docs/*.md` | Community health files and project [roadmap](docs/ROADMAP.md) |
 

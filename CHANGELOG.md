@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - `docs/i18n/ko-KR/README.md` line 20 (Philosophy section, "Progressive depth" bullet): "해제됩니다" corrected to "활성화됩니다" to remove the semantic inversion risk. Stand-alone "해제" in Korean tech prose leans toward "dismiss / cancel / disable" rather than "unlock"; the EN source ("Day 100 unlocks cross-skill memory and automated drift detection") describes feature *enablement*, and the ja-JP mirror already uses "有効化されます" (activated). Aligns ko-KR wording with both EN intent and ja-JP phrasing.
 - `docs/i18n/ja-JP/README.md`: trilingual language switcher (`English / 한국어 / 日本語`) added between the intro paragraphs and the `## フィロソフィー` heading, mirroring the placement in `docs/i18n/ko-KR/README.md`. The ja-JP page previously had no in-document navigation back to the EN or ko-KR variants, forcing users to edit the URL to switch languages. Current language marked in `<b>` tags matching the EN and ko-KR patterns.
+- `README.md` lines 156 and 168 describing the `docs/i18n/ja-JP/` directory: corrected both entries to match the actual inventory and to match the `docs/i18n/ko-KR/` entry style. Line 156 previously said "README, guides, partial templates" and line 168 said "guides; templates deferred" — both inaccurate (ja-JP ships the full template tree: `starter/CLAUDE.md`, `advanced/CLAUDE.md`, and all `.claude/` subfiles — see 2.11.1 UTF-8 restoration work) and self-contradicting. Both lines now read "Japanese translations (guides, templates)".
 
 ## [2.11.1] - 2026-04-22
 
