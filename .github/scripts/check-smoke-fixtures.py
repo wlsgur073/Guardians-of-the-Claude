@@ -48,6 +48,16 @@ GOLDEN_DIR = ROOT / "ci" / "golden"
 SCHEMAS_DIR = ROOT / "plugin" / "references" / "schemas"
 REGISTRY_PATH = ROOT / "plugin" / "references" / "recommendation-registry.json"
 
+# Make the ci/scripts/ sibling directory importable for the shared
+# normalization implementation (model-drift-rules.md table parser + matcher).
+_CI_SCRIPTS = ROOT / "ci" / "scripts"
+if str(_CI_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_CI_SCRIPTS))
+from t3_model_drift_check import (  # noqa: E402
+    normalize_model_id,
+    parse_normalization_table,
+)
+
 # Section heading (legacy MD) -> snake_case JSON field name.
 SECTION_TO_FIELD = {
     "Runtime & Language": "runtime_and_language",
@@ -693,6 +703,22 @@ def parse_latest_md(text: str, skill: str, pinned_utc: str, registry_by_key: dic
 # ---------------------------------------------------------------------------
 
 
+_NORMALIZATION_RULES_CACHE: list[dict] | None = None
+
+
+def _get_normalization_rules() -> list[dict]:
+    """Parse and cache the authoritative normalization table (observed rows only).
+    Parsing is deferred to first call to keep import side-effects minimal.
+    """
+    global _NORMALIZATION_RULES_CACHE
+    if _NORMALIZATION_RULES_CACHE is None:
+        rules_file = ROOT / "plugin" / "references" / "model-drift-rules.md"
+        _NORMALIZATION_RULES_CACHE = parse_normalization_table(
+            rules_file.read_text(encoding="utf-8")
+        )
+    return _NORMALIZATION_RULES_CACHE
+
+
 def _scan_baseline_anchor(changelog_text: str | None) -> tuple[bool, str | None]:
     """Reverse-chronological scan for /audit baseline anchor.
 
@@ -882,6 +908,101 @@ def _test_scan_order() -> list[str]:
     return failures
 
 
+def _test_render_drift_header() -> list[str]:
+    """L3 unit test: render_state_summary injects drift header when
+    state == 'drift' and stays silent for match. Returns list of failure
+    messages (empty = PASS).
+    """
+    failures: list[str] = []
+
+    profile_stub: dict = {
+        "schema_version": "1.0.0",
+        "claude_code_configuration_state": {
+            "model": "claude-sonnet-4-6",
+            "claude_md": {"exists": True},
+            "settings_json": {"exists": True},
+            "rules_count": 0,
+            "agents_count": 0,
+            "hooks_count": 0,
+            "mcp_servers_count": 0,
+        },
+    }
+    recs_stub: dict = {"schema_version": "1.0.0", "recommendations": []}
+    # NOTE: frontmatter is required here but NOT in _test_scan_order stubs —
+    # render_state_summary pipeline calls _render_recent_skill_results →
+    # _parse_changelog_entries → _extract_frontmatter_version, which raises
+    # ValueError on absent version. Bare _scan_baseline_anchor has no such
+    # dependency.
+    changelog_stub = """---
+version: 1.1.0
+---
+
+## Recent Activity
+
+### 2026-04-20 — /audit
+- Model: claude-opus-4-7
+- Applied: score snapshot
+"""
+    ctx_stub = RunContext(
+        pinned_utc="2026-04-14T00:00:00Z",
+        work_dir=Path("."),
+        fixture_name="t6-render-drift-header-unit",
+    )
+
+    out = render_state_summary(profile_stub, recs_stub, changelog_stub, ctx_stub)
+
+    if "Model drift: claude-opus-4-7 -> claude-sonnet-4-6" not in out:
+        failures.append("drift header missing from render")
+
+    # Placement: header must fall between H1 and ## Project Profile.
+    idx_h1 = out.find("# Claude Code Configuration State")
+    idx_header = out.find("Model drift:")
+    idx_profile = out.find("## Project Profile")
+    if not (idx_h1 != -1 and idx_header != -1 and idx_profile != -1
+            and idx_h1 < idx_header < idx_profile):
+        failures.append(
+            f"drift header placement wrong: h1={idx_h1} "
+            f"header={idx_header} profile={idx_profile}"
+        )
+
+    # Silence test: when current model == baseline model, no header.
+    profile_match = {
+        **profile_stub,
+        "claude_code_configuration_state": {
+            **profile_stub["claude_code_configuration_state"],
+            "model": "claude-opus-4-7",
+        },
+    }
+    out_match = render_state_summary(
+        profile_match, recs_stub, changelog_stub, ctx_stub
+    )
+    if "Model drift:" in out_match:
+        failures.append("drift header leaked into match state")
+
+    # Silence test: missing_baseline (no /audit in changelog) stays silent.
+    out_missing = render_state_summary(
+        profile_stub, recs_stub, None, ctx_stub
+    )
+    if "Model drift:" in out_missing:
+        failures.append("drift header leaked into missing_baseline state")
+
+    # Silence test: normalization_null (unknown current model) stays silent.
+    profile_unknown = {
+        **profile_stub,
+        "claude_code_configuration_state": {
+            **profile_stub["claude_code_configuration_state"],
+            "model": "claude-future-unknown-model-2099",
+        },
+    }
+    out_null = render_state_summary(
+        profile_unknown, recs_stub, changelog_stub, ctx_stub
+    )
+    if "Model drift:" in out_null:
+        failures.append("drift header leaked into normalization_null state")
+
+    return failures
+
+
 # ---------------------------------------------------------------------------
 # Rendering (learning-system.md §State Rendering)
 # ---------------------------------------------------------------------------
@@ -908,6 +1029,30 @@ def render_state_summary(profile: dict, recs: dict, changelog_text: str | None, 
     ps = profile.get("project_structure") or {}
     ccs = profile.get("claude_code_configuration_state") or {}
 
+    # Drift advisory derivation (shared per learning-system.md, section
+    # "Drift Advisory Derivation"). Silent when state is match,
+    # missing_baseline, or normalization_null.
+    rules = _get_normalization_rules()
+    current_model_id = ccs.get("model")
+    current_fp = (
+        normalize_model_id(current_model_id, rules)
+        if current_model_id
+        else None
+    )
+    baseline_present, baseline_model_id = _scan_baseline_anchor(changelog_text)
+    baseline_fp = (
+        normalize_model_id(baseline_model_id, rules)
+        if baseline_model_id
+        else None
+    )
+    state = _drift_state(current_fp, baseline_present, baseline_fp)
+
+    drift_block = ""
+    if state == "drift":
+        drift_block = (
+            f"Model drift: {baseline_model_id} -> {current_model_id}\n\n"
+        )
+
     def _or_not_detected(v):  # noqa: E306
         return v if v else "Not detected"
 
@@ -925,6 +1070,7 @@ def render_state_summary(profile: dict, recs: dict, changelog_text: str | None, 
 
     profile_block = (
         "# Claude Code Configuration State\n\n"
+        f"{drift_block}"
         "## Project Profile\n"
         f"- Runtime: {_or_not_detected(rl.get('runtime'))}\n"
         f"- Language: {_or_not_detected(rl.get('language'))}\n"
@@ -2274,10 +2420,12 @@ def main() -> int:
     # Pure-function unit tests gate the fixture loop: if helpers are wrong,
     # integration fixtures can't possibly pass, and isolated failures are
     # easier to diagnose than fixture-level byte diffs.
-    unit_failures = _test_scan_order()
+    unit_failures: list[str] = []
+    unit_failures.extend(_test_scan_order())
+    unit_failures.extend(_test_render_drift_header())
     if unit_failures:
         for f in unit_failures:
-            print(f"[FAIL] _test_scan_order: {f}", file=sys.stderr)
+            print(f"[FAIL] unit test: {f}", file=sys.stderr)
         return 1
 
     # Local lane: iterate LOCAL_FIXTURES_DIR case subdirs.
