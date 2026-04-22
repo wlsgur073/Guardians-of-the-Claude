@@ -1,6 +1,6 @@
 # templates/ — TaskFlow リファレンス例
 
-このディレクトリには、架���のプロジェクト **TaskFlow** に対する完成済みの設定例（`CLAUDE.md`、`.claude/settings.json`、rules、hooks、agents、skills）が含まれています。TaskFlow はこのリポジトリ全体でリファレンスとして使用されるタスク管理 REST API です。
+このディレクトリには、架空のプロジェクト **TaskFlow** に対する完成済みの設定例（`CLAUDE.md`、`.claude/settings.json`、rules、hooks、agents、skills）が含まれています。TaskFlow はこのリポジトリ全体でリファレンスとして使用されるタスク管理 REST API です。
 
 ## TaskFlow について
 
