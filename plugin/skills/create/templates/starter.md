@@ -1,6 +1,6 @@
 # STARTER PATH
 
-For new or empty projects. Generates a minimal 5-section CLAUDE.md and basic settings.
+For new or empty projects. Generates a minimal 6-section CLAUDE.md and basic settings.
 
 ## Phase 1S: Quick Check Before Skipping Analysis
 

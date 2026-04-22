@@ -8,7 +8,7 @@ This is a documentation and template repository — no application source code a
 - `.claude-plugin/` — Marketplace manifest (makes this repo a plugin marketplace)
 - `plugin/` — Plugin package containing `.claude-plugin/plugin.json`, `skills/create/SKILL.md` (`/guardians-of-the-claude:create`), `skills/audit/SKILL.md` (`/guardians-of-the-claude:audit`), `skills/secure/SKILL.md` (`/guardians-of-the-claude:secure`), `skills/optimize/SKILL.md` (`/guardians-of-the-claude:optimize`), `references/security-patterns.md` (shared), `references/learning-system.md` (shared), and `hooks/hooks.json`
 - `CHANGELOG.md` — Version history in Keep a Changelog format
-- `templates/starter/` — Minimal filled example for TaskFlow (5-section CLAUDE.md + basic settings.json)
+- `templates/starter/` — Minimal filled example for TaskFlow (6-section CLAUDE.md + basic settings.json)
 - `templates/advanced/` — Full filled example for TaskFlow (rules, hooks, agents, skills, MCP)
 - `docs/guides/` — Guides covering each Claude Code configuration concept (CLAUDE.md writing, rules, settings, directory structure, effective usage patterns, advanced features, MCP integration, recommended plugins)
 - `docs/i18n/ko-KR/` — Korean translations (`guides/`, `templates/`, `README.md`)
