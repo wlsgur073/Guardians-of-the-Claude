@@ -17,7 +17,8 @@ This is a documentation and template repository — no application source code a
 - `docs/*.md` — GitHub community health files and project governance (CODE_OF_CONDUCT.md, CONTRIBUTING.md, SECURITY.md, PRIVACY.md, ROADMAP.md)
 - `.claude/` — This repo's own Claude Code settings
 - `test/` — Skill evaluation framework (rubrics, scenarios, fixtures, scripts) and results. Not a unit test suite — used to grade skill output quality. See `test/testing-strategy.md`.
-- `.github/workflows/docs-check.yml` — CI with 7 jobs (link-check-internal, link-check-external, frontmatter parity, JSON schema, i18n parity, shellcheck, encoding). Python validators live in `.github/scripts/`.
+- `.github/workflows/docs-check.yml` — CI with 9 jobs (link-check-internal, link-check-external, frontmatter parity, JSON schema, registry lint, skill stability lint, i18n parity, shellcheck, encoding). Python validators live in `.github/scripts/`.
+- `.github/workflows/smoke.yml` — CI smoke lane (2 jobs: smoke fixtures, verifier drift tripwire); triggers on PRs touching `plugin/**`/`templates/**`/`ci/**` and on version tags.
 
 ## Contribution Rules
 

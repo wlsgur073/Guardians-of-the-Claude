@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- `CLAUDE.md` line 20 (Repository Structure): stale CI job count corrected — `.github/workflows/docs-check.yml` now has **9 jobs** (not 7), adding `registry-lint` and `skill-stability-lint` which were introduced in v2.11.0 but never propagated into CLAUDE.md's structure description. Also added a new bullet pointing to `.github/workflows/smoke.yml` (CI smoke lane with 2 jobs: `smoke` fixtures runner and `verifier-drift-tripwire`), which was added in v2.11.0 but not mentioned in the Repository Structure section at all. Detected by post-v2.11.2 full-repo audit; no functional impact, but stale structure description reduces Claude's accuracy when suggesting CI-related changes.
+- `.github/workflows/smoke.yml`: bumped `actions/checkout@v4` → `actions/checkout@v6` and `actions/setup-python@v5` → `actions/setup-python@v6` to match the major versions already used in `docs-check.yml`. Both major versions are current and functional, but divergent action versions across two workflows in the same repo increases maintenance surface and Node runtime variance — keeping them synchronized is low-cost hygiene. No behavior change.
+
 ## [2.11.2] - 2026-04-22
 
 ### Fixed
