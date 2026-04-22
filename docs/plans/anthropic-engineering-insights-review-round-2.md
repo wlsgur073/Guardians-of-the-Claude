@@ -1,0 +1,385 @@
+# Anthropic Engineering Insights — Applicability Review (Round 2)
+
+**Status**: Draft (evaluation basis, not an approved change)
+**Created**: 2026-04-22
+**Last revised**: 2026-04-22 (four citation/framing calibrations from post-R5 cross-round re-review — see updated Convergence Audit Trail, Loop 9)
+**Scope**: Second review round covering five additional sources. Continues [Round 1](./anthropic-engineering-insights-review.md), which remains authoritative for its four sources.
+
+---
+
+## Purpose
+
+This document captures proposals derived from a second batch of Anthropic materials, with a deliberate expansion in scope: one of the five sources is the **canonical Claude Code Best Practices documentation**, which functions as a *parity target* rather than a mere source of ideas — drift between canonical docs and this repository's teaching content is a direct teaching loss.
+
+This document reflects the **converged state after eight self-review loops**. Corrections discovered during the loops are recorded in the "Convergence Audit Trail" section below so future reviewers can assess how the proposals were calibrated. As with Round 1, no change is authorized by this document; it exists as a decision basis.
+
+---
+
+## Source Material
+
+Five sources in this round. One is canonical documentation (binding for our teaching content), four are engineering posts (principle-level guidance).
+
+1. **Claude Code Best Practices** (canonical docs, parity target) — <https://code.claude.com/docs/en/best-practices>
+2. How we built our multi-agent research system — <https://www.anthropic.com/engineering/multi-agent-research-system>
+3. Desktop Extensions — <https://www.anthropic.com/engineering/desktop-extensions>
+4. Writing tools for agents — <https://www.anthropic.com/engineering/writing-tools-for-agents>
+5. A postmortem of three recent issues — <https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues>
+
+---
+
+## TL;DR
+
+| ID    | Proposal                                                          | Confidence        | Effort       | Relation to Round 1    |
+|-------|-------------------------------------------------------------------|-------------------|--------------|------------------------|
+| E     | Best Practices parity audit of our teaching content               | Medium-high       | Low-medium   | New                    |
+| A'-rt | Subagent runtime briefing refinement (4-component structure)      | Medium-high       | Medium       | Refines Round 1 A'     |
+| A'-ev | LLM-as-judge rubric in `test/` framework                          | Medium            | Medium       | New (layer split from A') |
+| C'    | Dual-layer SKILL audit (scope-reduced)                            | Medium            | Medium       | Refines Round 1 C'     |
+| D     | Think-tool-style prompting in /audit                              | Medium            | Low-medium   | Unchanged from Round 1 |
+| F     | Phase-boundary contract check (renamed)                           | Low-medium        | Medium       | Renamed from Round 1 F |
+| B     | "Agent Patterns" guide                                            | Low-medium        | Medium-high  | Deferred from Round 1  |
+| —     | DXT mention in MCP guide                                          | **Skipped**       | —            | New, scope-conditional |
+
+Approximate priority: **E ≈ A'-rt > A'-ev ≈ C' > D > F > B**.
+
+---
+
+## Cross-Cutting Themes
+
+### Round 2 Pattern: "Plausible output masks real defects"
+
+A recurrent motif across Round 2 sources: Claude produces output that *looks* right, and downstream checks fail to detect when it isn't. The pattern is strong in two sources, partial in a third, and a stretch in the fourth — treated here as a **2-source pattern**, not a universal cross-cut.
+
+| Source                   | Manifestation                                                                                                        | Fit       |
+|--------------------------|----------------------------------------------------------------------------------------------------------------------|-----------|
+| Best Practices           | "Trust-then-verify gap: Claude produces a plausible-looking implementation that doesn't handle edge cases"           | Strong    |
+| Postmortem (three issues)| "Claude often recovers well from isolated mistakes" — masks degradation at aggregate                                  | Strong    |
+| Writing Tools for Agents | "agents hallucinate more with cryptic IDs" — low-signal inputs drive plausible-but-wrong reasoning                   | Partial   |
+| Multi-Agent Research     | "endless web searching for nonexistent sources" — plausible activity without yield                                   | Weak      |
+
+### Relation to Round 1
+
+Round 1's unifying theme was **"boundary information loss"** (chunk boundary in RAG, subagent dispatch boundary, tool-call boundary, generator-consumer boundary). Round 2's pattern is **logically downstream** (our synthesis across rounds; no single article asserts this chain):
+
+> Information lost at a boundary → subsequent agent generates plausible-but-wrong output → self-recovery masks the defect from evaluators.
+
+Taken together: **restore context at boundaries (Round 1)** *and* **verify output with mechanisms that cannot be masked by self-recovery (Round 2)**.
+
+---
+
+## Proposals
+
+### E — Best Practices Parity Audit
+
+#### Background
+
+Claude Code Best Practices is the canonical documentation our repository exists to teach. Unlike engineering blog posts (principle-level, may or may not apply), canonical docs are binding for teaching content: any drift becomes teaching loss for downstream users.
+
+#### Proposal
+
+Perform a parity audit of three files against the canonical document:
+
+- `docs/guides/claude-md-guide.md`
+- `templates/starter/CLAUDE.md`
+- `templates/advanced/CLAUDE.md`
+
+Checklist, derived directly from the canonical document's prescriptions:
+
+1. **Verification-first framing** — is verification positioned as the highest-leverage practice, per the canonical tip *"This is the single highest-leverage thing you can do"*?
+2. **Include/exclude table format** — adopted for CLAUDE.md content guidance?
+3. **Pruning meta-rule present** — *"For each line, ask: Would removing this cause Claude to make mistakes? If not, cut it"*?
+4. **`@path/to/import` syntax** — demonstrated in at least one example?
+5. **Common failure patterns section** — covers all five canonical items: kitchen sink session / repeated corrections / over-specified CLAUDE.md / trust-then-verify gap / infinite exploration?
+6. **`disable-model-invocation: true`** — documented for skills whose workflows have side effects and should be manually triggered?
+7. **Writer/Reviewer parallel-session pattern** — described in advanced guides?
+8. **Checkpointing / `/rewind` vocabulary** — current and accurate?
+
+#### Source Evidence
+
+- *"Give Claude a way to verify its work ... This is the single highest-leverage thing you can do."* (Best Practices)
+- *"CLAUDE.md is loaded every session, so only include things that apply broadly ... Would removing this cause Claude to make mistakes?"* (Best Practices)
+- *"`disable-model-invocation: true` for workflows with side effects that you want to trigger manually"* (Best Practices, Create skills section)
+- Common failure patterns — five items listed verbatim in Best Practices
+
+#### Risks / Tradeoffs
+
+- If current content is already well-aligned, audit yields few changes. The audit itself is cheap; a null finding is a successful outcome.
+- Parity means matching **intent and coverage**, not wording — avoid verbatim duplication.
+- Canonical docs evolve; any parity established needs periodic re-verification.
+
+#### Prerequisites
+
+Read the three target files. No other dependency.
+
+#### Confidence
+
+**Medium-high**. Source is canonical; drift has direct, non-speculative cost.
+
+---
+
+### A'-rt — Subagent Runtime Briefing Refinement (4-Component Structure)
+
+#### Background
+
+Round 1 Proposal A' called for enriching subagent briefings to restore context lost at the dispatch boundary. Round 2's Multi-Agent article provides the concrete four-component briefing structure that Anthropic reports as effective in practice. This refines A' from a principle to a usable template.
+
+#### Proposal
+
+Adopt the four-component briefing structure for every `/audit` subagent dispatch:
+
+- **Objective** — the specific question being asked of this subagent
+- **Output format** — expected deliverable shape (finding record schema, summary length, severity vocabulary)
+- **Tool and source guidance** — which files, which rule sets, which tools to prioritize
+- **Task boundaries** — explicit scope limits that prevent scope creep
+
+Codify as a template in `plugin/skills/audit/SKILL.md`, not as implicit practice.
+
+#### Source Evidence
+
+- Multi-Agent Research System (paraphrased): vague instructions (e.g., "research the semiconductor shortage") led to duplicated effort and misalignment. Only the word "vague" is literal in the source; surrounding phrasing is a paraphrase.
+- Multi-Agent Research System (structural claim, not verbatim): the article describes a four-component briefing — objective, output format, tool/source guidance, task boundaries. The four-component concept is the article's; the exact labeling as a single string is summarizer synthesis.
+
+#### Risks / Tradeoffs
+
+- *"Agents use ~4× more tokens than chat interactions; multi-agent systems use ~15× more tokens than chats."* (Multi-Agent) — longer briefings contribute.
+- *"Token usage alone explains 80% of performance variance in BrowseComp evaluation."* (Multi-Agent) — adding briefing text changes the dominant variable.
+- If the root cause of false positives is model hallucination rather than briefing gap, briefing enrichment has limited effect.
+
+#### Prerequisites
+
+1. Sample 5 recent `/audit` false-positive cases; classify by cause (briefing-gap / hallucination / criterion-ambiguity / other)
+2. Read current `plugin/skills/audit/SKILL.md` to determine existing briefing structure
+3. Adopt only if briefing-gap accounts for ≥40% of the sample
+
+#### Confidence
+
+**Medium-high**, conditional on the prerequisite sampling result.
+
+---
+
+### A'-ev — LLM-as-Judge Rubric in `test/` Framework
+
+#### Background
+
+Round 1's Proposal A' conflated two layers: runtime post-check within `/audit` execution and evaluation-time rubric in the `test/` framework. Round 2's self-review separated these: LLM-as-judge, as described in the Multi-Agent article, is a **measurement tool at evaluation time**, not a runtime component of the agent loop. Runtime application would be an extension of the pattern not evidenced by the article.
+
+#### Proposal
+
+Introduce a five-metric LLM-as-judge rubric into the `test/` eval framework, with **domain-appropriate redefinitions** for our audit context (the Multi-Agent rubric targets research agents, not audit agents):
+
+| Original (Multi-Agent)     | Our Redefinition                                                               |
+|----------------------------|--------------------------------------------------------------------------------|
+| Factual accuracy           | Finding claim matches the cited file's actual contents                         |
+| Citation fidelity          | `file:line` references are valid and point to the claimed content              |
+| Completeness               | All rules within declared scope were evaluated                                 |
+| Source quality → **Rule-scope adherence** | Evaluation stayed within declared rule set; no scope creep          |
+| Tool efficiency            | Read/Grep/Glob choices fit the check type                                      |
+
+Output format: single LLM call returning 0.0–1.0 scores plus pass/fail grade per finding.
+
+#### Source Evidence
+
+- *"A single LLM call outputting 0.0–1.0 scores plus pass/fail grades proved most consistent and aligned with human judgements."* (Multi-Agent Research System)
+- *"Human testers additionally caught edge cases automation missed, including subtle source-selection biases."* (Multi-Agent Research System) — argues for validation against human spot-checks.
+
+#### Risks / Tradeoffs
+
+- `test/` is gitignored and internal; this work does not ship. Low leverage beyond internal calibration.
+- LLM-as-judge has documented biases (noted in the article). The redefined rubric should be validated against a human-scored ground truth before trust.
+- Adds cost to each eval run (one judge call per finding).
+
+#### Prerequisites
+
+1. Read current `test/` rubric structure
+2. Validate the redefined rubric on 5 historical audit outputs with manual scoring as ground truth
+3. Compare judge output variance vs manual variance
+
+#### Confidence
+
+**Medium**. Layer separation resolves the Round 1 conflation; remaining uncertainty is redefinition adequacy.
+
+---
+
+### C' — Dual-Layer SKILL Audit (Scope-Reduced)
+
+#### Background
+
+Round 1's C' proposed auditing both the frontmatter (trigger signal) and body (usage specification) of each skill. Round 2 refines scope: the Writing Tools for Agents article's principles transfer unevenly.
+
+- **Transfer strongly**: naming, namespacing, description-as-onboarding, avoiding tool overlap, error-message design
+- **Do not transfer**: ResponseFormat enum verbosity control, fine-grained parameter structure (our skills use only `$ARGUMENTS`)
+
+Round 1's audit included ResponseFormat-class items that do not apply to our markdown-based skills.
+
+#### Proposal (Round 2 revision)
+
+Retain Round 1's two-pass structure. Remove items related to structured I/O. Retain:
+
+1. **Trigger audit (frontmatter)** — `description:` clarity, consistent "use when …" vocabulary across the four skills (`/create`, `/audit`, `/secure`, `/optimize`)
+2. **Usage audit (body)** — interface-level error prevention (SWE-bench principle), explicit preconditions for irreversible actions
+3. **Apply two of four Writing Tools anti-patterns** that transfer:
+   - Unclear purpose boundaries / overlap between skills
+   - Low-signal references (internal identifiers vs descriptive names)
+
+#### Source Evidence
+
+- SWE-bench engineering (Round 1): *"the tool will only occur if there is exactly one match of `old_str`"* — interface-level error prevention
+- Building Effective Agents (Round 1): *"prompt engineering your tools deserves equal effort as overall prompts"*
+- Writing Tools for Agents: *"Namespace related tools with consistent prefixes"*, *"Unhelpful pattern: opaque error codes or tracebacks. Helpful pattern: clearly communicate specific and actionable improvements"*
+
+#### Risks / Tradeoffs
+
+- If skills are already well-specified, yield is low
+- Over-tightening a trigger description lowers recall (skill not invoked when it should be)
+
+#### Prerequisites
+
+Pilot on one skill (`/audit` recommended — largest and the locus of known false-positive issues). Decide full rollout based on pilot yield.
+
+#### Confidence
+
+**Medium**, pending pilot.
+
+---
+
+### D — Think-Tool-Style Prompting in /audit (Unchanged from Round 1)
+
+Proposal carried forward from Round 1 without modification. Summary: insert explicit reasoning checkpoints at `/audit` phase boundaries that enumerate applicable rules and verify information collection.
+
+See [Round 1 Proposal D](./anthropic-engineering-insights-review.md) for full detail.
+
+**Confidence**: **Medium**.
+
+---
+
+### F — Phase-Boundary Contract Check (Renamed from Round 1)
+
+#### Background
+
+Round 1 introduced a "Recovery-masking rubric" for the `test/` framework. Two issues surfaced in Round 2 self-review:
+
+1. The term "Recovery Masking" may not be a canonical phrase from the source article. It appeared in the WebFetch summary but cannot be confirmed as verbatim without re-reading the original. Building a proposal around an uncertain term is fragile.
+2. The concept was stretched from population-level statistical degradation (postmortem context) to single-run qualitative degradation (our context). The transfer is partial-isomorphism, not direct application: mechanism is similar, measurement framework differs.
+
+#### Proposal
+
+Rename and redefine as **Phase-Boundary Contract Check**: for each phase of `/audit`, verify that the output of Phase N satisfies the declared input contract of Phase N+1. This is a precise mechanical check, not a recovery-masking heuristic.
+
+#### Source Evidence
+
+- Postmortem fragment (extracted from a longer sentence, not a standalone motif): the article notes that "Claude often recovers well from isolated mistakes" while explaining why evaluations missed user-reported degradation. The principle that graceful self-recovery can hide defects motivates cross-phase contract validation.
+- This proposal is **inspired by** the postmortem but defined independently to avoid concept abuse.
+
+#### Risks / Tradeoffs
+
+- Requires declared contracts between `/audit` phases; they may not currently exist, in which case this is not a check but a structural introduction.
+- Explicit contract declaration increases SKILL.md length, conflicting with the repository's conciseness ethos.
+
+#### Prerequisites
+
+- Read `/audit` SKILL.md to determine whether phase contracts are currently implicit, explicit, or nonexistent
+- Decide whether contracts should be formalized at all (structural change, not just a check)
+
+#### Confidence
+
+**Low-medium**. Escapes the uncertain-term problem of Round 1 but demands concrete contract definition.
+
+---
+
+### B — "Agent Patterns" Guide (Deferred)
+
+Status unchanged from Round 1. Deferred until Proposals E, A'-rt, and C' produce verified pattern-to-skill mappings. See [Round 1 Proposal B](./anthropic-engineering-insights-review.md) for details.
+
+**Confidence**: Low-medium.
+
+---
+
+### DXT — Skipped (Scope-Conditional)
+
+#### Why skipped
+
+- Desktop Extensions package MCP servers for **Claude Desktop**, not Claude Code plugins. Our primary audience is Claude Code plugin authors.
+- Desktop-targeted MCP distribution is a minority workflow for our readers.
+- Adding a DXT mention in `docs/guides/mcp-integration-guide.md` would misplace Desktop-focused content in a Code-focused guide, risking reader confusion that exceeds the information value for most readers.
+
+#### Condition for revisit
+
+If a future guide is added dedicated to "MCP server development and distribution" (as distinct from MCP integration into Claude Code plugins), a DXT section becomes appropriate **in that guide**. Not in the current set.
+
+#### Source
+
+Desktop Extensions engineering post.
+
+---
+
+## Convergence Audit Trail
+
+This section is a permanent record of corrections found during self-review, retained so future reviewers can assess how the proposals were calibrated.
+
+| Loop | Target                             | Findings | Notable corrections                                                                                                      |
+|------|------------------------------------|----------|--------------------------------------------------------------------------------------------------------------------------|
+| 1    | Initial extraction from 5 sources  | —        | N/A                                                                                                                      |
+| 2    | Critique of Loop 1                 | ~4       | LLM-as-judge layer conflation; rubric 3/5 transfer; Writing Tools ≠ structured tools; Recovery Masking treated as direct |
+| 3    | Critique of Loop 2                 | ~7       | Loop 2 itself over-corrective: rubric 5/5 with redefinition; `disable-model-invocation` both framings valid; cross-cut 2-solid not 4-source |
+| 4    | Critique of Loop 3                 | 1        | Loop 3's challenge to "LLM-as-judge = eval-only" was slightly excessive given article context                             |
+| 5    | Critique of Loop 4                 | 0        | Loop 4 finding confirmed                                                                                                 |
+| 6    | Broader sweep                      | 0        | No new issues                                                                                                            |
+| 7    | Citation provenance check          | 1        | "Recovery Masking" may be summarizer coinage rather than canonical article term                                          |
+| 8    | Critique of Loop 7                 | 0        | Finding accepted; Proposal F renamed to avoid reliance on uncertain term                                                 |
+| 9    | Post-R5 cross-round re-review      | 4        | Loop 7's provenance check stopped after one instance (Recovery Masking); a class-level sweep on re-review finds: (a) 4-component briefing quote was summarizer synthesis, not article verbatim; (b) "Vague instructions" mostly paraphrased, only "vague" literal; (c) "Claude often recovers well..." is a fragment from a longer sentence, not a standalone motif; (d) "causally downstream" overstated a cross-round synthesis as article claim. All four corrected in-place (2026-04-22); proposal substance unchanged. |
+
+**Convergence re-validated at Loop 9.** Loop 7's design lesson — single-instance provenance findings should trigger class-level sweeps of all italicized quotes — is noted for application to future rounds.
+
+---
+
+## Unverified Assumptions (Cumulative — Rounds 1 + 2)
+
+Items added or refined in Round 2 are marked with ⚡.
+
+1. **False-positive root cause distribution** (impacts A'-rt). Classification into briefing-gap / hallucination / criterion-ambiguity has not been measured.
+2. **Current `/audit` structural pattern** — Orchestrator-Workers vs Prompt Chaining — not verified against SKILL.md.
+3. **Skill description quality** (impacts C'). Room-for-improvement presumed; pilot required to confirm.
+4. **Benchmark transferability** (impacts D, A'-rt, A'-ev). τ-Bench / Multi-Agent internal benchmark figures (e.g., 54% airline improvement, 90.2% multi-agent advantage, 15× token cost) may not transfer linearly to our audit workflow.
+5. ⚡ **"Recovery Masking" term provenance**. The phrase may be a summarizer coinage rather than a canonical article term. Proposal F has been renamed to avoid reliance.
+6. ⚡ **LLM-as-judge applicability at runtime**. The article presents it as an evaluation-time measurement tool; runtime application would extend the pattern beyond what the article evidences.
+7. ⚡ **Parity drift magnitude**. Proposal E presumes non-zero drift between our guides and canonical docs; unverified until Read.
+8. ⚡ **Cross-article synthesis strength**. The Round 2 pattern "plausible output masks real defects" is strong in two sources (Best Practices, Postmortem), partial in one (Writing Tools), weak in one (Multi-Agent). Treated as a 2-source pattern rather than a universal cross-cut.
+
+---
+
+## Recommended Next Step
+
+A single Read round unlocks verification for nearly all proposals:
+
+| File to Read                              | Unlocks                                            |
+|-------------------------------------------|----------------------------------------------------|
+| `docs/guides/claude-md-guide.md`          | Proposal E (parity audit)                          |
+| `templates/starter/CLAUDE.md`             | Proposal E (parity audit)                          |
+| `templates/advanced/CLAUDE.md`            | Proposal E (parity audit)                          |
+| `plugin/skills/audit/SKILL.md`            | Proposals A'-rt, C', D, F                          |
+
+After this Read, proposals move from hypothesis to actionable diff plans. This document together with Round 1 provides the decision framework; Read unlocks execution.
+
+An alternative narrower first step: run the **causal sampling exercise** recommended at the end of Round 1 (classify 5 false-positive cases) — that disambiguates whether A'-rt's briefing-gap hypothesis is worth pursuing before any doc work.
+
+---
+
+## References
+
+### External (primary sources)
+
+- **Claude Code Best Practices** (canonical docs) — <https://code.claude.com/docs/en/best-practices>
+- Anthropic Engineering — *How we built our multi-agent research system*: <https://www.anthropic.com/engineering/multi-agent-research-system>
+- Anthropic Engineering — *Desktop Extensions*: <https://www.anthropic.com/engineering/desktop-extensions>
+- Anthropic Engineering — *Writing tools for agents*: <https://www.anthropic.com/engineering/writing-tools-for-agents>
+- Anthropic Engineering — *A postmortem of three recent issues*: <https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues>
+
+### Internal (this repository)
+
+- [Round 1 plan: `anthropic-engineering-insights-review.md`](./anthropic-engineering-insights-review.md) — covers Contextual Retrieval, Building Effective Agents, SWE-bench engineering, Think Tool
+- `CLAUDE.md` § "Contribution Rules" (length budgets, frontmatter conventions)
+- `plugin/skills/audit/SKILL.md` — subject of Proposals A'-rt, C', D, F pilot
+- `plugin/skills/create/SKILL.md`, `plugin/skills/secure/SKILL.md`, `plugin/skills/optimize/SKILL.md` — additional subjects of Proposal C'
+- `docs/guides/claude-md-guide.md`, `templates/starter/CLAUDE.md`, `templates/advanced/CLAUDE.md` — subjects of Proposal E
+- `test/` eval framework — subject of Proposal A'-ev
+- Memory entries referenced: `feedback_subagent_verification.md`, `project_meta_system_vision.md`, `feedback_plans_scope.md`
