@@ -1003,6 +1003,77 @@ version: 1.1.0
     return failures
 
 
+def _test_t6_fixtures() -> list[str]:
+    """L3 integration test: byte-match smoke fixtures against goldens.
+
+    4 rendering fixtures (drift-recent-activity, drift-compacted-history,
+    normalization-null-silence, crossskill-create-drift) render through
+    render_state_summary and byte-match against ci/fixtures/t6-*/golden/
+    state-summary.md.
+
+    1 stateless fixture (stateless-silence) asserts marker-file presence +
+    state-summary.md golden absence (structural evidence that terminal
+    state rendering is skipped in stateless mode — no runtime emulation).
+    """
+    failures: list[str] = []
+    fixture_root = ROOT / "ci" / "fixtures"
+
+    rendering_fixtures = [
+        "t6-drift-recent-activity",
+        "t6-drift-compacted-history",
+        "t6-normalization-null-silence",
+        "t6-crossskill-create-drift",
+    ]
+    for name in rendering_fixtures:
+        fdir = fixture_root / name
+        profile_path = fdir / "profile.json"
+        changelog_path = fdir / "changelog.md"
+        golden_path = fdir / "golden" / "state-summary.md"
+        if not profile_path.exists():
+            failures.append(f"{name}: missing profile.json")
+            continue
+        if not golden_path.exists():
+            failures.append(f"{name}: missing golden/state-summary.md")
+            continue
+        profile = json.loads(profile_path.read_text(encoding="utf-8"))
+        changelog = (
+            changelog_path.read_text(encoding="utf-8")
+            if changelog_path.exists()
+            else None
+        )
+        golden = golden_path.read_text(encoding="utf-8")
+        ctx = RunContext(
+            pinned_utc=os.environ.get("SMOKE_PINNED_UTC", "2026-04-14T00:00:00Z"),
+            work_dir=Path("."),
+            fixture_name=name,
+        )
+        actual = render_state_summary(
+            profile,
+            {"schema_version": "1.0.0", "recommendations": []},
+            changelog,
+            ctx,
+        )
+        if actual != golden:
+            failures.append(
+                f"{name}: byte mismatch (len actual={len(actual)}, "
+                f"golden={len(golden)})"
+            )
+
+    stateless_fixtures = ["t6-stateless-silence"]
+    for name in stateless_fixtures:
+        fdir = fixture_root / name
+        marker = fdir / "golden" / "terminal-no-state-summary.marker"
+        if not marker.exists():
+            failures.append(f"{name}: missing stateless marker")
+        if (fdir / "golden" / "state-summary.md").exists():
+            failures.append(
+                f"{name}: state-summary golden should not exist "
+                f"(stateless mode)"
+            )
+
+    return failures
+
+
 # ---------------------------------------------------------------------------
 # Rendering (learning-system.md §State Rendering)
 # ---------------------------------------------------------------------------
@@ -2423,6 +2494,7 @@ def main() -> int:
     unit_failures: list[str] = []
     unit_failures.extend(_test_scan_order())
     unit_failures.extend(_test_render_drift_header())
+    unit_failures.extend(_test_t6_fixtures())
     if unit_failures:
         for f in unit_failures:
             print(f"[FAIL] unit test: {f}", file=sys.stderr)

@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "claude_code_configuration_state": {
+    "model": "claude-future-unknown-2099",
+    "claude_md": {"exists": true},
+    "settings_json": {"exists": true},
+    "rules_count": 0,
+    "agents_count": 0,
+    "hooks_count": 0,
+    "mcp_servers_count": 0
+  }
+}
