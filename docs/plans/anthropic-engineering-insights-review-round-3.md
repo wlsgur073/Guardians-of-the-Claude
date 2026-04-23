@@ -203,7 +203,9 @@ Our `CLAUDE.md` declares *"This CLAUDE.md should stay under 200 lines, matching 
 
 Add one to two sentences to `docs/guides/claude-md-guide.md` that explain *why* CLAUDE.md length matters, citing context rot as the mechanism. Example framing (not prescriptive wording):
 
-> CLAUDE.md is read every turn; longer files compete for attention on every token. Transformer attention cost scales quadratically with context length, and accuracy degrades — "context rot" — as context fills. Keeping CLAUDE.md short is not stylistic, it is a performance guarantee.
+> CLAUDE.md is read every turn, so longer files increase context load and can dilute attention to the most important instructions. Context length growth also interacts with a documented phenomenon ("context rot") in which model recall from long contexts degrades as context fills. Keeping CLAUDE.md short is not merely stylistic; it improves the odds of consistent adherence by reducing unnecessary context pressure.
+
+(Earlier drafts rendered this as "performance guarantee" and causally linked n² attention cost directly to accuracy degradation — the Risks section immediately below had already acknowledged this conflation; main-body framing corrected 2026-04-23 post-Codex review to match the more careful framing the Risks section already demanded.)
 
 #### Source Evidence
 

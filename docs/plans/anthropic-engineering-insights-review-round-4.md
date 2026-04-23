@@ -126,7 +126,7 @@ The article recommends: "give the LLM a way out, like providing an instruction t
 
 **5. Introduce pass@k and pass^k metrics at the `test/` framework level.**
 - `pass@k` — probability `/audit` catches the core issue in at least one of k runs (single-success mode)
-- `pass^k` — probability `/audit` produces consistent findings across k runs (consistency mode)
+- `pass^k` — probability `/audit` succeeds on all k independent trials for the same fixture (consistency-under-success mode — an agent that repeats the *same wrong answer* across k runs is perfectly consistent but still scores 0 on pass^k, so "consistency" alone is not the right gloss). (Earlier drafts glossed this as "produces consistent findings"; corrected 2026-04-23 post-Codex review to match the article's literal definition.)
 
 The article notes these *"tell opposite stories about consistency requirements"*; both are needed.
 
@@ -144,7 +144,7 @@ The article notes these *"tell opposite stories about consistency requirements"*
 #### Risks / Tradeoffs
 
 - `test/` is gitignored and internal to the repository. Work here does not ship to external users; value is calibration of our own development process.
-- Judge calibration requires human ground truth. Building a ground-truth set of 5–10 historical audit outputs is non-trivial and has not been costed.
+- Judge calibration requires human ground truth. A statistically useful ground-truth set targets 20–50 manually-scored historical audit outputs spanning the main failure modes; earlier drafts budgeted "5–10" which functions only as an initial smoke test, not as calibration for a trust gate. Building either set is non-trivial and has not been costed. (Sample-size target updated 2026-04-23 post-Codex review.)
 - pass^k is noise-dominated at small k. Small fixture sets may not produce a statistically useful pass^k.
 - Grader proliferation (five YAML sub-types per eval) adds orchestration complexity; the expansion order in item 2 above (start with `deterministic_tests` + `llm_rubric`, add others as failure modes warrant) mitigates this.
 
@@ -358,7 +358,7 @@ Round 4 proposals share prerequisites with earlier rounds. The most efficient pa
 | Current `test/` rubric config | R4 K |
 | `.github/scripts/check-*.py` listing → rule coverage map | R4 L |
 | `docs/guides/mcp-guide.md` | R3 H; R4 O |
-| 5–10 historical `/audit` outputs with manual scoring | R4 K (calibration ground truth) |
+| 20–50 historical `/audit` outputs with manual scoring (5–10 = smoke-test size only; not calibration-grade) | R4 K (calibration ground truth) |
 
 After this consolidated Read sweep plus one small dataset-construction task, most proposals across all four rounds move from hypothesis to actionable diff plans.
 

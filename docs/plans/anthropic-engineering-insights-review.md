@@ -33,13 +33,13 @@ The content below reflects the Pass 2 state.
 
 | #  | Proposal                                          | Confidence        | Effort       | Primary target                                    |
 |----|---------------------------------------------------|-------------------|--------------|---------------------------------------------------|
-| A' | Subagent briefing + deterministic post-check      | Medium-high       | Medium       | Known subagent false-positive rate (38–50%)       |
+| A' | Subagent briefing + deterministic post-check      | Medium            | Medium       | Known subagent false-positive rate (38–50%)       |
 | D  | Think-tool-style prompting in `/audit` SKILL.md    | Medium            | Low-medium   | Policy-heavy, sequential reasoning inside `/audit` |
 | C' | Dual-layer SKILL audit (trigger + usage)          | Medium            | Medium       | Trigger clarity and usage-spec robustness         |
 | B  | "Agent Patterns" guide addition                   | Low-medium        | Medium-high  | Strategic positioning (meta-system narrative)     |
 | —  | Contextual Retrieval — direct adoption            | Skipped           | —            | Not a RAG system; insight absorbed into A'        |
 
-Confidence ordering: **A' > D > C' > B**. All are contingent on the "Unverified Assumptions" ledger at the end of this document.
+Priority ordering: **A' > D > C' > B**. Based on expected value, prerequisite density, and actionability — not confidence levels alone. After the 2026-04-23 downgrade of A' from Medium-high to Medium (see Proposal A' Confidence section), A', D, and C' share Medium confidence; the ordering reflects leverage and actionability rather than confidence deltas. All are contingent on the "Unverified Assumptions" ledger at the end of this document. (Earlier drafts labeled this "Confidence ordering", which no longer fits after the downgrade — corrected 2026-04-23 post-Codex review.)
 
 ---
 
@@ -64,7 +64,7 @@ Our project's known pain point — subagent false positives at 38–50% (per the
 
 ### Background
 
-Memory entry `feedback_subagent_verification.md` (2026-04-22) records that 38–50% of `/audit` subagent claims are false positives or hallucinations, and that claims are verified by re-reading cited files before inclusion. This practice is currently implicit — not codified in `plugin/skills/audit/SKILL.md`.
+Memory entry `feedback_subagent_verification.md` (2026-04-22) records an observed false-positive / hallucination rate of 38% in one subagent batch (3 of 8 claims) and 50% in a second batch (3 of 6 claims) during a single session — n=14 total raw claims across 2 batches. The 38–50% range reflects **batch-to-batch variance in a 14-case sample**, not a measured population rate. The memory also records that claims are verified by re-reading cited files before inclusion. This practice is currently implicit — not codified in `plugin/skills/audit/SKILL.md`. (Earlier drafts quoted "38–50%" without numerator, denominator, or range-vs-point qualifier — corrected 2026-04-23 post-Codex review.)
 
 ### Proposal
 
@@ -104,7 +104,7 @@ A 5-case sample is suitable for identifying *candidate* dominant causes only; it
 
 ### Confidence
 
-**Medium-high**, conditional on the prerequisite sampling exercise.
+**Medium**, conditional on the prerequisite sampling exercise. (Earlier drafts labeled Medium-high; downgraded 2026-04-23 post-Codex review because the central causal premise — briefing-gap as dominant cause — is explicitly unmeasured per Background and Unverified Assumptions #1, which makes Medium-high hard to defend while the mechanism remains hypothetical.)
 
 ---
 

@@ -198,7 +198,7 @@ Output format: single LLM call returning 0.0–1.0 scores plus pass/fail grade p
 #### Prerequisites
 
 1. Read current `test/` rubric structure
-2. Validate the redefined rubric on 5 historical audit outputs with manual scoring as ground truth
+2. Validate the redefined rubric on 20–50 manually-scored historical audit outputs spanning the main failure modes. If only 5 outputs are available initially, treat them as a smoke test rather than sufficient validation — at n=5, one disagreement shifts the observed error rate by 20 percentage points across any single rubric metric, and a hand-picked small set can miss entire failure modes. (Earlier drafts proposed n=5 as sufficient validation; corrected 2026-04-23 post-Codex review.)
 3. Compare judge output variance vs manual variance
 
 #### Confidence

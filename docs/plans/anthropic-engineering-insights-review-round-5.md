@@ -121,7 +121,7 @@ Teach motivation and design philosophy from the blog; teach configuration syntax
 #### Source Evidence
 
 - *"Classifier sees only user messages and tool calls; assistant reasoning and tool results are stripped to prevent the agent from persuading the classifier into unsafe decisions."* (Auto Mode blog) — non-obvious design principle worth teaching because it explains why Auto Mode resists a specific attack class
-- *"On real internal traffic (n=10,000): 0.4% false-positive rate (benign actions blocked); 17% false-negative rate on real overeager actions (dangerous actions allowed)."* (Auto Mode blog)
+- From the Auto Mode blog's Table 1 "Stage 1 → Stage 2 (full pipeline)" row: **0.4% false-positive rate on real internal traffic (n=10,000 benign tool calls)**; **17% false-negative rate on a separate curated set of real overeager actions (n=52 dangerous actions flagged by employee denial or post-hoc review)**. The two denominators differ — earlier drafts rendered both percentages as a single quoted sentence ("On real internal traffic (n=10,000): 0.4% FP; 17% FN on real overeager actions") which visually tied both figures to n=10,000 and understated the volatility of the 17% FN estimate. Denominator split made explicit 2026-04-23 post-Codex review.
 - *"Users currently approve ~93% of permission prompts"* — approval fatigue baseline
 - 20+ default block rules across four categories: destroy/exfiltrate, degrade security, cross trust boundaries, bypass review
 - Three-slot config: environment trust boundary, block rules, allow exceptions
@@ -169,7 +169,7 @@ Three patches to R4 K:
 
 R4 K wrote: *"Human-based: periodic spot-check against LLM-judge output for calibration"*.
 
-Change to: *"Human-based calibration is a prerequisite for trusting judge output. The `test/` framework must not adopt the model-based grader without first establishing a calibrated ground-truth set of 5–10 manually-scored historical `/audit` outputs."*
+Change to: *"Human-based calibration is a prerequisite for trusting judge output. The `test/` framework should not adopt the model-based grader without first establishing a broader calibrated ground-truth set (target 20–50 manually-scored historical `/audit` outputs spanning the main failure modes). If only 5–10 examples are available, treat them as an initial smoke test rather than sufficient calibration for a mandatory trust gate — at n=5, one disagreement moves the observed mismatch rate by 20 percentage points, which is too unstable for a 'must not adopt' threshold."* (Earlier drafts used n=5–10 as a hard gate with "must not adopt"; corrected 2026-04-23 post-Codex review to 20–50 as calibration target with a 5–10 smoke-test carve-out, and softened "must not" → "should not".)
 
 Rationale: same-family judge produces overconfident praise; only calibration against human ground truth catches it. Without calibration, the judge adds token cost without reliability gain.
 
@@ -297,7 +297,7 @@ P's prerequisites share files with R3 G. K-ref's prerequisites are identical to 
 | Official sandboxing docs fetch                                                     | R3 G                                                  |
 | **Official permission-modes docs fetch**                                           | **R5 P** (user-facing entry point)                    |
 | **Official auto-mode-config docs fetch**                                           | **R5 P** (configuration-syntax reference)             |
-| 5–10 historical `/audit` outputs with manual scoring                               | R4 K calibration (now mandatory per K-ref #1)         |
+| 20–50 historical `/audit` outputs with manual scoring (5–10 = smoke-test only; not calibration-grade) | R4 K calibration (mandatory per K-ref #1)             |
 
 A defensible narrower first step: **P alone**. It delivers canonical Claude Code feature coverage with clear scope, shared prerequisites with R3 G, and no dependency on prior round completion.
 
