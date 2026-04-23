@@ -56,7 +56,7 @@ All four articles share a common failure mode and a common response:
 | SWE-bench engineering     | Boundary between failure and fix        | Reproducer script as an observable intermediate state | Adjacent — intermediate-state observability rather than strict boundary restoration |
 | Building Effective Agents | Boundary between generator and consumer | Evaluator pass that revisits output with criteria     | Strong       |
 
-Our project's known pain point — subagent false positives at 38–50% ([memory: `feedback_subagent_verification.md`](../../CLAUDE.md)) — may reflect this failure mode at the parent→subagent dispatch boundary: briefing context can be lost across the handoff, and findings are surfaced without a reconstruction step. The current evidence establishes the rate, not the dominant cause; whether boundary loss is causally responsible is unmeasured (see Unverified Assumptions #1). The "concrete instance" framing in earlier drafts overclaimed the causal direction — corrected 2026-04-23 post-Codex review.
+Our project's known pain point — subagent false positives at 38–50% (per the private memory entry `feedback_subagent_verification.md`) — may reflect this failure mode at the parent→subagent dispatch boundary: briefing context can be lost across the handoff, and findings are surfaced without a reconstruction step. The current evidence establishes the rate, not the dominant cause; whether boundary loss is causally responsible is unmeasured (see Unverified Assumptions #1). Earlier drafts presented the memory as a markdown-linked citation pointing to `../../CLAUDE.md`, which misrepresented a pointer-through-CLAUDE.md as a direct file link; corrected to plain prose attribution 2026-04-23 post-Codex review.
 
 ---
 
@@ -254,11 +254,12 @@ This section exists so that a later reader can challenge the proposals by attack
 
 ## Recommended Next Step
 
-Before committing to any proposal, run a **causal sampling exercise**:
+Before committing to any proposal, run the **two-stage causal sampling exercise** from Proposal A' (Prerequisites section above):
 
-- Pull 5 recent `/audit` runs where subagent findings were rejected or revised as false positive.
-- Classify each finding by cause category (briefing-gap / model hallucination / criterion ambiguity / other).
-- Report the distribution.
+- **Stage 1 (n=5)** — classify 5 recent false-positive cases by cause (briefing-gap / model hallucination / criterion ambiguity / other) for hypothesis generation only; n=5 is not statistically sufficient for a gating decision.
+- **Stage 2 (n≈15–20)** — if Stage 1 suggests briefing-gap as a plausible dominant cause, expand to 15–20 cases before using the distribution to gate A' vs D vs C'.
+
+(Earlier drafts reverted to a single 5-case exercise at this location and treated its distribution as decision-enabling — reintroducing the same undersized-sample problem Proposal A' was corrected to avoid. Stale copy corrected 2026-04-23 post-Codex review.)
 
 The distribution disambiguates which proposals are worth pursuing:
 

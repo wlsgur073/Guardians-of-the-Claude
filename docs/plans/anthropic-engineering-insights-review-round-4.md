@@ -106,7 +106,7 @@ The Demystifying Evals article identifies three canonical grader categories (cod
 - **Model-based (LLM-as-judge)** — YAML sub-type: `llm_rubric`. Uses the redefined five-rubric for subjective findings.
 - **Human-based**: periodic spot-check against LLM-judge output for calibration. (Not represented in YAML because it is an evaluation-time process, not a runtime grader.)
 
-**Expansion order**: start with `deterministic_tests` + `llm_rubric` — the two highest-leverage sub-types, one per code/model category. Add the other code-based sub-types (`static_analysis`, `state_check`, `tool_calls`) as specific failure modes warrant. Human-based calibration must precede trust in `llm_rubric` output, not follow it.
+**Expansion order**: start with `deterministic_tests` + `llm_rubric` — the two highest-leverage sub-types, one per code/model category. Add the other code-based sub-types (`static_analysis`, `state_check`, `tool_calls`) as specific failure modes warrant. Human-based review remains a complementary, out-of-band calibration step in this Round 4 baseline. (Prior phrasing "must precede trust in llm_rubric output" contradicted the pre-patch rollout model — corrected 2026-04-23 post-Codex review. Round 4 state here preserves the pre-K-ref baseline per R5's Document Handling principle; no forward reference to K-ref is inserted.)
 
 Earlier drafts said "use all three grader types explicitly" while the YAML showed five sub-types and the Risks section said "start with two" — a 3-layer inconsistency. Corrected 2026-04-23 post-Codex review into the canonical-type / YAML-sub-type hierarchy above.
 

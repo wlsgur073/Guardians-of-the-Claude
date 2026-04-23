@@ -141,7 +141,7 @@ Shares prerequisites with R3 G plus one fetch:
 1. Read permission-mode or settings guide in `docs/guides/`
 2. Read `templates/advanced/.claude/settings.json`
 3. Read `plugin/skills/secure/SKILL.md`
-4. WebFetch official permission-modes docs once (`code.claude.com/docs/en/permission-modes`)
+4. WebFetch the Auto Mode docs **pair**: `code.claude.com/docs/en/permission-modes` (user-facing entry point) **and** `code.claude.com/docs/en/auto-mode-config` (configuration-syntax reference for `autoMode.environment` / `allow` / `soft_deny`). Omitting the latter leaves block-rule customization unsubstantiated. (Earlier drafts fetched only `permission-modes`; corrected 2026-04-23 post-Codex review to match the triple-sourcing declared in the Proposal section above.)
 5. Cross-reference with R3 G Sandboxing audit to avoid redundant coverage or contradictions
 
 #### Confidence
@@ -274,7 +274,7 @@ Items added in Round 5 marked ⚡⚡⚡⚡. Prior rounds' markings retained. See
 **Added in Round 5:**
 
 - ⚡⚡⚡⚡ **Current Auto mode coverage** in settings guide / `templates/advanced/.claude/settings.json` / `/secure` — P's work scope depends on this
-- ⚡⚡⚡⚡ **Official permission-modes docs content** — blog is philosophy source; docs specifics not yet fetched
+- ⚡⚡⚡⚡ **Official Auto Mode docs pair content** — blog is philosophy source; `permission-modes` (behavior/defaults) and `auto-mode-config` (configuration syntax) specifics not yet fetched
 - ⚡⚡⚡⚡ **17% false-negative transferability** — Anthropic internal-traffic measurement; generalization to user environments is not claimed by the article
 - ⚡⚡⚡⚡ **Self-evaluation bias strength in our judge** — R4 K calibration (per K-ref #1) is the mitigation; effectiveness at catching the bias is unmeasured until calibration runs
 - ⚡⚡⚡⚡ **Eval-awareness empirical occurrence in fixture environments** — theoretical concern; no empirical data for our setup
@@ -295,7 +295,8 @@ P's prerequisites share files with R3 G. K-ref's prerequisites are identical to 
 | `docs/guides/mcp-guide.md` Read                                        | R3 H; R4 O                                            |
 | Settings guide + `templates/advanced/.claude/settings.json` + `plugin/skills/secure/SKILL.md` Read | R3 G; **R5 P**                              |
 | Official sandboxing docs fetch                                                     | R3 G                                                  |
-| **Official permission-modes docs fetch**                                           | **R5 P**                                              |
+| **Official permission-modes docs fetch**                                           | **R5 P** (user-facing entry point)                    |
+| **Official auto-mode-config docs fetch**                                           | **R5 P** (configuration-syntax reference)             |
 | 5–10 historical `/audit` outputs with manual scoring                               | R4 K calibration (now mandatory per K-ref #1)         |
 
 A defensible narrower first step: **P alone**. It delivers canonical Claude Code feature coverage with clear scope, shared prerequisites with R3 G, and no dependency on prior round completion.

@@ -128,7 +128,7 @@ Round 2 Proposal E proposed a parity audit of our teaching content against Claud
 Add the following checklist items to R2 Proposal E:
 
 1. Does our plugin/skill development guidance explicitly name and explain **Progressive Disclosure** (three levels — metadata / SKILL.md / supporting files)?
-2. Is the supporting-files pattern (e.g., our `plugin/references/*.md`) presented as an example of this pattern?
+2. Is our use of **skill-local** supporting files (e.g., `plugin/skills/create/references/` and `plugin/skills/audit/references/`, which match the article's canonical bundled-skill structure) presented as the primary example of this pattern, while `plugin/references/*.md` is distinguished as a related-but-non-canonical shared-reference approach? (Earlier drafts presented `plugin/references/*.md` as the sole example, partially reintroducing the same overclaim the Risks section correction already walked back — corrected 2026-04-23 post-Codex review.)
 3. Is the article's design guidance — *"Pay special attention to the `name` and `description` of your skill. Claude will use these when deciding whether to trigger the skill in response to its current task"* — reflected in our guide?
 4. Is the skill-development workflow reflected — *"Start with evaluation: […]"* and *"Iterate with Claude: […] ask Claude to capture its successful approaches and common mistakes into reusable context"*?
 5. Is the security guidance present — *"We recommend installing skills only from trusted sources. When installing a skill from a less-trusted source, thoroughly audit it before use"* — relevant for our marketplace repo?
