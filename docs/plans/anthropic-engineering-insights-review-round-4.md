@@ -150,7 +150,7 @@ The article notes these *"tell opposite stories about consistency requirements"*
 
 #### Prerequisites
 
-1. Read the current `test/` rubric configuration to decide whether YAML schema replaces or supplements existing structure
+1. Read the current `test/` rubric configuration **if present in the local checkout** (per `CLAUDE.md`, `test/` is gitignored and local-only) to decide whether the YAML schema replaces or supplements existing structure. If `test/` is absent in the executing environment, mark Proposal K as requiring access to the local eval workspace before this decision can be made; `.github/scripts/*.py` is the CI-visible surface but does not contain the rubric.
 2. Build a 5–10 item ground-truth set for judge calibration (manual scoring)
 3. Pilot the YAML schema on one fixture before full conversion
 4. Measure variance of pass^k at a realistic k (3, 5) before committing to it as a primary metric
@@ -355,7 +355,7 @@ Round 4 proposals share prerequisites with earlier rounds. The most efficient pa
 | `plugin/skills/audit/SKILL.md` | R2 A'-rt, C', D, F; R3 F-ext; R4 L |
 | `docs/guides/claude-md-guide.md` | R2 E; R3 J |
 | `templates/starter/CLAUDE.md`, `templates/advanced/CLAUDE.md` | R2 E |
-| Current `test/` rubric config | R4 K |
+| Current `test/` rubric config (local-only per CLAUDE.md; blocked if absent in checkout) | R4 K |
 | `.github/scripts/check-*.py` listing → rule coverage map | R4 L |
 | `docs/guides/mcp-guide.md` | R3 H; R4 O |
 | 20–50 historical `/audit` outputs with manual scoring (5–10 = smoke-test size only; not calibration-grade) | R4 K (calibration ground truth) |

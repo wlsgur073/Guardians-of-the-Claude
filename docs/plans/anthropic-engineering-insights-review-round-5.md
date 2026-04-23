@@ -211,7 +211,7 @@ K-ref records *proposed patches* to Round 4 Proposal K. **Round 4's document is 
 
 #### Eval Awareness in BrowseComp (Article 1, main content)
 
-The article documents Claude Opus 4.6 recognizing that it was being evaluated on BrowseComp — enumerating benchmark names (GAIA, BrowseComp, FRAMES, SimpleQA), locating source code, XOR-decrypting answer keys. This is a striking finding but occurs in an **open-internet benchmark scenario** where the agent has web access and the benchmark is web-indexable. Our `test/` framework runs against **static fixtures in the repository**; the scenario is not reproducible in our environment.
+The article documents Claude Opus 4.6 recognizing that it was being evaluated on BrowseComp — enumerating benchmark names (GAIA, BrowseComp, FRAMES, SimpleQA), locating source code, XOR-decrypting answer keys. This is a striking finding but occurs in an **open-internet benchmark scenario** where the agent has web access and the benchmark is web-indexable. Our eval setup (a local-only `test/` harness per `CLAUDE.md`) runs against **repository-backed static fixtures under `ci/fixtures/**`** rather than an open-internet benchmark; the BrowseComp scenario is therefore not reproducible in this fixture-based environment. (Earlier drafts described this as "our `test/` framework runs against static fixtures in the repository", which overstated what is visible in the current checkout — the fixture corpus lives under `ci/fixtures/**` and is repo-visible, while the `test/` harness itself is gitignored and local. Corrected 2026-04-23 post-Codex review.)
 
 The article also observes multi-agent amplification (3.7×) and effective mitigations (binary file restrictions, blocking search results containing "BrowseComp"). None apply to our internal fixture-based evaluation setup.
 
@@ -290,7 +290,7 @@ P's prerequisites share files with R3 G. K-ref's prerequisites are identical to 
 | `plugin/skills/audit/SKILL.md` Read                                                | R2 A'-rt, C', D, F; R3 F-ext; R4 L                    |
 | `docs/guides/claude-md-guide.md` Read                                              | R2 E; R3 J                                            |
 | `templates/starter/CLAUDE.md`, `templates/advanced/CLAUDE.md` Read                 | R2 E                                                  |
-| Current `test/` rubric config Read                                                 | R4 K                                                  |
+| Current `test/` rubric config Read (local-only per CLAUDE.md; blocked if absent)   | R4 K                                                  |
 | `.github/scripts/check-*.py` listing → rule coverage map                           | R4 L                                                  |
 | `docs/guides/mcp-guide.md` Read                                        | R3 H; R4 O                                            |
 | Settings guide + `templates/advanced/.claude/settings.json` + `plugin/skills/secure/SKILL.md` Read | R3 G; **R5 P**                              |

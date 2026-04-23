@@ -86,7 +86,7 @@ Perform a parity audit against the canonical document. The checklist below cover
 
 **Secondary targets** (for checklist items outside CLAUDE.md scope — items 6–8):
 - `docs/guides/advanced-features-guide.md` — skill authoring items (e.g., `disable-model-invocation: true` is already documented at L163)
-- `docs/guides/effective-usage-guide.md` — session-management items (Writer/Reviewer pattern, `/rewind`/checkpointing vocabulary)
+- `docs/guides/effective-usage-guide.md` — session-management items (`/rewind` / checkpointing vocabulary, confirmed present at L54–55). The Writer/Reviewer parallel-session pattern named in checklist item 7 is **not currently documented** in any guide under `docs/guides/` — its audit answer should be recorded as a gap rather than as coverage from this file. (Earlier drafts listed Writer/Reviewer as a covered item here; corrected 2026-04-23 post-Codex review after repo-wide grep confirmed absence.)
 
 Earlier drafts restricted the target set to three CLAUDE.md-scoped files while including skills- and session-management items in the checklist — a scope/content mismatch that made items 6–8 unanchored. Corrected 2026-04-23 post-Codex review.
 
@@ -197,7 +197,7 @@ Output format: single LLM call returning 0.0–1.0 scores plus pass/fail grade p
 
 #### Prerequisites
 
-1. Read current `test/` rubric structure
+1. Read current `test/` rubric structure **if present in the local checkout** (per `CLAUDE.md:19,32` and `.gitignore:21`, `test/` is gitignored and local-only — if absent in the executing environment, treat this prerequisite as blocked pending access to the local eval workspace; CI-visible validation lives under `.github/scripts/*.py`, which is not a substitute for the rubric here).
 2. Validate the redefined rubric on 20–50 manually-scored historical audit outputs spanning the main failure modes. If only 5 outputs are available initially, treat them as a smoke test rather than sufficient validation — at n=5, one disagreement shifts the observed error rate by 20 percentage points across any single rubric metric, and a hand-picked small set can miss entire failure modes. (Earlier drafts proposed n=5 as sufficient validation; corrected 2026-04-23 post-Codex review.)
 3. Compare judge output variance vs manual variance
 
