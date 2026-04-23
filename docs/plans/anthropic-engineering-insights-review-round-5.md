@@ -106,14 +106,17 @@ Auto Mode and Sandboxing have overlapping teaching surface but are distinct feat
 Audit three surfaces for Auto Mode coverage:
 
 1. Permission-mode or settings guide in `docs/guides/` — does it cover Auto Mode alongside other permission modes (manual, `--dangerously-skip-permissions`, sandboxing)?
-2. `templates/advanced/settings.json` — does it demonstrate an Auto Mode configuration?
+2. `templates/advanced/.claude/settings.json` — does it demonstrate an Auto Mode configuration?
 3. `plugin/skills/secure/SKILL.md` — does it offer a decision framework for choosing between manual approval / Auto Mode / Sandboxing / `--dangerously-skip-permissions`, or does it recommend one implicitly?
 
-**Parity target dual-sourcing** (same pattern as R3 G):
-- **Blog post** is the motivation + classifier design philosophy + internal-traffic metrics (0.4% FP, 17% FN, 93% approval fatigue baseline)
-- **Official docs** (`code.claude.com/docs/en/permission-modes`) are the specifics source for configuration syntax and block-rule customization
+**Parity target triple-sourcing** (extended from R3 G's dual-sourcing — canonical docs split Auto Mode across two pages, not one):
+- **Blog post** (`claude-code-auto-mode`) — motivation + classifier design philosophy + internal-traffic metrics (0.4% FP, 17% FN, 93% approval fatigue baseline)
+- **Permission Modes docs** (`code.claude.com/docs/en/permission-modes`) — what Auto Mode is, what it blocks by default, how to enable it
+- **Auto Mode Config docs** (`code.claude.com/docs/en/auto-mode-config`) — `autoMode.environment` / `allow` / `soft_deny` configuration reference, the three-slot config syntax, and `claude auto-mode` CLI subcommands
 
-Teach motivation and philosophy from the blog; teach syntax from the docs. Do not derive syntax from the blog alone — the blog is deliberately principle-oriented.
+Earlier drafts treated `permission-modes` as the sole specifics source, but that page covers behavior/defaults; configuration syntax lives on `auto-mode-config`. Corrected 2026-04-23 post-Codex review.
+
+Teach motivation and design philosophy from the blog; teach configuration syntax primarily from `auto-mode-config`, with `permission-modes` as the user-facing entry point. Do not derive syntax from the blog alone — the blog is deliberately principle-oriented.
 
 #### Source Evidence
 
@@ -136,7 +139,7 @@ Teach motivation and philosophy from the blog; teach syntax from the docs. Do no
 
 Shares prerequisites with R3 G plus one fetch:
 1. Read permission-mode or settings guide in `docs/guides/`
-2. Read `templates/advanced/settings.json`
+2. Read `templates/advanced/.claude/settings.json`
 3. Read `plugin/skills/secure/SKILL.md`
 4. WebFetch official permission-modes docs once (`code.claude.com/docs/en/permission-modes`)
 5. Cross-reference with R3 G Sandboxing audit to avoid redundant coverage or contradictions
@@ -155,7 +158,7 @@ Round 4 Proposal K specified LLM-as-judge in the `test/` framework with three gr
 
 Round 5 sources expose two issues with that framing:
 
-1. **Harness Design** warns explicitly that agents *"confidently praise the work — even when, to a human observer, the quality is obviously mediocre"* when evaluating work from the same model family. Our judge and `/audit` are same-family; self-evaluation bias is a named, documented phenomenon, not a theoretical concern.
+1. **Harness Design** warns explicitly that agents *"confidently praise the work — even when, to a human observer, the quality is obviously mediocre"* when evaluating work from the same model family. Our judge and `/audit` are same-family. The phenomenon is documented; we use the shorthand label "self-evaluation bias" in subsequent references (this phrase is our coinage — the article itself does not use it). The concrete mechanism — systematic overconfidence from a same-family judge — is the non-theoretical concern.
 2. **Eval Awareness in BrowseComp** documents that models can recognize evaluation framing and behave differently. Multi-agent configurations amplify this 3.7×. Our setup is single-pass judge on static fixtures — not reproducing BrowseComp conditions — but the phenomenon warrants a brief note.
 
 #### Proposal
@@ -270,7 +273,7 @@ Items added in Round 5 marked ⚡⚡⚡⚡. Prior rounds' markings retained. See
 
 **Added in Round 5:**
 
-- ⚡⚡⚡⚡ **Current Auto mode coverage** in settings guide / `templates/advanced/settings.json` / `/secure` — P's work scope depends on this
+- ⚡⚡⚡⚡ **Current Auto mode coverage** in settings guide / `templates/advanced/.claude/settings.json` / `/secure` — P's work scope depends on this
 - ⚡⚡⚡⚡ **Official permission-modes docs content** — blog is philosophy source; docs specifics not yet fetched
 - ⚡⚡⚡⚡ **17% false-negative transferability** — Anthropic internal-traffic measurement; generalization to user environments is not claimed by the article
 - ⚡⚡⚡⚡ **Self-evaluation bias strength in our judge** — R4 K calibration (per K-ref #1) is the mitigation; effectiveness at catching the bias is unmeasured until calibration runs
@@ -289,8 +292,8 @@ P's prerequisites share files with R3 G. K-ref's prerequisites are identical to 
 | `templates/starter/CLAUDE.md`, `templates/advanced/CLAUDE.md` Read                 | R2 E                                                  |
 | Current `test/` rubric config Read                                                 | R4 K                                                  |
 | `.github/scripts/check-*.py` listing → rule coverage map                           | R4 L                                                  |
-| `docs/guides/mcp-integration-guide.md` Read                                        | R3 H; R4 O                                            |
-| Settings guide + `templates/advanced/settings.json` + `plugin/skills/secure/SKILL.md` Read | R3 G; **R5 P**                              |
+| `docs/guides/mcp-guide.md` Read                                        | R3 H; R4 O                                            |
+| Settings guide + `templates/advanced/.claude/settings.json` + `plugin/skills/secure/SKILL.md` Read | R3 G; **R5 P**                              |
 | Official sandboxing docs fetch                                                     | R3 G                                                  |
 | **Official permission-modes docs fetch**                                           | **R5 P**                                              |
 | 5–10 historical `/audit` outputs with manual scoring                               | R4 K calibration (now mandatory per K-ref #1)         |
@@ -315,7 +318,7 @@ A defensible narrower first step: **P alone**. It delivers canonical Claude Code
 - [Round 3 plan: `anthropic-engineering-insights-review-round-3.md`](./anthropic-engineering-insights-review-round-3.md)
 - [Round 4 plan: `anthropic-engineering-insights-review-round-4.md`](./anthropic-engineering-insights-review-round-4.md)
 - `plugin/skills/audit/SKILL.md`, `plugin/skills/secure/SKILL.md`
-- `templates/advanced/settings.json`
+- `templates/advanced/.claude/settings.json`
 - `docs/guides/` — settings guide (subject of P), other guides subject to prior proposals
 - `test/` eval framework
 - `CLAUDE.md` § "Contribution Rules"

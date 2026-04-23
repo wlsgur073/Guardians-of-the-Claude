@@ -57,7 +57,7 @@ Three of the five sources converge on one claim:
 |---|---|---|
 | Building a C compiler | *"The task verifier is nearly perfect, otherwise Claude will solve the wrong problem."* | Strong |
 | Effective harnesses | Feature list (JSON) + smoke test + git log as the harness's verification substrate | Strong |
-| Demystifying evals | Bad graders reward "hacks rather than genuine problem-solving"; grader design is first-order | Strong |
+| Demystifying evals | Bad graders let agents "easily 'cheat' the eval" — grader design is first-order (article: "The agent shouldn't be able to easily 'cheat' the eval") | Strong |
 | Advanced tool use | Programmatic Tool Calling optimizes inflow, not verification (adjacent, not same) | Adjacent |
 | AI-resistant evals | Evaluation design as anti-gaming (adjacent direction: resist gaming, not raise verifier quality) | Adjacent |
 
@@ -98,21 +98,31 @@ graders:
   - type: tool_calls            # expected Read/Grep/Glob invocation patterns
 ```
 
-**2. Use all three grader types explicitly.**
-- **Code-based (deterministic)**: reuse R2 A'-rt's post-check for rules CI can verify
-- **Model-based (LLM-as-judge)**: the redefined five-rubric for subjective findings
-- **Human-based**: periodic spot-check against LLM-judge output for calibration
+**2. Use the three canonical grader types (per article) with our YAML sub-types mapped underneath.**
+
+The Demystifying Evals article identifies three canonical grader categories (code-based / model-based / human-based). Our YAML in item 1 above enumerates **five sub-types**, which are all instances of the first two canonical categories:
+
+- **Code-based (deterministic)** — YAML sub-types: `deterministic_tests`, `static_analysis`, `state_check`, `tool_calls`. Reuse R2 A'-rt's post-check for rules CI can verify.
+- **Model-based (LLM-as-judge)** — YAML sub-type: `llm_rubric`. Uses the redefined five-rubric for subjective findings.
+- **Human-based** — not represented in YAML (it is an evaluation-time calibration process, not a runtime grader). Periodic spot-check against LLM-judge output for calibration (upgraded to **mandatory prerequisite** per R5 K-ref Patch 1).
+
+**Expansion order**: start with `deterministic_tests` + `llm_rubric` — the two highest-leverage sub-types, one per code/model category. Add the other code-based sub-types (`static_analysis`, `state_check`, `tool_calls`) as specific failure modes warrant. Human-based calibration must precede trust in `llm_rubric` output, not follow it.
+
+Earlier drafts said "use all three grader types explicitly" while the YAML showed five sub-types and the Risks section said "start with two" — a 3-layer inconsistency. Corrected 2026-04-23 post-Codex review into the canonical-type / YAML-sub-type hierarchy above.
 
 The article frames these as complementary: *"LLM-as-judge graders should be closely calibrated with human experts to gain confidence."*
 
 **3. Split evals into Capability vs Regression tiers.**
+
+The article discusses both anchors independently — "20-50 simple tasks" as the starting scope for agent evaluations, and regression evals that have "nearly 100% pass rate" on prior-resolved issues. We synthesize these into an explicit two-tier framework (the pairing is our structural synthesis — the article does not present them as a single framework):
+
 - **Capability tier**: 20–50 tasks derived from real failure cases, starting at low pass rate, targets the skill's weakest areas. Graduates to regression as the skill saturates.
 - **Regression tier**: near-100% baseline, catches backsliding.
 
 Both tiers are live; graduation is explicit.
 
 **4. Allow "Unknown" in judge responses.**
-Add to the judge prompt: *"If information is insufficient to grade this assertion, respond Unknown."* The article cites this as a specific technique to reduce hallucination in LLM-as-judge.
+The article recommends: "give the LLM a way out, like providing an instruction to return 'Unknown' when it doesn't have enough information" (Demystifying Evals). Our judge prompt should include an equivalent affordance — e.g., "If information is insufficient to grade this assertion, respond Unknown" — as a specific technique to reduce hallucination in LLM-as-judge.
 
 **5. Introduce pass@k and pass^k metrics at the `test/` framework level.**
 - `pass@k` — probability `/audit` catches the core issue in at least one of k runs (single-success mode)
@@ -136,7 +146,7 @@ The article notes these *"tell opposite stories about consistency requirements"*
 - `test/` is gitignored and internal to the repository. Work here does not ship to external users; value is calibration of our own development process.
 - Judge calibration requires human ground truth. Building a ground-truth set of 5–10 historical audit outputs is non-trivial and has not been costed.
 - pass^k is noise-dominated at small k. Small fixture sets may not produce a statistically useful pass^k.
-- Grader proliferation (five grader types per eval) adds orchestration complexity; start with deterministic + llm_rubric and expand as needed.
+- Grader proliferation (five YAML sub-types per eval) adds orchestration complexity; the expansion order in item 2 above (start with `deterministic_tests` + `llm_rubric`, add others as failure modes warrant) mitigates this.
 
 #### Prerequisites
 
@@ -196,9 +206,9 @@ Advanced Tool Use describes a pattern where Claude writes code to orchestrate mu
 
 #### Proposal
 
-Add a short section to `docs/guides/mcp-integration-guide.md` — parallel to, and possibly consolidated with, R3 Proposal H — titled something like *"When to consider Programmatic Tool Calling"*.
+Add a short section to `docs/guides/mcp-guide.md` — parallel to, and possibly consolidated with, R3 Proposal H — titled something like *"When to consider Programmatic Tool Calling"*.
 
-Content: one paragraph on the pattern, one on applicability conditions, one on the anti-pattern list (simple single-tool invocations, fewer than ten tools, quick lookups).
+Content: one paragraph on the pattern, one on applicability conditions, one on the anti-pattern list. The article's "Less beneficial when" trio for PTC: (a) making simple single-tool invocations, (b) working on tasks where Claude should see and reason about all intermediate results, (c) running quick lookups with small responses. Note: the "fewer than ten tools" threshold cited in even earlier drafts of this proposal belongs to the article's **Tool Search Tool** section, not Programmatic Tool Calling — do not conflate. (First corrected 2026-04-23 for Tool-Search-Tool conflation; refined 2026-04-23 post-Codex review to add item (b), which was still missing from the intermediate correction.)
 
 #### Source Evidence
 
@@ -212,7 +222,7 @@ Content: one paragraph on the pattern, one on applicability conditions, one on t
 
 #### Prerequisites
 
-- Read current `docs/guides/mcp-integration-guide.md` (shared prerequisite with R3 H)
+- Read current `docs/guides/mcp-guide.md` (shared prerequisite with R3 H)
 - Decide whether O and H are merged or kept separate
 
 #### Confidence
@@ -347,7 +357,7 @@ Round 4 proposals share prerequisites with earlier rounds. The most efficient pa
 | `templates/starter/CLAUDE.md`, `templates/advanced/CLAUDE.md` | R2 E |
 | Current `test/` rubric config | R4 K |
 | `.github/scripts/check-*.py` listing → rule coverage map | R4 L |
-| `docs/guides/mcp-integration-guide.md` | R3 H; R4 O |
+| `docs/guides/mcp-guide.md` | R3 H; R4 O |
 | 5–10 historical `/audit` outputs with manual scoring | R4 K (calibration ground truth) |
 
 After this consolidated Read sweep plus one small dataset-construction task, most proposals across all four rounds move from hypothesis to actionable diff plans.
@@ -374,6 +384,6 @@ A defensible lighter first step: **K alone**, because it delivers the largest re
 - `plugin/skills/audit/SKILL.md` — subject of L (and R2 A'-rt, C', D, F; R3 F-ext)
 - `test/` eval framework — subject of K (and R2 A'-ev)
 - `.github/scripts/check-*.py` — oracle candidates for L
-- `docs/guides/mcp-integration-guide.md` — subject of O (and R3 H)
+- `docs/guides/mcp-guide.md` — subject of O (and R3 H)
 - `CLAUDE.md` § "Contribution Rules"
 - Memory entries referenced: `feedback_subagent_verification.md`, `project_meta_system_vision.md`, `feedback_plans_scope.md`

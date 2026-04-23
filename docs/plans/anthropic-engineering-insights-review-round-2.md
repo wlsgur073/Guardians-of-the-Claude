@@ -54,7 +54,7 @@ A recurrent motif across Round 2 sources: Claude produces output that *looks* ri
 |--------------------------|----------------------------------------------------------------------------------------------------------------------|-----------|
 | Best Practices           | "Trust-then-verify gap: Claude produces a plausible-looking implementation that doesn't handle edge cases"           | Strong    |
 | Postmortem (three issues)| "Claude often recovers well from isolated mistakes" — masks degradation at aggregate                                  | Strong    |
-| Writing Tools for Agents | "agents hallucinate more with cryptic IDs" — low-signal inputs drive plausible-but-wrong reasoning                   | Partial   |
+| Writing Tools for Agents | cryptic identifiers degrade precision (our paraphrase — the article discusses resolving UUIDs and returning high-signal information, but does not use the phrase "agents hallucinate more with cryptic IDs") | Partial   |
 | Multi-Agent Research     | "endless web searching for nonexistent sources" — plausible activity without yield                                   | Weak      |
 
 ### Relation to Round 1
@@ -77,11 +77,18 @@ Claude Code Best Practices is the canonical documentation our repository exists 
 
 #### Proposal
 
-Perform a parity audit of three files against the canonical document:
+Perform a parity audit against the canonical document. The checklist below covers CLAUDE.md authoring, skill authoring, and session-management vocabulary — so the audit target set spans multiple guides:
 
+**Primary targets** (CLAUDE.md scope — items 1–5 of checklist):
 - `docs/guides/claude-md-guide.md`
 - `templates/starter/CLAUDE.md`
 - `templates/advanced/CLAUDE.md`
+
+**Secondary targets** (for checklist items outside CLAUDE.md scope — items 6–8):
+- `docs/guides/advanced-features-guide.md` — skill authoring items (e.g., `disable-model-invocation: true` is already documented at L163)
+- `docs/guides/effective-usage-guide.md` — session-management items (Writer/Reviewer pattern, `/rewind`/checkpointing vocabulary)
+
+Earlier drafts restricted the target set to three CLAUDE.md-scoped files while including skills- and session-management items in the checklist — a scope/content mismatch that made items 6–8 unanchored. Corrected 2026-04-23 post-Codex review.
 
 Checklist, derived directly from the canonical document's prescriptions:
 
@@ -180,7 +187,7 @@ Output format: single LLM call returning 0.0–1.0 scores plus pass/fail grade p
 #### Source Evidence
 
 - *"A single LLM call outputting 0.0–1.0 scores plus pass/fail grades proved most consistent and aligned with human judgements."* (Multi-Agent Research System)
-- *"Human testers additionally caught edge cases automation missed, including subtle source-selection biases."* (Multi-Agent Research System) — argues for validation against human spot-checks.
+- Human reviewers surfaced edge cases automation missed — the article gives the concrete example that human testing "noticed that our early agents consistently chose SEO-optimized content farms over authoritative but less highly-ranked sources" (Multi-Agent Research System). This argues for validation against human spot-checks. (Earlier drafts rendered this as a single summary quote — corrected 2026-04-23.)
 
 #### Risks / Tradeoffs
 
@@ -300,7 +307,7 @@ Status unchanged from Round 1. Deferred until Proposals E, A'-rt, and C' produce
 
 - Desktop Extensions package MCP servers for **Claude Desktop**, not Claude Code plugins. Our primary audience is Claude Code plugin authors.
 - Desktop-targeted MCP distribution is a minority workflow for our readers.
-- Adding a DXT mention in `docs/guides/mcp-integration-guide.md` would misplace Desktop-focused content in a Code-focused guide, risking reader confusion that exceeds the information value for most readers.
+- Adding a DXT mention in `docs/guides/mcp-guide.md` would misplace Desktop-focused content in a Code-focused guide, risking reader confusion that exceeds the information value for most readers.
 
 #### Condition for revisit
 

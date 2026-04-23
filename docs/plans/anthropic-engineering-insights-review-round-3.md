@@ -84,7 +84,7 @@ Our repository is a documentation and plugin marketplace; sandboxing is squarely
 Audit whether the following surfaces cover sandboxing coherently:
 
 - Relevant settings guide (e.g., `docs/guides/settings-guide.md`)
-- `templates/advanced/settings.json` — does it demonstrate sandbox configuration?
+- `templates/advanced/.claude/settings.json` — does it demonstrate sandbox configuration?
 - `plugin/skills/secure/SKILL.md` — does it recommend sandboxing for high-risk workflows?
 
 **Parity target distinction**:
@@ -107,7 +107,7 @@ Any teaching content should pull motivation from the blog and specifics from the
 
 #### Prerequisites
 
-1. Read the settings guide and `templates/advanced/settings.json`
+1. Read the settings guide and `templates/advanced/.claude/settings.json`
 2. Read `plugin/skills/secure/SKILL.md`
 3. Fetch official sandboxing docs once (likely at `code.claude.com/docs/en/sandboxing`)
 
@@ -135,14 +135,14 @@ Add the following checklist items to R2 Proposal E:
 
 #### Source Evidence
 
-- *"A skill is a directory containing a SKILL.md file that contains organized folders of instructions, scripts, and resources."* (Agent Skills blog)
+- "A skill is a directory containing a `SKILL.md file` that contains organized folders of instructions, scripts, and resources that give agents additional capabilities." (Agent Skills blog — earlier drafts truncated "that give agents additional capabilities"; restored 2026-04-23 post-Codex review)
 - Progressive Disclosure three levels as described in the article (metadata → SKILL.md → supporting files)
 - *"The amount of context that can be bundled into a skill is effectively unbounded"* — the article's rationale for progressive disclosure
 - Development workflow and security guidance quoted above
 
 #### Risks / Tradeoffs
 
-- We already **instantiate** Progressive Disclosure in our plugin structure (`plugin/skills/*/SKILL.md` with `plugin/references/*.md`). Whether we **teach** the pattern explicitly is the audit question — not yet verified.
+- We **partially instantiate** Progressive Disclosure. The article's canonical bundled-skill pattern (skill-local `references/`) is used in `plugin/skills/create/` and `plugin/skills/audit/` — the latter nests a `checks/` sub-directory holding multi-tier check files. `plugin/skills/secure/` and `plugin/skills/optimize/` rely on the shared `plugin/references/` directory instead, which is related but not the article's canonical bundled-skill structure. Whether we **teach** the pattern explicitly is a separate audit question — not yet verified. (Earlier drafts described our structure as uniformly `plugin/skills/*/SKILL.md` with `plugin/references/*.md`, which misrepresented the mixed pattern — corrected 2026-04-23 post-Codex review.)
 - Over-citing a blog post where official docs should be the reference: the article is canonical engineering *framing*; official skills docs may have normative authority.
 
 #### Prerequisites
@@ -240,7 +240,7 @@ For typical plugin authors, direct tool calls remain simpler. The pattern is wor
 
 #### Proposal
 
-Add a short section to `docs/guides/mcp-integration-guide.md` titled something like *"When to consider the code-execution MCP pattern"*. Content: one paragraph describing the pattern's applicability conditions, one sentence on the single-example 98.7% number with context, and one sentence on the security tradeoff (*"requires a secure execution environment with appropriate sandboxing, resource limits, and monitoring"* — cite the article).
+Add a short section to `docs/guides/mcp-guide.md` titled something like *"When to consider the code-execution MCP pattern"*. Content: one paragraph describing the pattern's applicability conditions, one sentence on the single-example 98.7% number with context, and one sentence on the security tradeoff (*"requires a secure execution environment with appropriate sandboxing, resource limits, and monitoring"* — cite the article).
 
 #### Source Evidence
 
@@ -256,7 +256,7 @@ Add a short section to `docs/guides/mcp-integration-guide.md` titled something l
 
 #### Prerequisites
 
-Read current `docs/guides/mcp-integration-guide.md` to determine placement and current coverage.
+Read current `docs/guides/mcp-guide.md` to determine placement and current coverage.
 
 #### Confidence
 
@@ -325,10 +325,10 @@ Round 3 proposals require three additions beyond the Round 2 prerequisite set:
 | Additional action                                                                    | Unlocks                   |
 |--------------------------------------------------------------------------------------|---------------------------|
 | Read plugin/skill development guide(s) in `docs/guides/`                              | E-ext                     |
-| Read settings-related guide and `templates/advanced/settings.json`                    | G                         |
+| Read settings-related guide and `templates/advanced/.claude/settings.json`                    | G                         |
 | Read `plugin/skills/secure/SKILL.md`                                                  | G                         |
 | One WebFetch of official sandboxing docs                                              | G (parity target confirmation) |
-| Read `docs/guides/mcp-integration-guide.md`                                           | H                         |
+| Read `docs/guides/mcp-guide.md`                                           | H                         |
 
 Combined with Round 2's prerequisite set (`claude-md-guide.md`, `templates/*/CLAUDE.md`, `plugin/skills/audit/SKILL.md`), a **single consolidated Read round** activates proposals across all three documents.
 
@@ -353,6 +353,6 @@ An alternative lighter first step: **G alone** — because sandboxing is the hig
 - `plugin/skills/audit/SKILL.md` — subject of F-ext (and R2 D, F, A'-rt)
 - `plugin/skills/secure/SKILL.md` — subject of G
 - `docs/guides/claude-md-guide.md` — subject of J (and R2 E)
-- `docs/guides/mcp-integration-guide.md` — subject of H
-- `templates/advanced/settings.json` — subject of G
+- `docs/guides/mcp-guide.md` — subject of H
+- `templates/advanced/.claude/settings.json` — subject of G
 - Memory entries referenced: `feedback_subagent_verification.md`, `project_meta_system_vision.md`, `feedback_plans_scope.md`

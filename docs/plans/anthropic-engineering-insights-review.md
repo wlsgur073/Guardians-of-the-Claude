@@ -56,7 +56,7 @@ All four articles share a common failure mode and a common response:
 | SWE-bench engineering     | Boundary between failure and fix        | Reproducer script as an observable intermediate state | Adjacent — intermediate-state observability rather than strict boundary restoration |
 | Building Effective Agents | Boundary between generator and consumer | Evaluator pass that revisits output with criteria     | Strong       |
 
-Our project's known pain point — subagent false positives at 38–50% ([memory: `feedback_subagent_verification.md`](../../CLAUDE.md)) — is a concrete instance of this failure mode: the boundary between the parent session and a dispatched subagent loses the full briefing context, and findings are surfaced without a reconstruction step.
+Our project's known pain point — subagent false positives at 38–50% ([memory: `feedback_subagent_verification.md`](../../CLAUDE.md)) — may reflect this failure mode at the parent→subagent dispatch boundary: briefing context can be lost across the handoff, and findings are surfaced without a reconstruction step. The current evidence establishes the rate, not the dominant cause; whether boundary loss is causally responsible is unmeasured (see Unverified Assumptions #1). The "concrete instance" framing in earlier drafts overclaimed the causal direction — corrected 2026-04-23 post-Codex review.
 
 ---
 
@@ -79,7 +79,7 @@ Two-part enhancement:
 
 ### Source Evidence
 
-- **Contextual Retrieval** (Anthropic) — *inspiring principle, not direct technique*: *"Contextual Embeddings alone: 35% reduction in retrieval failures (5.7% → 3.7%); Combined with BM25: 49% reduction."* The architectural pattern — restore context at the boundary — is portable. Note: we are not adopting the RAG technique, only the boundary-restoration *principle*.
+- **Contextual Retrieval** (Anthropic) — *inspiring principle, not direct technique*. The article reports: "Contextual Embeddings reduced the top-20-chunk retrieval failure rate by 35% (5.7% → 3.7%)" and "Combining Contextual Embeddings and Contextual BM25 reduced the top-20-chunk retrieval failure rate by 49% (5.7% → 2.9%)" — with a further reduction to 67% when combined with reranking. The architectural pattern — restore context at the boundary — is portable. Note: we are not adopting the RAG technique, only the boundary-restoration *principle*.
 - **Building Effective Agents** (Anthropic) — *cited pattern with explicit modification*: The Evaluator-Optimizer pattern is described as *"one LLM generates responses while another provides iterative feedback"*, suitable when *"clear evaluation criteria where iterative refinement adds measurable value"* exists. For our case, an LLM-plus-deterministic check is a tighter fit than strict LLM-vs-LLM evaluation — less cost, criteria are often verifiable. The article supports the principle of second-stage validation; the deterministic variant is our adaptation, not the article's prescription.
 
 ### Risks / Tradeoffs
@@ -90,13 +90,17 @@ Two-part enhancement:
 
 ### Prerequisites
 
-Before adopting, sample **5 recent `/audit` runs** where subagent findings were rejected as false positive. Classify by cause:
+Before adopting, run a **two-stage causal sampling**:
+
+**Stage 1 — hypothesis generation (n=5).** Pull 5 recent `/audit` runs where subagent findings were rejected as false positive. Classify each by cause:
 - Briefing-gap (subagent lacked context the parent had)
 - Model hallucination (subagent had sufficient context but fabricated)
 - Criterion ambiguity (subagent read correctly but interpreted rule differently)
 - Other
 
-Adopt A' **only if briefing-gap accounts for ≥40%** of the sample. If hallucination dominates, prioritize Proposal D instead.
+A 5-case sample is suitable for identifying *candidate* dominant causes only; it is not statistically sufficient for a gating decision (≥40% of 5 = 2 cases, well within chance variance). Earlier drafts proposed ≥40% as a decision threshold at n=5 — corrected 2026-04-23 post-Codex review.
+
+**Stage 2 — decision gate (n≈15–20).** If Stage 1 suggests briefing-gap as a plausible dominant cause, collect a larger sample (target 15–20 cases). Adopt A' only if briefing-gap is materially common in the larger sample. If hallucination dominates at either stage, prioritize Proposal D instead.
 
 ### Confidence
 
@@ -171,8 +175,8 @@ Two-pass review of each skill under `plugin/skills/`:
 
 ### Source Evidence
 
-- **SWE-bench Sonnet engineering** (Anthropic): *"the tool will only occur if there is exactly one match of `old_str`, preventing ambiguous edits. Absolute path requirements eliminate relative path errors — a practical anti-hallucination mechanism."* The principle: **push error prevention into the interface specification rather than catching errors after the fact.**
-- **Building Effective Agents** (Anthropic): *"Invest heavily in tool design — 'prompt engineering your tools' deserves equal effort as overall prompts."*
+- **SWE-bench Sonnet engineering** (Anthropic): two interface-level error-prevention choices from `str_replace_editor`. On ambiguous edits: "The replacement will only occur if there is exactly one match of `old_str`. If there are more or fewer matches, the model is shown an appropriate error message for it to retry." On path handling: the article describes how "sometimes models could mess up relative file paths after the agent had moved out of the root directory. To prevent this, we simply made the tool always require an absolute path." (The "anti-hallucination mechanism" label used in earlier drafts is our synthesis, not the article's phrasing — corrected 2026-04-23.) The principle: **push error prevention into the interface specification rather than catching errors after the fact.**
+- **Building Effective Agents** (Anthropic): invokes an HCI/ACI analogy — "one rule of thumb is to think about how much effort goes into human-computer interfaces (HCI), and plan to invest just as much effort in creating good agent-computer interfaces (ACI)." The Appendix 2 heading "Prompt engineering your tools" reinforces that tool interface design deserves the same craft as overall prompts. (Earlier drafts compressed this into a single paraphrased quote — corrected 2026-04-23.)
 
 ### Risks / Tradeoffs
 
@@ -226,7 +230,7 @@ Proposals A', D, and C' executed (or deliberately skipped) first. Pattern labels
 ### Rationale
 
 - No RAG system in this repository. No embedding or chunking pipeline exists or is planned.
-- Total corpus size (skills, guides, templates, i18n mirrors) is plausibly under the 200K-token threshold cited by the article; the exact token count has not been measured: *"If your knowledge base is under 200,000 tokens (~500 pages), simply include the entire corpus in the prompt using prompt caching instead — it's simpler and more cost-effective than RAG-based approaches."*
+- Total corpus size (skills, guides, templates, i18n mirrors) is plausibly under the 200K-token threshold cited by the article; the exact token count has not been measured. The article states: "If your knowledge base is smaller than 200,000 tokens (about 500 pages of material), you can just include the entire knowledge base in the prompt." (Prompt caching as the mechanism is discussed in an adjacent passage; earlier drafts of this document conflated the two paragraphs into a single quoted sentence — corrected 2026-04-23.)
 - Users building RAG systems *using* our templates may benefit from the technique in their own projects, but that is a user-guide concern, not a repository change.
 
 ### Residual Insight
