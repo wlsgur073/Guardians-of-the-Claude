@@ -104,7 +104,7 @@ The Demystifying Evals article identifies three canonical grader categories (cod
 
 - **Code-based (deterministic)** — YAML sub-types: `deterministic_tests`, `static_analysis`, `state_check`, `tool_calls`. Reuse R2 A'-rt's post-check for rules CI can verify.
 - **Model-based (LLM-as-judge)** — YAML sub-type: `llm_rubric`. Uses the redefined five-rubric for subjective findings.
-- **Human-based** — not represented in YAML (it is an evaluation-time calibration process, not a runtime grader). Periodic spot-check against LLM-judge output for calibration (upgraded to **mandatory prerequisite** per R5 K-ref Patch 1).
+- **Human-based**: periodic spot-check against LLM-judge output for calibration. (Not represented in YAML because it is an evaluation-time process, not a runtime grader.)
 
 **Expansion order**: start with `deterministic_tests` + `llm_rubric` — the two highest-leverage sub-types, one per code/model category. Add the other code-based sub-types (`static_analysis`, `state_check`, `tool_calls`) as specific failure modes warrant. Human-based calibration must precede trust in `llm_rubric` output, not follow it.
 
