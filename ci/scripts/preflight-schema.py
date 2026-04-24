@@ -16,6 +16,14 @@ import json
 import sys
 from pathlib import Path
 
+# Windows cp949 defense: ensure stdout/stderr are UTF-8 so non-ASCII in schema
+# paths or error messages doesn't raise UnicodeEncodeError on Korean-locale hosts.
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+except (AttributeError, OSError):
+    pass  # older Python or non-standard streams
+
 try:
     from jsonschema import Draft202012Validator, Draft7Validator
     from referencing import Registry, Resource
