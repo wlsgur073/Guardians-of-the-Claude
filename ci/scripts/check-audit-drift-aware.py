@@ -22,7 +22,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 # A1: drift advisory state machine
 # ---------------------------------------------------------------------------
 
-Fingerprint = dict  # {family_tier, context_window_class, reasoning_class, context_management_class}
+Fingerprint = dict  # {family_tier: opus|sonnet|haiku, context_window_class: 200k|1M, reasoning_class: none|extended_any, context_management_class: manual|compaction_capable}
 
 
 def drift_state(
@@ -48,42 +48,42 @@ def drift_state(
 A1_FIXTURES = [
     (
         "match",
-        {"family_tier": "opus_tier", "context_window_class": "200k_class",
-         "reasoning_class": "thinking", "context_management_class": "standard"},
+        {"family_tier": "opus", "context_window_class": "200k",
+         "reasoning_class": "extended_any", "context_management_class": "manual"},
         True,
-        {"family_tier": "opus_tier", "context_window_class": "200k_class",
-         "reasoning_class": "thinking", "context_management_class": "standard"},
+        {"family_tier": "opus", "context_window_class": "200k",
+         "reasoning_class": "extended_any", "context_management_class": "manual"},
         "match",
     ),
     (
         "drift",
-        {"family_tier": "sonnet_tier", "context_window_class": "1m_class",
-         "reasoning_class": "thinking", "context_management_class": "standard"},
+        {"family_tier": "sonnet", "context_window_class": "1M",
+         "reasoning_class": "extended_any", "context_management_class": "manual"},
         True,
-        {"family_tier": "opus_tier", "context_window_class": "200k_class",
-         "reasoning_class": "thinking", "context_management_class": "standard"},
+        {"family_tier": "opus", "context_window_class": "200k",
+         "reasoning_class": "extended_any", "context_management_class": "manual"},
         "drift",
     ),
     (
         "normalization_null_current",
         None,
         True,
-        {"family_tier": "opus_tier", "context_window_class": "200k_class",
-         "reasoning_class": "thinking", "context_management_class": "standard"},
+        {"family_tier": "opus", "context_window_class": "200k",
+         "reasoning_class": "extended_any", "context_management_class": "manual"},
         "normalization_null",
     ),
     (
         "normalization_null_baseline",
-        {"family_tier": "opus_tier", "context_window_class": "200k_class",
-         "reasoning_class": "thinking", "context_management_class": "standard"},
+        {"family_tier": "opus", "context_window_class": "200k",
+         "reasoning_class": "extended_any", "context_management_class": "manual"},
         True,
         None,
         "normalization_null",
     ),
     (
         "missing_baseline",
-        {"family_tier": "opus_tier", "context_window_class": "200k_class",
-         "reasoning_class": "thinking", "context_management_class": "standard"},
+        {"family_tier": "opus", "context_window_class": "200k",
+         "reasoning_class": "extended_any", "context_management_class": "manual"},
         False,
         None,
         "missing_baseline",
