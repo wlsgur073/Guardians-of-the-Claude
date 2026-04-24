@@ -304,3 +304,19 @@ jobs:
 
       - name: Run drift-aware validator
         run: python ci/scripts/check-audit-drift-aware.py
+
+  scoring-contract-consistency:
+    name: Scoring contract ID consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml==6.0.2
+
+      - name: Run scoring-contract consistency validator
+        run: python ci/scripts/check-scoring-contract-consistency.py

@@ -18,7 +18,7 @@ This is a documentation and template repository — no application source code a
 - `.claude/` — This repo's own Claude Code settings
 - `test/` — Skill evaluation framework (rubrics, scenarios, fixtures, scripts) and results. Not a unit test suite — used to grade skill output quality. See `test/testing-strategy.md`.
 - `ci/` — CI smoke lane: fixtures, golden snapshots, and scripts for plugin regression testing (run by `.github/workflows/smoke.yml`; shipped, unlike gitignored `test/`). Template clone users can ignore; plugin contributors who change skill output must update fixtures/goldens. See `ci/README.md`.
-- `.github/workflows/docs-check.yml` — CI with 16 jobs (link-check-internal, link-check-external, frontmatter-parity, json-schema, registry-lint, skill-stability-lint, i18n-parity, shellcheck, encoding-check, preflight-schema, scoring-formula-simulation, scoring-model-lav-linkage, changelog-parser-check, sample-list-preconditions, audit-goldens-check, audit-drift-aware-check). Python validators live in `.github/scripts/`.
+- `.github/workflows/docs-check.yml` — CI with 17 jobs (link-check-internal, link-check-external, frontmatter-parity, json-schema, registry-lint, skill-stability-lint, i18n-parity, shellcheck, encoding-check, preflight-schema, scoring-formula-simulation, scoring-model-lav-linkage, changelog-parser-check, sample-list-preconditions, audit-goldens-check, audit-drift-aware-check, scoring-contract-consistency). Python validators live in `.github/scripts/`.
 - `.github/workflows/smoke.yml` — CI smoke lane (2 jobs: smoke fixtures, verifier drift tripwire); triggers on PRs touching `plugin/**`/`templates/**`/`ci/**` and on version tags.
 
 ## Contribution Rules
