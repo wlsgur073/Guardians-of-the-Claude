@@ -7,6 +7,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.12.1] - 2026-04-24
+
+### Added
+
+- **`check-scoring-contract-consistency.py` CI validator (17th job in `docs-check.yml`).** Cross-checks `plugin/references/scoring-model.md` frontmatter `scoring_contract_id` against all `ci/fixtures/audit-goldens/*/golden.json` entries and the install-integrity prose in `plugin/skills/audit/SKILL.md`. Adds Python-level validation for scoring-contract identifier consistency across the three canonical sites — build-time validators already covered value correctness; this extends coverage to the identifier-agreement dimension.
+
+### Changed
+
+- **Smoke-fixture runner supports `profile.json` schema v1.1.0** via wrapper dispatch (`profile.schema.v1.0.0.json` vs `profile.schema.v1.1.0.json` selected by declared `schema_version`). `merge_profile` bumps output `schema_version` to `1.1.0` and propagates `model` + `scoring_model_ack` from `/audit` delta. `handle_audit` / `handle_secure` / `handle_optimize` emit the `- Model:` changelog bullet per the hybrid writer policy (`/audit` always; other skills emit only when the resolved model differs from the immediately previous entry).
+- **`plugin/references/learning-system.md` changelog entry template bumped to v1.1.0** with a new first-position `- Model:` bullet in the entry format. Describes the hybrid writer policy inline for downstream skill implementations.
+- **Drift-aware test fixtures use canonical axis enums.** `ci/scripts/check-audit-drift-aware.py` A1_FIXTURES migrated from non-canonical labels (`opus_tier`, `200k_class`, `thinking`, `standard`) to the canonical 4-axis enums defined in `plugin/references/model-drift-rules.md` (`opus|sonnet|haiku / 200k|1M / none|extended_any / manual|compaction_capable`). `drift_state` compares fingerprints structurally, so the migration is semantically equivalent — all drift-aware assertions continue to pass.
+
+### Fixed
+
+- **`merge_profile` `/audit` branch now propagates `model` + `scoring_model_ack`.** Previously `_audit_detect_profile` emitted these fields in the profile delta but the merge step dropped them, causing byte diff in first-run fixtures and `KeyError` on changelog entry assembly in fixtures with prior state lacking `model`. `/audit` is the authoritative writer for both fields; merge now propagates them explicitly.
+- **Expected `profile.json` `scoring_model_ack` format realigned from single-line to multi-line.** `_object_is_inline` expands 2+field objects whose values include a string; the hand-authored single-line shape violated this invariant, causing byte diff after the merge-propagation fix surfaced it.
+- **`ci/scripts/preflight-schema.py` forces UTF-8 I/O.** Reconfigures `sys.stdout` / `sys.stderr` to UTF-8 on startup so the validator doesn't raise `UnicodeEncodeError` when non-ASCII appears in schema paths or error messages on Korean-locale (cp949) hosts. Silent fallback on older Python or non-standard streams.
+- **Schema description fields are now self-contained.** `plugin/references/schemas/recommendations.schema.json` and `plugin/references/schemas/recommendation-registry.schema.json` description strings no longer reference internal design documents that aren't accessible from the repo; descriptions read correctly in isolation.
+
 ## [2.12.0] - 2026-04-23
 
 ### Added
