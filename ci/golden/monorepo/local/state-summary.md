@@ -3,7 +3,7 @@
  Read-only view. Manual edits will be overwritten
  on next skill invocation.
  Generated at: 2026-04-14T00:00:00Z
- Source: profile.json v1.0.0, recommendations.json v1.0.0
+ Source: profile.json v1.1.0, recommendations.json v1.0.0
 ───────────────────────────────────────────────── -->
 
 # Claude Code Configuration State

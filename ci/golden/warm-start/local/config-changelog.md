@@ -29,6 +29,7 @@ entry_count: 3
   - Split CLAUDE.md into rule files — PENDING (2x)
 
 ### 2026-04-14 — /audit
+- Model: claude-opus-4-7
 - Detected: (none)
 - Profile updated: (none)
 - Applied: (none)
