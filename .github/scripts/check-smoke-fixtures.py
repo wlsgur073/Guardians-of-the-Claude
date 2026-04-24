@@ -1611,6 +1611,12 @@ def merge_profile(current: dict | None, delta: dict, skill: str) -> dict:
             # owns initial detection when current state is missing the field.
             if skill == "audit" and "settings_json" in ccs_d and "settings_json" not in ccs_m:
                 ccs_m["settings_json"] = ccs_d["settings_json"]
+            # /audit is the authoritative writer for model and scoring_model_ack.
+            if skill == "audit":
+                if "model" in ccs_d:
+                    ccs_m["model"] = ccs_d["model"]
+                if "scoring_model_ack" in ccs_d:
+                    ccs_m["scoring_model_ack"] = ccs_d["scoring_model_ack"]
     if skill == "secure":
         if "claude_code_configuration_state" in delta:
             ccs_d = delta["claude_code_configuration_state"]
