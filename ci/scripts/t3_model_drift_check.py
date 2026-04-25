@@ -202,7 +202,7 @@ def main() -> None:
             print(f)
         sys.exit(1)
 
-    print(f"All {len(tests)} test case(s) PASS - normalization table consistent with contracts S3.5.")
+    print(f"All {len(tests)} test case(s) PASS - normalization table consistent with the normalization specification.")
     sys.exit(0)
 
 

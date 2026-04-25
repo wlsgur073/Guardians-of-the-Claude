@@ -17,7 +17,7 @@ Assertions:
 Exit codes:
     0 — all 6 assertions PASS
     1 — at least one assertion FAILS
-    2 — check-smoke-fixtures.py not yet updated (pre-T4a state — bullet_model key absent)
+    2 — check-smoke-fixtures.py not yet updated (bullet_model key absent)
 """
 import importlib.util
 import sys
@@ -191,17 +191,17 @@ def main():
         print(f"[BLOCKED] Failed to load _parse_changelog_entries: {exc}", file=sys.stderr)
         sys.exit(2)
 
-    # Pre-T4a guard: if bullet_model key absent from a parsed entry, this is pre-T4a state
+    # Backward-compat guard: if bullet_model key absent from a parsed entry, this is pre-v1.1.0 state
     try:
         sample = _read("changelog-legacy-v1.0.0")
         result = parse_fn(sample)
         if isinstance(result, list):
-            print("[BLOCKED] _parse_changelog_entries still returns list[dict] (pre-T4a state).")
-            print("          Update check-smoke-fixtures.py per plan Step 5 before running this verifier.")
+            print("[BLOCKED] _parse_changelog_entries still returns list[dict] (bullet_model key absent).")
+            print("          Update check-smoke-fixtures.py before running this verifier.")
             sys.exit(2)
         entries = result.get("entries", [])
         if entries and "bullet_model" not in entries[0]:
-            print("[BLOCKED] bullet_model key absent from entry dict (pre-Step 3 state).")
+            print("[BLOCKED] bullet_model key absent from entry dict.")
             sys.exit(2)
     except Exception:
         pass  # Let individual assertions report failures

@@ -181,7 +181,7 @@ jobs:
           echo "OK: no encoding corruption found."
 
   preflight-schema:
-    name: Preflight schema probe (Phase 2a T0)
+    name: Preflight schema probe (profile schema closure)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -198,13 +198,13 @@ jobs:
           python ci/scripts/preflight-schema.py || EXIT_CODE=$?
           EXIT_CODE=${EXIT_CODE:-0}
           if [ "$EXIT_CODE" -eq 2 ]; then
-            echo "::warning::Preflight probe skipped — profile.schema.v1.1.0.json not yet committed (pre-T1 state). This is expected until T1 merges."
+            echo "::warning::profile.schema.v1.1.0.json not found; schema probe skipped."
             exit 0
           fi
           exit "$EXIT_CODE"
 
   scoring-formula-simulation:
-    name: Scoring formula 5-sample simulation (Phase 2a T2a)
+    name: Scoring formula 5-sample simulation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -218,13 +218,13 @@ jobs:
           python ci/scripts/check-scoring-formula.py || EXIT_CODE=$?
           EXIT_CODE=${EXIT_CODE:-0}
           if [ "$EXIT_CODE" -eq 2 ]; then
-            echo "::warning::5-sample simulation skipped — plugin/references/scoring-model.md not yet committed (pre-T2a state)."
+            echo "::warning::plugin/references/scoring-model.md not found; scoring formula check skipped."
             exit 0
           fi
           exit "$EXIT_CODE"
 
   scoring-model-lav-linkage:
-    name: Scoring model LAV-axis linkage (Phase 2a T2b)
+    name: Scoring model LAV-axis linkage
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -238,13 +238,13 @@ jobs:
           python ci/scripts/check-scoring-model-lav-linkage.py || EXIT_CODE=$?
           EXIT_CODE=${EXIT_CODE:-0}
           if [ "$EXIT_CODE" -eq 2 ]; then
-            echo "::warning::LAV linkage check skipped — plugin/references/scoring-model.md not yet committed (pre-T2a state)."
+            echo "::warning::plugin/references/scoring-model.md not found; LAV linkage check skipped."
             exit 0
           fi
           exit "$EXIT_CODE"
 
   changelog-parser-check:
-    name: Changelog parser v1.1.0 check (Phase 2a T4a)
+    name: Changelog parser v1.1.0 check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -260,7 +260,7 @@ jobs:
         run: python ci/scripts/check-changelog-parser.py
 
   sample-list-preconditions:
-    name: Sample list preconditions (Phase 2a T2c-Curation)
+    name: Sample list preconditions
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -273,7 +273,7 @@ jobs:
         run: python ci/scripts/check-sample-list-preconditions.py
 
   audit-goldens-check:
-    name: Audit goldens formula + bucket check (Phase 2a T2c-main)
+    name: Audit goldens formula + bucket check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -287,13 +287,13 @@ jobs:
           python ci/scripts/check-audit-goldens.py || EXIT_CODE=$?
           EXIT_CODE=${EXIT_CODE:-0}
           if [ "$EXIT_CODE" -eq 2 ]; then
-            echo "::warning::audit-goldens check skipped — ci/fixtures/audit-goldens/ not yet committed (pre-T2c-main state)."
+            echo "::warning::ci/fixtures/audit-goldens/ not found; audit-goldens check skipped."
             exit 0
           fi
           exit "$EXIT_CODE"
 
   audit-drift-aware-check:
-    name: Audit drift-aware recommendation structure (Phase 2a T5)
+    name: Audit drift-aware recommendation structure
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

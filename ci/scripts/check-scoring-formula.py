@@ -15,7 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SCORING_MODEL = ROOT / "plugin" / "references" / "scoring-model.md"
 
-# 5-sample goldens per DEC-1 line 95-103 (round-3-verified, within real LAV maxima).
+# 5-sample goldens (verified within real LAV maxima).
 # ci/fixtures/scoring-model-simulation/ mirrors these for T2c author reference.
 SAMPLES = [
     # (name, DS, SB, L1..L6, expected Final)
@@ -26,7 +26,7 @@ SAMPLES = [
     ("Q'", 4750/59, 5, [+2, +2, +3, +1, +1, +1], 100),
 ]
 
-# Real LAV minima per DEC-1 line 93 (negative-minimum axes only):
+# Real LAV minima (negative-minimum axes only):
 # L1 in [-3,+2], L2 in [-2,+2], L3 in [0,+3], L4 in [-1,+1], L5 in [-3,+1], L6 in [0,+1]
 # Only L1, L2, L4 have negative minima; L3 and L6 minima are 0 (non-negative).
 # Index 4 (L5=-3) is intentionally excluded from the other_at_min check loop
@@ -39,7 +39,7 @@ def compute_final(DS, SB, L):
     LAV_nonL5 = L1 + L2 + L3 + L4 + L6
     if L5 == -3:
         # Check whether any other Li with a negative minimum is at that minimum
-        # per §3.3 invariant 2 + DEC-1 "no other Li at its minimum" predicate
+        # per the LAV invariant: "no other Li at its minimum" predicate
         other_at_min = any(
             L[i] == LAV_MINIMA[i]
             for i in [0, 1, 3]  # indices for L1, L2, L4 (negative-minimum axes)
@@ -53,7 +53,7 @@ def compute_final(DS, SB, L):
 
 def main():
     if not SCORING_MODEL.exists():
-        print(f"[BLOCKED] {SCORING_MODEL} not yet committed (pre-T2a state).")
+        print(f"[BLOCKED] {SCORING_MODEL} not committed yet; scoring formula check skipped.")
         sys.exit(2)
     fails = []
     for name, DS, SB, L, expected in SAMPLES:
@@ -67,7 +67,7 @@ def main():
         for line in fails:
             print(line)
         sys.exit(1)
-    print("All 5 samples PASS -- formula matches DEC-1 goldens.")
+    print("All 5 samples PASS -- formula matches the canonical scoring goldens.")
     sys.exit(0)
 
 

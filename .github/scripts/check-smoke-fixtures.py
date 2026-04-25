@@ -8,7 +8,7 @@ is wrong: ambiguous skill markdown is a bug, stale verifier logic is
 also a bug. The verifier is NOT a canonical authority over the skill;
 both are expressions of the same intent, cross-checked by CI.
 
-Design (per 메타-9, Codex Q5 2026-04-14):
+Design:
 - Functional dispatch + dataclasses + FIXTURE_SCENARIOS manifest
 - Actual simulation for every fixture (input -> produced -> diff vs golden)
 - Semantic assertions BEFORE byte diff (cause, not just drift)
@@ -351,13 +351,13 @@ def _extract_frontmatter_version(frontmatter: dict) -> str:
 def _parse_compacted_history_anchors(body: str) -> list[dict]:
     """Parse per-skill anchor blocks from the ## Compacted History section.
 
-    Forward-compat READ only (T4c handles emission). If the section is absent
+    Forward-compat READ only. If the section is absent
     or contains no anchors, returns []. Tolerant parser: any line matching
     '- skill: /X' inside ## Compacted History is treated as an anchor header;
     sibling 'last_entry_date:', 'last_model:', 'last_capability_fingerprint:'
     lines are consumed as anchor fields.
 
-    Per plan D3 (coordination note): learning-system.md does not yet specify
+    Per the coordination note: learning-system.md does not yet specify
     the rendered anchor syntax, so minimal pattern-match is used.
 
     Returns list of dicts with keys: skill, last_entry_date, last_model,
@@ -584,7 +584,7 @@ def parse_profile_md(text: str, source_file: str, pinned_utc: str) -> dict:
 def parse_latest_md(text: str, skill: str, pinned_utc: str, registry_by_key: dict) -> list[dict]:
     """Parse legacy latest-{skill}.md Recommendations section.
 
-    Per Codex Q5 Pitfall 3 + Step 4: deterministic, no keyword matching.
+    Deterministic, no keyword matching.
     Each bullet must match `- id: <legacy-id>` / `- <legacy-id>: <desc> — STATUS`.
     Registry aliases resolve legacy-id -> canonical key. Unregistered ids are
     a fixture bug and raise ValueError.
@@ -1225,7 +1225,7 @@ def _parse_changelog_entries(text: str) -> dict:
     Each entry dict: {date, skill, detected, applied, recommendations,
                       bullet_model: str | None}
 
-    Frontmatter dispatch (per §2.5 Addition A + DEC-10):
+    Frontmatter dispatch (per the schema-evolution policy):
       - version "1.0.0" → bullet_model = None for all entries (omit→null)
       - version "1.1.0" → recognize "- Model:" per entry; None on absent
       - unknown version → raises ValueError (no silent fallback)
@@ -1237,7 +1237,7 @@ def _parse_changelog_entries(text: str) -> dict:
     if version not in ("1.0.0", "1.1.0"):
         raise ValueError(
             f"Unknown config-changelog.md frontmatter version: {version!r}. "
-            f"Parser supports '1.0.0' or '1.1.0' only. See §2.5 schema-evolution policy."
+            f"Parser supports '1.0.0' or '1.1.0' only. See the changelog schema-evolution policy."
         )
     # Find ## Recent Activity
     lines = body.splitlines()
@@ -1267,7 +1267,7 @@ def _parse_changelog_entries(text: str) -> dict:
                 "detected": None,
                 "applied": None,
                 "recommendations": [],
-                "bullet_model": None,  # §2.5 Addition A + §3.2 line 432
+                "bullet_model": None,
             }
             continue
         if current is None:
@@ -1280,7 +1280,7 @@ def _parse_changelog_entries(text: str) -> dict:
             current["recommendations_inline"] = line[len("- Recommendations:") :].strip()
         elif version == "1.1.0" and line.startswith("- Model:"):
             value = line[len("- Model:"):].strip()
-            # Per DEC-8 line 244: "- Model: (none)" literal is forbidden for
+            # Per the omit→null rule: "- Model: (none)" literal is forbidden for
             # writers; defense-in-depth coerces it + empty value → None so the
             # placeholder never leaks as a string into downstream consumers.
             current["bullet_model"] = value if (value and value != "(none)") else None
@@ -2135,7 +2135,7 @@ def handle_secure(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
     """Process /secure fixture run: profile merge + changelog + recommendations.
 
     Per-fixture detection presets live in _secure_detect_profile. Phase 1
-    FIXTURE_SCENARIOS does not include /secure; Phase 2a T7 atomic runners
+    FIXTURE_SCENARIOS does not include /secure; the atomic runners
     (ci/scripts/t7_secure_*_check.py) exercise /secure via SKILL_HANDLERS
     monkey-patch for fixture-specific behavior. Adding a /secure entry to
     FIXTURE_SCENARIOS requires adding a per-fixture branch in
@@ -2176,7 +2176,7 @@ def handle_optimize(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
     """Process /optimize fixture run: counts merge + changelog + recommendations.
 
     Per-fixture detection presets live in _optimize_detect_profile. Phase 1
-    FIXTURE_SCENARIOS does not include /optimize; Phase 2a T7 atomic runners
+    FIXTURE_SCENARIOS does not include /optimize; the atomic runners
     (ci/scripts/t7_optimize_e2e_check.py) exercise /optimize via SKILL_HANDLERS
     monkey-patch. Adding an /optimize entry to FIXTURE_SCENARIOS requires
     adding a per-fixture branch in _optimize_detect_profile."""
@@ -2248,7 +2248,7 @@ def apply_pre_run(pre_run, ctx: RunContext) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Semantic assertions (run BEFORE byte diff per Codex Q5 Pitfall 2)
+# Semantic assertions (run BEFORE byte diff)
 # ---------------------------------------------------------------------------
 
 

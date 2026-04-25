@@ -15,7 +15,7 @@ Assertions:
 Exit codes:
     0 -- all 4 assertions pass
     1 -- one or more assertions fail
-    2 -- scoring-model.md not found (pre-T2a state)
+    2 -- scoring-model.md not found
 """
 import sys
 import hashlib
@@ -155,7 +155,7 @@ def _safe_print(label: str, msg: str) -> None:
 
 def main():
     if not SCORING_MODEL.exists():
-        print("[BLOCKED] " + str(SCORING_MODEL) + " not found (pre-T2a state).")
+        print("[BLOCKED] " + str(SCORING_MODEL) + " not found.")
         sys.exit(2)
 
     text = SCORING_MODEL.read_text(encoding="utf-8")
