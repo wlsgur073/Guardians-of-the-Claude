@@ -31,5 +31,5 @@
   },
   "expected_bucket": "Starter",
   "expected_final_score": 4.16,
-  "bucket_rationale": "Starter per DEC-5: 28 lines in [20, 80] + rules 0 ≤ 1 + hooks 0 + agents 0 + MCP 0. Minimal-config library (TypeScript collections). T2.2 Security SKIP (pure library, no network). Minimal T1 (CLAUDE.md existence PASS but no test/build/overview). Only T3.2 (length) PASS — content is concise. LAV: +0/0/+1/0/+1/+1 reflects concise + basic patterns + actionable linting/dep rules."
+  "bucket_rationale": "Starter per the bucket rubric: 28 lines in [20, 80] + rules 0 ≤ 1 + hooks 0 + agents 0 + MCP 0. Minimal-config library (TypeScript collections). T2.2 Security SKIP (pure library, no network). Minimal T1 (CLAUDE.md existence PASS but no test/build/overview). Only T3.2 (length) PASS — content is concise. LAV: +0/0/+1/0/+1/+1 reflects concise + basic patterns + actionable linting/dep rules."
 }

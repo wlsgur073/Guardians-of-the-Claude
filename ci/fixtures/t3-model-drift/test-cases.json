@@ -37,7 +37,7 @@
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Anthropic direct — opus-4.6, 1M context (design.md DEC-2)"
+    "notes": "Anthropic direct — opus-4.6, 1M context (the model-drift rules)"
   },
   {
     "input": "claude-sonnet-4-6",
@@ -47,7 +47,7 @@
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Anthropic direct — sonnet-4.6-anthropic, 1M context (design.md DEC-2)"
+    "notes": "Anthropic direct — sonnet-4.6-anthropic, 1M context (the model-drift rules)"
   },
   {
     "input": "anthropic.claude-sonnet-4-6",
@@ -57,7 +57,7 @@
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Bedrock — sonnet-4.6-bedrock, 200k context (design.md DEC-2 codified 2026-04-20)"
+    "notes": "Bedrock — sonnet-4.6-bedrock, 200k context (the model-drift rules codified 2026-04-20)"
   },
   {
     "input": "claude-sonnet-4-6@20240901",
@@ -77,7 +77,7 @@
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Anthropic direct — haiku-4.5-anthropic, 200k context (design.md DEC-2)"
+    "notes": "Anthropic direct — haiku-4.5-anthropic, 200k context (the model-drift rules)"
   },
   {
     "input": "anthropic.claude-haiku-4-5",
@@ -87,7 +87,7 @@
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Bedrock — haiku-4.5-bedrock, 200k context (design.md DEC-2 codified 2026-04-20)"
+    "notes": "Bedrock — haiku-4.5-bedrock, 200k context (the model-drift rules codified 2026-04-20)"
   },
   {
     "input": "claude-haiku-4-5@20241022",
@@ -107,7 +107,7 @@
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Bedrock — opus-4.6-bedrock, 1M context (design.md DEC-2 corrected 2026-04-20 per AWS model card)"
+    "notes": "Bedrock — opus-4.6-bedrock, 1M context (the model-drift rules corrected 2026-04-20 per AWS model card)"
   },
   {
     "input": "claude-opus-4-6@20241022",
@@ -117,7 +117,7 @@
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Vertex — opus-4.6-vertex, 1M context (design.md DEC-2)"
+    "notes": "Vertex — opus-4.6-vertex, 1M context (the model-drift rules)"
   },
   {
     "input": "claude-sonnet-4-5",
@@ -152,6 +152,6 @@
   {
     "input": "gpt-4o-azure-deployment-custom-name",
     "expected_fingerprint": null,
-    "notes": "Unrecognized provider — fail-safe null per contracts §3.5 #3"
+    "notes": "Unrecognized provider — fail-safe null per the normalization rules"
   }
 ]

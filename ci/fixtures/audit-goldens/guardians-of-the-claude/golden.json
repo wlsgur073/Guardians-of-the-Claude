@@ -31,5 +31,5 @@
   },
   "expected_bucket": "Outlier",
   "expected_final_score": 60.112,
-  "bucket_rationale": "Outlier via rubric-divergent (meta-marketplace) per DEC-5 line 213. `.claude-plugin/marketplace.json` presence marks meta-marketplace identity. Self-score Final = 60.112 in plan.md:507 G-B gate range [53, 63]."
+  "bucket_rationale": "Outlier via rubric-divergent (meta-marketplace) per the bucket rubric (rubric-divergent criterion). `.claude-plugin/marketplace.json` presence marks meta-marketplace identity. Self-score Final = 60.112 in the G-B self-quality gate range [53, 63]."
 }

@@ -31,5 +31,5 @@
   },
   "expected_bucket": "Intermediate",
   "expected_final_score": 27.536,
-  "bucket_rationale": "Intermediate per DEC-5: 76 lines in [60, 200] + rules 2 in [2, 5] + agents ≤ 1 + MCP ≤ 1. Pure Rust FFI library (Emacs module bindings) — T2.2 Security SKIP (no network surface). Strong T1 all PASS + strong structure/commands (T3). LAV: +2/+2/+1/+1/0/+1 reflects accurate workspace structure + reliable commands + moderate patterns (changelog/guide-writing skills) + concise length."
+  "bucket_rationale": "Intermediate per the bucket rubric: 76 lines in [60, 200] + rules 2 in [2, 5] + agents ≤ 1 + MCP ≤ 1. Pure Rust FFI library (Emacs module bindings) — T2.2 Security SKIP (no network surface). Strong T1 all PASS + strong structure/commands (T3). LAV: +2/+2/+1/+1/0/+1 reflects accurate workspace structure + reliable commands + moderate patterns (changelog/guide-writing skills) + concise length."
 }

@@ -31,5 +31,5 @@
   },
   "expected_bucket": "Outlier",
   "expected_final_score": 22.68,
-  "bucket_rationale": "Outlier via >250 lines per DEC-5 (485 lines). CLAUDE.md emphasizes session-start protocols referencing .claude/*.md protocol docs (BACKPORT.md, ESSENTIAL_PROTOCOLS.md, etc. at .claude/ root — rules_count=0 under strict .claude/rules/ subdir convention). T2/T3 mostly weak due to protocol-heavy + project-overview-light content. LAV: L5=-3 (protocol bloat), L3=+3 (extensive protocols). Protocol structure is unconventional (rubric-footnote n/a impact)."
+  "bucket_rationale": "Outlier via >250 lines per the bucket rubric (485 lines). CLAUDE.md emphasizes session-start protocols referencing .claude/*.md protocol docs (BACKPORT.md, ESSENTIAL_PROTOCOLS.md, etc. at .claude/ root — rules_count=0 under strict .claude/rules/ subdir convention). T2/T3 mostly weak due to protocol-heavy + project-overview-light content. LAV: L5=-3 (protocol bloat), L3=+3 (extensive protocols). Protocol structure is unconventional (rubric-footnote n/a impact)."
 }

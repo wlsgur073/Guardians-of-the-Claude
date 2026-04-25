@@ -31,5 +31,5 @@
   },
   "expected_bucket": "Intermediate",
   "expected_final_score": 26.168,
-  "bucket_rationale": "Intermediate per DEC-5: 97 lines in [60, 200] + rules 4 in [2, 5] + agents 0 ≤ 1 + MCP 0 ≤ 1. Not monorepo per strict §3.3 line 532 (CLAUDE.md text mentions npm workspaces but root has no physical packages/ or apps/ dirs). Strong T1 all PASS + strong directory refs/commands (T3) + weak T2 (no security posture despite web surface). SB=2 from Test+Build pair."
+  "bucket_rationale": "Intermediate per the bucket rubric: 97 lines in [60, 200] + rules 4 in [2, 5] + agents 0 ≤ 1 + MCP 0 ≤ 1. Not monorepo per the strict monorepo short-circuit rule (CLAUDE.md text mentions npm workspaces but root has no physical packages/ or apps/ dirs). Strong T1 all PASS + strong directory refs/commands (T3) + weak T2 (no security posture despite web surface). SB=2 from Test+Build pair."
 }

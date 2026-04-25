@@ -31,5 +31,5 @@
   },
   "expected_bucket": "Outlier",
   "expected_final_score": 48.38,
-  "bucket_rationale": "Outlier via >250 lines per DEC-5 (466 lines). Strong T1 + moderate T2 (personal data protection informally PARTIAL) + moderate T3 (strong commands + project overview, no rules/agents/mcp). LAV: L5=-3 (severely long; cap tier 60), L1/L2/L3/L4/L6 strong (+2/+2/+3/+1/+1) reflecting quality content despite length. TDD emphasis + strong git/data protection patterns yield L3=+3."
+  "bucket_rationale": "Outlier via >250 lines per the bucket rubric (466 lines). Strong T1 + moderate T2 (personal data protection informally PARTIAL) + moderate T3 (strong commands + project overview, no rules/agents/mcp). LAV: L5=-3 (severely long; cap tier 60), L1/L2/L3/L4/L6 strong (+2/+2/+3/+1/+1) reflecting quality content despite length. TDD emphasis + strong git/data protection patterns yield L3=+3."
 }

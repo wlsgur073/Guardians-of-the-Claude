@@ -31,5 +31,5 @@
   },
   "expected_bucket": "Outlier",
   "expected_final_score": 25.6,
-  "bucket_rationale": "Outlier via monorepo short-circuit per §3.3 line 532. packages/ + apps/ directories present. CLAUDE.md is symlink to AGENTS.md (cross-tool compat pattern); 446 lines counted via symlink target. Score computed from AGENTS.md content visible through symlink: strong T1 (PASS all 4) + weak T2 (dev-focused content) + moderate T3 (strong directory refs + env docs, no rules/agents/mcp). LAV: L5=-3 triggers cap tier 60 (no other Li at minimum)."
+  "bucket_rationale": "Outlier via monorepo short-circuit per the monorepo short-circuit rule. packages/ + apps/ directories present. CLAUDE.md is symlink to AGENTS.md (cross-tool compat pattern); 446 lines counted via symlink target. Score computed from AGENTS.md content visible through symlink: strong T1 (PASS all 4) + weak T2 (dev-focused content) + moderate T3 (strong directory refs + env docs, no rules/agents/mcp). LAV: L5=-3 triggers cap tier 60 (no other Li at minimum)."
 }
