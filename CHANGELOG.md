@@ -7,6 +7,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.12.3] - 2026-04-26
+
+### Changed
+
+- **Internal design labels removed across remaining shipped artifacts** (~115 hits across 29 files): `plugin/references/` (learning-system + model-drift-rules + output-format), 4 SKILL.md (`/audit`, `/create`, `/secure`, `/optimize`), 6 CI validators, `.github/workflows/docs-check.yml` job names + warnings, and 14 JSON fixtures under `ci/fixtures/scoring-model-simulation/`, `ci/fixtures/audit-goldens/`, and `ci/fixtures/t3-model-drift/`. References to gitignored maintainer-internal documents (`DEC-N` decision IDs, `phase-2a-*.md` paths, `Phase 2a` task identifiers, `§N` design section anchors) replaced with named-concept descriptions or removed where trace-only. The shipped surface now reads correctly in isolation.
+- **`Model Bullet Emission` shared section** added to `plugin/references/learning-system.md`. The 4 SKILL.md Row 3 instruction blocks now point to a single source-of-truth, eliminating cross-file drift risk for the changelog `- Model:` writer policy.
+- **Validator realignments** (no behavior change): `ci/scripts/check-audit-drift-aware.py` A4 substring updated to match post-cleanup SKILL.md wording (`"Final Phase model write"`); `.github/workflows/docs-check.yml` 7 job names + 4 warning strings rewritten as semantic descriptions naming the missing artifact directly.
+- **JSON fixture metadata generalized**: `sample-*.json` `design_authority`, `golden.json` `bucket_rationale`, and `test-cases.json` `notes` fields now describe behavior in self-contained language (`per the bucket rubric`, `per the monorepo short-circuit rule`, `per the model-drift rules`). Validator assertions unchanged — `check-audit-goldens.py` 8/8, `check-scoring-formula.py` 5/5, `t3_model_drift_check.py` 16/16 PASS confirm semantic equivalence.
+
 ## [2.12.2] - 2026-04-25
 
 ### Changed
