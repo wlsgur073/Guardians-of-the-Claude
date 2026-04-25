@@ -1,7 +1,7 @@
 ---
 title: "Scoring Model"
-description: "Conservative scoring formula for /audit (Phase 2a v2.12.0) — LAV item-aware multiplier with cap tier {50, 60, 100}"
-version: "1.0.0"
+description: "Conservative scoring formula for /audit — LAV item-aware multiplier with cap tier {50, 60, 100}"
+version: "1.0.1"
 scoring_contract_id: "audit-score-v4.0.0"
 ---
 
@@ -60,7 +60,7 @@ The `/audit` skill determines this at runtime by inspecting the project, not fro
 | MCP configuration¹ | 0.15 | External tool integration |
 | Environment variable documentation | 0.10 | Setup completeness |
 
-¹ Count sourced from `profile.claude_code_configuration_state.*_count` fields; co-owned across `/audit` + `/secure` + `/create` per `plugin/references/lib/merge_rules.md` §profile.json. `/secure` count co-ownership established in T7(C2) commit `4499893`.
+¹ Count sourced from `profile.claude_code_configuration_state.*_count` fields; co-owned across `/audit` + `/secure` + `/create` per `plugin/references/lib/merge_rules.md` §profile.json.
 
 ## Item Scoring (4-Level Scale)
 
@@ -97,7 +97,7 @@ The `/audit` skill determines this at runtime by inspecting the project, not fro
    L5 ∈ [−3, +1]                              Routed via cap tier (below)
    See references/checks/lav.md for evaluation structure.
 
-4. Cap Tier (DEC-1)
+4. Cap Tier
    cap = 60  if L5 == −3 AND no other Li at its minimum (L1≥−2, L2≥−1, L4≥0)
    cap = 50  if L5 == −3 AND at least one other Li at its minimum (L1=−3, L2=−2, or L4=−1)
    cap = 100 otherwise
@@ -109,7 +109,7 @@ The `/audit` skill determines this at runtime by inspecting the project, not fro
    Range: bounded above by cap; lower bound governed by inputs (no separate clamp).
 ```
 
-(Note: the v2.12.0 LAV item-aware multiplier replaces the v2.10.0 Foundation-Gated Multiplicative formula. FG is no longer a multiplier on DS — DEC-1 acceptance verified by 5-sample simulation under `ci/scripts/check-scoring-formula.py`. See `phase-2a-contracts.md §3.3` for the contract-level invariants.)
+(Note: the v2.12.0 LAV item-aware multiplier replaces the v2.10.0 Foundation-Gated Multiplicative formula. FG is no longer a multiplier on DS — acceptance verified by 5-sample simulation under `ci/scripts/check-scoring-formula.py`.)
 
 ## LAV Axis Summary
 
@@ -119,7 +119,7 @@ The `/audit` skill determines this at runtime by inspecting the project, not fro
 | L2 — Command Reliability | −2 / 0 / +2 | Reliability | Yes |
 | L3 — Patterns / Gotchas documentation | 0 / +1 / +3 | Documentation quality | Yes |
 | L4 — Structural Quality | −1 / 0 / +1 | Structural quality | Yes |
-| L5 — Content Conciseness | −3 / 0 / +1 | Conciseness | **No** — routed via cap tier per DEC-1 |
+| L5 — Content Conciseness | −3 / 0 / +1 | Conciseness | **No** — routed via cap tier |
 | L6 — Actionability | 0 / +1 | Actionability | Yes |
 
 `LAV_nonL5` sum range: **−6 to +9** (excluding L5). Full axis definitions + scoring guidelines in `plugin/skills/audit/references/checks/lav.md` line 23-28 (ranges) and line 34-62 (per-axis guidance).

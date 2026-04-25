@@ -5,8 +5,8 @@ Assertions:
        covering L1 through L6 with numeric ranges matching lav.md:23-28.
     2. scoring-model.md contains `### LAV/T3 Boundary Rule` heading with the 3 boundary
        pairs (T3.1<->L1, T3.3<->L2, T3.7<->L2).
-    3. scoring-model.md contains the count-source footnote body referencing
-       commit `4499893`.
+    3. scoring-model.md count-source footnote declares profile count fields
+       and skill co-ownership.
     4. scoring-model.md DS/SB/cap-tier formula block (## Formula ```markdown...```) is
        byte-identical to the content-anchor hash -- ensures no formula drift.
        Uses content-anchor (section-header search) not line numbers, so later
@@ -26,10 +26,11 @@ ROOT = Path(__file__).resolve().parents[2]
 SCORING_MODEL = ROOT / "plugin" / "references" / "scoring-model.md"
 
 # SHA256 of the ## Formula code block content (```markdown...``` inclusive).
-# Content-anchor approach: locates block via ## Formula section heading, independent
-# of line numbers (T2b insertions shift lines but do not change formula content).
-# This hash freezes the formula body per D2 (no formula/weight changes after T2b).
-DS_SB_CAP_HASH = "8b53c6f35681afa3d9fba90a1d49a48c89aa2c34a75b7fe4f5fb6c428401e047"
+# Content-anchor approach: locates the block via ## Formula section heading,
+# independent of line numbers.
+# This hash freezes the displayed formula block, including labels; update it only
+# with reviewed scoring-model.md changes.
+DS_SB_CAP_HASH = "a4b159b8d9262cb42cfe5842f60bca68e9da2e32e1b9c1faffe7896f74a79814"
 
 # L1-L6 axis names + numeric ranges as declared in lav.md:23-28.
 # Each tuple: (axis_label_substring, range_substring)
@@ -53,7 +54,11 @@ BOUNDARY_PAIRS = [
     ("T3.7", "L2"),
 ]
 
-COUNT_SOURCE_SUBSTRING = "T7(C2) commit `4499893`"
+COUNT_SOURCE_SUBSTRINGS = (
+    "profile.claude_code_configuration_state.*_count",
+    "co-owned across `/audit` + `/secure` + `/create`",
+    "plugin/references/lib/merge_rules.md",
+)
 
 
 def check_assertion_1(text: str) -> tuple:
@@ -91,17 +96,18 @@ def check_assertion_2(text: str) -> tuple:
 
 
 def check_assertion_3(text: str) -> tuple:
-    """Count-source footnote references T7(C2) commit `4499893`."""
-    if COUNT_SOURCE_SUBSTRING in text:
-        return True, "Count-source footnote found: '" + COUNT_SOURCE_SUBSTRING + "'"
-    return False, "Count-source footnote not found: expected '" + COUNT_SOURCE_SUBSTRING + "'"
+    """Count-source footnote declares profile count fields and skill co-ownership."""
+    missing = [s for s in COUNT_SOURCE_SUBSTRINGS if s not in text]
+    if not missing:
+        return True, "Count-source footnote elements found"
+    return False, "Count-source footnote missing: " + "; ".join(missing)
 
 
 def check_assertion_4(path: Path) -> tuple:
-    """Formula block (## Formula ```markdown...```) SHA256 unchanged per D2.
+    """Formula block (## Formula ```markdown...```) SHA256 unchanged.
 
     Uses content-anchor: locates ## Formula section, finds the ```markdown...```
-    code block within it, hashes that slice. Line-number-independent so T2b
+    code block within it, hashes that slice. Line-number-independent so later
     line insertions do not cause false failures.
     """
     lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
@@ -162,7 +168,7 @@ def main():
     results.append((ok2, "A2 (LAV/T3 Boundary Rule + 3 pairs)", msg2))
 
     ok3, msg3 = check_assertion_3(text)
-    results.append((ok3, "A3 (count-source footnote T7(C2) 4499893)", msg3))
+    results.append((ok3, "A3 (count-source footnote ownership)", msg3))
 
     ok4, msg4 = check_assertion_4(SCORING_MODEL)
     results.append((ok4, "A4 (DS/SB/cap formula hash unchanged)", msg4))
@@ -175,7 +181,7 @@ def main():
         _safe_print(status, label + ": " + msg)
 
     if all_pass:
-        print("All 4 assertions PASS -- T2b LAV linkage verified.")
+        print("All 4 assertions PASS -- LAV linkage verified.")
         sys.exit(0)
     else:
         fail_count = sum(1 for ok, _, _ in results if not ok)
