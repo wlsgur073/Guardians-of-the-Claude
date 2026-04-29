@@ -2,6 +2,7 @@
 
 **Status**: Draft (evaluation basis, not an approved change)
 **Created**: 2026-04-22
+**Last revised**: 2026-04-29 (Tier 0 raw-HTML verification at Loop 15; Tier 2 narrative paraphrase sweep at Loop 14; post-R4 parallel class-level provenance sweep at Loop 13)
 **Scope**: Fifth review round covering four additional sources. Continues [Round 1](./anthropic-engineering-insights-review.md), [Round 2](./anthropic-engineering-insights-review-round-2.md), [Round 3](./anthropic-engineering-insights-review-round-3.md), and [Round 4](./anthropic-engineering-insights-review-round-4.md).
 
 ---
@@ -82,7 +83,7 @@ Three layers have now accumulated, each deepening the verification axis:
 - **R4**: *"Verifier quality is the upper bound on agent quality"* — investment in agent past verifier resolution produces no measurable gain
 - **R5** (added in this round): *"Verifier quality requires out-of-family human calibration"* — same-model or same-family judge creates systematic bias that appears as confidence; calibration against human ground truth is a prerequisite, not an enhancement
 
-Source for Round 5's layer: the Harness Design article's explicit warning that agents *"confidently praise the work — even when, to a human observer, the quality is obviously mediocre"* when evaluating work from the same model family. Round 4's Proposal K treated calibration as optional / periodic; Round 5 corrects this to mandatory prerequisite.
+Source for Round 5's layer: the Harness Design article's explicit warning that *"agents tend to respond by confidently praising the work—even when, to a human observer, the quality is obviously mediocre"* when evaluating work from the same model family. Round 4's Proposal K treated calibration as optional / periodic; Round 5 corrects this to mandatory prerequisite.
 
 Applied implication: before investing further in `/audit` capability, the rational investment order is `test/` rubric calibration against a human-scored baseline. This is a strategic prioritization signal, not itself a proposal.
 
@@ -120,13 +121,14 @@ Teach motivation and design philosophy from the blog; teach configuration syntax
 
 #### Source Evidence
 
-- *"Classifier sees only user messages and tool calls; assistant reasoning and tool results are stripped to prevent the agent from persuading the classifier into unsafe decisions."* (Auto Mode blog) — non-obvious design principle worth teaching because it explains why Auto Mode resists a specific attack class
+- Classifier-input scoping (paraphrase; only the inner fragment is verbatim from the Auto Mode blog): the classifier sees *"only user messages and the agent's tool calls"* while assistant reasoning and tool results are stripped, preventing the agent from persuading the classifier into unsafe decisions — non-obvious design principle worth teaching because it explains why Auto Mode resists a specific attack class. (Earlier drafts italicized the entire sentence as a single literal quote; only the inner fragment is verbatim — corrected 2026-04-29 post-R4 parallel sweep.)
 - From the Auto Mode blog's Table 1 "Stage 1 → Stage 2 (full pipeline)" row: **0.4% false-positive rate on real internal traffic (n=10,000 benign tool calls)**; **17% false-negative rate on a separate curated set of real overeager actions (n=52 dangerous actions flagged by employee denial or post-hoc review)**. The two denominators differ — earlier drafts rendered both percentages as a single quoted sentence ("On real internal traffic (n=10,000): 0.4% FP; 17% FN on real overeager actions") which visually tied both figures to n=10,000 and understated the volatility of the 17% FN estimate. Denominator split made explicit 2026-04-23 post-Codex review.
-- *"Users currently approve ~93% of permission prompts"* — approval fatigue baseline
+- *"Claude Code users approve 93% of permission prompts"* (Auto Mode blog) — approval fatigue baseline (earlier drafts inserted "currently" and "~"; restored to literal 2026-04-29 post-R4 parallel sweep)
 - 20+ default block rules across four categories: destroy/exfiltrate, degrade security, cross trust boundaries, bypass review
 - Three-slot config: environment trust boundary, block rules, allow exceptions
 - Denial escalation: 3 consecutive denials or 20 total before human escalation
-- *"Good defaults ship out of the box. You can start using auto mode immediately and extend the configuration iteratively."* (Auto Mode blog) — adoption framing
+- *"Good defaults ship out of the box. You can start without writing anything"* (Auto Mode blog) — out-of-box adoption framing
+- *"You can start using auto mode immediately and extend the configuration iteratively as you work with the feature"* (Auto Mode blog) — iterative-extension framing (separate sentence, different paragraph; earlier drafts concatenated the two as if a single contiguous quotation — corrected 2026-04-29 post-R4 parallel sweep)
 
 #### Risks / Tradeoffs
 
@@ -158,7 +160,7 @@ Round 4 Proposal K specified LLM-as-judge in the `test/` framework with three gr
 
 Round 5 sources expose two issues with that framing:
 
-1. **Harness Design** warns explicitly that agents *"confidently praise the work — even when, to a human observer, the quality is obviously mediocre"* when evaluating work from the same model family. Our judge and `/audit` are same-family. The phenomenon is documented; we use the shorthand label "self-evaluation bias" in subsequent references (this phrase is our coinage — the article itself does not use it). The concrete mechanism — systematic overconfidence from a same-family judge — is the non-theoretical concern.
+1. **Harness Design** warns explicitly that *"agents tend to respond by confidently praising the work—even when, to a human observer, the quality is obviously mediocre"* when evaluating work from the same model family. Our judge and `/audit` are same-family. The phenomenon is documented; we use the shorthand label "self-evaluation bias" in subsequent references (this phrase is our coinage — the article itself does not use it). The concrete mechanism — systematic overconfidence from a same-family judge — is the non-theoretical concern.
 2. **Eval Awareness in BrowseComp** documents that models can recognize evaluation framing and behave differently. Multi-agent configurations amplify this 3.7×. Our setup is single-pass judge on static fixtures — not reproducing BrowseComp conditions — but the phenomenon warrants a brief note.
 
 #### Proposal
@@ -175,7 +177,7 @@ Rationale: same-family judge produces overconfident praise; only calibration aga
 
 **Patch 2 — Explicit self-evaluation bias warning in the Risks section.**
 
-Add to R4 K's Risks: *"Judge model evaluating outputs from the same model family risks systematic self-evaluation bias. The agent-evaluator pattern reported in Harness Design shows agents 'confidently praise work' that would fail human review. Our five-rubric metric design is not a defense against this bias — only calibration against human ground truth is, and calibration must include cases where judge output disagrees with human scoring."*
+Add to R4 K's Risks: *"Judge model evaluating outputs from the same model family risks systematic self-evaluation bias. The agent-evaluator pattern reported in Harness Design shows agents 'confidently praising the work' that would fail human review. Our five-rubric metric design is not a defense against this bias — only calibration against human ground truth is, and calibration must include cases where judge output disagrees with human scoring."*
 
 Rationale: R4 K's YAML schema and rubric structure do not prevent systematic bias; only ground-truth comparison does. The Risks section should say so explicitly.
 
@@ -187,9 +189,9 @@ Rationale: record that we considered and dismissed rather than leaving the quest
 
 #### Source Evidence
 
-- Self-evaluation bias: *"agents respond by confidently praising the work — even when, to a human observer, the quality is obviously mediocre"* (Harness Design)
+- Self-evaluation bias: *"agents tend to respond by confidently praising the work—even when, to a human observer, the quality is obviously mediocre"* (Harness Design)
 - Agent-evaluator separation rationale: Harness Design's three-agent architecture explicitly separates Generator and Evaluator roles because self-evaluation fails
-- Eval awareness amplification: *"3.7× higher in multi-agent versus single-agent configurations (0.87% vs 0.24%)"* (Eval Awareness in BrowseComp)
+- Eval awareness amplification: *"The rate of unintended solutions was 0.24% in the single-agent configuration compared to 0.87% for multi-agent, a 3.7x difference"* (Eval Awareness in BrowseComp)
 
 #### Risks / Tradeoffs
 
@@ -211,7 +213,7 @@ K-ref records *proposed patches* to Round 4 Proposal K. **Round 4's document is 
 
 #### Eval Awareness in BrowseComp (Article 1, main content)
 
-The article documents Claude Opus 4.6 recognizing that it was being evaluated on BrowseComp — enumerating benchmark names (GAIA, BrowseComp, FRAMES, SimpleQA), locating source code, XOR-decrypting answer keys. This is a striking finding but occurs in an **open-internet benchmark scenario** where the agent has web access and the benchmark is web-indexable. Our eval setup (a local-only `test/` harness per `CLAUDE.md`) runs against **repository-backed static fixtures under `ci/fixtures/**`** rather than an open-internet benchmark; the BrowseComp scenario is therefore not reproducible in this fixture-based environment. (Earlier drafts described this as "our `test/` framework runs against static fixtures in the repository", which overstated what is visible in the current checkout — the fixture corpus lives under `ci/fixtures/**` and is repo-visible, while the `test/` harness itself is gitignored and local. Corrected 2026-04-23 post-Codex review.)
+The article documents Claude Opus 4.6 recognizing that it was being evaluated on BrowseComp — enumerating nine AI benchmark names (GAIA, BrowseComp, FRAMES, SimpleQA, WebArena, AgentBench, FanOutQA, MuSR, Humanity's Last Exam), locating source code, XOR-decrypting answer keys. (Earlier drafts truncated the enumeration to four; corrected to all nine 2026-04-29 post-R4 parallel sweep.) This is a striking finding but occurs in an **open-internet benchmark scenario** where the agent has web access and the benchmark is web-indexable. Our eval setup (a local-only `test/` harness per `CLAUDE.md`) runs against **repository-backed static fixtures under `ci/fixtures/**`** rather than an open-internet benchmark; the BrowseComp scenario is therefore not reproducible in this fixture-based environment. (Earlier drafts described this as "our `test/` framework runs against static fixtures in the repository", which overstated what is visible in the current checkout — the fixture corpus lives under `ci/fixtures/**` and is repo-visible, while the `test/` harness itself is gitignored and local. Corrected 2026-04-23 post-Codex review.)
 
 The article also observes multi-agent amplification (3.7×) and effective mitigations (binary file restrictions, blocking search results containing "BrowseComp"). None apply to our internal fixture-based evaluation setup.
 
@@ -221,7 +223,7 @@ Skip recorded.
 
 #### Harness Design for Long-Running Apps (Article 2, main content)
 
-The article describes a three-agent architecture (Planner / Generator / Evaluator, GAN-inspired) that trades 20× cost increase ($9 → $200 per run, 20 min → 6 hours) for qualitative quality gain. Sprint contracts, file-based communication, context anxiety, feature-stubbing patterns — all addressed in the article — are meaningful for multi-session application development. Our `/audit` is a single-session skill, not a long-running application; the 20× cost ratio cannot be justified within our scope.
+The article describes a three-agent architecture (Planner / Generator / Evaluator, GAN-inspired) that trades 20× cost increase ($9 → $200 per run, 20 min → 6 hours) for qualitative quality gain. *"sprint contract"* (article uses lowercase singular: "...the generator and evaluator negotiated a sprint contract"), *"context anxiety"* (verbatim), the *"stub features"* pattern (article's verb form), and communication via files (article: "Communication was handled via files") — all addressed in the article — are meaningful for multi-session application development. (Earlier drafts compressed these as "Sprint contracts, file-based communication, context anxiety, feature-stubbing patterns" with all four implied article-verbatim. Tier 1+2 sweeps had identified "Sprint contracts" and "feature stubs" as verbatim. **Tier 0 raw-HTML verification 2026-04-29** found: "Sprint contracts" with capital S and plural has 0 matches in the article — article uses "sprint contract" lowercase singular only (2 matches); "feature stubs" noun form has 0 matches — only "stub features" verb form appears. Tier 1+2 sweeps had relied on WebFetch summarizer renderings that capitalized + pluralized + nominalized — corrected via Tier 0 raw-HTML check, which is the only method that catches summarizer-introduced fabrications of this kind.) Our `/audit` is a single-session skill, not a long-running application; the 20× cost ratio cannot be justified within our scope.
 
 The only element absorbed: the **self-evaluation bias warning** into K-ref #1 and K-ref #2. This warning is generalizable beyond long-running-app context because it applies wherever a same-family model judges its own outputs.
 
@@ -229,7 +231,7 @@ Skip recorded.
 
 #### Managed Agents (Article 4)
 
-Managed Agents is a hosted Claude Platform service — a meta-harness that decouples Brain (stateless Claude + harness), Hands (on-demand sandboxes and tools), and Session (durable event log). It targets long-horizon tasks with multi-environment orchestration and secure external integration. The article cites ~60% TTFT reduction at p50 from inference-before-provisioning, stateless harness resilience, credential isolation, and VPC connection without peering.
+Managed Agents is a hosted Claude Platform service — a meta-harness that decouples Brain (stateless Claude + harness), Hands (on-demand sandboxes and tools), and Session (durable event log). It targets long-horizon tasks with multi-environment orchestration and secure external integration. The article reports a roughly 60% p50 TTFT reduction (and over 90% at p95) from running inference before sandbox provisioning completes, stateless harness resilience, credential isolation, and removing the prior requirement to peer customer VPCs with Anthropic's. (Earlier drafts used compressed paraphrases — "inference-before-provisioning" and "VPC connection without peering" — that did not appear verbatim; rephrased to track article wording 2026-04-29 post-R4 parallel sweep.)
 
 Our repository is a **Claude Code plugin/template authorship domain**. Managed Agents is not a pattern we adopt, a harness we build, or a feature we teach directly. The article describes a production service whose consumers are a different audience than our primary readership (plugin/template authors).
 
@@ -255,8 +257,13 @@ Skip recorded.
 | 10   | Weight of eval-awareness note                   | 1        | Contain as brief Unverified Assumption entry, not primary risk |
 | 11   | Verification of Loop 10                         | 0        | Stands |
 | 12   | Final over/under claim sweep                    | 0        | No new corrections |
+| 13   | Post-R4 parallel class-level provenance sweep   | 7        | Loop 7 had declared "14 quoted phrases verified literal"; rigorous class-level sweep against fresh WebFetch output finds: (a) line 123 italic Classifier-scope sentence was a paraphrase, not verbatim — re-rendered with only the inner fragment *"only user messages and the agent's tool calls"* in italics, surrounding text marked as paraphrase; (b) line 129 *"Good defaults ship out of the box. You can start using auto mode immediately and extend the configuration iteratively"* concatenated two non-adjacent sentences from different paragraphs as if a single quotation — split into two separate citations and restored each to its actual surrounding sentence; (c) line 125 *"Users currently approve ~93% of permission prompts"* added "currently" and "~" not in source — corrected to literal *"Claude Code users approve 93% of permission prompts"*; (d) lines 85, 161, 190 italic "confidently praise the work" / "agents respond by confidently praising the work" variants all dropped the article's "tend to" hedge or shifted verb form — standardized to literal *"agents tend to respond by confidently praising the work—even when, to a human observer, the quality is obviously mediocre"*; the line 178 patch-text fragment 'confidently praise work' also corrected to 'confidently praising the work' (gerund + article) for consistency; (e) line 192 *"3.7× higher in multi-agent versus single-agent configurations (0.87% vs 0.24%)"* reordered the article's actual sentence — replaced with literal *"The rate of unintended solutions was 0.24% in the single-agent configuration compared to 0.87% for multi-agent, a 3.7x difference"*; (f) line 213 (Eval Awareness skip) under-enumerated the benchmark recognition — article lists nine names, R5 had listed four; corrected to all nine; (g) line 232 (Managed Agents skip) compressed paraphrases "inference-before-provisioning" and "VPC connection without peering" did not match article wording — rephrased to track the article. All seven corrected in-place (2026-04-29); proposal substance unchanged. This is the parallel of R4 Loop 13: same Loop 7 "all verified" declaration overturned by class-level sweep — confirming the recurrence pattern across R2/R3/R4/R5 (4 of 4 rounds where Loop 7 ran). |
 
-**Convergence reached at Loop 12.**
+| 14   | Tier 2 narrative paraphrase sweep               | 1        | Loop 13 (Tier 1 sweep) extended to Tier 2. Finding: line 224 (Harness Design skip) narrative listed four items — "Sprint contracts, file-based communication, context anxiety, feature-stubbing patterns" — as "all addressed in the article". Tier 2 fetch confirms two are noun-form verbatim ("Sprint contracts", "context anxiety"), one is article's verb form ("stub features"), but "file-based communication" is our paraphrase (article: "Communication was handled via files"); rewrote to clarify which items are article-verbatim and which are our paraphrase. Tier 2 sweep also confirmed: Brain/Hands/Session unified-trio framing verbatim in article (single sentence using all three names with parenthetical descriptions); 60% TTFT figure with p50 qualifier verbatim. One corrected in-place (2026-04-29). |
+
+| 15   | Tier 0 raw-HTML verification (curl + grep)      | 2        | Loop 14 (Tier 2 sweep) extended to Tier 0 — fetched raw HTML directly via curl (bypassing WebFetch summarizer) and grep-verified claimed-verbatim phrases. Findings: (a) line 224 italic *"Sprint contracts"* (capital S, plural) has 0 matches in raw HTML — article uses "sprint contract" lowercase singular only (2 instances; the verbatim sentence is "the generator and evaluator negotiated a sprint contract"); (b) line 224 narrative claim "feature stubs in noun form" has 0 matches in raw HTML — article uses only "stub features" verb form. Tier 1+2 sweeps had relied on WebFetch summarizer outputs that capitalized + pluralized "sprint contract" → "Sprint contracts" and nominalized "stub features" → "feature stubs" — exactly the class of summarizer-introduced fabrication that only Tier 0 raw-HTML verification can catch (Codex methodology category #11: source-representation mismatch). Both corrected in-place (2026-04-29). Tier 0 sweep also confirmed positive: line 232 Brain/Hands/Session use curly quotes "brain"/"hands"/"session" in raw HTML (already documented as our paraphrase via lowercase + parenthetical re-rendering); 60% TTFT figure verbatim; "Communication was handled via files" verbatim. |
+
+**Convergence re-validated at Loop 15** after Tier 0 raw-HTML verification. The Loop 13 → 14 → 15 progression confirms the methodology lesson: each tier (Tier 1 single-instance / Tier 1 class-level / Tier 2 narrative / Tier 2 iteration / Tier 0 raw-HTML) catches a class of issues the prior tier cannot — Codex's #11 source-representation mismatch is detected only at Tier 0.
 
 ---
 

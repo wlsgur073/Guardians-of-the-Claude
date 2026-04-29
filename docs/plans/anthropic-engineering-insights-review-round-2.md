@@ -2,7 +2,7 @@
 
 **Status**: Draft (evaluation basis, not an approved change)
 **Created**: 2026-04-22
-**Last revised**: 2026-04-22 (four citation/framing calibrations from post-R5 cross-round re-review — see updated Convergence Audit Trail, Loop 9)
+**Last revised**: 2026-04-29 (Tier 2 narrative paraphrase sweep across Loops 10–11; previous 2026-04-22 calibrations recorded as Loop 9)
 **Scope**: Second review round covering five additional sources. Continues [Round 1](./anthropic-engineering-insights-review.md), which remains authoritative for its four sources.
 
 ---
@@ -55,7 +55,7 @@ A recurrent motif across Round 2 sources: Claude produces output that *looks* ri
 | Best Practices           | "Trust-then-verify gap: Claude produces a plausible-looking implementation that doesn't handle edge cases"           | Strong    |
 | Postmortem (three issues)| "Claude often recovers well from isolated mistakes" — masks degradation at aggregate                                  | Strong    |
 | Writing Tools for Agents | cryptic identifiers degrade precision (our paraphrase — the article discusses resolving UUIDs and returning high-signal information, but does not use the phrase "agents hallucinate more with cryptic IDs") | Partial   |
-| Multi-Agent Research     | "endless web searching for nonexistent sources" — plausible activity without yield                                   | Weak      |
+| Multi-Agent Research     | "scouring the web endlessly for nonexistent sources" — plausible activity without yield                              | Weak      |
 
 ### Relation to Round 1
 
@@ -96,7 +96,7 @@ Checklist, derived directly from the canonical document's prescriptions:
 2. **Include/exclude table format** — adopted for CLAUDE.md content guidance?
 3. **Pruning meta-rule present** — *"For each line, ask: Would removing this cause Claude to make mistakes? If not, cut it"*?
 4. **`@path/to/import` syntax** — demonstrated in at least one example?
-5. **Common failure patterns section** — covers all five canonical items: kitchen sink session / repeated corrections / over-specified CLAUDE.md / trust-then-verify gap / infinite exploration?
+5. **Common failure patterns section** — covers all five canonical items (article's actual names): kitchen sink session / correcting over and over / over-specified CLAUDE.md / trust-then-verify gap / infinite exploration? (Earlier drafts paraphrased "Correcting over and over" as "repeated corrections"; corrected to article's actual name 2026-04-29 post-Tier 2 sweep.)
 6. **`disable-model-invocation: true`** — documented for skills whose workflows have side effects and should be manually triggered?
 7. **Writer/Reviewer parallel-session pattern** — described in advanced guides?
 8. **Checkpointing / `/rewind` vocabulary** — current and accurate?
@@ -105,7 +105,7 @@ Checklist, derived directly from the canonical document's prescriptions:
 
 - *"Give Claude a way to verify its work ... This is the single highest-leverage thing you can do."* (Best Practices)
 - *"CLAUDE.md is loaded every session, so only include things that apply broadly ... Would removing this cause Claude to make mistakes?"* (Best Practices)
-- *"`disable-model-invocation: true` for workflows with side effects that you want to trigger manually"* (Best Practices, Create skills section)
+- *"Use `disable-model-invocation: true` for workflows with side effects that you want to trigger manually"* (Best Practices, Create skills section; earlier drafts dropped the article's "Use" prefix — restored 2026-04-29 post-Tier 2 sweep iteration 2)
 - Common failure patterns — five items listed verbatim in Best Practices
 
 #### Risks / Tradeoffs
@@ -148,8 +148,8 @@ Codify as a template in `plugin/skills/audit/SKILL.md`, not as implicit practice
 
 #### Risks / Tradeoffs
 
-- *"Agents use ~4× more tokens than chat interactions; multi-agent systems use ~15× more tokens than chats."* (Multi-Agent) — longer briefings contribute.
-- *"Token usage alone explains 80% of performance variance in BrowseComp evaluation."* (Multi-Agent) — adding briefing text changes the dominant variable.
+- *"agents typically use about 4× more tokens than chat interactions, and multi-agent systems use about 15× more tokens than chats"* (Multi-Agent) — longer briefings contribute. (Earlier drafts compressed "typically use about" → "use ~"; corrected to literal 2026-04-29 post-Tier 2 sweep.)
+- *"token usage by itself explains 80% of the variance"* (Multi-Agent, in BrowseComp evaluation context) — adding briefing text changes the dominant variable. (Earlier drafts italicized "Token usage alone explains 80% of performance variance in BrowseComp evaluation" — paraphrase + appended context inside the italic; corrected to literal article fragment with separate context note 2026-04-29 post-Tier 2 sweep.)
 - If the root cause of false positives is model hallucination rather than briefing gap, briefing enrichment has limited effect.
 
 #### Prerequisites
@@ -186,8 +186,8 @@ Output format: single LLM call returning 0.0–1.0 scores plus pass/fail grade p
 
 #### Source Evidence
 
-- *"A single LLM call outputting 0.0–1.0 scores plus pass/fail grades proved most consistent and aligned with human judgements."* (Multi-Agent Research System)
-- Human reviewers surfaced edge cases automation missed — the article gives the concrete example that human testing "noticed that our early agents consistently chose SEO-optimized content farms over authoritative but less highly-ranked sources" (Multi-Agent Research System). This argues for validation against human spot-checks. (Earlier drafts rendered this as a single summary quote — corrected 2026-04-23.)
+- *"a single LLM call with a single prompt outputting scores from 0.0-1.0 and a pass-fail grade was the most consistent and aligned with human judgements"* (Multi-Agent Research System; earlier drafts paraphrased to "outputting 0.0–1.0 scores plus pass/fail grades proved most consistent" — corrected to literal 2026-04-29 post-Tier 2 sweep)
+- Human reviewers surfaced edge cases automation missed — the article reports "our early agents consistently chose SEO-optimized content farms over authoritative but less highly-ranked sources like academic PDFs or personal blogs" (Multi-Agent Research System). This argues for validation against human spot-checks. (Earlier drafts prepended "noticed that" and truncated the "like academic PDFs or personal blogs" tail; both corrected 2026-04-29 post-Tier 2 sweep. Original 2026-04-23 fix corrected an earlier "single summary quote" rendering.)
 
 #### Risks / Tradeoffs
 
@@ -230,9 +230,9 @@ Retain Round 1's two-pass structure. Remove items related to structured I/O. Ret
 
 #### Source Evidence
 
-- SWE-bench engineering (Round 1): *"the tool will only occur if there is exactly one match of `old_str`"* — interface-level error prevention
-- Building Effective Agents (Round 1): *"prompt engineering your tools deserves equal effort as overall prompts"*
-- Writing Tools for Agents: *"Namespace related tools with consistent prefixes"*, *"Unhelpful pattern: opaque error codes or tracebacks. Helpful pattern: clearly communicate specific and actionable improvements"*
+- SWE-bench engineering (Round 1): *"The replacement will only occur if there is exactly one match of `old_str`"* — interface-level error prevention (earlier drafts substituted "the tool" for the article's "The replacement"; corrected to literal 2026-04-29 post-Tier 2 sweep iteration 2)
+- Building Effective Agents (Round 1): the Appendix 2 section heading is *"Prompt engineering your tools"*, and the ACI/HCI analogy is verbatim *"plan to invest just as much effort in creating good agent-computer interfaces (ACI)"* (earlier drafts compressed these into a fabricated single quote "prompt engineering your tools deserves equal effort as overall prompts"; corrected to verbatim heading + ACI fragment 2026-04-29 post-Tier 2 sweep iteration 2)
+- Writing Tools for Agents: *"Namespacing (grouping related tools under common prefixes)"*, *"clearly communicate specific and actionable improvements, rather than opaque error codes or tracebacks"* (Earlier drafts paraphrased the first as "Namespace related tools with consistent prefixes" and restructured the error-pattern sentence into pseudo-rules "Unhelpful pattern: ... Helpful pattern: ..."; replaced with article's actual sentences 2026-04-29 post-Tier 2 sweep.)
 
 #### Risks / Tradeoffs
 
@@ -335,7 +335,11 @@ This section is a permanent record of corrections found during self-review, reta
 | 8    | Critique of Loop 7                 | 0        | Finding accepted; Proposal F renamed to avoid reliance on uncertain term                                                 |
 | 9    | Post-R5 cross-round re-review      | 4        | Loop 7's provenance check stopped after one instance (Recovery Masking); a class-level sweep on re-review finds: (a) 4-component briefing quote was summarizer synthesis, not article verbatim; (b) "Vague instructions" mostly paraphrased, only "vague" literal; (c) "Claude often recovers well..." is a fragment from a longer sentence, not a standalone motif; (d) "causally downstream" overstated a cross-round synthesis as article claim. All four corrected in-place (2026-04-22); proposal substance unchanged. |
 
-**Convergence re-validated at Loop 9.** Loop 7's design lesson — single-instance provenance findings should trigger class-level sweeps of all italicized quotes — is noted for application to future rounds.
+| 10   | Tier 2 narrative paraphrase sweep  | 7        | Loop 9 (Tier 1 sweep) extended to Tier 2 across narrative claims and additional italicized quotes that prior loops had not exhaustively examined. Findings: (a) line 58 cross-cutting table cell "endless web searching for nonexistent sources" — paraphrase; article actual: "scouring the web endlessly for nonexistent sources"; (b) line 99 checklist item "repeated corrections" — paraphrase; article uses "Correcting over and over" as the pattern name; (c) line 151 italic "Agents use ~4× more tokens..." — compression of article's "agents typically use about 4×..."; (d) line 152 italic "Token usage alone explains 80% of performance variance in BrowseComp evaluation" — paraphrase + appended context; article verbatim is just "token usage by itself explains 80% of the variance"; (e) line 189 italic LLM-judge sentence rephrased multiple ways from article's "a single LLM call with a single prompt outputting scores from 0.0-1.0 and a pass-fail grade was the most consistent..."; (f) line 190 SEO content farms quote prepended "noticed that" and truncated tail "like academic PDFs or personal blogs"; (g) line 235 Writing Tools italics — both reformulated as "Namespace related tools with consistent prefixes" + "Unhelpful pattern: ... Helpful pattern: ..." pseudo-rules versus article's actual phrasing. All seven corrected in-place (2026-04-29). Tier 2 sweep also confirmed: Multi-Agent four-component briefing structure verbatim ("an objective, an output format, guidance on the tools and sources to use, and clear task boundaries"); 90.2% multi-agent advantage verbatim; 4×/15× token figures and 80% variance figure verbatim with exact phrasing now restored. |
+
+| 11   | Tier 2 sweep iteration 2 (self-critique of Loop 10) | 3 | Loop 10 sweep was thorough but missed three additional Source-Evidence-section issues. Findings: (a) line 108 italic *"`disable-model-invocation: true` for workflows..."* dropped article's "Use" prefix — restored to literal "Use `disable-model-invocation: true`..."; (b) line 233 italic *"the tool will only occur if there is exactly one match of `old_str`"* substituted "the tool" for article's actual word "The replacement" — corrected; (c) line 234 italic *"prompt engineering your tools deserves equal effort as overall prompts"* was a fabricated compression of the Appendix 2 section heading + ACI/HCI analogy — replaced with verbatim heading and ACI fragment as separate citations. All three corrected in-place (2026-04-29). The discovery pattern (Loop 10 → 11 needed) confirms the methodology lesson recorded in `feedback_literal-quote-sweep-methodology.md`: even Tier 2 sweeps benefit from iteration; "all verified" claims should be tested against another pass before convergence is declared. |
+
+**Convergence re-validated at Loop 11** after Tier 2 sweep iteration 2. Loop 7's design lesson — single-instance provenance findings should trigger class-level sweeps — extended through Loop 10's Tier 2 sweep and now re-iterated through Loop 11's self-critique. The recurrence pattern (Loop 7 "all verified" → Loop 9 corrections → Loop 10 "all verified" → Loop 11 corrections) is itself the methodological lesson — saved as memory entry `feedback_literal-quote-sweep-methodology.md` (2026-04-29).
 
 ---
 

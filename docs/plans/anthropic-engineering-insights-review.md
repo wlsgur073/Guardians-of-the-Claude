@@ -2,7 +2,7 @@
 
 **Status**: Draft (evaluation basis, not an approved change)
 **Created**: 2026-04-22
-**Last revised**: 2026-04-22 (three minor calibrations from cross-round self-review — see end of Unifying Theme, end of Proposal A' Source Evidence, and Contextual Retrieval Skip rationale)
+**Last revised**: 2026-04-29 (Tier 0 raw-HTML verification + Tier 2 narrative paraphrase sweep — Tier 0 found one additional summarizer-introduced capitalization ("Augmented LLM" → "augmented LLM") at Proposal B that Tier 1+2 sweeps had inherited from WebFetch summarizer; previous Tier 2 fixes at Pass 2 Source Evidence for A' (Building Effective Agents quotes), C' (path handling), and B (pattern enumeration); previous 2026-04-22 calibrations were three Tier 1 items at end of Unifying Theme, end of Proposal A' Source Evidence, and Contextual Retrieval Skip rationale)
 **Scope**: Assesses whether patterns from four Anthropic engineering posts transfer to this repository (documentation + plugin marketplace, no runtime application code).
 
 ---
@@ -80,7 +80,7 @@ Two-part enhancement:
 ### Source Evidence
 
 - **Contextual Retrieval** (Anthropic) — *inspiring principle, not direct technique*. The article reports: "Contextual Embeddings reduced the top-20-chunk retrieval failure rate by 35% (5.7% → 3.7%)" and "Combining Contextual Embeddings and Contextual BM25 reduced the top-20-chunk retrieval failure rate by 49% (5.7% → 2.9%)" — with a further reduction to 67% when combined with reranking. The architectural pattern — restore context at the boundary — is portable. Note: we are not adopting the RAG technique, only the boundary-restoration *principle*.
-- **Building Effective Agents** (Anthropic) — *cited pattern with explicit modification*: The Evaluator-Optimizer pattern is described as *"one LLM generates responses while another provides iterative feedback"*, suitable when *"clear evaluation criteria where iterative refinement adds measurable value"* exists. For our case, an LLM-plus-deterministic check is a tighter fit than strict LLM-vs-LLM evaluation — less cost, criteria are often verifiable. The article supports the principle of second-stage validation; the deterministic variant is our adaptation, not the article's prescription.
+- **Building Effective Agents** (Anthropic) — *cited pattern with explicit modification*: The Evaluator-Optimizer pattern is described as *"one LLM call generates a response while another provides evaluation and feedback in a loop"*, *"particularly effective when we have clear evaluation criteria, and when iterative refinement provides measurable value"*. For our case, an LLM-plus-deterministic check is a tighter fit than strict LLM-vs-LLM evaluation — less cost, criteria are often verifiable. The article supports the principle of second-stage validation; the deterministic variant is our adaptation, not the article's prescription. (Earlier drafts paraphrased both italic quotes — "one LLM generates responses while another provides iterative feedback" and "clear evaluation criteria where iterative refinement adds measurable value"; corrected to article's literal phrasing 2026-04-29 post-Tier 2 sweep.)
 
 ### Risks / Tradeoffs
 
@@ -175,7 +175,7 @@ Two-pass review of each skill under `plugin/skills/`:
 
 ### Source Evidence
 
-- **SWE-bench Sonnet engineering** (Anthropic): two interface-level error-prevention choices from `str_replace_editor`. On ambiguous edits: "The replacement will only occur if there is exactly one match of `old_str`. If there are more or fewer matches, the model is shown an appropriate error message for it to retry." On path handling: the article describes how "sometimes models could mess up relative file paths after the agent had moved out of the root directory. To prevent this, we simply made the tool always require an absolute path." (The "anti-hallucination mechanism" label used in earlier drafts is our synthesis, not the article's phrasing — corrected 2026-04-23.) The principle: **push error prevention into the interface specification rather than catching errors after the fact.**
+- **SWE-bench Sonnet engineering** (Anthropic): two interface-level error-prevention choices from `str_replace_editor`. On ambiguous edits: *"The replacement will only occur if there is exactly one match of `old_str`. If there are more or fewer matches, the model is shown an appropriate error message for it to retry."* On path handling: the article notes that relative paths could be mishandled after the agent moved out of the root directory, and resolves this with the rule *"To prevent this, we simply made the tool always require an absolute path."* (Only the second-half phrase is verbatim; the first-half "sometimes models could mess up relative file paths after the agent had moved out of the root directory" was R1's paraphrase rendered as if part of a single quotation — corrected 2026-04-29 post-Tier 2 sweep. The "anti-hallucination mechanism" label used in earlier drafts is also our synthesis, not the article's phrasing — corrected 2026-04-23.) The principle: **push error prevention into the interface specification rather than catching errors after the fact.**
 - **Building Effective Agents** (Anthropic): invokes an HCI/ACI analogy — "one rule of thumb is to think about how much effort goes into human-computer interfaces (HCI), and plan to invest just as much effort in creating good agent-computer interfaces (ACI)." The Appendix 2 heading "Prompt engineering your tools" reinforces that tool interface design deserves the same craft as overall prompts. (Earlier drafts compressed this into a single paraphrased quote — corrected 2026-04-23.)
 
 ### Risks / Tradeoffs
@@ -198,7 +198,7 @@ Pilot the method on **one skill** first — recommend `/audit`, because it is th
 
 ### Background
 
-Building Effective Agents enumerates six-to-seven patterns (Augmented LLM, Prompt Chaining, Routing, Parallelization, Orchestrator-Workers, Evaluator-Optimizer, Autonomous Agents). Four recur in Claude Code plugin/skill design: Prompt Chaining, Routing, Orchestrator-Workers, Evaluator-Optimizer.
+Building Effective Agents enumerates seven patterns (augmented LLM, Prompt chaining, Routing, Parallelization, Orchestrator-workers, Evaluator-optimizer, Agents). Four recur in Claude Code plugin/skill design: Prompt chaining, Routing, Orchestrator-workers, Evaluator-optimizer. (Earlier drafts capitalized the hyphenated forms and rendered the seventh as "Autonomous Agents"; replaced with article's exact names — including lowercase second word and "Agents" without "Autonomous" — 2026-04-29 post-Tier 2 sweep. **Tier 0 raw-HTML verification 2026-04-29** further found that "Augmented LLM" with capital A has 0 matches in the article — article uses "augmented LLM" lowercase consistently (the section heading is "Building block: The augmented LLM"); corrected. WebFetch summarizer had rendered as "Augmented LLM" — a Tier 0-only catchable summarizer-introduced capitalization, evidence that Tier 1+2 sweeps cannot detect this class of drift.)
 
 ### Proposal
 
@@ -230,7 +230,7 @@ Proposals A', D, and C' executed (or deliberately skipped) first. Pattern labels
 ### Rationale
 
 - No RAG system in this repository. No embedding or chunking pipeline exists or is planned.
-- Total corpus size (skills, guides, templates, i18n mirrors) is plausibly under the 200K-token threshold cited by the article; the exact token count has not been measured. The article states: "If your knowledge base is smaller than 200,000 tokens (about 500 pages of material), you can just include the entire knowledge base in the prompt." (Prompt caching as the mechanism is discussed in an adjacent passage; earlier drafts of this document conflated the two paragraphs into a single quoted sentence — corrected 2026-04-23.)
+- Total corpus size (skills, guides, templates, i18n mirrors) is plausibly under the 200K-token threshold cited by the article; the exact token count has not been measured. The article states: *"If your knowledge base is smaller than 200,000 tokens (about 500 pages of material), you can just include the entire knowledge base in the prompt that you give the model, with no need for RAG or similar methods."* (Prompt caching as the mechanism is discussed in an adjacent passage; earlier drafts of this document conflated the two paragraphs into a single quoted sentence — corrected 2026-04-23. Earlier drafts also truncated the tail "that you give the model, with no need for RAG or similar methods"; restored 2026-04-29 post-Tier 2 sweep.)
 - Users building RAG systems *using* our templates may benefit from the technique in their own projects, but that is a user-guide concern, not a repository change.
 
 ### Residual Insight

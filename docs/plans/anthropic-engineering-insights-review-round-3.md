@@ -2,7 +2,7 @@
 
 **Status**: Draft (evaluation basis, not an approved change)
 **Created**: 2026-04-22
-**Last revised**: 2026-04-22 (citation/framing calibrations from post-R5 class-level provenance sweep — see updated Convergence Audit Trail, Loop 11)
+**Last revised**: 2026-04-29 (Tier 2 narrative paraphrase sweep across Loops 12–13; previous 2026-04-22 calibrations recorded as Loop 11)
 **Scope**: Third review round covering four additional sources. Continues [Round 1](./anthropic-engineering-insights-review.md) and [Round 2](./anthropic-engineering-insights-review-round-2.md), both of which remain authoritative for their respective source bundles.
 
 ---
@@ -75,7 +75,7 @@ Our cross-round synthesis (not asserted by any single article; a pattern extract
 
 #### Background
 
-Claude Code sandboxing provides filesystem and network isolation, preventing a prompt-injected agent from modifying sensitive files or exfiltrating data. The Anthropic blog cites *"reduces permission prompts by 84% internally"* — a strong operational value signal. The topic is commonly raised by Claude Code users and aligns naturally with our `/secure` skill.
+Claude Code sandboxing provides filesystem and network isolation, preventing a prompt-injected agent from modifying sensitive files or exfiltrating data. The Anthropic blog cites *"In our internal usage, we've found that sandboxing safely reduces permission prompts by 84%"* — a strong operational value signal. (Earlier drafts compressed to "reduces permission prompts by 84% internally", reordering "internally" as a tail modifier and dropping "we've found" + "safely"; restored to article's actual sentence 2026-04-29 post-Tier 2 sweep.) The topic is commonly raised by Claude Code users and aligns naturally with our `/secure` skill.
 
 Our repository is a documentation and plugin marketplace; sandboxing is squarely a topic readers expect us to cover. Absent coverage is a teaching gap; weak coverage understates the feature's importance.
 
@@ -97,7 +97,7 @@ Any teaching content should pull motivation from the blog and specifics from the
 
 - *"Claude can only access or modify specific directories. This is particularly important in preventing a prompt-injected Claude from modifying sensitive system files."* (Sandboxing blog)
 - *"Without network isolation, a compromised agent could exfiltrate sensitive files like SSH keys; without filesystem isolation, a compromised agent could easily escape the sandbox."* (Sandboxing blog)
-- *"Sandboxing reduces permission prompts by 84% internally"* (Sandboxing blog — qualified: Anthropic internal measurement)
+- *"In our internal usage, we've found that sandboxing safely reduces permission prompts by 84%"* (Sandboxing blog — qualified: Anthropic internal measurement; earlier drafts compressed to "Sandboxing reduces permission prompts by 84% internally" — corrected to literal 2026-04-29 post-Tier 2 sweep)
 
 #### Risks / Tradeoffs
 
@@ -135,7 +135,7 @@ Add the following checklist items to R2 Proposal E:
 
 #### Source Evidence
 
-- "A skill is a directory containing a `SKILL.md file` that contains organized folders of instructions, scripts, and resources that give agents additional capabilities." (Agent Skills blog — earlier drafts truncated "that give agents additional capabilities"; restored 2026-04-23 post-Codex review)
+- *"A skill is a directory containing a `SKILL.md file`."* (Agent Skills blog) — the article's actual continuation is "This file must start with YAML frontmatter…", not "that contains organized folders of instructions, scripts, and resources that give agents additional capabilities". Earlier drafts had "restored" the latter continuation as if verbatim — Tier 2 sweep against fresh fetch confirms it is paraphrase, not in the article. Truncated to verified verbatim portion 2026-04-29 post-Tier 2 sweep; the 2026-04-23 "restoration" note is now superseded.
 - Progressive Disclosure three levels as described in the article (metadata → SKILL.md → supporting files)
 - *"The amount of context that can be bundled into a skill is effectively unbounded"* — the article's rationale for progressive disclosure
 - Development workflow and security guidance quoted above
@@ -175,7 +175,7 @@ This is a sub-item, not a separate proposal: it only applies if phase-internal a
 #### Source Evidence
 
 - *"Like Claude Code creating a to-do list, or your custom agent maintaining a NOTES.md file, this simple pattern allows the agent to track progress across complex tasks."* (Context Engineering)
-- Context rot rationale: *"accuracy degrades as context length increases ... transformer architecture's n² pairwise token relationships"* — motivates externalizing state rather than holding it in context.
+- Context rot rationale (article presents these as separate sentences; verbatim where quoted): *"as the number of tokens in the context window increases, the model's ability to accurately recall information from that context decreases"* and separately attributes this to *"transformer architecture's n² pairwise token relationships"* — motivates externalizing state rather than holding it in context. (Earlier drafts concatenated these into a single italic quote with "..." that misrepresented the article's two-sentence structure; corrected to two separate verbatim fragments 2026-04-29 post-Tier 2 sweep.)
 
 #### Risks / Tradeoffs
 
@@ -197,7 +197,7 @@ This is a sub-item, not a separate proposal: it only applies if phase-internal a
 
 #### Background
 
-Our `CLAUDE.md` declares *"This CLAUDE.md should stay under 200 lines, matching the repo's own recommendation in `docs/guides/claude-md-guide.md`"*. The rule is stated but the underlying mechanism is not. Context Engineering describes **context rot** — *"accuracy degrades as context length increases ... transformer architecture's n² pairwise token relationships"* — which provides a principled rationale for length limits generally.
+Our `CLAUDE.md` declares *"This CLAUDE.md should stay under 200 lines, matching the repo's own recommendation in `docs/guides/claude-md-guide.md`"*. The rule is stated but the underlying mechanism is not. Context Engineering describes **context rot** — *"as the number of tokens in the context window increases, the model's ability to accurately recall information from that context decreases"* (article phrasing), with a separate-sentence attribution to *"transformer architecture's n² pairwise token relationships"* — which provides a principled rationale for length limits generally. (Earlier drafts joined the two passages with "..." as if a single quote; corrected to separate verbatim fragments 2026-04-29 post-Tier 2 sweep.)
 
 #### Proposal
 
@@ -209,7 +209,7 @@ Add one to two sentences to `docs/guides/claude-md-guide.md` that explain *why* 
 
 #### Source Evidence
 
-- *"LLMs experience 'context rot' — accuracy degrades as context length increases. This stems from transformer architecture's n² pairwise token relationships, meaning 'models have less experience with, and fewer specialized parameters for, context-wide dependencies.'"* (Context Engineering)
+- "context rot" (verbatim term; Context Engineering) plus the article's separate-sentence elaborations: *"as the number of tokens in the context window increases, the model's ability to accurately recall information from that context decreases"*; *"transformer architecture's n² pairwise token relationships"*; and inner fragment *"models have less experience with, and fewer specialized parameters for, context-wide dependencies"*. (Earlier drafts concatenated all into a single italic quote bridging multiple article passages; replaced with verbatim term + separate verbatim fragments 2026-04-29 post-Tier 2 sweep.)
 
 #### Risks / Tradeoffs
 
@@ -230,15 +230,15 @@ Read `docs/guides/claude-md-guide.md` to see how length guidance is currently fr
 
 #### Background
 
-The Code Execution with MCP article describes an alternative to direct tool calls: the agent writes code against MCP servers treated as a filesystem of code files, with on-demand loading of tool definitions. The article cites *"150,000 tokens to 2,000 tokens, representing a 98.7%"* reduction **in one Google Drive → Salesforce workflow example** — a single data point, not a generalizable expectation.
+The Code Execution with MCP article describes an alternative to direct tool calls: the agent writes code against MCP servers treated as a filesystem of code files, with on-demand loading of tool definitions. The article cites a token reduction *"from 150,000 tokens to 2,000 tokens—a time and cost saving of 98.7%"* **in one Google Drive → Salesforce workflow example** — a single data point, not a generalizable expectation. (Earlier drafts truncated to "150,000 tokens to 2,000 tokens, representing a 98.7%" plus standalone "reduction" word — paraphrased connector inside italic markers; restored to literal 2026-04-29 post-Tier 2 sweep iteration 2.)
 
-This pattern applies narrowly:
-- Hundreds to thousands of tools across multiple MCP servers
-- Large-dataset filtering in the execution environment
+This pattern applies narrowly. The article does not formalize a checklist; the conditions below are our synthesis from its examples (article phrases in parentheses where applicable):
+- Hundreds to thousands of tools across multiple MCP servers (article: "hundreds or thousands of tools across dozens of MCP servers")
+- Large-dataset filtering in the execution environment (article example: 10,000-row spreadsheet)
 - Complex control flow (loops, conditionals, retry logic)
 - PII tokenization / privacy-preserving workflows
 
-For typical plugin authors, direct tool calls remain simpler. The pattern is worth knowing about but should not be oversold.
+For typical plugin authors, direct tool calls remain simpler. The pattern is worth knowing about but should not be oversold. (Earlier drafts framed the four bullets as if directly enumerated by the article; reframed as our synthesis from examples 2026-04-29 post-Tier 2 sweep.)
 
 #### Proposal
 
@@ -290,7 +290,11 @@ Paradigm mismatch; not pursued.
 | 10   | Final over/under claim sweep         | 0        | No new corrections                                                                                                                                                                         |
 | 11   | Post-R5 class-level provenance sweep | 5        | Loop 6 had declared "All 10+ quoted phrases verified literal"; a rigorous class-level sweep (modeled on R2 Loop 9) finds: (a) three truncated quotes in E-ext checklist — lines 131/132/133 each abbreviated the source text without ellipsis markers; extended to full source or marked with […]; (b) parenthetical quote in F-ext background (line 162) was a mid-sentence fragment — replaced with paraphrase plus cross-reference to Source Evidence; (c) "exact feature" at line 14 overclaims scope (Agent Skills concept vs Claude Code plugin implementation) — softened; (d) arrow lifecycle (lines 63-67) was cross-round author synthesis presented without qualifier — marked as our synthesis, "heuristic rather than causal". All five corrected in-place (2026-04-22); proposal substance unchanged. |
 
-**Convergence re-validated at Loop 11** after cross-round re-review. Loop 6's "verified literal" claim was found overconfident — at the time, the sweep stopped at non-fabrication verification rather than checking literal fidelity of each quote against source. Same design lesson as R2 Loop 9 applies: single-instance provenance findings should trigger exhaustive class-level sweeps of all italicized quotes.
+| 12   | Tier 2 narrative paraphrase sweep    | 6        | Loop 11 (Tier 1 sweep) extended to Tier 2 across narrative claims and additional italicized quotes. Findings: (a) line 78 + line 100 G italic *"reduces permission prompts by 84% internally"* truncated and reordered article's actual *"In our internal usage, we've found that sandboxing safely reduces permission prompts by 84%"* — restored at both sites; (b) line 138 skill definition italic — the 2026-04-23 "restoration" of "that contains organized folders of instructions, scripts, and resources that give agents additional capabilities" turned out to NOT be article-verbatim; the article's actual continuation is "This file must start with YAML frontmatter…". Truncated to verified verbatim portion ("A skill is a directory containing a `SKILL.md file`."); (c) line 178 + line 200 + line 212 context-rot italics each concatenated separate article passages as if a single quote with "..." — all three replaced with article's actual two-sentence structure (verbatim fragments separated explicitly); (d) line 234 H applicability conditions framed as bullet enumeration — article presents through examples rather than as a formal checklist; reframed as our synthesis from examples. Tier 2 sweep also confirmed: "Linux bubblewrap and MacOS seatbelt" verbatim, Progressive Disclosure three-level structure verbatim ("first level"/"second level"/"third level (and beyond)"), security recommendation verbatim, "effectively unbounded" verbatim, NOTES.md/to-do verbatim, just-in-time identifiers verbatim, "Structured note-taking" verbatim. All six corrected in-place (2026-04-29). |
+
+| 13   | Tier 2 sweep iteration 2 (self-critique of Loop 12) | 1 | Loop 12 sweep was thorough but missed one additional H Background italic. Finding: line 233 italic *"150,000 tokens to 2,000 tokens, representing a 98.7%"* (followed by standalone "reduction") used the word "representing" as a connector inside the italic, while the article's actual phrasing is "from 150,000 tokens to 2,000 tokens—a time and cost saving of 98.7%". Replaced with literal article phrasing as a single italic. Corrected in-place (2026-04-29). The Loop 12 → 13 pattern confirms methodology lesson recorded in `feedback_literal-quote-sweep-methodology.md`: Tier 2 sweep iterations are also subject to single-pass blind spots and benefit from a second self-critique pass. |
+
+**Convergence re-validated at Loop 13** after Tier 2 sweep iteration 2. R3 baseline now established at Tier 1 + Tier 2 + Tier 2 self-critique. The 2026-04-23 "restoration" attempt at line 138 illustrates a fail-mode where audit-trail notes can themselves codify paraphrase as if it were truncation-being-restored — flagged as methodological lesson: any "restored truncation" claim should be verified against fresh source fetch, not memory of an earlier loop.
 
 ---
 

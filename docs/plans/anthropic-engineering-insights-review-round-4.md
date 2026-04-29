@@ -2,6 +2,7 @@
 
 **Status**: Draft (evaluation basis, not an approved change)
 **Created**: 2026-04-22
+**Last revised**: 2026-04-29 (post-R5 class-level provenance sweep at Loop 13; Tier 2 narrative paraphrase sweep at Loop 14)
 **Scope**: Fourth review round covering five additional sources. Continues [Round 1](./anthropic-engineering-insights-review.md), [Round 2](./anthropic-engineering-insights-review-round-2.md), and [Round 3](./anthropic-engineering-insights-review-round-3.md).
 
 ---
@@ -55,7 +56,7 @@ Three of the five sources converge on one claim:
 
 | Source | Manifestation | Fit |
 |---|---|---|
-| Building a C compiler | *"The task verifier is nearly perfect, otherwise Claude will solve the wrong problem."* | Strong |
+| Building a C compiler | *"So it's important that the task verifier is nearly perfect, otherwise Claude will solve the wrong problem."* | Strong |
 | Effective harnesses | Feature list (JSON) + smoke test + git log as the harness's verification substrate | Strong |
 | Demystifying evals | Bad graders let agents "easily 'cheat' the eval" — grader design is first-order (article: "The agent shouldn't be able to easily 'cheat' the eval") | Strong |
 | Advanced tool use | Programmatic Tool Calling optimizes inflow, not verification (adjacent, not same) | Adjacent |
@@ -110,7 +111,7 @@ The Demystifying Evals article identifies three canonical grader categories (cod
 
 Earlier drafts said "use all three grader types explicitly" while the YAML showed five sub-types and the Risks section said "start with two" — a 3-layer inconsistency. Corrected 2026-04-23 post-Codex review into the canonical-type / YAML-sub-type hierarchy above.
 
-The article frames these as complementary: *"LLM-as-judge graders should be closely calibrated with human experts to gain confidence."*
+The article frames these as complementary: *"LLM-as-judge graders should be closely calibrated with human experts to gain confidence that there is little divergence between the human grading and model grading"* (earlier drafts truncated the "that there is little divergence..." tail; restored to literal 2026-04-29 post-Tier 2 sweep)
 
 **3. Split evals into Capability vs Regression tiers.**
 
@@ -122,19 +123,19 @@ The article discusses both anchors independently — "20-50 simple tasks" as the
 Both tiers are live; graduation is explicit.
 
 **4. Allow "Unknown" in judge responses.**
-The article recommends: "give the LLM a way out, like providing an instruction to return 'Unknown' when it doesn't have enough information" (Demystifying Evals). Our judge prompt should include an equivalent affordance — e.g., "If information is insufficient to grade this assertion, respond Unknown" — as a specific technique to reduce hallucination in LLM-as-judge.
+The article recommends: *"To avoid hallucinations, give the LLM a way out, like providing an instruction to return 'Unknown' when it doesn't have enough information"* (Demystifying Evals). Our judge prompt should include an equivalent affordance — e.g., "If information is insufficient to grade this assertion, respond Unknown" — as a specific technique to reduce hallucination in LLM-as-judge. (Earlier drafts dropped the article's lead-in "To avoid hallucinations,"; restored 2026-04-29 post-R5 sweep.)
 
 **5. Introduce pass@k and pass^k metrics at the `test/` framework level.**
 - `pass@k` — probability `/audit` catches the core issue in at least one of k runs (single-success mode)
 - `pass^k` — probability `/audit` succeeds on all k independent trials for the same fixture (consistency-under-success mode — an agent that repeats the *same wrong answer* across k runs is perfectly consistent but still scores 0 on pass^k, so "consistency" alone is not the right gloss). (Earlier drafts glossed this as "produces consistent findings"; corrected 2026-04-23 post-Codex review to match the article's literal definition.)
 
-The article notes these *"tell opposite stories about consistency requirements"*; both are needed.
+The article frames these as complementary: *"By k=10, they tell opposite stories: pass@k approaches 100% while pass^k falls to 0%"*; both are needed. (Earlier drafts italicized a paraphrased gloss "tell opposite stories about consistency requirements" that does not appear in the source; replaced with the literal sentence 2026-04-29 post-R5 sweep.)
 
 **Scope note**: pass@k / pass^k apply to how we evaluate `/audit` across fixtures and reruns in `test/`, not within a single `/audit` execution.
 
 #### Source Evidence
 
-- *"LLM-as-judge graders should be closely calibrated with human experts to gain confidence."* (Demystifying Evals)
+- *"LLM-as-judge graders should be closely calibrated with human experts to gain confidence that there is little divergence between the human grading and model grading"* (Demystifying Evals; earlier drafts truncated the "that there is..." tail — restored 2026-04-29 post-Tier 2 sweep)
 - Two YAML rubric schemas presented literally in the article (coding-agent and conversational-agent variants)
 - `pass@k` / `pass^k` definitions and framing — literal in article
 - Capability vs Regression tier distinction — literal in article
@@ -165,7 +166,7 @@ The article notes these *"tell opposite stories about consistency requirements"*
 
 #### Background
 
-Round 2 Proposal A'-rt specified a deterministic post-check where subagent findings are validated by re-reading cited files before being surfaced. The C compiler article names the same pattern: *"The task verifier is nearly perfect, otherwise Claude will solve the wrong problem"*, with GCC serving as a known-good oracle validating their new compiler.
+Round 2 Proposal A'-rt specified a deterministic post-check where subagent findings are validated by re-reading cited files before being surfaced. The C compiler article names the same pattern: *"So it's important that the task verifier is nearly perfect, otherwise Claude will solve the wrong problem"*, with GCC serving as a known-good oracle validating their new compiler.
 
 For `/audit`, the oracle is our CI scripts (`.github/scripts/check-*.py`) where they cover the rule being checked. This proposal makes the vocabulary explicit.
 
@@ -178,7 +179,7 @@ For `/audit`, the oracle is our CI scripts (`.github/scripts/check-*.py`) where 
 
 #### Source Evidence
 
-- *"The task verifier is nearly perfect, otherwise Claude will solve the wrong problem."* (C compiler article)
+- *"So it's important that the task verifier is nearly perfect, otherwise Claude will solve the wrong problem."* (C compiler article)
 - Oracle-based debugging pattern (GCC as known-good compiler) — described in C compiler article
 - Demystifying Evals' first-order treatment of graders supports the same principle in a different vocabulary
 
@@ -244,7 +245,7 @@ If R2 Proposal B is pursued, add a "Long-running harness patterns" subsection dr
 - Harness vs model distinction
 - Feature-list JSON as a verification substrate
 - Session initialization checklist pattern
-- Four failure modes table (premature completion / half-implemented / undocumented bugs / inappropriate marking)
+- Four failure modes table — article's actual names: "Claude declares victory on the entire project too early" / "Claude leaves the environment in a state with bugs or undocumented progress" / "Claude marks features as done prematurely" / "Claude has to spend time figuring out how to run the app" (earlier drafts paraphrased these inaccurately as "premature completion / half-implemented / undocumented bugs / inappropriate marking" — corrected 2026-04-29 post-R5 sweep)
 
 #### Source Evidence
 
@@ -271,9 +272,9 @@ If R2 Proposal B is pursued, add a "Long-running harness patterns" subsection dr
 
 #### AI-Resistant Technical Evaluations (Article 4)
 
-The article targets human technical interviews where candidates may use AI assistance. Principles include exploiting distribution gaps, requiring multi-stage reasoning with feedback, and building tools during assessment. The subject matter is **hiring**, not **agent evaluation infrastructure**.
+The article targets human technical interviews where candidates may use AI assistance. Earlier drafts described article principles as "exploiting distribution gaps, requiring multi-stage reasoning with feedback, and building tools during assessment" — none of these phrases appear verbatim in the article, and the closest matches are scattered concepts not stated as principles. The article's actual stated design goals are "Representative of real work", "High signal", "No specific domain knowledge", and "Fun" (already corrected at line 276 below in Loop 13). The subject matter is **hiring**, not **agent evaluation infrastructure**. (Three-principle fabrication corrected 2026-04-29 post-Tier 2 sweep.)
 
-The only transferable meta-principle — *"evaluations should reward novel reasoning, not pattern matching"* — is a general insight, not a proposal generator for our project. No concrete action.
+The article's actual design goals — *"Representative of real work"*, *"High signal"*, *"No specific domain knowledge"*, *"Fun"* — apply to human take-home tests, not to AI agent evaluation. The closest transferable framing is hiring-context advice: *"Longer-horizon problems are harder for AI to solve completely, so candidates can use AI tools (as they would on the job) while still needing to demonstrate their own skills."* This generates no proposal for our project. (Earlier drafts attributed an italicized "evaluations should reward novel reasoning, not pattern matching" meta-principle to this article; that phrase does not appear in the source — corrected 2026-04-29 post-R5 sweep.) No concrete action.
 
 Skip with recorded rationale.
 
@@ -281,7 +282,7 @@ Skip with recorded rationale.
 
 The project uses 16 Claude Opus 4.6 instances over 2,000 sessions producing 100,000 lines of code at ~$20,000 API cost. Our project operates at a categorically different scale (single-session skills, no parallel agent coordination, no API-cost budget scope).
 
-The article's transferable patterns (parallel specialization, lock-file synchronization, task-verifier primacy) require infrastructure we do not have. The only element absorbed is the **oracle vocabulary**, which folds into Proposal L.
+The article describes transferable patterns using its own phrasing — "Parallelism also enables specialization" (multi-agent role assignment), a "synchronization algorithm" using filesystem locks ("Claude takes a 'lock' on a task by writing a text file to current_tasks/"), and the centrality of high-quality task verifiers (the article's section heading is "Write extremely high-quality tests"). All three require infrastructure we do not have. The only element absorbed is the **oracle vocabulary**, which folds into Proposal L. (Earlier drafts compressed these into "parallel specialization / lock-file synchronization / task-verifier primacy" — three coinages presented as if article phrases; replaced with article's actual wording 2026-04-29 post-Tier 2 sweep.)
 
 Skip main content with recorded rationale.
 
@@ -303,8 +304,11 @@ Skip main content with recorded rationale.
 | 10   | Scope correction on pass@k/pass^k     | 1        | Metrics apply at `test/` framework level across fixtures, not within a single /audit execution |
 | 11   | Verification of Loop 10               | 0        | Scope correction stands |
 | 12   | Final over/under claim sweep          | 0        | No new corrections |
+| 13   | Post-R5 class-level provenance sweep  | 5        | Loop 7 had declared "All quoted phrases verified literal"; rigorous class-level sweep against fresh WebFetch output finds: (a) line 131 italic *"tell opposite stories about consistency requirements"* — paraphrased gloss not in article; replaced with literal *"By k=10, they tell opposite stories: pass@k approaches 100% while pass^k falls to 0%"*; (b) line 247 (B-cond) failure-mode names did not match article's actual four modes — corrected to article's verbatim names ("declares victory on the entire project too early" / "leaves the environment in a state with bugs or undocumented progress" / "marks features as done prematurely" / "has to spend time figuring out how to run the app"); (c) line 276 (AI-Resistant Evals skip) italic *"evaluations should reward novel reasoning, not pattern matching"* was fabricated — replaced with article's actual design goals ("Representative of real work" / "High signal" / "No specific domain knowledge" / "Fun") plus the verbatim hiring-context closest-fit framing; (d) lines 58, 168, 181 italic *"The task verifier is nearly perfect..."* truncated article's lead-in "So it's important that" — extended to literal across all three sites; (e) line 125 italic "give the LLM a way out..." dropped article's lead-in "To avoid hallucinations," — extended to literal. All five corrected in-place (2026-04-29); proposal substance unchanged. This is the third Round in which a Loop 7 "all verified" declaration was overturned by a later class-level sweep (R2 Loop 9, R3 Loop 11, R4 Loop 13) — the recurrence is itself the methodological finding: single-instance verification under "verified literal" framing systematically misses the class. |
 
-**Convergence reached at Loop 12.**
+| 14   | Tier 2 narrative paraphrase sweep     | 4        | Loop 13 (Tier 1 sweep) extended to Tier 2. Findings: (a) line 113 + line 137 italic *"LLM-as-judge graders should be closely calibrated with human experts to gain confidence."* truncated article's tail "that there is little divergence between the human grading and model grading" — restored at both sites; (b) line 274 (AI-Resistant Evals skip) narrative listed three "principles" — "exploiting distribution gaps, requiring multi-stage reasoning with feedback, building tools during assessment" — none verbatim; closest article concepts are scattered references, not stated principles. Replaced with explicit acknowledgment + reference to article's actual design goals (already corrected at line 276 in Loop 13); (c) line 282-285 (C Compiler skip) narrative listed three patterns — "parallel specialization, lock-file synchronization, task-verifier primacy" — none verbatim. Replaced with article's actual wording. Tier 2 sweep also confirmed: 2 YAML schemas verbatim, 5 grader sub-types match article exactly, oracle vocabulary verbatim, three grader categories ("code-based, model-based, and human") verbatim, "Capability or 'quality' evals" verbatim (R4's "tier" framing already self-acknowledged as our synthesis at line 117). All four corrected in-place (2026-04-29). |
+
+**Convergence re-validated at Loop 14** after Tier 2 sweep.
 
 ---
 
