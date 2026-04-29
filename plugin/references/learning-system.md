@@ -1,7 +1,7 @@
 ---
 title: Learning System
 description: Shared state management reference for /create, /audit, /secure, /optimize
-version: 2.2.0
+version: 2.3.3
 ---
 
 # Learning System
@@ -46,6 +46,7 @@ Every transition below is explicit. Implicit behavior is forbidden.
    - If parse succeeds → write canonical file via atomic write (see `plugin/references/lib/state_io.md` §atomic-write); preserve other valid canonicals untouched.
    - If parse fails OR no legacy source available → initialize empty: `profile.json = {schema_version, metadata}` only; `recommendations.json = {schema_version, metadata, recommendations: []}`. Atomic write (same spec).
    - Move ANY corrupt canonical to backup (phase 5) before overwriting (data preservation).
+   - **Model field write path**: when emitting `profile.json` here, include `claude_code_configuration_state.model = <resolver output>` as a non-null string per the schema. This Step 0.5 write path applies to every skill's emission — migration, fresh bootstrap, post-validation re-write — with no new sub-phase and no `/audit`-specific branching. Stateless mode inherits Phase 1 Global Invariant #6 no-op.
 
 5. **Quarantine ALL examined legacy inputs** (success AND failure):
    - Backup path: `local/legacy-backup/{ISO-8601-UTC, e.g., 2026-04-14T13-42-09Z}/`.
@@ -167,7 +168,32 @@ Do NOT write `latest-{skill}.md` — legacy per-skill result files are deprecate
 
 See `plugin/references/lib/merge_rules.md`.
 
+**Inline summaries in skill docs**: each owning skill's SKILL.md (e.g., `plugin/skills/audit/SKILL.md` Phase 5) carries an applied-view summary of its `claude_code_configuration_state.{model, scoring_model_ack}` and `- Model:` bullet behavior. `merge_rules.md` is the mechanism reference; the section below describes the changelog `- Model:` hybrid writer behavior shared across skills.
+
 **Note**: `local/latest-{skill}.md` is deprecated. Skill-specific result info now lives in `config-changelog.md` entries and is surfaced in `state-summary.md`'s Recent Skill Results section. Migration in Step 0.5 moves any legacy `latest-*.md` files to `local/legacy-backup/`.
+
+---
+
+## Model Bullet Emission (config-changelog.md)
+
+The `- Model:` bullet captures the resolved Claude model ID at the top of each changelog entry. Hybrid writer policy shared by all four skills:
+
+**Step 2 (re-read under lock)** — after re-reading `current_changelog`, parse the immediately previous `###` entry (most-recent entry in Recent Activity, **regardless of which skill wrote it**) and extract its `- Model:` line value as `previous_model`. Absent bullet (pre-v2.12.0 legacy OR delta-omit path) maps to `previous_model = null`.
+
+**Step 3 (compute `emit_bullet`)** — skill-specific branch:
+
+- **`/audit` always-emit**: `emit_bullet = True` unconditionally. `/audit` is the baseline anchor for drift derivation; always-emitting guarantees the reverse-scan terminator carries non-null `last_model`.
+- **`/create`, `/secure`, `/optimize` delta-emit**: `emit_bullet = (current_model != previous_model)` with null-safe equality. `current_model` is `profile.claude_code_configuration_state.model` at Final Phase write time. Two non-null values compare as string equality; non-null `current_model` against `null` `previous_model` emits.
+
+**Step 5 (atomic write)** — when `emit_bullet == True`, the bullet is the first line under the `### {YYYY-MM-DD} — /{skill}` heading:
+
+```
+- Model: {current_model}
+```
+
+placed immediately before `- Detected:`. When `emit_bullet == False`, the bullet is **omitted entirely** — the literal `- Model: (none)` is forbidden (parser defense in `check-smoke-fixtures.py:870-873`).
+
+**Stateless mode** — when `local/` is unwritable (Phase 1 Global Invariant #6), no changelog write occurs and no model bullet is emitted by any skill.
 
 ---
 
@@ -207,6 +233,45 @@ After (14:15:00 run merged):
 1. Count entries in Recent Activity. If >10, trigger compaction.
 2. Select entries strictly older than 30 days (entry date < today - 30; entries exactly 30 days old stay in Recent Activity), group by quarter (`YYYY-QN`).
 3. Produce compacted summary per quarter. Append to Compacted History, remove originals.
+
+**Step 3b — Per-skill structured anchor emission**:
+
+For each bucket being rolled into Compacted History at this compaction pass, emit a structured anchor per skill that appeared in the bucket. Anchors embed in the bucket's Compacted History metadata alongside the narrative summary produced by Step 3 — they do not replace the §Lossless Anchors narrative preservation below.
+
+Algorithm (per bucket):
+
+a. **Group `bucket_entries` by `skill`** — up to 4 skills per Phase 1 Environmental Assumption: `/audit`, `/create`, `/secure`, `/optimize`. A skill absent from the bucket has no anchor emitted for this bucket.
+
+b. **Sort each skill's entries by `date` descending** (most-recent first).
+
+c. **Compute `last_entry_date`** = the skill's most-recent entry's `date` (always non-null — entry dates are required by the entry format).
+
+d. **Compute `last_model`** = the skill's most-recent entry whose `bullet_model` is non-null (the `- Model:` bullet value parsed per the changelog entry format). If all the skill's entries in this bucket lack a bullet (pre-v2.12.0 legacy OR delta-omit path), `last_model = null` per the generalized null rule.
+
+e. **Compute `last_capability_fingerprint`** = `normalize_model_id(last_model)` when `last_model` is non-null. `normalize_model_id` may return `null` even on non-null input (fail-safe propagation) — propagate `null` rather than raising. When `last_model` is `null`, `last_capability_fingerprint = null`.
+
+f. **Emit anchor dict** `{"skill": skill, "last_entry_date": last_entry_date, "last_model": last_model, "last_capability_fingerprint": last_capability_fingerprint}` into the bucket's Compacted History metadata. Anchor key order matches the canonical anchor shape.
+
+**Cardinality**: at most one anchor per skill per bucket; up to 4 anchors per bucket maximum. A 5th skill is BREAKING per Phase 1 four-skill environmental assumption.
+
+**Bucket-local sourcing**: the algorithm scans only entries within the current bucket. It does not look back to prior buckets or to Recent Activity to recover a missing `last_model` for this skill. If a bucket's `/audit` anchor ends up with `last_model = null`, that anchor carries null forward to reader-time baseline derivation — the consumer-side contract (see **Interactions** below) handles this case without skip-and-continue.
+
+**Fingerprint write-time semantics**: `last_capability_fingerprint` is a write-time informational snapshot. The drift advisory state machine re-normalizes `last_model` at *read* time for `baseline_fp` derivation; the stored fingerprint is not authoritative for drift evaluation (baseline-anchor-authority resolution). Stale stored values are tolerated and not rewritten on read.
+
+**Stateless mode**: Step 3b is skipped transitively when Phase 1 Global Invariant #6 skips the changelog write (`local/` unwritable). Stateless mode does not enumerate Step 3b separately — no Step 3b-specific stateless logic is required.
+
+**Lock integration**: Step 3b executes within Final Phase Step 3 (merge deltas) per the lock insertion map — anchors are part of the in-memory merged changelog; persistence occurs at Final Phase Step 5 (atomic write of the full changelog file). No separate lock acquisition — Step 3b rides the existing Final Phase state-mutation lock.
+
+**Interactions** (consumer-side contract — the drift advisory state machine is the authoritative specification for reader behavior):
+
+- **Drift advisory scan order for `/audit` baseline derivation**: consumers read `bullet_model` from Recent Activity (reverse-chronological) first; if exhausted, fall through to Compacted History buckets (reverse-chronological); within each bucket, the first `/audit` anchor reached supplies `baseline_last_model` for `baseline_fp` normalization. If exhausted across all Compacted History buckets, `baseline_present = false` → `missing_baseline` silence per the silence evaluation order.
+
+- **First-anchor-wins**: if the first `/audit` anchor reached by the scan has `last_model = null`, the state machine yields `normalization_null` silence (`baseline_present == true` AND `baseline_fp == null` → `normalization_null`). The state machine does **NOT** skip past this anchor to search for an older non-null anchor. Step 3b emits bucket-local `last_model` values faithfully (per-bucket most-recent non-null); the first-anchor-wins semantics are a reader-side terminator contract, not an emit-side filter.
+
+- **Anchor-vs-bullet authority per skill**: `/audit` always-emits the `- Model:` bullet (per the writer policy), so any `/audit` anchor in a bucket has a non-null `last_model` **unless** the bucket's `/audit` entries are all pre-v2.12.0 legacy (legacy entries have no bullet, mapping to `null`). Non-/audit anchors (`/create`, `/secure`, `/optimize`) may have `last_model = null` when all that skill's entries in the bucket delta-omitted (per the delta-emit policy). These null-anchor cases are the exact trigger for the first-anchor-wins rule above.
+
+- **Lossless Anchors interaction** (narrative preservation below): the structured anchors are a supplement to, not a replacement for, the narrative Lossless Anchors preservation. The narrative summary (dates, skill names+counts, applied changes, etc.) preserves human-readable audit trail; the structured anchors provide machine-readable state for drift derivation. Both are emitted during Step 3's per-bucket output.
+
 4. Three-tier resolution: **year-level** (>2 years) → **quarter-level** (older than current quarter) → **entry-level** (recent, full detail).
 5. Update frontmatter: `compacted_at`, `entry_count`.
 
@@ -252,7 +317,7 @@ After compaction (~4 lines):
 
 ## Legacy Project Profile Format (pre-v2.11.0)
 
-> **Note**: Current canonical format is `profile.json` — see `plugin/references/schemas/profile.schema.json`. This legacy MD format is still parsed by Phase 0.5 migration (Task 3) to convert existing installations.
+> **Note**: Current canonical format is `profile.json` — see `plugin/references/schemas/profile.schema.base.json` (shape) and `profile.schema.v1.0.0.json` / `profile.schema.v1.1.0.json` (versioned validators). This legacy MD format is still parsed by Phase 0.5 migration (Task 3) to convert existing installations.
 
 Frontmatter:
 
@@ -317,7 +382,7 @@ Frontmatter:
 ---
 title: Configuration Changelog
 description: Decision journal for Claude Code configuration changes
-version: 1.0.0
+version: 1.1.0
 compacted_at: {YYYY-MM-DD or "never"}
 entry_count: {N}
 ---
@@ -327,6 +392,7 @@ Two sections: `## Compacted History` and `## Recent Activity`. Entry format:
 
 ```markdown
 ### {YYYY-MM-DD} — /{skill-name}
+- Model: {resolved model id; delta-omit for non-/audit skills if unchanged}
 - Detected: {changes or (none)}
 - Profile updated: {sections or (none)}
 - Applied: {changes or (none)}
@@ -353,7 +419,7 @@ Changelog entries must NOT include audit scores. Scores are user-facing snapshot
 
 Skills write `profile.json` + `recommendations.json` as **canonical state**. The derived `state-summary.md` is a human-readable view produced by the shared renderer defined below — never a source.
 
-**Invocation**: Every skill's Final Phase Step 1 calls this renderer immediately after writing the two JSON files.
+**Invocation**: Every skill's Final Phase Step 1 substep 4 (see §Common Final Phase above) invokes this renderer. Input is the in-memory `new_profile` + `new_recommendations` + `new_changelog` produced at substep 3; atomic write of `state-summary.md` happens at substep 5. Render is pre-write, not post-write, to avoid TOCTOU against the same Step 1's writes.
 
 **Strict rules**:
 1. `state-summary.md` is read-only from the user's perspective. Skills never read it in any Phase (hot path or otherwise). Read `profile.json` and `recommendations.json` directly.
@@ -407,6 +473,53 @@ Skills write `profile.json` + `recommendations.json` as **canonical state**. The
 
 ---
 
+## Drift Advisory Derivation
+
+The `state-summary.md` header and the `/audit` terminal drift block are two render sinks for a single underlying advisory state. The derivation is pure: same inputs produce the same state regardless of which skill invokes the render. All four skills call this derivation via the shared renderer invocation above.
+
+**Inputs**:
+
+- `current_model_id`: the value written at Common Phase 0 Step 0.5 phase 4 into `profile.json → claude_code_configuration_state.model` (see §Common Phase 0).
+- `changelog_text`: in-memory `new_changelog` content at Final Phase Step 1 substep 3.
+- `current_skill`: the skill currently running (one of `/audit`, `/create`, `/secure`, `/optimize`).
+
+**Algorithm**:
+
+1. Compute `current_fp = normalize_model_id(current_model_id)` per `plugin/references/model-drift-rules.md`. May return `null` for unrecognized models (fail-safe).
+2. Scan `changelog_text` for the baseline `/audit` anchor in **reverse-chronological order**:
+   - First scan Recent Activity entries (most-recent first) for `/audit` entries with a non-null `- Model:` bullet. If found, `baseline_last_model = bullet value`; stop.
+   - If Recent Activity exhausted without match, scan Compacted History buckets (most-recent bucket first). Within each bucket, locate the structured `/audit` anchor (emitted per §Compaction Algorithm Step 3b). The **first** `/audit` anchor reached wins (first-anchor-wins rule); do NOT skip past a null anchor to search for an older non-null one.
+   - If all buckets exhausted with no `/audit` anchor: `baseline_present = false`.
+3. Compute `baseline_fp`:
+   - `baseline_present == false` → `baseline_fp = null` (meaning: no prior baseline; `missing_baseline` state below).
+   - `baseline_present == true` AND `baseline_last_model is null` → `baseline_fp = null` (anchor exists but delta-omit path; `normalization_null` state below).
+   - `baseline_present == true` AND `baseline_last_model` non-null → `baseline_fp = normalize_model_id(baseline_last_model)`. May itself return `null` (normalization-table boundary case).
+4. Silence evaluation order (short-circuit):
+   a. `current_fp == null` OR (`baseline_present == true` AND `baseline_fp == null`) → `normalization_null`
+   b. `baseline_present == false` → `missing_baseline`
+   c. `current_fp == baseline_fp` → `match`
+   d. otherwise → `drift`
+5. Return `(state, baseline_model_id_string, current_model_id_string)`. The two raw strings are consumed by the render paths for user-facing display (not the normalized fingerprint dicts).
+
+**Render trigger**:
+
+- `drift` → state-summary renderer injects a one-line header immediately after `# Claude Code Configuration State`, before `## Project Profile`: `Model drift: <baseline_model_id_string> -> <current_model_id_string>`. `/audit` terminal additionally renders the axis-wise block (see `plugin/skills/audit/references/output-format.md`).
+- `match` / `missing_baseline` / `normalization_null` → **silent** at both sinks. No informational fallback line. Silence is by design: the A2 `recommendations.json` boundary keeps drift transient, and non-drift states carry no user-actionable information.
+
+**Transience (A2 compliance)**:
+
+The derivation MUST NOT add, modify, or remove entries in `recommendations.json`. The advisory is recomputed at every render-time call; it is not persisted as a stored recommendation. Schema files (`recommendations.schema.json`, `recommendation-registry.schema.json`) carry comments excluding drift advisories from registry scope.
+
+**Stateless mode**:
+
+When `local/` is unwritable, Final Phase Step 1 is never reached (lock acquisition aborts before substep 2); therefore the state-summary header is not rendered for any skill. The `/audit` terminal drift block is derived from an in-memory-only changelog snapshot when available and renders even without persistence (`/audit`-specific behavior; see `plugin/skills/audit/SKILL.md` stateless guard). Non-`/audit` skills have no terminal drift sink; stateless silence is total for those skills.
+
+**Cross-skill invariance**:
+
+Every skill produces the same derivation output for the same `(current_model_id, changelog_text)` pair. There is no per-skill branching inside the derivation. `current_skill` is accepted as an input only for diagnostics / logging, not as a decision variable.
+
+---
+
 ## Migration Notice (printed once after legacy→JSON conversion)
 
 > ℹ️ Legacy state files converted to JSON.
@@ -426,17 +539,19 @@ Fallback variant when partial parse failure occurs:
 
 ## Schema Evolution Policy
 
-`profile.schema.json` and `recommendations.schema.json` follow SemVer:
+Profile and recommendation schemas follow SemVer:
 
 - **Patch (z)**: clarifications, docs, no structural change.
-- **Minor (y)**: add optional fields. The plugin's parser/validator continues to accept JSON files from the previous minor (N-1). Validity is parser-relative, not schema-file-relative — each per-version schema file remains a single-version validator (pinned by `"schema_version": { "const": "x.y.z" }`).
+- **Minor (y)**: add optional fields. The parser/validator accepts N-1 minor — each per-version schema file is a single-version validator (pinned by `"schema_version": { "const": "x.y.z" }`).
 - **Major (x)**: remove or rename a field, or change its type.
 
-Migration parser MUST support the current minor AND the previous minor (N-1). A major bump triggers a one-time migration rewrite.
+Migration parser MUST support the current minor AND the previous minor (N-1). A major bump triggers a one-time migration rewrite. The `schema_version` field in the JSON payload tracks payload version, independent from `plugin.json` version.
 
-The `schema_version` field in the JSON payload tracks the payload's schema version, independent from `plugin.json` version.
+**Base + versioned-wrapper architecture (profile schema)**: `profile.schema.base.json` holds the shared property shape via `$defs` without closing the schema. Versioned wrappers (`profile.schema.v1.0.0.json`, `profile.schema.v1.1.0.json`, etc.) compose the base via `$ref` and close with `unevaluatedProperties: false` at every scope the wrapper extends.
 
-**Versioned dispatch (behavioral contract)**: When v1.1.0 ships, a sibling schema file `recommendations.schema.v1.1.0.json` is added beside the v1.0.0 file. The plugin's parser/validator reads each instance's `schema_version`, selects the matching versioned schema, and validates. Migration logic lives in the same imperative code path. Schema-level `oneOf` aggregation is **not** the canonical mechanism (it gets noisy and brittle as versions accumulate); an aggregate schema may exist later as editor-tooling convenience only. The dispatcher's file location is TBD at v1.1.0 — only the contract is fixed now.
+**Why `unevaluatedProperties` not `additionalProperties`**: `additionalProperties: false` placed in a base schema evaluates within the base's own scope — it rejects fields added by versioned wrappers (those fields look "additional" to the base). `unevaluatedProperties: false` at wrapper scope counts all declarations reached through `allOf`/`$ref` composition as "evaluated," so wrapper-added fields pass while truly unknown fields are rejected. This keyword requires JSON Schema draft 2019-09 or later; wrappers declare `"$schema": "https://json-schema.org/draft/2020-12/schema"` explicitly. Pre-2019-09 validators silently ignore `unevaluatedProperties`, leaving the schema appearing strict but not enforcing — the T0 preflight probe (`ci/scripts/preflight-schema.py`) verifies draft 2020-12 enforcement before T1 schema commits.
+
+**Versioned dispatch**: the parser/validator reads each instance's `schema_version` literal, selects the matching `profile.schema.v<version>.json` wrapper, and validates. Unknown versions fail with a diagnostic naming the literal and the candidate path tried. Schema-level `oneOf` aggregation is not the canonical mechanism.
 
 **Aliases enable id renames across schema versions**: see `recommendation-registry.json` (`aliases[]` field) — a recommendation key can be renamed in a later schema version while the old key continues to resolve transparently to the new entry. ID stability is **not** assumed; aliases are the migration mechanism.
 

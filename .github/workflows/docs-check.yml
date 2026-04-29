@@ -2,7 +2,7 @@ name: docs-check
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'v*']
   pull_request:
     branches: [main]
   schedule:
@@ -179,3 +179,144 @@ jobs:
             exit 1
           fi
           echo "OK: no encoding corruption found."
+
+  preflight-schema:
+    name: Preflight schema probe (profile schema closure)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install jsonschema==4.23.0
+
+      - name: Run preflight schema probe
+        run: |
+          python ci/scripts/preflight-schema.py || EXIT_CODE=$?
+          EXIT_CODE=${EXIT_CODE:-0}
+          if [ "$EXIT_CODE" -eq 2 ]; then
+            echo "::warning::profile.schema.v1.1.0.json not found; schema probe skipped."
+            exit 0
+          fi
+          exit "$EXIT_CODE"
+
+  scoring-formula-simulation:
+    name: Scoring formula 5-sample simulation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Run 5-sample simulation
+        run: |
+          python ci/scripts/check-scoring-formula.py || EXIT_CODE=$?
+          EXIT_CODE=${EXIT_CODE:-0}
+          if [ "$EXIT_CODE" -eq 2 ]; then
+            echo "::warning::plugin/references/scoring-model.md not found; scoring formula check skipped."
+            exit 0
+          fi
+          exit "$EXIT_CODE"
+
+  scoring-model-lav-linkage:
+    name: Scoring model LAV-axis linkage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Run LAV linkage structural assertions
+        run: |
+          python ci/scripts/check-scoring-model-lav-linkage.py || EXIT_CODE=$?
+          EXIT_CODE=${EXIT_CODE:-0}
+          if [ "$EXIT_CODE" -eq 2 ]; then
+            echo "::warning::plugin/references/scoring-model.md not found; LAV linkage check skipped."
+            exit 0
+          fi
+          exit "$EXIT_CODE"
+
+  changelog-parser-check:
+    name: Changelog parser v1.1.0 check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install jsonschema==4.23.0
+
+      - name: Changelog parser check
+        run: python ci/scripts/check-changelog-parser.py
+
+  sample-list-preconditions:
+    name: Sample list preconditions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Check sample list preconditions
+        run: python ci/scripts/check-sample-list-preconditions.py
+
+  audit-goldens-check:
+    name: Audit goldens formula + bucket check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Check audit goldens
+        run: |
+          python ci/scripts/check-audit-goldens.py || EXIT_CODE=$?
+          EXIT_CODE=${EXIT_CODE:-0}
+          if [ "$EXIT_CODE" -eq 2 ]; then
+            echo "::warning::ci/fixtures/audit-goldens/ not found; audit-goldens check skipped."
+            exit 0
+          fi
+          exit "$EXIT_CODE"
+
+  audit-drift-aware-check:
+    name: Audit drift-aware recommendation structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Run drift-aware validator
+        run: python ci/scripts/check-audit-drift-aware.py
+
+  scoring-contract-consistency:
+    name: Scoring contract ID consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml==6.0.2
+
+      - name: Run scoring-contract consistency validator
+        run: python ci/scripts/check-scoring-contract-consistency.py

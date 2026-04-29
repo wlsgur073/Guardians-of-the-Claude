@@ -1,7 +1,7 @@
 ---
 title: Configuration Changelog
 description: Decision journal for Claude Code configuration changes
-version: 1.0.0
+version: 1.1.0
 compacted_at: never
 entry_count: 2
 ---
@@ -20,6 +20,7 @@ entry_count: 2
 - Recommendations: (none)
 
 ### 2026-04-14 — /audit
+- Model: claude-opus-4-7
 - Detected: (none)
 - Profile updated: (none)
 - Applied: (none)

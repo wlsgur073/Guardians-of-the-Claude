@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "profile.schema.base.json",
+  "title": "Project Profile (base — shape without closure)",
+  "type": "object",
+  "required": ["schema_version", "metadata"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "metadata": { "$ref": "#/$defs/metadata" },
+    "runtime_and_language": { "$ref": "#/$defs/runtime_and_language" },
+    "framework_and_libraries": { "$ref": "#/$defs/framework_and_libraries" },
+    "package_management": { "$ref": "#/$defs/package_management" },
+    "testing": { "$ref": "#/$defs/testing" },
+    "build_and_dev": { "$ref": "#/$defs/build_and_dev" },
+    "project_structure": { "$ref": "#/$defs/project_structure" },
+    "claude_code_configuration_state": { "$ref": "#/$defs/state" }
+  },
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "required": ["generated_by", "last_updated"],
+      "properties": {
+        "generated_by": { "const": "guardians-of-the-claude" },
+        "last_updated": { "type": "string", "format": "date-time" },
+        "source_files_checked": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "runtime_and_language": {
+      "type": ["object", "null"],
+      "properties": {
+        "runtime": { "type": ["string", "null"] },
+        "language": { "type": ["string", "null"] },
+        "module_system": { "type": ["string", "null"] }
+      }
+    },
+    "framework_and_libraries": {
+      "type": ["object", "null"],
+      "properties": {
+        "framework": { "type": ["string", "null"] },
+        "ui": { "type": ["string", "null"] },
+        "styling": { "type": ["string", "null"] }
+      }
+    },
+    "package_management": {
+      "type": ["object", "null"],
+      "properties": {
+        "manager": { "type": ["string", "null"] },
+        "lock_file": { "type": ["string", "null"] }
+      }
+    },
+    "testing": {
+      "type": ["object", "null"],
+      "properties": {
+        "unit": { "type": ["string", "null"] },
+        "e2e": { "type": ["string", "null"] }
+      }
+    },
+    "build_and_dev": {
+      "type": ["object", "null"],
+      "properties": {
+        "bundler": { "type": ["string", "null"] },
+        "linter": { "type": ["string", "null"] },
+        "formatter": { "type": ["string", "null"] }
+      }
+    },
+    "project_structure": {
+      "type": ["object", "null"],
+      "properties": {
+        "type": { "enum": ["single_project", "monorepo", null] },
+        "source_convention": { "type": ["string", "null"] },
+        "key_directories": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "state": {
+      "type": ["object", "null"],
+      "properties": {
+        "claude_md": { "type": "object" },
+        "settings_json": { "type": "object" },
+        "rules_count": { "type": "integer", "minimum": 0 },
+        "agents_count": { "type": "integer", "minimum": 0 },
+        "hooks_count": { "type": "integer", "minimum": 0 },
+        "mcp_servers_count": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

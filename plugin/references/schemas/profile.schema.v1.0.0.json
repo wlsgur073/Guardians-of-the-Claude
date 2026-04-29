@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "profile.schema.v1.0.0.json",
+  "type": "object",
+  "allOf": [
+    { "$ref": "profile.schema.base.json" }
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "metadata": {
+      "allOf": [
+        { "$ref": "profile.schema.base.json#/$defs/metadata" }
+      ],
+      "unevaluatedProperties": false
+    },
+    "runtime_and_language": {
+      "allOf": [
+        { "$ref": "profile.schema.base.json#/$defs/runtime_and_language" }
+      ],
+      "unevaluatedProperties": false
+    },
+    "framework_and_libraries": {
+      "allOf": [
+        { "$ref": "profile.schema.base.json#/$defs/framework_and_libraries" }
+      ],
+      "unevaluatedProperties": false
+    },
+    "package_management": {
+      "allOf": [
+        { "$ref": "profile.schema.base.json#/$defs/package_management" }
+      ],
+      "unevaluatedProperties": false
+    },
+    "testing": {
+      "allOf": [
+        { "$ref": "profile.schema.base.json#/$defs/testing" }
+      ],
+      "unevaluatedProperties": false
+    },
+    "build_and_dev": {
+      "allOf": [
+        { "$ref": "profile.schema.base.json#/$defs/build_and_dev" }
+      ],
+      "unevaluatedProperties": false
+    },
+    "project_structure": {
+      "allOf": [
+        { "$ref": "profile.schema.base.json#/$defs/project_structure" }
+      ],
+      "unevaluatedProperties": false
+    },
+    "claude_code_configuration_state": {
+      "allOf": [
+        { "$ref": "profile.schema.base.json#/$defs/state" }
+      ],
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

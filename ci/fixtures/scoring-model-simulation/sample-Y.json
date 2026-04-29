@@ -1,0 +1,16 @@
+{
+  "name": "Y",
+  "inputs": {
+    "DS": 80,
+    "SB": 5,
+    "LAV": { "L1": 2, "L2": 2, "L3": 3, "L4": 1, "L5": 0, "L6": 0 }
+  },
+  "expected": {
+    "LAV_nonL5": 8,
+    "other_negative_min_at_minimum": null,
+    "cap": 100,
+    "raw": 97.8,
+    "Final": 97.8
+  },
+  "design_authority": "scoring-model.md Formula"
+}

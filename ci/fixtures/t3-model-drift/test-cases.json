@@ -1,0 +1,157 @@
+[
+  {
+    "input": "claude-opus-4-7",
+    "expected_fingerprint": {
+      "family_tier": "opus",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Anthropic direct — opus-4.7-anthropic, 1M context (current baseline 2026-04-20)"
+  },
+  {
+    "input": "anthropic.claude-opus-4-7",
+    "expected_fingerprint": {
+      "family_tier": "opus",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Bedrock — opus-4.7-bedrock, 1M context (current baseline 2026-04-20)"
+  },
+  {
+    "input": "claude-opus-4-7@20260401",
+    "expected_fingerprint": {
+      "family_tier": "opus",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Vertex — opus-4.7-vertex, 1M context (current baseline 2026-04-20)"
+  },
+  {
+    "input": "claude-opus-4-6",
+    "expected_fingerprint": {
+      "family_tier": "opus",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Anthropic direct — opus-4.6, 1M context (the model-drift rules)"
+  },
+  {
+    "input": "claude-sonnet-4-6",
+    "expected_fingerprint": {
+      "family_tier": "sonnet",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Anthropic direct — sonnet-4.6-anthropic, 1M context (the model-drift rules)"
+  },
+  {
+    "input": "anthropic.claude-sonnet-4-6",
+    "expected_fingerprint": {
+      "family_tier": "sonnet",
+      "context_window_class": "200k",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Bedrock — sonnet-4.6-bedrock, 200k context (the model-drift rules codified 2026-04-20)"
+  },
+  {
+    "input": "claude-sonnet-4-6@20240901",
+    "expected_fingerprint": {
+      "family_tier": "sonnet",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Vertex — sonnet-4.6-vertex, 1M context"
+  },
+  {
+    "input": "claude-haiku-4-5",
+    "expected_fingerprint": {
+      "family_tier": "haiku",
+      "context_window_class": "200k",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Anthropic direct — haiku-4.5-anthropic, 200k context (the model-drift rules)"
+  },
+  {
+    "input": "anthropic.claude-haiku-4-5",
+    "expected_fingerprint": {
+      "family_tier": "haiku",
+      "context_window_class": "200k",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Bedrock — haiku-4.5-bedrock, 200k context (the model-drift rules codified 2026-04-20)"
+  },
+  {
+    "input": "claude-haiku-4-5@20241022",
+    "expected_fingerprint": {
+      "family_tier": "haiku",
+      "context_window_class": "200k",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Vertex — haiku-4.5-vertex, 200k context"
+  },
+  {
+    "input": "anthropic.claude-opus-4-6",
+    "expected_fingerprint": {
+      "family_tier": "opus",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Bedrock — opus-4.6-bedrock, 1M context (the model-drift rules corrected 2026-04-20 per AWS model card)"
+  },
+  {
+    "input": "claude-opus-4-6@20241022",
+    "expected_fingerprint": {
+      "family_tier": "opus",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Vertex — opus-4.6-vertex, 1M context (the model-drift rules)"
+  },
+  {
+    "input": "claude-sonnet-4-5",
+    "expected_fingerprint": {
+      "family_tier": "sonnet",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Anthropic direct — sonnet-4.5-anthropic, 1M beta transitional (retires April 30, 2026)"
+  },
+  {
+    "input": "anthropic.claude-sonnet-4-5",
+    "expected_fingerprint": {
+      "family_tier": "sonnet",
+      "context_window_class": "200k",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Bedrock — sonnet-4.5-bedrock, 200k context (stable, AWS model card)"
+  },
+  {
+    "input": "claude-sonnet-4-5@20240929",
+    "expected_fingerprint": {
+      "family_tier": "sonnet",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Vertex — sonnet-4.5-vertex, 1M context (Vertex GA)"
+  },
+  {
+    "input": "gpt-4o-azure-deployment-custom-name",
+    "expected_fingerprint": null,
+    "notes": "Unrecognized provider — fail-safe null per the normalization rules"
+  }
+]

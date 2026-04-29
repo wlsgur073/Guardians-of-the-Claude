@@ -1,21 +1,27 @@
+---
+title: "Scoring Model"
+description: "Conservative scoring formula for /audit — LAV item-aware multiplier with cap tier {50, 60, 100}"
+version: "1.0.1"
+scoring_contract_id: "audit-score-v4.0.0"
+---
+
 # Scoring Model
 
 ## Architecture
 
-The scoring model uses a **Foundation-Gated Multiplicative** structure. Foundation (T1) acts as a gate multiplier on the Detail Score (T2 + T3), reflecting the reality that without solid foundations, protection and optimization scores are less meaningful.
+The scoring model uses an **LAV Item-Aware Multiplier** structure. The Detail Score (T2 + T3) is multiplied by a factor derived from the non-L5 LAV components, with the L5 (Conciseness) finding routed through a cap-tier mechanism rather than the multiplier — preventing high mechanical scores from masking severely overconfigured CLAUDE.md files.
 
-```markdown
-Final = min(max(FG x DS + SB + LAV, 0), cap)
-         |       |      |     |
-         |       |      |     +-- LAV: LLM Accuracy Verification (-9 ~ +10)
-         |       |      +-------- Synergy Bonus: complementary item pairs (max +5)
-         |       +--------------- Detail Score: Protection (T2) + Optimization (T3)
-         +----------------------- Foundation Gate: T1 items as a multiplier
+```
+Final = min(DS × (1 + LAV_nonL5 / 50) + SB, cap)
+  LAV_nonL5 = L1 + L2 + L3 + L4 + L6
+  cap = 60  if L5 == −3 AND no other Li at its minimum
+  cap = 50  if L5 == −3 AND at least one other Li at its minimum
+  cap = 100 otherwise
 ```
 
 ## Item Weights
 
-### T1 — Foundation (Gate)
+### T1 — Foundation
 
 | Item | Weight | Rationale |
 | ------ | -------- | ----------- |
@@ -49,10 +55,12 @@ The `/audit` skill determines this at runtime by inspecting the project, not fro
 | Directory references | 0.20 | Configuration accuracy |
 | CLAUDE.md length | 0.10 | Maintainability signal |
 | Command availability | 0.20 | Tool chain integrity |
-| Rules path validation | 0.10 | Rule targeting accuracy |
-| Agent configuration quality | 0.15 | Agent effectiveness |
-| MCP configuration | 0.15 | External tool integration |
+| Rules path validation¹ | 0.10 | Rule targeting accuracy |
+| Agent configuration quality¹ | 0.15 | Agent effectiveness |
+| MCP configuration¹ | 0.15 | External tool integration |
 | Environment variable documentation | 0.10 | Setup completeness |
+
+¹ Count sourced from `profile.claude_code_configuration_state.*_count` fields; co-owned across `/audit` + `/secure` + `/create` per `plugin/references/lib/merge_rules.md` §profile.json.
 
 ## Item Scoring (4-Level Scale)
 
@@ -67,14 +75,7 @@ The `/audit` skill determines this at runtime by inspecting the project, not fro
 ## Formula
 
 ```markdown
-1. Foundation Gate (FG)
-   FG_raw = Sigma(s_i x w_i) / Sigma(w_i)     for non-SKIP T1 items
-   FG     = 0.15 + 0.85 x FG_raw              Range: 0.15 – 1.0
-
-   Floor 0.15: even with zero foundation, T2/T3 status is minimally visible
-   so users can see what else needs work.
-
-2. Detail Score (DS)
+1. Detail Score (DS)
    T2_Score = Sigma(s_i x w_i) / Sigma(w_i)   for non-SKIP T2 items
    T3_Score = Sigma(s_i x w_i) / Sigma(w_i)   for non-SKIP T3 items
    DS       = (T2_Score x 0.60 + T3_Score x 0.40) x 100
@@ -88,29 +89,52 @@ The `/audit` skill determines this at runtime by inspecting the project, not fro
    percentage display so users do not misread a high percentage as
    comprehensive coverage.
 
-3. Synergy Bonus (SB)
+2. Synergy Bonus (SB)
    SB = sum of applicable bonuses             Max: +5
 
-4. LAV (LLM Accuracy Verification)
-   LAV = sum of L1–L6 scores                  Range: -9 ~ +10
+3. LAV (LLM Accuracy Verification)
+   LAV_nonL5 = L1 + L2 + L3 + L4 + L6        Range: -6 ~ +9 (excludes L5)
+   L5 ∈ [−3, +1]                              Routed via cap tier (below)
    See references/checks/lav.md for evaluation structure.
 
-5. Quality Cap
-   If LAV < 0, the final score is capped to prevent high mechanical scores
-   from masking quality issues detected by LLM evaluation:
+4. Cap Tier
+   cap = 60  if L5 == −3 AND no other Li at its minimum (L1≥−2, L2≥−1, L4≥0)
+   cap = 50  if L5 == −3 AND at least one other Li at its minimum (L1=−3, L2=−2, or L4=−1)
+   cap = 100 otherwise
 
-   LAV >= 0  →  cap = 100 (no restriction)
-   LAV < 0   →  cap = 90 + LAV
-                 LAV = -1  → cap = 89
-                 LAV = -4  → cap = 86
-                 LAV = -9  → cap = 81
+   Real LAV maxima (lav.md:23-28): L1∈[−3,+2], L2∈[−2,+2], L3∈[0,+3], L4∈[−1,+1], L6∈[0,+1].
 
-6. Final Score
-   Raw   = max(FG x DS + SB + LAV, 0)
-   Final = min(Raw, cap)                       Range: 0 – 100
-   The max(..., 0) floor prevents negative scores.
-   The Quality Cap prevents high DS from masking LAV-detected quality issues.
+5. Final Score
+   Final = min(DS × (1 + LAV_nonL5 / 50) + SB, cap)
+   Range: bounded above by cap; lower bound governed by inputs (no separate clamp).
 ```
+
+(Note: the v2.12.0 LAV item-aware multiplier replaces the v2.10.0 Foundation-Gated Multiplicative formula. FG is no longer a multiplier on DS — acceptance verified by 5-sample simulation under `ci/scripts/check-scoring-formula.py`.)
+
+## LAV Axis Summary
+
+| Axis | Range | Nature | Included in `LAV_nonL5` |
+|---|---|---|---|
+| L1 — Structure Accuracy | −3 / 0 / +2 | Accuracy | Yes |
+| L2 — Command Reliability | −2 / 0 / +2 | Reliability | Yes |
+| L3 — Patterns / Gotchas documentation | 0 / +1 / +3 | Documentation quality | Yes |
+| L4 — Structural Quality | −1 / 0 / +1 | Structural quality | Yes |
+| L5 — Content Conciseness | −3 / 0 / +1 | Conciseness | **No** — routed via cap tier |
+| L6 — Actionability | 0 / +1 | Actionability | Yes |
+
+`LAV_nonL5` sum range: **−6 to +9** (excluding L5). Full axis definitions + scoring guidelines in `plugin/skills/audit/references/checks/lav.md` line 23-28 (ranges) and line 34-62 (per-axis guidance).
+
+### LAV/T3 Boundary Rule
+
+LAV axes evaluate holistic accuracy that cannot be mechanically verified. When a T3 mechanical item already detects a deficiency, the paired LAV axis scores **0** for that specific issue — preventing double-penalty (lav.md line 7-15).
+
+| Mechanical item | Paired LAV axis | Non-overlapping LAV scope |
+|---|---|---|
+| T3.1 Directory references | L1 Structure Accuracy | Wrong architecture descriptions, outdated component relationships |
+| T3.3 Command availability | L2 Command Reliability | Undocumented prerequisite steps, wrong command flags, missing workflow context |
+| T3.7 Environment variable docs | L2 Command Reliability | (same axis, different evidence surface) |
+
+Mechanical and LAV layers are complementary, not redundant.
 
 ## Synergy Bonus
 
@@ -127,7 +151,7 @@ Both items in a pair must score PASS (1.0). If either item is SKIP, PARTIAL, MIN
 
 ## Quality Gate
 
-The Quality Gate is a **display-only label** independent of the score calculation. The Foundation Gate (FG) naturally suppresses scores when foundations are missing, making a separate score penalty redundant.
+The Quality Gate is a **display-only label** independent of the score calculation.
 
 Conditions (ALL applicable must be met for READY):
 
@@ -152,7 +176,7 @@ Maturity levels are cumulative — each level requires the previous level to be 
 
 | Level | Condition | Meaning |
 | ------- | ----------- | --------- |
-| Level 1 — Basic | FG_raw >= 0.7 | Claude can work effectively |
+| Level 1 — Basic | T1_Score >= 0.7 | Claude can work effectively |
 | Level 2 — Protected | Level 1 AND T2_Score >= 0.6 | Project is safe from common mistakes |
 | Level 3 — Optimized | Level 2 AND T3_Score >= 0.5 | Configuration is well-organized and maintainable |
 

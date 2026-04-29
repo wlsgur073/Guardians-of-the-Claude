@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Recommendation Registry",
+  "description": "Drift advisories (/audit model-drift surface) are transient output rendered by the drift advisory state machine and are NOT persisted as registry entries. Drift advisories MUST NOT have entries in this registry. Drift advisories MUST NOT be added to recommendations.json by any merge pass.",
   "type": "object",
   "required": ["schema_version", "registry"],
   "additionalProperties": false,

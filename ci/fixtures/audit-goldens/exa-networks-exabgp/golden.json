@@ -1,0 +1,35 @@
+{
+  "scoring_contract_id": "audit-score-v4.0.0",
+  "sample": {
+    "name": "Exa-Networks/exabgp",
+    "url": "https://github.com/Exa-Networks/exabgp",
+    "ecosystem": "Python",
+    "claude_md_location": "root"
+  },
+  "profile": {
+    "claude_md_lines": 485,
+    "rules_count": 0,
+    "hooks_count": null,
+    "agents_count": 0,
+    "mcp_count": 0,
+    "deny_count": null,
+    "is_monorepo": false,
+    "has_meta_marketplace": false,
+    "has_symlink_claude_md": false
+  },
+  "scoring_inputs": {
+    "DS": 21.0,
+    "SB": 0,
+    "L1": 0,
+    "L2": 0,
+    "L3": 3,
+    "L4": 0,
+    "L5": -3,
+    "L6": 1,
+    "LAV_nonL5": 4,
+    "cap": 60
+  },
+  "expected_bucket": "Outlier",
+  "expected_final_score": 22.68,
+  "bucket_rationale": "Outlier via >250 lines per the bucket rubric (485 lines). CLAUDE.md emphasizes session-start protocols referencing .claude/*.md protocol docs (BACKPORT.md, ESSENTIAL_PROTOCOLS.md, etc. at .claude/ root — rules_count=0 under strict .claude/rules/ subdir convention). T2/T3 mostly weak due to protocol-heavy + project-overview-light content. LAV: L5=-3 (protocol bloat), L3=+3 (extensive protocols). Protocol structure is unconventional (rubric-footnote n/a impact)."
+}

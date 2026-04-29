@@ -1,0 +1,35 @@
+{
+  "scoring_contract_id": "audit-score-v4.0.0",
+  "sample": {
+    "name": "Guardians-of-the-Claude (self)",
+    "url": "(this repository)",
+    "ecosystem": "meta",
+    "claude_md_location": "root"
+  },
+  "profile": {
+    "claude_md_lines": 64,
+    "rules_count": 0,
+    "hooks_count": 2,
+    "agents_count": 6,
+    "mcp_count": 0,
+    "deny_count": 0,
+    "is_monorepo": false,
+    "has_meta_marketplace": true,
+    "has_symlink_claude_md": false
+  },
+  "scoring_inputs": {
+    "DS": 57.8,
+    "SB": 0,
+    "L1": 0,
+    "L2": 0,
+    "L3": 1,
+    "L4": 0,
+    "L5": 0,
+    "L6": 1,
+    "LAV_nonL5": 2,
+    "cap": 100
+  },
+  "expected_bucket": "Outlier",
+  "expected_final_score": 60.112,
+  "bucket_rationale": "Outlier via rubric-divergent (meta-marketplace) per the bucket rubric (rubric-divergent criterion). `.claude-plugin/marketplace.json` presence marks meta-marketplace identity. Self-score Final = 60.112 in the G-B self-quality gate range [53, 63]."
+}

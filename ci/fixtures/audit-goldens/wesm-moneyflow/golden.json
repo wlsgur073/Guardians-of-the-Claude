@@ -1,0 +1,35 @@
+{
+  "scoring_contract_id": "audit-score-v4.0.0",
+  "sample": {
+    "name": "wesm/moneyflow",
+    "url": "https://github.com/wesm/moneyflow",
+    "ecosystem": "Python",
+    "claude_md_location": "root"
+  },
+  "profile": {
+    "claude_md_lines": 466,
+    "rules_count": 0,
+    "hooks_count": null,
+    "agents_count": 0,
+    "mcp_count": 0,
+    "deny_count": null,
+    "is_monorepo": false,
+    "has_meta_marketplace": false,
+    "has_symlink_claude_md": false
+  },
+  "scoring_inputs": {
+    "DS": 41.0,
+    "SB": 0,
+    "L1": 2,
+    "L2": 2,
+    "L3": 3,
+    "L4": 1,
+    "L5": -3,
+    "L6": 1,
+    "LAV_nonL5": 9,
+    "cap": 60
+  },
+  "expected_bucket": "Outlier",
+  "expected_final_score": 48.38,
+  "bucket_rationale": "Outlier via >250 lines per the bucket rubric (466 lines). Strong T1 + moderate T2 (personal data protection informally PARTIAL) + moderate T3 (strong commands + project overview, no rules/agents/mcp). LAV: L5=-3 (severely long; cap tier 60), L1/L2/L3/L4/L6 strong (+2/+2/+3/+1/+1) reflecting quality content despite length. TDD emphasis + strong git/data protection patterns yield L3=+3."
+}

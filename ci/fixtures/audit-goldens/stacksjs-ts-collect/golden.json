@@ -1,0 +1,35 @@
+{
+  "scoring_contract_id": "audit-score-v4.0.0",
+  "sample": {
+    "name": "stacksjs/ts-collect",
+    "url": "https://github.com/stacksjs/ts-collect",
+    "ecosystem": "TypeScript/JS",
+    "claude_md_location": "root"
+  },
+  "profile": {
+    "claude_md_lines": 28,
+    "rules_count": 0,
+    "hooks_count": 0,
+    "agents_count": 0,
+    "mcp_count": 0,
+    "deny_count": 0,
+    "is_monorepo": false,
+    "has_meta_marketplace": false,
+    "has_symlink_claude_md": false
+  },
+  "scoring_inputs": {
+    "DS": 4.0,
+    "SB": 0,
+    "L1": 0,
+    "L2": 0,
+    "L3": 1,
+    "L4": 0,
+    "L5": 1,
+    "L6": 1,
+    "LAV_nonL5": 2,
+    "cap": 100
+  },
+  "expected_bucket": "Starter",
+  "expected_final_score": 4.16,
+  "bucket_rationale": "Starter per the bucket rubric: 28 lines in [20, 80] + rules 0 ≤ 1 + hooks 0 + agents 0 + MCP 0. Minimal-config library (TypeScript collections). T2.2 Security SKIP (pure library, no network). Minimal T1 (CLAUDE.md existence PASS but no test/build/overview). Only T3.2 (length) PASS — content is concise. LAV: +0/0/+1/0/+1/+1 reflects concise + basic patterns + actionable linting/dep rules."
+}

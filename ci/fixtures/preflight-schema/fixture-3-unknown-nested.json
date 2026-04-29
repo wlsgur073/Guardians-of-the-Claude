@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.1.0",
+  "metadata": {
+    "generated_by": "guardians-of-the-claude",
+    "last_updated": "2026-04-19T00:00:00Z"
+  },
+  "runtime_and_language": {
+    "runtime": "node",
+    "language": "TypeScript",
+    "module_system": "ESM"
+  },
+  "framework_and_libraries": {
+    "framework": "Next.js",
+    "ui": "React",
+    "styling": "Tailwind CSS"
+  },
+  "package_management": {
+    "manager": "pnpm",
+    "lock_file": "pnpm-lock.yaml"
+  },
+  "testing": {
+    "unit": "vitest",
+    "e2e": "playwright"
+  },
+  "build_and_dev": {
+    "bundler": "turbopack",
+    "linter": "eslint",
+    "formatter": "prettier"
+  },
+  "project_structure": {
+    "type": "single_project",
+    "source_convention": "src/",
+    "key_directories": ["src", "public", "tests"]
+  },
+  "claude_code_configuration_state": {
+    "claude_md": {},
+    "settings_json": {},
+    "rules_count": 3,
+    "agents_count": 1,
+    "hooks_count": 2,
+    "mcp_servers_count": 1,
+    "model": "claude-opus-4-7",
+    "scoring_model_ack": {
+      "version": null,
+      "seen_count": 0
+    },
+    "unexpected": "anything"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Q'",
+  "inputs": {
+    "DS": "4750/59 ≈ 80.508",
+    "DS_exact": 4750,
+    "DS_divisor": 59,
+    "SB": 5,
+    "LAV": { "L1": 2, "L2": 2, "L3": 3, "L4": 1, "L5": 1, "L6": 1 }
+  },
+  "expected": {
+    "LAV_nonL5": 9,
+    "other_negative_min_at_minimum": null,
+    "cap": 100,
+    "raw": 100,
+    "Final": 100
+  },
+  "design_authority": "scoring-model.md Formula"
+}

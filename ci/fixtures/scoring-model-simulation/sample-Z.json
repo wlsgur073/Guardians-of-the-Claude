@@ -1,0 +1,16 @@
+{
+  "name": "Z",
+  "inputs": {
+    "DS": 65,
+    "SB": 3,
+    "LAV": { "L1": -3, "L2": -2, "L3": 1, "L4": 0, "L5": -3, "L6": 0 }
+  },
+  "expected": {
+    "LAV_nonL5": -4,
+    "other_negative_min_at_minimum": true,
+    "cap": 50,
+    "raw": 62.8,
+    "Final": 50
+  },
+  "design_authority": "scoring-model.md Formula"
+}

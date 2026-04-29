@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Generate eval-manifest.json describing the smoke-lane result for this commit.
-# Used by release artifacts per Phase 0 spec 4.4. Per Phase 1 Task 6 Step 10.
+# Used by release artifacts.
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 

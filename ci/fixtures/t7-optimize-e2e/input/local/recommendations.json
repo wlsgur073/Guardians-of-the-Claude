@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0.0",
+  "metadata": { "last_updated": "2026-04-14T00:00:00Z" },
+  "recommendations": [
+    {
+      "id": "split-rules",
+      "description": "Split CLAUDE.md into rule files",
+      "issued_by": "audit",
+      "status": "PENDING",
+      "pending_count": 1,
+      "first_seen": "2026-04-14T00:00:00Z",
+      "last_seen": "2026-04-14T00:00:00Z",
+      "resolved_by": null,
+      "declined_reason": null
+    },
+    {
+      "id": "agent-diversity",
+      "description": "Diversify agent models",
+      "issued_by": "audit",
+      "status": "PENDING",
+      "pending_count": 1,
+      "first_seen": "2026-04-14T00:00:00Z",
+      "last_seen": "2026-04-14T00:00:00Z",
+      "resolved_by": null,
+      "declined_reason": null
+    }
+  ]
+}

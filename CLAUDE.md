@@ -17,7 +17,8 @@ This is a documentation and template repository — no application source code a
 - `docs/*.md` — GitHub community health files and project governance (CODE_OF_CONDUCT.md, CONTRIBUTING.md, SECURITY.md, PRIVACY.md, ROADMAP.md)
 - `.claude/` — This repo's own Claude Code settings
 - `test/` — Skill evaluation framework (rubrics, scenarios, fixtures, scripts) and results. Not a unit test suite — used to grade skill output quality. See `test/testing-strategy.md`.
-- `.github/workflows/docs-check.yml` — CI with 9 jobs (link-check-internal, link-check-external, frontmatter parity, JSON schema, registry lint, skill stability lint, i18n parity, shellcheck, encoding). Python validators live in `.github/scripts/`.
+- `ci/` — CI smoke lane: fixtures, golden snapshots, and scripts for plugin regression testing (run by `.github/workflows/smoke.yml`; shipped, unlike gitignored `test/`). Template clone users can ignore; plugin contributors who change skill output must update fixtures/goldens. See `ci/README.md`.
+- `.github/workflows/docs-check.yml` — CI with 17 jobs (link-check-internal, link-check-external, frontmatter-parity, json-schema, registry-lint, skill-stability-lint, i18n-parity, shellcheck, encoding-check, preflight-schema, scoring-formula-simulation, scoring-model-lav-linkage, changelog-parser-check, sample-list-preconditions, audit-goldens-check, audit-drift-aware-check, scoring-contract-consistency). Python validators live in `.github/scripts/`.
 - `.github/workflows/smoke.yml` — CI smoke lane (2 jobs: smoke fixtures, verifier drift tripwire); triggers on PRs touching `plugin/**`/`templates/**`/`ci/**` and on version tags.
 
 ## Contribution Rules
@@ -30,6 +31,7 @@ This is a documentation and template repository — no application source code a
 - When adding a new guide, follow the existing frontmatter format (`title`, `description`, `version`) and add cross-links from `docs/guides/getting-started.md`
 - CLAUDE.md files under `templates/` are repo content, not instructions for this repo — Claude will lazy-load them when working in those directories, so keep them clearly framed as examples
 - `/test/` is gitignored (`.gitignore:21`) — internal eval docs and local tooling live there but do not ship. Edits under `test/` are local-only; do not add CHANGELOG entries for `test/*` changes. CI-visible validation belongs in `.github/scripts/*.py`.
+- `ci/` is shipped (CI smoke lane for plugin regression) — skill-output changes must update `ci/fixtures/` and re-freeze `ci/golden/`; CHANGELOG entries apply to user-visible `ci/` changes (unlike local-only `test/*`).
 - `ci/fixtures/**` and `ci/golden/**` are CI test inputs/snapshots — legacy-state fixtures intentionally preserve pre-migration artifacts (e.g., `project-profile.md` "5 sections" for migration scenarios). Do not normalize to current canonical; these files exist to verify migration semantics.
 
 ### Change Propagation Checklist

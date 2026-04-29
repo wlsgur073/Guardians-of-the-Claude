@@ -1,11 +1,12 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Project Profile",
+  "$comment": "Fixture 4 — CONTROL: draft-07 mislabeled schema stub. This is NOT a profile instance — it is a schema document whose $schema declaration has been manually rewritten to draft-07 (pre-2019-09). The real v1.1.0 schema does not yet exist (it is a T1 deliverable). This stub mimics the intended v1.1.0 schema shape structurally but uses the draft-07 $schema URI. Purpose: when the probe runs assertions 2 + 3 (fixture-2 and fixture-3) against THIS stub schema instead of the real draft-2020-12 schema, the validator must ACCEPT both fixtures — proving that unevaluatedProperties enforcement is draft-2020-12-dependent. This is the probe's control confirmation that the $schema declaration on the real wrapper schema is load-bearing.",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Project Profile (v1.1.0 stub — draft-07 mislabel control)",
   "type": "object",
   "required": ["schema_version", "metadata"],
-  "additionalProperties": false,
+  "unevaluatedProperties": false,
   "properties": {
-    "schema_version": { "const": "1.0.0" },
+    "schema_version": { "const": "1.1.0" },
     "metadata": {
       "type": "object",
       "required": ["generated_by", "last_updated"],
@@ -14,7 +15,7 @@
         "last_updated": { "type": "string", "format": "date-time" },
         "source_files_checked": { "type": "array", "items": { "type": "string" } }
       },
-      "additionalProperties": false
+      "unevaluatedProperties": false
     },
     "runtime_and_language": {
       "type": ["object", "null"],
@@ -23,7 +24,7 @@
         "language": { "type": ["string", "null"] },
         "module_system": { "type": ["string", "null"] }
       },
-      "additionalProperties": false
+      "unevaluatedProperties": false
     },
     "framework_and_libraries": {
       "type": ["object", "null"],
@@ -32,7 +33,7 @@
         "ui": { "type": ["string", "null"] },
         "styling": { "type": ["string", "null"] }
       },
-      "additionalProperties": false
+      "unevaluatedProperties": false
     },
     "package_management": {
       "type": ["object", "null"],
@@ -40,7 +41,7 @@
         "manager": { "type": ["string", "null"] },
         "lock_file": { "type": ["string", "null"] }
       },
-      "additionalProperties": false
+      "unevaluatedProperties": false
     },
     "testing": {
       "type": ["object", "null"],
@@ -48,7 +49,7 @@
         "unit": { "type": ["string", "null"] },
         "e2e": { "type": ["string", "null"] }
       },
-      "additionalProperties": false
+      "unevaluatedProperties": false
     },
     "build_and_dev": {
       "type": ["object", "null"],
@@ -57,7 +58,7 @@
         "linter": { "type": ["string", "null"] },
         "formatter": { "type": ["string", "null"] }
       },
-      "additionalProperties": false
+      "unevaluatedProperties": false
     },
     "project_structure": {
       "type": ["object", "null"],
@@ -66,7 +67,7 @@
         "source_convention": { "type": ["string", "null"] },
         "key_directories": { "type": "array", "items": { "type": "string" } }
       },
-      "additionalProperties": false
+      "unevaluatedProperties": false
     },
     "claude_code_configuration_state": {
       "type": ["object", "null"],
@@ -76,9 +77,18 @@
         "rules_count": { "type": "integer", "minimum": 0 },
         "agents_count": { "type": "integer", "minimum": 0 },
         "hooks_count": { "type": "integer", "minimum": 0 },
-        "mcp_servers_count": { "type": "integer", "minimum": 0 }
+        "mcp_servers_count": { "type": "integer", "minimum": 0 },
+        "model": { "type": "string" },
+        "scoring_model_ack": {
+          "type": "object",
+          "properties": {
+            "version": {},
+            "seen_count": { "type": "integer", "minimum": 0 }
+          },
+          "unevaluatedProperties": false
+        }
       },
-      "additionalProperties": false
+      "unevaluatedProperties": false
     }
   }
 }

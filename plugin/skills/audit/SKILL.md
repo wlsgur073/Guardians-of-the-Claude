@@ -9,6 +9,29 @@ You are a Claude Code configuration auditor. Analyze the user's project and repo
 
 Follow these phases in order. Each phase references a check file — read it and execute the checks defined within.
 
+## Install Integrity Pre-Check
+
+Before Phase 0 (below) and before any state mutation or lock acquisition, verify the runtime scoring-contract constant matches the canonical declaration in `plugin/references/scoring-model.md` frontmatter. Mismatch is a **broken-install error** (install-integrity check, `/audit`-scoped), not a warning.
+
+**Steps:**
+
+1. Load `plugin/references/scoring-model.md` frontmatter and extract `scoring_contract_id`.
+2. Read the hardcoded `CURRENT_SCORING_CONTRACT_ID` constant from runtime code.
+3. If the two values differ, **abort the run immediately** with a fatal diagnostic:
+
+   ```
+   BROKEN INSTALL: scoring_contract_id mismatch
+     frontmatter: <value-from-md>
+     runtime:     <value-from-constant>
+   Resolution: reinstall the plugin or sync the runtime constant to match frontmatter.
+   ```
+
+4. Do NOT proceed to Phase 0; do NOT acquire the state-mutation lock. This check is read-only (no state side effects), so stateless mode runs it identically.
+
+This substep precedes Phase 0 deliberately so that a broken install never reaches stateful paths. Placement before Phase 0 is an `/audit` implementation choice — the install-integrity contract specifies purpose and failure mode but leaves ordering open.
+
+---
+
 ## Phase 0: Load Context & Learn
 
 Read `../../references/learning-system.md` and follow the **Common Phase 0** steps (including **Step 0.5 Migration & Stale Check**) with these audit-specific overrides:
@@ -72,18 +95,17 @@ This phase cross-references CLAUDE.md claims against actual project state. Use t
 
 ## Phase 4: Summary
 
-Read `references/scoring-model.md` for the complete scoring formula, then calculate results.
+Read `../../references/scoring-model.md` for the complete scoring formula, then calculate results.
 
 Apply the scoring model in this order:
 
 1. **Score each item** using the 4-level scale (PASS=1.0, PARTIAL=0.6, MINIMAL=0.3, FAIL=0.0, SKIP=excluded)
-2. **Calculate Foundation Gate** — `FG_raw = weighted average of non-SKIP T1 items`, `FG = 0.15 + 0.85 × FG_raw`
+2. **Calculate T1 Score** — `T1_Score = weighted average of non-SKIP T1 items` (used for Maturity Level Level 1 condition)
 3. **Calculate Detail Score** — `DS = (T2_weighted × 0.60 + T3_weighted × 0.40) × 100`
 4. **Calculate Synergy Bonus** — check qualifying pairs
-5. **Calculate LAV** — sum of L1–L6 scores from Phase 3.5
-6. **Apply Quality Cap** — if LAV < 0, cap = 90 + LAV; otherwise cap = 100
-7. **Calculate Final** — `min(max(FG × DS + SB + LAV, 0), cap)`
-7.5. **Check false-reassurance condition** — if `Final` falls within the **Grade A range** defined in `references/scoring-model.md` (currently `Final >= 80`) AND `L5 (Conciseness) == −3`, prepare the warning line defined in `references/output-format.md`. **Use the exact line shown in the Standard Output sample there — copy verbatim, do not paraphrase.** Condition, placement, and rationale are specified in output-format.md's "Score-line warning" section. This is **informational** and does NOT change the score. If the condition is not met, do not render the warning line at all.
+5. **Calculate LAV components** — L1, L2, L3, L4, L5, L6 individually from Phase 3.5
+6. **Calculate cap tier** — `cap = 60` if L5 = −3 AND no other negative-minimum Li at its minimum; `cap = 50` if L5 = −3 AND at least one other Li at its negative minimum (L1 = −3, L2 = −2, or L4 = −1); `cap = 100` otherwise
+7. **Calculate Final** — `min(DS × (1 + LAV_nonL5 / 50) + SB, cap)` where `LAV_nonL5 = L1 + L2 + L3 + L4 + L6` (L5 routed via cap tier per step 6)
 8. **Check Quality Gate** — CLAUDE.md exists AND test command present; test condition waived if SKIP
 9. **Determine Grade** and **Maturity Level**
 
@@ -106,5 +128,46 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
   The score itself (`XX/100`, grade, maturity level) is a user-facing snapshot surfaced in the terminal output of Phase 4 and in `state-summary.md`'s Recent Skill Results section. It must NOT be written into the `config-changelog.md` entry as a field — the changelog is learning data, not a report ledger.
 
   Profile merge under the state-mutation lock: `/audit` is the authoritative full refresh (Layer 3 of stale prevention). Always regenerate all `/audit`-owned sections — `runtime_and_language`, `framework_and_libraries`, `package_management`, `testing`, `build_and_dev`, `project_structure`, and `claude_code_configuration_state.claude_md` — from detected state, regardless of whether changes were detected. Other sections (e.g., `claude_code_configuration_state.settings_json` owned by `/secure`) must be preserved from the re-read `current_profile` (see `plugin/references/lib/merge_rules.md` §profile.json merge rules).
+
+  **A1 merge rule amendments** (applied summary; mechanism in `plugin/references/lib/merge_rules.md`):
+  - **Row 1 — `claude_code_configuration_state.model`**: any-skill writer; last-write-wins; written at Step 0.5 and Final Phase. Stateless mode: no-op (Phase 1 Global Invariant #6).
+  - **Row 2 — `claude_code_configuration_state.scoring_model_ack`**: `/audit` exclusive writer; full-object replacement; Final Phase only. Stateless mode: no-op.
+  - **Row 3 — `config-changelog.md` entry `- Model:` bullet**: `/audit` always-emits per the shared hybrid writer policy. See `plugin/references/learning-system.md § Model Bullet Emission` for full mechanics; this skill's branch is the always-emit terminator (Phase 1 baseline already re-reads `current_changelog`, and `/audit` does not branch on the re-read value).
+
+- **Stateless guard (Phase 5 top-level branch)**: if `local/` is unwritable (Phase 1 Global Invariant #6):
+  - SKIP Step 2 `scoring_model_ack` re-read.
+  - SKIP Step 3 ack delta computation + scoring-model-change banner trigger (persistence-backed banner fully skipped to avoid double-warning after stateless degradation notice).
+  - RETAIN drift advisory derivation — current-state transient, no file write.
+  - Proceed to Phase 1 Global Invariant #6 degradation warning; no JSON state writes, no changelog write.
+
+  Non-stateless path continues below.
+
+- **Step 2 additions (re-read under lock, `/audit`-specific fields):**
+  - Re-read `profile.claude_code_configuration_state.model` for drift advisory baseline input.
+  - Re-read `profile.claude_code_configuration_state.scoring_model_ack` for scoring-contract-change banner trigger decision.
+
+- **Step 3 additions (compute deltas):**
+  - **Final Phase model write** — set `profile.claude_code_configuration_state.model = <resolver output>`; merge under A1 Row 1 last-write-wins.
+  - **Scoring-model-change banner** (copy: "Scoring contract changed" — must NOT collide with the drift advisory copy "Model drift since last /audit"): apply the trigger rule:
+
+    ```
+    if ack.version != current_scoring_contract_id OR ack.seen_count < 2:
+        schedule banner render;
+        ack.version = current_scoring_contract_id;
+        ack.seen_count = min(ack.seen_count + 1, 2)
+    else:
+        silent
+    ```
+
+    **Stateless skip**: when `local/` is unwritable, the banner trigger is fully skipped — no ack read, no ack mutation, no banner render — to avoid double-warning after stateless degradation notice.
+  - **Drift advisory — terminal render trigger** (derivation lives in shared `plugin/references/learning-system.md § Drift Advisory Derivation`; this block specifies only the `/audit` terminal render):
+    1. On `drift` state returned from the shared derivation, render the terminal drift block per `references/output-format.md` (between Score line and ★ Most impactful; changed-axes-only + baseline annotation + no severity label).
+    2. On `match` / `missing_baseline` / `normalization_null` states: terminal is silent (symmetric with state-summary header silence).
+    3. Advisory is **transient** — NOT added to `recommendations.json` (see `plugin/references/learning-system.md § Drift Advisory Derivation` Transience clause).
+    4. **Stateless mode**: drift advisory retained — current-state derived from in-memory changelog snapshot; when no baseline is available, advisory resolves to `missing_baseline` silence. `/audit` terminal render proceeds even without `local/` persistence; `state-summary.md` is not written in stateless mode (Final Phase Step 1 fully skipped).
+
+- **Step 5 additions (atomic write):**
+  - Write `.model` into `profile.json` (part of `profile.json` file set; no new lock primitive).
+  - Write updated `scoring_model_ack` when banner fired (A1 Row 2 full-object replacement).
 
 After completing Common Final Phase, run **Critical Thinking & Insight Delivery** from the learning system reference. Apply Socratic verification to audit recommendations before presenting them.

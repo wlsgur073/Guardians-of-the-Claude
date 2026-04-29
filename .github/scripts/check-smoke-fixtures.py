@@ -8,7 +8,7 @@ is wrong: ambiguous skill markdown is a bug, stale verifier logic is
 also a bug. The verifier is NOT a canonical authority over the skill;
 both are expressions of the same intent, cross-checked by CI.
 
-Design (per 메타-9, Codex Q5 2026-04-14):
+Design:
 - Functional dispatch + dataclasses + FIXTURE_SCENARIOS manifest
 - Actual simulation for every fixture (input -> produced -> diff vs golden)
 - Semantic assertions BEFORE byte diff (cause, not just drift)
@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -46,6 +47,16 @@ FIXTURES_DIR = ROOT / "ci" / "fixtures"
 GOLDEN_DIR = ROOT / "ci" / "golden"
 SCHEMAS_DIR = ROOT / "plugin" / "references" / "schemas"
 REGISTRY_PATH = ROOT / "plugin" / "references" / "recommendation-registry.json"
+
+# Make the ci/scripts/ sibling directory importable for the shared
+# normalization implementation (model-drift-rules.md table parser + matcher).
+_CI_SCRIPTS = ROOT / "ci" / "scripts"
+if str(_CI_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_CI_SCRIPTS))
+from t3_model_drift_check import (  # noqa: E402
+    normalize_model_id,
+    parse_normalization_table,
+)
 
 # Section heading (legacy MD) -> snake_case JSON field name.
 SECTION_TO_FIELD = {
@@ -324,6 +335,82 @@ def _strip_frontmatter(text: str) -> tuple[dict, str]:
     return fm, body
 
 
+def _extract_frontmatter_version(frontmatter: dict) -> str:
+    """Return the version literal from a parsed frontmatter dict.
+
+    Accepts the dict returned by _strip_frontmatter. Raises ValueError if the
+    'version' key is absent. Strips surrounding quotes for robustness.
+    """
+    raw = frontmatter.get("version")
+    if raw is None:
+        raise ValueError("config-changelog.md frontmatter missing 'version' field")
+    # Strip surrounding quotes in case _strip_frontmatter preserved them.
+    return raw.strip("'\"")
+
+
+def _parse_compacted_history_anchors(body: str) -> list[dict]:
+    """Parse per-skill anchor blocks from the ## Compacted History section.
+
+    Forward-compat READ only. If the section is absent
+    or contains no anchors, returns []. Tolerant parser: any line matching
+    '- skill: /X' inside ## Compacted History is treated as an anchor header;
+    sibling 'last_entry_date:', 'last_model:', 'last_capability_fingerprint:'
+    lines are consumed as anchor fields.
+
+    Per the coordination note: learning-system.md does not yet specify
+    the rendered anchor syntax, so minimal pattern-match is used.
+
+    Returns list of dicts with keys: skill, last_entry_date, last_model,
+    last_capability_fingerprint.
+    """
+    lines = body.splitlines()
+    # Find ## Compacted History section
+    in_section = False
+    anchors: list[dict] = []
+    current_anchor: dict | None = None
+    for line in lines:
+        stripped = line.strip()
+        if stripped == "## Compacted History":
+            in_section = True
+            continue
+        if in_section and stripped.startswith("## "):
+            # Next heading — end of Compacted History section
+            break
+        if not in_section:
+            continue
+        # Match anchor header: '- skill: /audit'
+        skill_match = re.match(r"^-\s+skill:\s+(/\S+)", line)
+        if skill_match:
+            if current_anchor is not None:
+                anchors.append(current_anchor)
+            current_anchor = {
+                "skill": skill_match.group(1),
+                "last_entry_date": None,
+                "last_model": None,
+                "last_capability_fingerprint": None,
+            }
+            continue
+        if current_anchor is not None:
+            # Consume sibling fields (indented or same-level)
+            date_match = re.match(r"^\s+last_entry_date:\s*(.+)$", line)
+            if date_match:
+                current_anchor["last_entry_date"] = date_match.group(1).strip().strip("'\"") or None
+                continue
+            model_match = re.match(r"^\s+last_model:\s*(.*)$", line)
+            if model_match:
+                val = model_match.group(1).strip().strip("'\"")
+                current_anchor["last_model"] = val if val and val.lower() != "null" else None
+                continue
+            fp_match = re.match(r"^\s+last_capability_fingerprint:\s*(.*)$", line)
+            if fp_match:
+                val = fp_match.group(1).strip()
+                current_anchor["last_capability_fingerprint"] = None if val.lower() == "null" else (val or None)
+                continue
+    if current_anchor is not None:
+        anchors.append(current_anchor)
+    return anchors
+
+
 def _value_or_null(value: str) -> str | None:
     """'Not detected' -> None; otherwise stripped string."""
     v = value.strip()
@@ -497,7 +584,7 @@ def parse_profile_md(text: str, source_file: str, pinned_utc: str) -> dict:
 def parse_latest_md(text: str, skill: str, pinned_utc: str, registry_by_key: dict) -> list[dict]:
     """Parse legacy latest-{skill}.md Recommendations section.
 
-    Per Codex Q5 Pitfall 3 + Step 4: deterministic, no keyword matching.
+    Deterministic, no keyword matching.
     Each bullet must match `- id: <legacy-id>` / `- <legacy-id>: <desc> — STATUS`.
     Registry aliases resolve legacy-id -> canonical key. Unregistered ids are
     a fixture bug and raise ValueError.
@@ -612,6 +699,382 @@ def parse_latest_md(text: str, skill: str, pinned_utc: str, registry_by_key: dic
 
 
 # ---------------------------------------------------------------------------
+# Drift State Derivation (see learning-system.md, section "Drift Advisory Derivation")
+# ---------------------------------------------------------------------------
+
+
+_NORMALIZATION_RULES_CACHE: list[dict] | None = None
+
+
+def _get_normalization_rules() -> list[dict]:
+    """Parse and cache the authoritative normalization table (observed rows only).
+    Parsing is deferred to first call to keep import side-effects minimal.
+    """
+    global _NORMALIZATION_RULES_CACHE
+    if _NORMALIZATION_RULES_CACHE is None:
+        rules_file = ROOT / "plugin" / "references" / "model-drift-rules.md"
+        _NORMALIZATION_RULES_CACHE = parse_normalization_table(
+            rules_file.read_text(encoding="utf-8")
+        )
+    return _NORMALIZATION_RULES_CACHE
+
+
+def _scan_baseline_anchor(changelog_text: str | None) -> tuple[bool, str | None]:
+    """Reverse-chronological scan for /audit baseline anchor.
+
+    Returns (baseline_present, baseline_last_model). baseline_last_model is
+    None when the first reached /audit anchor has a delta-omitted bullet
+    (first-anchor-wins: do not skip past null).
+    """
+    if not changelog_text:
+        return (False, None)
+
+    # Split on H2 sections; pick each by name since document order varies
+    # (Compacted History may appear before or after Recent Activity).
+    sections = re.split(r"^## ", changelog_text, flags=re.MULTILINE)
+    recent_activity = next(
+        (s for s in sections if s.lstrip().startswith("Recent Activity")),
+        None,
+    )
+
+    # Recent Activity: most-recent entry wins; sort H3 entries by date descending.
+    if recent_activity:
+        entries = re.findall(
+            r"^### (\d{4}-\d{2}-\d{2})\s+[—-]\s+/(audit|create|secure|optimize)\b[^\n]*\n(.*?)(?=^### |\Z)",
+            recent_activity,
+            flags=re.MULTILINE | re.DOTALL,
+        )
+        entries.sort(key=lambda t: t[0], reverse=True)
+        for _date, skill, body in entries:
+            if skill != "audit":
+                continue
+            m = re.search(r"^- Model:\s*(.+?)\s*$", body, flags=re.MULTILINE)
+            if m:
+                model = m.group(1).strip()
+                return (True, None if model.lower() == "null" else model)
+
+    # Compacted History: delegate to the authoritative multi-line anchor parser
+    # (shares null-normalization and document-order semantics).
+    anchors = _parse_compacted_history_anchors(changelog_text)
+    for anchor in anchors:
+        if anchor.get("skill") == "/audit":
+            # First-anchor-wins: return even on null last_model (do not skip).
+            return (True, anchor.get("last_model"))
+
+    return (False, None)
+
+
+def _drift_state(
+    current_fp: dict | None,
+    baseline_present: bool,
+    baseline_fp: dict | None,
+) -> str:
+    """Silence evaluation order. Returns one of:
+    normalization_null, missing_baseline, match, drift.
+    """
+    # Silence evaluation order (short-circuit).
+    if current_fp is None or (baseline_present and baseline_fp is None):
+        return "normalization_null"
+    if not baseline_present:
+        return "missing_baseline"
+    if current_fp == baseline_fp:
+        return "match"
+    return "drift"
+
+
+def _test_scan_order() -> list[str]:
+    """L2 unit test: pure function assertions for _scan_baseline_anchor
+    + _drift_state. Returns list of failure messages (empty = PASS).
+    """
+    failures: list[str] = []
+
+    # Fixture 1: Recent Activity has /audit entry with bullet (em-dash header).
+    ra_hit = """
+## Recent Activity
+
+### 2026-04-22 — /audit
+- Model: claude-opus-4-7
+- Applied: ...
+"""
+    present, model = _scan_baseline_anchor(ra_hit)
+    if not (present and model == "claude-opus-4-7"):
+        failures.append(f"scan RA hit: got ({present}, {model})")
+
+    # Fixture 2: Recent Activity exhausted, Compacted History has /audit anchor
+    # (multi-line YAML-ish form per _parse_compacted_history_anchors).
+    ch_hit = """
+## Recent Activity
+
+### 2026-04-22 — /create
+- Applied: ...
+
+## Compacted History
+
+### 2026-Q1
+
+- skill: /audit
+  last_entry_date: 2026-03-15
+  last_model: claude-sonnet-4-6
+  last_capability_fingerprint: null
+"""
+    present, model = _scan_baseline_anchor(ch_hit)
+    if not (present and model == "claude-sonnet-4-6"):
+        failures.append(f"scan CH hit: got ({present}, {model})")
+
+    # Fixture 3: First /audit anchor reached has null model (first-anchor-wins).
+    # Second bucket has non-null; test must confirm we do NOT skip past the null.
+    ch_null = """
+## Recent Activity
+
+## Compacted History
+
+### 2026-Q1
+
+- skill: /audit
+  last_entry_date: 2026-03-10
+  last_model: null
+  last_capability_fingerprint: null
+
+### 2025-Q4
+
+- skill: /audit
+  last_entry_date: 2025-12-01
+  last_model: claude-opus-4-5
+  last_capability_fingerprint: null
+"""
+    present, model = _scan_baseline_anchor(ch_null)
+    if not (present and model is None):
+        failures.append(f"scan first-anchor-wins null: got ({present}, {model})")
+
+    # Fixture 4: All buckets exhausted, no /audit anchor anywhere.
+    no_audit = """
+## Recent Activity
+
+### 2026-04-22 — /create
+- Applied: ...
+
+## Compacted History
+"""
+    present, model = _scan_baseline_anchor(no_audit)
+    if not (present is False and model is None):
+        failures.append(f"scan empty: got ({present}, {model})")
+
+    # Fixture 4b: None changelog.
+    present, model = _scan_baseline_anchor(None)
+    if not (present is False and model is None):
+        failures.append(f"scan None: got ({present}, {model})")
+
+    # Fixture 4c: empty-string changelog.
+    present, model = _scan_baseline_anchor("")
+    if not (present is False and model is None):
+        failures.append(f"scan empty-string: got ({present}, {model})")
+
+    # Fixture 4d: Recent Activity /audit without - Model: bullet (delta-omit).
+    # Scan must skip past the bulletless entry and fall through to Compacted History.
+    ra_delta_omit = """
+## Recent Activity
+
+### 2026-04-22 — /audit
+- Applied: ...
+
+## Compacted History
+
+### 2025-Q4
+
+- skill: /audit
+  last_entry_date: 2025-12-01
+  last_model: claude-haiku-4-5
+  last_capability_fingerprint: null
+"""
+    present, model = _scan_baseline_anchor(ra_delta_omit)
+    if not (present and model == "claude-haiku-4-5"):
+        failures.append(f"scan delta-omit RA fallback to CH: got ({present}, {model})")
+
+    # Fixture 5-8: _drift_state silence order.
+    fp_opus = {"family_tier": "opus", "context_window_class": "200k",
+               "reasoning_class": "extended_any", "context_management_class": "compaction_capable"}
+    fp_sonnet = {"family_tier": "sonnet", "context_window_class": "200k",
+                 "reasoning_class": "extended_any", "context_management_class": "compaction_capable"}
+
+    if _drift_state(fp_opus, True, fp_opus) != "match":
+        failures.append("drift_state match")
+    if _drift_state(fp_opus, True, fp_sonnet) != "drift":
+        failures.append("drift_state drift")
+    if _drift_state(None, True, fp_opus) != "normalization_null":
+        failures.append("drift_state current-null")
+    if _drift_state(fp_opus, False, None) != "missing_baseline":
+        failures.append("drift_state missing")
+
+    return failures
+
+
+def _test_render_drift_header() -> list[str]:
+    """L3 unit test: render_state_summary injects drift header when
+    state == 'drift' and stays silent for match. Returns list of failure
+    messages (empty = PASS).
+    """
+    failures: list[str] = []
+
+    profile_stub: dict = {
+        "schema_version": "1.0.0",
+        "claude_code_configuration_state": {
+            "model": "claude-sonnet-4-6",
+            "claude_md": {"exists": True},
+            "settings_json": {"exists": True},
+            "rules_count": 0,
+            "agents_count": 0,
+            "hooks_count": 0,
+            "mcp_servers_count": 0,
+        },
+    }
+    recs_stub: dict = {"schema_version": "1.0.0", "recommendations": []}
+    # NOTE: frontmatter is required here but NOT in _test_scan_order stubs —
+    # render_state_summary pipeline calls _render_recent_skill_results →
+    # _parse_changelog_entries → _extract_frontmatter_version, which raises
+    # ValueError on absent version. Bare _scan_baseline_anchor has no such
+    # dependency.
+    changelog_stub = """---
+version: 1.1.0
+---
+
+## Recent Activity
+
+### 2026-04-20 — /audit
+- Model: claude-opus-4-7
+- Applied: score snapshot
+"""
+    ctx_stub = RunContext(
+        pinned_utc="2026-04-14T00:00:00Z",
+        work_dir=Path("."),
+        fixture_name="t6-render-drift-header-unit",
+    )
+
+    out = render_state_summary(profile_stub, recs_stub, changelog_stub, ctx_stub)
+
+    if "Model drift: claude-opus-4-7 -> claude-sonnet-4-6" not in out:
+        failures.append("drift header missing from render")
+
+    # Placement: header must fall between H1 and ## Project Profile.
+    idx_h1 = out.find("# Claude Code Configuration State")
+    idx_header = out.find("Model drift:")
+    idx_profile = out.find("## Project Profile")
+    if not (idx_h1 != -1 and idx_header != -1 and idx_profile != -1
+            and idx_h1 < idx_header < idx_profile):
+        failures.append(
+            f"drift header placement wrong: h1={idx_h1} "
+            f"header={idx_header} profile={idx_profile}"
+        )
+
+    # Silence test: when current model == baseline model, no header.
+    profile_match = {
+        **profile_stub,
+        "claude_code_configuration_state": {
+            **profile_stub["claude_code_configuration_state"],
+            "model": "claude-opus-4-7",
+        },
+    }
+    out_match = render_state_summary(
+        profile_match, recs_stub, changelog_stub, ctx_stub
+    )
+    if "Model drift:" in out_match:
+        failures.append("drift header leaked into match state")
+
+    # Silence test: missing_baseline (no /audit in changelog) stays silent.
+    out_missing = render_state_summary(
+        profile_stub, recs_stub, None, ctx_stub
+    )
+    if "Model drift:" in out_missing:
+        failures.append("drift header leaked into missing_baseline state")
+
+    # Silence test: normalization_null (unknown current model) stays silent.
+    profile_unknown = {
+        **profile_stub,
+        "claude_code_configuration_state": {
+            **profile_stub["claude_code_configuration_state"],
+            "model": "claude-future-unknown-model-2099",
+        },
+    }
+    out_null = render_state_summary(
+        profile_unknown, recs_stub, changelog_stub, ctx_stub
+    )
+    if "Model drift:" in out_null:
+        failures.append("drift header leaked into normalization_null state")
+
+    return failures
+
+
+def _test_t6_fixtures() -> list[str]:
+    """L3 integration test: byte-match smoke fixtures against goldens.
+
+    4 rendering fixtures (drift-recent-activity, drift-compacted-history,
+    normalization-null-silence, crossskill-create-drift) render through
+    render_state_summary and byte-match against ci/fixtures/t6-*/golden/
+    state-summary.md.
+
+    1 stateless fixture (stateless-silence) asserts marker-file presence +
+    state-summary.md golden absence (structural evidence that terminal
+    state rendering is skipped in stateless mode — no runtime emulation).
+    """
+    failures: list[str] = []
+    fixture_root = ROOT / "ci" / "fixtures"
+
+    rendering_fixtures = [
+        "t6-drift-recent-activity",
+        "t6-drift-compacted-history",
+        "t6-normalization-null-silence",
+        "t6-crossskill-create-drift",
+    ]
+    for name in rendering_fixtures:
+        fdir = fixture_root / name
+        profile_path = fdir / "profile.json"
+        changelog_path = fdir / "changelog.md"
+        golden_path = fdir / "golden" / "state-summary.md"
+        if not profile_path.exists():
+            failures.append(f"{name}: missing profile.json")
+            continue
+        if not golden_path.exists():
+            failures.append(f"{name}: missing golden/state-summary.md")
+            continue
+        profile = json.loads(profile_path.read_text(encoding="utf-8"))
+        changelog = (
+            changelog_path.read_text(encoding="utf-8")
+            if changelog_path.exists()
+            else None
+        )
+        golden = golden_path.read_text(encoding="utf-8")
+        ctx = RunContext(
+            pinned_utc=os.environ.get("SMOKE_PINNED_UTC", "2026-04-14T00:00:00Z"),
+            work_dir=Path("."),
+            fixture_name=name,
+        )
+        actual = render_state_summary(
+            profile,
+            {"schema_version": "1.0.0", "recommendations": []},
+            changelog,
+            ctx,
+        )
+        if actual != golden:
+            failures.append(
+                f"{name}: byte mismatch (len actual={len(actual)}, "
+                f"golden={len(golden)})"
+            )
+
+    stateless_fixtures = ["t6-stateless-silence"]
+    for name in stateless_fixtures:
+        fdir = fixture_root / name
+        marker = fdir / "golden" / "terminal-no-state-summary.marker"
+        if not marker.exists():
+            failures.append(f"{name}: missing stateless marker")
+        if (fdir / "golden" / "state-summary.md").exists():
+            failures.append(
+                f"{name}: state-summary golden should not exist "
+                f"(stateless mode)"
+            )
+
+    return failures
+
+
+# ---------------------------------------------------------------------------
 # Rendering (learning-system.md §State Rendering)
 # ---------------------------------------------------------------------------
 
@@ -637,6 +1100,30 @@ def render_state_summary(profile: dict, recs: dict, changelog_text: str | None, 
     ps = profile.get("project_structure") or {}
     ccs = profile.get("claude_code_configuration_state") or {}
 
+    # Drift advisory derivation (shared per learning-system.md, section
+    # "Drift Advisory Derivation"). Silent when state is match,
+    # missing_baseline, or normalization_null.
+    rules = _get_normalization_rules()
+    current_model_id = ccs.get("model")
+    current_fp = (
+        normalize_model_id(current_model_id, rules)
+        if current_model_id
+        else None
+    )
+    baseline_present, baseline_model_id = _scan_baseline_anchor(changelog_text)
+    baseline_fp = (
+        normalize_model_id(baseline_model_id, rules)
+        if baseline_model_id
+        else None
+    )
+    state = _drift_state(current_fp, baseline_present, baseline_fp)
+
+    drift_block = ""
+    if state == "drift":
+        drift_block = (
+            f"Model drift: {baseline_model_id} -> {current_model_id}\n\n"
+        )
+
     def _or_not_detected(v):  # noqa: E306
         return v if v else "Not detected"
 
@@ -654,6 +1141,7 @@ def render_state_summary(profile: dict, recs: dict, changelog_text: str | None, 
 
     profile_block = (
         "# Claude Code Configuration State\n\n"
+        f"{drift_block}"
         "## Project Profile\n"
         f"- Runtime: {_or_not_detected(rl.get('runtime'))}\n"
         f"- Language: {_or_not_detected(rl.get('language'))}\n"
@@ -704,7 +1192,9 @@ def _render_recent_skill_results(changelog_text: str | None) -> str:
     out = ["## Recent Skill Results", ""]
     if not changelog_text:
         return "\n".join(out) + "\n"
-    entries = _parse_changelog_entries(changelog_text)
+    parsed = _parse_changelog_entries(changelog_text)
+    entries = parsed["entries"]
+    # anchors unused by _render_skill_results; ignored here
     # Preserve first-occurrence order of each skill, but use its LAST entry.
     order: list[str] = []
     latest_per_skill: dict[str, dict] = {}
@@ -723,9 +1213,32 @@ def _render_recent_skill_results(changelog_text: str | None) -> str:
     return text
 
 
-def _parse_changelog_entries(text: str) -> list[dict]:
-    """Extract Recent Activity entries as [{date, skill, applied, detected, recommendations}]."""
-    _, body = _strip_frontmatter(text)
+def _parse_changelog_entries(text: str) -> dict:
+    """Parse config-changelog.md and return {entries, anchors}.
+
+    Return shape (v1.1.0+):
+        {
+            "entries": list[dict],   # Recent Activity entries
+            "anchors": list[dict],   # Compacted History per-skill anchors (may be [])
+        }
+
+    Each entry dict: {date, skill, detected, applied, recommendations,
+                      bullet_model: str | None}
+
+    Frontmatter dispatch (per the schema-evolution policy):
+      - version "1.0.0" → bullet_model = None for all entries (omit→null)
+      - version "1.1.0" → recognize "- Model:" per entry; None on absent
+      - unknown version → raises ValueError (no silent fallback)
+
+    Caller must destructure: entries = result["entries"]
+    """
+    fm, body = _strip_frontmatter(text)
+    version = _extract_frontmatter_version(fm)
+    if version not in ("1.0.0", "1.1.0"):
+        raise ValueError(
+            f"Unknown config-changelog.md frontmatter version: {version!r}. "
+            f"Parser supports '1.0.0' or '1.1.0' only. See the changelog schema-evolution policy."
+        )
     # Find ## Recent Activity
     lines = body.splitlines()
     start = None
@@ -734,7 +1247,8 @@ def _parse_changelog_entries(text: str) -> list[dict]:
             start = idx + 1
             break
     if start is None:
-        return []
+        anchors = _parse_compacted_history_anchors(body)
+        return {"entries": [], "anchors": anchors}
     entries: list[dict] = []
     current: dict | None = None
     for raw in lines[start:]:
@@ -753,6 +1267,7 @@ def _parse_changelog_entries(text: str) -> list[dict]:
                 "detected": None,
                 "applied": None,
                 "recommendations": [],
+                "bullet_model": None,
             }
             continue
         if current is None:
@@ -763,11 +1278,18 @@ def _parse_changelog_entries(text: str) -> list[dict]:
             current["applied"] = line[len("- Applied:") :].strip()
         elif line.startswith("- Recommendations:"):
             current["recommendations_inline"] = line[len("- Recommendations:") :].strip()
+        elif version == "1.1.0" and line.startswith("- Model:"):
+            value = line[len("- Model:"):].strip()
+            # Per the omit→null rule: "- Model: (none)" literal is forbidden for
+            # writers; defense-in-depth coerces it + empty value → None so the
+            # placeholder never leaks as a string into downstream consumers.
+            current["bullet_model"] = value if (value and value != "(none)") else None
         elif line.startswith("  - "):
             current["recommendations"].append(line[4:].strip())
     if current is not None:
         entries.append(current)
-    return entries
+    anchors = _parse_compacted_history_anchors(body)
+    return {"entries": entries, "anchors": anchors}
 
 
 def _entry_summary_line(entry: dict) -> str:
@@ -1010,6 +1532,8 @@ PROFILE_KEY_ORDER = [
 ]
 
 CCS_KEY_ORDER = [
+    "model",
+    "scoring_model_ack",
     "claude_md",
     "settings_json",
     "rules_count",
@@ -1057,7 +1581,7 @@ def merge_profile(current: dict | None, delta: dict, skill: str) -> dict:
     if current is None:
         current = _empty_profile(delta.get("metadata", {}).get("last_updated", ""))
     merged = json.loads(json.dumps(current))  # deep copy via JSON
-    merged["schema_version"] = "1.0.0"
+    merged["schema_version"] = "1.1.0"
     delta_meta = delta.get("metadata", {})
     existing_meta = merged.setdefault("metadata", {})
     existing_meta["generated_by"] = "guardians-of-the-claude"
@@ -1087,17 +1611,32 @@ def merge_profile(current: dict | None, delta: dict, skill: str) -> dict:
             # owns initial detection when current state is missing the field.
             if skill == "audit" and "settings_json" in ccs_d and "settings_json" not in ccs_m:
                 ccs_m["settings_json"] = ccs_d["settings_json"]
+            # /audit is the authoritative writer for model and scoring_model_ack.
+            if skill == "audit":
+                if "model" in ccs_d:
+                    ccs_m["model"] = ccs_d["model"]
+                if "scoring_model_ack" in ccs_d:
+                    ccs_m["scoring_model_ack"] = ccs_d["scoring_model_ack"]
     if skill == "secure":
         if "claude_code_configuration_state" in delta:
             ccs_d = delta["claude_code_configuration_state"]
             ccs_m = merged.setdefault("claude_code_configuration_state", {})
             if "settings_json" in ccs_d:
                 ccs_m["settings_json"] = ccs_d["settings_json"]
-        # Phase 1 scope: /secure also co-owns rules_count/agents_count/hooks_count/
-        # mcp_servers_count per merge_rules.md §profile.json merge rules, but no
-        # Phase 1 fixture exercises /secure with count changes. Implement when
-        # a Phase 2 fixture adds /secure to its skill_sequence with rule/hook
-        # additions; byte-diff against golden will surface the missing update.
+            # C2 (T7): /secure co-owns counts per merge_rules.md §profile.json
+            for count_key in ("rules_count", "agents_count", "hooks_count", "mcp_servers_count"):
+                if count_key in ccs_d:
+                    ccs_m[count_key] = ccs_d[count_key]
+
+    if skill == "optimize":
+        if "claude_code_configuration_state" in delta:
+            ccs_d = delta["claude_code_configuration_state"]
+            ccs_m = merged.setdefault("claude_code_configuration_state", {})
+            # C2 (T7): /optimize co-owns counts per merge_rules.md §profile.json;
+            # must NOT touch settings_json (owned by /secure) or claude_md (owned by /create+/audit).
+            for count_key in ("rules_count", "agents_count", "hooks_count", "mcp_servers_count"):
+                if count_key in ccs_d:
+                    ccs_m[count_key] = ccs_d[count_key]
 
     return _ordered_profile(merged)
 
@@ -1147,7 +1686,7 @@ def _changelog_with_entry(current_text: str | None, entry_md: str, entry_count_d
             "---\n"
             "title: Configuration Changelog\n"
             "description: Decision journal for Claude Code configuration changes\n"
-            "version: 1.0.0\n"
+            "version: 1.1.0\n"
             "compacted_at: never\n"
             "entry_count: 0\n"
             "---\n\n"
@@ -1174,6 +1713,29 @@ def _changelog_with_entry(current_text: str | None, entry_md: str, entry_count_d
     # Ensure trailing newline after append.
     new_text = new_text.rstrip("\n") + "\n\n" + entry_md.rstrip("\n") + "\n"
     return new_text
+
+
+def parse_last_changelog_entry_model(changelog_text: str | None) -> str | None:
+    """Return model string from the most recent Recent Activity entry's
+    `- Model:` bullet, or None when no bullet exists (pre-v1.1.0 entry OR
+    delta-omitted v1.1.0 entry OR empty changelog)."""
+    if not changelog_text:
+        return None
+    lines = changelog_text.splitlines()
+    last_heading_idx = -1
+    for idx in range(len(lines) - 1, -1, -1):
+        if lines[idx].startswith("### ") and " — /" in lines[idx]:
+            last_heading_idx = idx
+            break
+    if last_heading_idx == -1:
+        return None
+    for idx in range(last_heading_idx + 1, len(lines)):
+        line = lines[idx]
+        if line.startswith("### "):
+            break
+        if line.startswith("- Model: "):
+            return line[len("- Model: "):].strip()
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -1343,6 +1905,7 @@ def handle_audit(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
     if ctx.fixture_name == "beginner-path":
         entry = (
             f"### {date} — /audit\n"
+            f"- Model: {state.profile['claude_code_configuration_state']['model']}\n"
             f"- Detected: (none)\n"
             f"- Profile updated: (none)\n"
             f"- Applied: (none)\n"
@@ -1354,6 +1917,7 @@ def handle_audit(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
         # warm-start appends a new entry for 2026-04-14 /audit with 2x pending.
         entry = (
             f"### {date} — /audit\n"
+            f"- Model: {state.profile['claude_code_configuration_state']['model']}\n"
             f"- Detected: (none)\n"
             f"- Profile updated: (none)\n"
             f"- Applied: (none)\n"
@@ -1365,6 +1929,7 @@ def handle_audit(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
     elif ctx.fixture_name == "monorepo":
         entry = (
             f"### {date} — /audit\n"
+            f"- Model: {state.profile['claude_code_configuration_state']['model']}\n"
             f"- Detected: monorepo layout (2 workspaces)\n"
             f"- Profile updated: generated\n"
             f"- Applied: (none)\n"
@@ -1433,6 +1998,11 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "agents_count": 0,
                 "hooks_count": 0,
                 "mcp_servers_count": 0,
+                "model": "claude-opus-4-7",
+                "scoring_model_ack": {
+                    "version": "audit-score-v4.0.0",
+                    "seen_count": 0,
+                },
             },
         }
     if name == "warm-start":
@@ -1470,6 +2040,11 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "agents_count": 1,
                 "hooks_count": 2,
                 "mcp_servers_count": 0,
+                "model": "claude-opus-4-7",
+                "scoring_model_ack": {
+                    "version": "audit-score-v4.0.0",
+                    "seen_count": 0,
+                },
             },
         }
     if name == "monorepo":
@@ -1507,6 +2082,11 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "agents_count": 0,
                 "hooks_count": 0,
                 "mcp_servers_count": 0,
+                "model": "claude-opus-4-7",
+                "scoring_model_ack": {
+                    "version": "audit-score-v4.0.0",
+                    "seen_count": 0,
+                },
             },
         }
     # beginner-path: /audit after /create leaves profile unchanged (same detection).
@@ -1541,25 +2121,95 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "agents_count": 0,
                 "hooks_count": 0,
                 "mcp_servers_count": 0,
+                "model": "claude-opus-4-7",
+                "scoring_model_ack": {
+                    "version": "audit-score-v4.0.0",
+                    "seen_count": 0,
+                },
             },
         }
     raise KeyError(f"no audit detection preset for fixture {name!r}")
 
 
 def handle_secure(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
-    """Not exercised by Phase 1 fixtures — Phase 2+ will expand scenarios."""
-    raise NotImplementedError(
-        "handle_secure not exercised by Phase 1 fixtures; "
-        "implement when a fixture adds /secure to its skill_sequence"
+    """Process /secure fixture run: profile merge + changelog + recommendations.
+
+    Per-fixture detection presets live in _secure_detect_profile. Phase 1
+    FIXTURE_SCENARIOS does not include /secure; the atomic runners
+    (ci/scripts/t7_secure_*_check.py) exercise /secure via SKILL_HANDLERS
+    monkey-patch for fixture-specific behavior. Adding a /secure entry to
+    FIXTURE_SCENARIOS requires adding a per-fixture branch in
+    _secure_detect_profile."""
+    date = ctx.pinned_utc.split("T")[0]
+    profile_delta = _secure_detect_profile(ctx)
+    state.profile = merge_profile(state.profile, profile_delta, "secure")
+    state.recommendations = merge_recommendations(
+        state.recommendations, [], ctx.pinned_utc
     )
+    current_model = state.profile.get("claude_code_configuration_state", {}).get("model")
+    previous_model = parse_last_changelog_entry_model(state.changelog)
+    model_bullet = (
+        f"- Model: {current_model}\n"
+        if current_model is not None and current_model != previous_model
+        else ""
+    )
+    entry = (
+        f"### {date} — /secure\n"
+        f"{model_bullet}"
+        f"- Detected: fixture-driven\n"
+        f"- Profile updated: claude_code_configuration_state\n"
+        f"- Applied: (fixture-specific)\n"
+        f"- Resolved: (none)\n"
+        f"- Recommendations: (none)"
+    )
+    state.changelog = _changelog_with_entry(state.changelog, entry)
+    _final_phase_write(ctx, state)
+    return state
+
+
+def _secure_detect_profile(ctx: RunContext) -> dict:
+    """Per-fixture /secure deltas. Add branches as Phase 2+ fixtures land."""
+    raise KeyError(f"no /secure detection preset for fixture {ctx.fixture_name!r}")
 
 
 def handle_optimize(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
-    """Not exercised by Phase 1 fixtures — Phase 2+ will expand scenarios."""
-    raise NotImplementedError(
-        "handle_optimize not exercised by Phase 1 fixtures; "
-        "implement when a fixture adds /optimize to its skill_sequence"
+    """Process /optimize fixture run: counts merge + changelog + recommendations.
+
+    Per-fixture detection presets live in _optimize_detect_profile. Phase 1
+    FIXTURE_SCENARIOS does not include /optimize; the atomic runners
+    (ci/scripts/t7_optimize_e2e_check.py) exercise /optimize via SKILL_HANDLERS
+    monkey-patch. Adding an /optimize entry to FIXTURE_SCENARIOS requires
+    adding a per-fixture branch in _optimize_detect_profile."""
+    date = ctx.pinned_utc.split("T")[0]
+    profile_delta = _optimize_detect_profile(ctx)
+    state.profile = merge_profile(state.profile, profile_delta, "optimize")
+    state.recommendations = merge_recommendations(
+        state.recommendations, [], ctx.pinned_utc
     )
+    current_model = state.profile.get("claude_code_configuration_state", {}).get("model")
+    previous_model = parse_last_changelog_entry_model(state.changelog)
+    model_bullet = (
+        f"- Model: {current_model}\n"
+        if current_model is not None and current_model != previous_model
+        else ""
+    )
+    entry = (
+        f"### {date} — /optimize\n"
+        f"{model_bullet}"
+        f"- Detected: fixture-driven\n"
+        f"- Profile updated: counts\n"
+        f"- Applied: (fixture-specific)\n"
+        f"- Resolved: (none)\n"
+        f"- Recommendations: (none)"
+    )
+    state.changelog = _changelog_with_entry(state.changelog, entry)
+    _final_phase_write(ctx, state)
+    return state
+
+
+def _optimize_detect_profile(ctx: RunContext) -> dict:
+    """Per-fixture /optimize deltas. Add branches as Phase 2+ fixtures land."""
+    raise KeyError(f"no /optimize detection preset for fixture {ctx.fixture_name!r}")
 
 
 SKILL_HANDLERS = {
@@ -1598,7 +2248,7 @@ def apply_pre_run(pre_run, ctx: RunContext) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Semantic assertions (run BEFORE byte diff per Codex Q5 Pitfall 2)
+# Semantic assertions (run BEFORE byte diff)
 # ---------------------------------------------------------------------------
 
 
@@ -1608,15 +2258,36 @@ def _load_schema(name: str) -> dict:
 
 def assert_schema_valid(ctx: RunContext, state: WorkspaceState) -> list[str]:
     failures = []
-    profile_schema = _load_schema("profile.schema.json")
+    # Dispatch profile schema wrapper by declared `schema_version`.
+    # profile.schema.json was factored into base + versioned wrappers in v2.12.0.
+    # v2.12.1 adds v1.1.0 dispatch alongside the legacy v1.0.0 path.
+    from referencing import Registry, Resource  # noqa: PLC0415
+    base_schema = _load_schema("profile.schema.base.json")
+    registry = Registry().with_resources(
+        [("profile.schema.base.json", Resource.from_contents(base_schema))]
+    )
+
+    version_to_wrapper = {
+        "1.0.0": "profile.schema.v1.0.0.json",
+        "1.1.0": "profile.schema.v1.1.0.json",
+    }
+
     recs_schema = _load_schema("recommendations.schema.json")
     if state.profile is None:
         failures.append("profile.json was not written")
     else:
-        try:
-            jsonschema.validate(state.profile, profile_schema)
-        except jsonschema.ValidationError as e:
-            failures.append(f"profile.json schema invalid: {e.message}")
+        declared_version = state.profile.get("schema_version")
+        if declared_version not in version_to_wrapper:
+            failures.append(
+                f"profile.json schema_version '{declared_version}' not dispatchable; "
+                f"expected one of {sorted(version_to_wrapper)}"
+            )
+        else:
+            profile_schema = _load_schema(version_to_wrapper[declared_version])
+            try:
+                jsonschema.Draft202012Validator(profile_schema, registry=registry).validate(state.profile)
+            except jsonschema.ValidationError as e:
+                failures.append(f"profile.json schema invalid ({declared_version}): {e.message}")
     if state.recommendations is None:
         failures.append("recommendations.json was not written")
     else:
@@ -1797,7 +2468,7 @@ def run_fixture(
     """Run one fixture through Step 0.5 + (optional) skill handlers, then
     assert semantics, then byte-diff work_dir against the frozen target.
 
-    Optional parameters let the local lane (LOCAL_FIXTURES_DIR, Task 7) reuse
+    Optional parameters let the local lane (LOCAL_FIXTURES_DIR) reuse
     the CI code path unchanged — each local case provides its own src_dir
     (case/input) and golden_dir (case/expected), and optionally a per-case
     scenario.json (fallback to a migration-only default when absent). All
@@ -1900,7 +2571,19 @@ def main() -> int:
         print("[FATAL] SMOKE_PINNED_UTC env var is required", file=sys.stderr)
         return 2
 
-    # Local lane (Task 7): iterate test/fixtures/migration/case-*/ subdirs.
+    # Pure-function unit tests gate the fixture loop: if helpers are wrong,
+    # integration fixtures can't possibly pass, and isolated failures are
+    # easier to diagnose than fixture-level byte diffs.
+    unit_failures: list[str] = []
+    unit_failures.extend(_test_scan_order())
+    unit_failures.extend(_test_render_drift_header())
+    unit_failures.extend(_test_t6_fixtures())
+    if unit_failures:
+        for f in unit_failures:
+            print(f"[FAIL] unit test: {f}", file=sys.stderr)
+        return 1
+
+    # Local lane: iterate LOCAL_FIXTURES_DIR case subdirs.
     # Shared verifier, shared semantic assertions — no duplicated logic.
     local_dir = os.environ.get("LOCAL_FIXTURES_DIR")
     if local_dir:

@@ -1,0 +1,35 @@
+{
+  "scoring_contract_id": "audit-score-v4.0.0",
+  "sample": {
+    "name": "ubolonton/emacs-module-rs",
+    "url": "https://github.com/ubolonton/emacs-module-rs",
+    "ecosystem": "Rust",
+    "claude_md_location": ".claude/"
+  },
+  "profile": {
+    "claude_md_lines": 76,
+    "rules_count": 2,
+    "hooks_count": 0,
+    "agents_count": 0,
+    "mcp_count": 0,
+    "deny_count": 0,
+    "is_monorepo": false,
+    "has_meta_marketplace": false,
+    "has_symlink_claude_md": false
+  },
+  "scoring_inputs": {
+    "DS": 22.4,
+    "SB": 2,
+    "L1": 2,
+    "L2": 2,
+    "L3": 1,
+    "L4": 1,
+    "L5": 0,
+    "L6": 1,
+    "LAV_nonL5": 7,
+    "cap": 100
+  },
+  "expected_bucket": "Intermediate",
+  "expected_final_score": 27.536,
+  "bucket_rationale": "Intermediate per the bucket rubric: 76 lines in [60, 200] + rules 2 in [2, 5] + agents ≤ 1 + MCP ≤ 1. Pure Rust FFI library (Emacs module bindings) — T2.2 Security SKIP (no network surface). Strong T1 all PASS + strong structure/commands (T3). LAV: +2/+2/+1/+1/0/+1 reflects accurate workspace structure + reliable commands + moderate patterns (changelog/guide-writing skills) + concise length."
+}

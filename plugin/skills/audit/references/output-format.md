@@ -9,8 +9,11 @@ Configuration Audit Results
 ===========================
 
 Quality Gate: READY    (CLAUDE.md OK, test command OK)
-Score: 83/100 (Grade: A)  |  Maturity: Level 3 — Optimized
-⚠ High structural score with low conciseness signal — your CLAUDE.md may be over-configured. See L5 finding below for specifics.
+Score: 60/100 (Grade: B)  |  Maturity: Level 3 — Optimized
+
+⚠ Model drift since last /audit (baseline: /audit 2026-04-15, claude-opus-4-6):
+  family_tier:          opus  →  sonnet
+  context_window_class: 200k  →  1M
 
 ★ Most impactful: [Highest-impact change and why it matters]
 
@@ -24,20 +27,20 @@ Top 3 Priorities
 ---
 
 Score Breakdown
-  Foundation Gate (FG):  1.00    ==================== 100%
+  T1 Score:              1.00    ==================== 100%
   Protection (T2):       1.00    ==================== 100%
-  Optimization (T3):     0.50    ==========.......... 50%
-  Detail Score (DS):     80.0    (T2: 1.00 x 60% + T3: 0.50 x 40%) x 100
+  Optimization (T3):     1.00    ==================== 100%
+  Detail Score (DS):     100.0   (T2: 1.00 x 60% + T3: 1.00 x 40%) x 100
   Synergy: +5  (test + build, sensitive + rules)
-  LAV: -2  (L1: 0 + L2: 0 + L3: +1 + L4: 0 + L5: -3 + L6: 0)
+  LAV: L1=0, L2=0, L3=0, L4=0, L5=-3 (Conciseness fail), L6=+1
+  LAV_nonL5: +1
 
   Formula:
-  FG: 0.15 + 0.85 x 1.00 = 1.00
-  DS: (1.00 x 0.60 + 0.50 x 0.40) x 100 = 80.0
+  DS: (1.00 x 0.60 + 1.00 x 0.40) x 100 = 100.0
   SB: +5 (test + build: +2, sensitive + rules: +3)
-  LAV: -2 (L1: 0 + L2: 0 + L3: +1 + L4: 0 + L5: -3 + L6: 0)
-  Quality Cap: 88 (LAV < 0: 90 + -2 = 88)
-  Final: min(max(1.00 x 80.0 + 5 + -2, 0), cap=88) = 83
+  LAV_nonL5: L1+L2+L3+L4+L6 = 0+0+0+0+1 = 1
+  Cap (L5=-3 + no other negative-min Li at minimum): 60
+  Final: min(100.0 x (1 + 1/50) + 5, cap=60) = min(107.0, 60) = 60
 
 Detailed Findings
   [Detailed findings per item...]
@@ -58,13 +61,11 @@ Additional CLAUDE.md Files (informational)
 
 Maturity path: [Current] → [Next level]: [specific requirement]
 
-Since last audit (2026-03-31): 78 -> 83 (+5).
+Since last audit (2026-03-31): 55 -> 60 (+5).
 Still open: L5 conciseness flag, no MCP configuration, agent model diversity.
 ```
 
 **Display caveat:** If fewer than 2 non-SKIP items remain in T2 or T3, append "(based on N of M items — others not applicable)" to the percentage display.
-
-**Score-line warning (false-reassurance guardrail):** Conditional — rendered on the line **immediately below the combined `Score:` / `Maturity:` line**, above the blank line preceding `★ Most impactful`. Appears **only when BOTH** conditions hold: (1) `Final Score` falls within the **Grade A range** defined in `references/scoring-model.md` (currently `Final >= 80`), AND (2) `LAV L5 (Conciseness) == −3`. The exact wording is the line shown in the Standard Output sample above — **copy verbatim, do not paraphrase, do not reprint it here**. Omit the entire line when either condition is not met (do not render an empty placeholder). The trigger is defined in `SKILL.md` Phase 4 step 7.5. Rationale: the LAV L5 cap of −3 cannot fully offset an inflated Detail Score on Overconfigured CLAUDE.md files, so a high mechanical score can mask a severe conciseness failure. The full structural fix (LAV-as-multiplier model) is planned for a future release; this warning is the lightweight v2.10.0 stopgap.
 
 **Additional CLAUDE.md Files section:** Conditional — appears between "All Suggestions" and "Maturity path" only when Phase 1.5 found one or more `CLAUDE.md` files in subpackages outside the root and `.claude/`. List each path with its line count, limited to 20 entries; if more found, append `(+N more not shown)`. This is informational disclosure, not a scoring component. Per-package scoring is on the audit roadmap (Phase 2) but not in this release. When zero additional files are found, omit the entire section.
 
@@ -72,6 +73,18 @@ Still open: L5 conciseness flag, no MCP configuration, agent model diversity.
 > "Since your last audit (DATE): score changed from X → Y. [Skills applied since last audit: /secure, /optimize.] Resolved: [issues]. Still open: [issues]."
 
 **Top 3 Priorities section:** Always appears near the top of the output, directly after the Score line, whenever any non-PASS results exist. This is the primary action block — the user sees "what to do next" before seeing the math. This section replaces the old bottom-of-output "Insights & Recommendations" block; the same content, surfaced earlier.
+
+**Drift Advisory Block:** Between the Score line and the `★ Most impactful` line, a **conditional** block renders when the drift state is `drift`. Silent in all other states (`match`, `missing_baseline`, `normalization_null`).
+
+Format rules:
+
+- **Header line:** `⚠ Model drift since last /audit (baseline: {scan_source}, {baseline_model_id}):` where `{scan_source}` is the **scan-winner provenance** — `/audit YYYY-MM-DD` when the scan-winner is a Recent Activity `- Model:` bullet (use that entry's `date`); `/audit compacted-bucket YYYY-MM` when the scan-winner is a Compacted History anchor (use anchor's `last_entry_date`). `{baseline_model_id}` is the scan-winner's raw `last_model` / `- Model:` value.
+- **Axis lines:** render **changed axes only** — compare `baseline_fp` and `current_fp` axis-by-axis; emit one line per differing axis. Values are **user-facing** — `opus` / `sonnet` / `haiku`, `200k` / `1M`, `none` / `extended_any`, `manual` / `compaction_capable` — NOT internal enum tokens (like `opus_tier` / `1m_class`). Alignment: axis name left-justified to 22 columns, then `baseline → current`.
+- **No severity label** (no `minor`, `major`, `critical`, or equivalent tier). The drift advisory specification does not define severity levels; adding one would exceed design authority.
+- The block is transient terminal output only — **NOT** added to `recommendations.json` (drift advisories are not persisted as recommendations).
+- **Label distinction**: "Model drift" in this block MUST differ lexically from the scoring-contract-change banner copy ("Scoring contract changed"). Both can co-render in the same `/audit` run when a scoring-contract bump AND a fingerprint drift occur simultaneously — distinct labels prevent operators from conflating two different actions.
+
+Position rationale: drift surfaces as interpretive context for a possibly-changed Score, but must not displace the action-first "Top 3 Priorities" block. Between Score and `★ Most impactful` is the widest unobstructed slot.
 
 Generation rules:
 
@@ -88,7 +101,7 @@ Generation rules:
     - **`LAV < +10` (one or more LAV items below their max):** omit the Priority list. Show "Configuration reaches the current scoring ceiling. Remaining refinements live in LAV — see the LAV breakdown under Score Breakdown for items still below their maximum. Re-audit on major changes." Then suggest exploring advanced features as above. A fuller excellence-headroom surface (Raw exposure, Level 4 — Mastered tier, Excellence Opportunities section) is tracked in `docs/ROADMAP.md` under "Audit v4 Phase 2" and intentionally deferred until the LAV-as-multiplier scoring rewrite lands — adding those surfaces now would incur UX churn when LAV ranges change.
 - **Tone**: Educational and encouraging — frame gaps as opportunities, not failures. Use concrete examples from the project being audited.
 
-**Score Breakdown section:** Follows the Top 3 Priorities block, separated by `---`. Contains the tier percentages (Foundation Gate, Protection, Optimization, Detail Score), Synergy/LAV bonuses, and the full Formula block showing how the final score was derived. This is the transparency tier — users who want to understand or challenge the score find the math here instead of at the top.
+**Score Breakdown section:** Follows the Top 3 Priorities block, separated by `---`. Contains the tier percentages (T1 Score, Protection, Optimization, Detail Score), Synergy/LAV bonuses, and the full Formula block showing how the final score was derived. This is the transparency tier — users who want to understand or challenge the score find the math here instead of at the top.
 
 **Detailed Findings / LAV Findings / All Suggestions:** Per-item check results, LAV item findings (if any item scored 0 or below), and the full list of actionable suggestions from check files' conditional output. These come after Score Breakdown. Keep "All Suggestions" distinct from "Top 3 Priorities" — the former is the full list, the latter is the prioritized subset with score-impact reasoning.
 

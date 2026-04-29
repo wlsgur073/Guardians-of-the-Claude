@@ -145,6 +145,10 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
 
   Profile merge under the state-mutation lock must update `claude_code_configuration_state.{rules_count, agents_count, hooks_count, mcp_servers_count}` for any entity classes changed by this run (see `plugin/references/lib/merge_rules.md` §profile.json merge rules). `/optimize` must NOT touch the six project-structure sections (`runtime_and_language` through `project_structure`).
 
+  **A1 merge rule amendments** (applied summary; mechanism in `plugin/references/lib/merge_rules.md`):
+  - **Row 1 — `claude_code_configuration_state.model`**: any-skill writer; last-write-wins; written at Step 0.5 and Final Phase. Stateless mode: no-op (Phase 1 Global Invariant #6).
+  - **Row 3 — `config-changelog.md` entry `- Model:` bullet**: `/optimize` delta-emits per the shared hybrid writer policy. See `plugin/references/learning-system.md § Model Bullet Emission` for full mechanics; this skill emits only when the resolved model differs from the immediately previous entry's bullet value.
+
 After completing Common Final Phase, run **Critical Thinking & Insight Delivery**.
 
 ### 4.3 Summary & Handoff
