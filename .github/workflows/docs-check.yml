@@ -353,3 +353,16 @@ jobs:
 
       - name: Run hook script parity validator
         run: python .github/scripts/check-hook-script-parity.py
+
+  readme-badge-sync:
+    name: README badge sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Check README badge sync
+        run: python .github/scripts/check-readme-badge-sync.py
