@@ -26,21 +26,25 @@ CHANGELOG = ROOT / "CHANGELOG.md"
 # Heading patterns:
 #   ## [Unreleased]
 #   ## [X.Y.Z] - YYYY-MM-DD
+#   ## [X.Y.Z] - YYYY-MM-DD [ANNOTATION]
 HEADING_RE = re.compile(
-    r"^##\s+\[(?P<inner>[^\]]+)\](?:\s*-\s*(?P<date>\d{4}-\d{2}-\d{2}))?\s*$",
+    r"^##\s+\[(?P<inner>[^\]]+)\](?:\s*-\s*(?P<date>\d{4}-\d{2}-\d{2})(?:\s+\[(?P<annotation>[^\]]+)\])?)?\s*$",
     re.MULTILINE,
 )
 
 # Slug pattern after derivation:
 #   "unreleased"  OR  "xyz-yyyy-mm-dd" (digits + hyphens + lowercase)
-SLUG_RE = re.compile(r"^(?:unreleased|[0-9]+[0-9-]*-\d{4}-\d{2}-\d{2})$")
+#   OR  "xyz-yyyy-mm-dd-annotation" (with optional trailing lowercase annotation)
+SLUG_RE = re.compile(r"^(?:unreleased|[0-9]+[0-9-]*-\d{4}-\d{2}-\d{2}(?:-[a-z]+)?)$")
 
 
-def derive_slug(inner: str, date: str | None) -> str:
+def derive_slug(inner: str, date: str | None, annotation: str | None = None) -> str:
     """Apply GitHub's heading-to-slug rules per CLAUDE.md convention."""
     raw = f"[{inner}]"
     if date:
         raw = f"{raw} - {date}"
+    if annotation:
+        raw = f"{raw} [{annotation}]"
     # Drop `[`, `]`, `.`
     s = raw.translate(str.maketrans("", "", "[]."))
     # Spaces -> `-`
@@ -57,8 +61,9 @@ def main() -> int:
     for match in HEADING_RE.finditer(text):
         inner = match.group("inner")
         date = match.group("date")
+        annotation = match.group("annotation")
         heading = match.group(0)
-        slug = derive_slug(inner, date)
+        slug = derive_slug(inner, date, annotation)
 
         if not SLUG_RE.match(slug):
             errors.append(
@@ -74,6 +79,17 @@ def main() -> int:
             continue
 
         seen[slug] = heading
+
+    # Count-assertion safety net: catch silent skips where HEADING_RE fails to match
+    # a heading that broad level-2 bracket scan sees.
+    broad_count = len(re.findall(r"^##\s+\[", text, re.MULTILINE))
+    parsed = sum(1 for _ in HEADING_RE.finditer(text))
+    if parsed != broad_count:
+        errors.append(
+            f"FAIL - silent-skip detected: {broad_count} level-2 release headings present, "
+            f"but only {parsed} matched the structured pattern. "
+            f"Inspect CHANGELOG.md for malformed heading lines."
+        )
 
     if errors:
         for err in errors:
