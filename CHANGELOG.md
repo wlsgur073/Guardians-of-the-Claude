@@ -7,6 +7,65 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.17.2] - 2026-05-08
+
+### Removed
+
+- **Dead `check-sample-list-preconditions.py` CI job** — script hardcoded a path
+  (`docs/superpowers/v3-roadmap/phase-2a-sample-list.md`) that never shipped
+  (gitignored from inception) and is permanently unreachable after the
+  v3-roadmap directory was deleted on 2026-05-07. Soft-skip path preserved CI
+  green but the docs-check job was a no-op consuming a CI slot. Removes script,
+  workflow job, and updates `CLAUDE.md` job count 20 → 22 (one removed, three
+  added below — net +2).
+
+### Added
+
+- **README badge sync verifier** (`.github/scripts/check-readme-badge-sync.py`,
+  CI job `readme-badge-sync`) — compares README shields.io version badge to
+  `plugin/.claude-plugin/plugin.json` version. Catches the cascade-miss class
+  that left v2.17.0 shipping with `2.16.0` badge until v2.17.1 caught it.
+- **Annotated tag SHA propagation verifier**
+  (`.github/scripts/check-tag-sha-propagation.py`, CI job
+  `tag-sha-propagation`) — converts CLAUDE.md prose rule into scripted check;
+  compares `git rev-parse v<tag>` (local annotated SHA) to `refs/tags/v<tag>`
+  on origin (NOT `^{commit}` peeled). Soft-skip when no tag context.
+- **CHANGELOG anchor slug derivation validator**
+  (`.github/scripts/check-changelog-anchor-slug.py`, CI job
+  `changelog-anchor-slug`) — derives GitHub-flavored slug per CLAUDE.md
+  convention from each `## [X.Y.Z] - YYYY-MM-DD` heading and asserts
+  well-formedness + collision-free. Tolerates trailing-annotation headings
+  like `[1.0.0] - 2026-03-27 [DEPRECATED]` and emits a count-assertion safety
+  net to detect silent skips.
+- **profile.schema v1.2.0 type-consistency negative fixtures (4 files)** —
+  `profile.monorepo-without-detection`, `profile.detection-without-monorepo`,
+  `profile.detected-boolean-type-null`, `profile.detected-null-type-not-null`
+  cover the 4 if/then invariants linking `project_structure.type` and
+  `monorepo_detection.detected`. Closes the negative-coverage gap.
+- **recommendations.schema status/minLength negative fixtures (2 files)** —
+  covers `status` enum violation and `description: minLength: 1`. (Date
+  format-checker fixture deferred — `Draft202012Validator` does not enforce
+  `format: date-time` by default; enabling FormatChecker is minor-surface
+  scope, not patch.)
+
+### Changed
+
+- `CLAUDE.md` Release Process: README badge sync verifier rule, scripted tag
+  SHA propagation rule (replaces prose), and CHANGELOG anchor slug verifier
+  rule codified.
+- `CLAUDE.md`: docs-check job count 20 → 22 (one removed, three added).
+- `CLAUDE.md`: release-time validator sweep updated 8 → 11 with category split
+  (6 routine + 5 release-only).
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.17.1` → `2.17.2`.
+- `README.md`: version badge `2.17.1` → `2.17.2`.
+
+### Notes
+
+- Audit category P7 (advanced template hooks parity audit) executed locally
+  with zero shipping-relevant findings; cosmetic drift (subagent-stop bash
+  manual-JSON vs ps1 ConvertTo-Json; validate-prompt ps1 dual-fire deferral)
+  noted as expected and not a bug.
+
 ## [2.17.1] - 2026-05-07
 
 ### Fixed
