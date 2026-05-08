@@ -1,0 +1,117 @@
+{
+  "scoring_contract_id": "audit-score-v4.1.0",
+  "sample": {
+    "name": "synthetic/python-uv-workspace",
+    "url": null,
+    "ecosystem": "Python",
+    "claude_md_location": "root"
+  },
+  "profile": {
+    "claude_md_lines": 140,
+    "rules_count": 3,
+    "hooks_count": 1,
+    "agents_count": 0,
+    "mcp_count": 0,
+    "deny_count": 3,
+    "has_meta_marketplace": false,
+    "has_symlink_claude_md": false
+  },
+  "scoring_inputs": {
+    "DS": 45.0,
+    "SB": 2,
+    "L1": 0,
+    "L2": 2,
+    "L3": 1,
+    "L4": 0,
+    "L5": 0,
+    "L6": 1,
+    "LAV_nonL5": 4,
+    "cap": 100
+  },
+  "expected_bucket": "distributed_config",
+  "expected_final_score": 50.6,
+  "bucket_rationale": "distributed_config per distributed-config-bucket.md rubric: monorepo type + detected=true + with_claude_md=3>=2 (required conditions PASS). Supporting signals 4/4: ratio 3/5=0.6>=0.5 + root claude_md_lines 140<=150 + mean L6 over scored=2/3=0.67>=0.5 (foo L6=1, bar L6=1, baz L6=0) + verbose-prose-sparse-config exclusion holds (140<=250). Exclusions both clear (lines<=1000, no scored final<30). Labeled synthetic Python uv workspace declaring 5 sub-packages via [tool.uv.workspace] members ('packages/foo' through 'packages/quux'). 3 sub-CLAUDE.md (foo + bar + baz with diverse final_scores 80.0 / 65.0 / 45.0 demonstrating per-package variance), 2 without (qux + quux). LAV: L2=+2 (concrete uv workspace usage examples in CLAUDE.md), L3=+1 (Python packaging gotchas documented — uv lockfile resolution + workspace dependency edge cases), L6=+1 (concrete uv invocations e.g., 'uv run --package foo pytest'). source_type=synthetic; labeled and excluded from empirical OSS denominators. Reclassified from Intermediate to distributed_config at v2.13.1 introduction of distributed_config bucket.",
+  "project_structure": {
+    "type": "monorepo",
+    "monorepo_detection": {
+      "detected": true,
+      "evidence": [
+        {
+          "type": "workspace_declaration",
+          "ecosystem": "python",
+          "manifest": "pyproject.toml",
+          "field": "members",
+          "raw_value": ["packages/foo", "packages/bar", "packages/baz", "packages/qux", "packages/quux"],
+          "resolved_roots": ["packages/foo", "packages/bar", "packages/baz", "packages/qux", "packages/quux"],
+          "resolved_roots_total": 5,
+          "resolved_roots_truncated": false
+        }
+      ],
+      "package_roots": ["packages/foo", "packages/bar", "packages/baz", "packages/qux", "packages/quux"],
+      "package_roots_for_scoring": ["packages/foo", "packages/bar", "packages/baz", "packages/qux", "packages/quux"],
+      "package_root_caps": {
+        "display": 20,
+        "scored": 50,
+        "unscored_count_in_view": 0,
+        "total_filtered": 5
+      },
+      "notes": []
+    }
+  },
+  "claude_code_configuration_state": {
+    "claude_md": {
+      "exists": true,
+      "section_count": 9,
+      "subpackage_coverage": {
+        "package_roots_total": 5,
+        "with_claude_md": 3,
+        "without_claude_md": 2,
+        "scored_count": 3
+      },
+      "subpackages": [
+        {
+          "path": "packages/foo",
+          "claude_md_path": "packages/foo/CLAUDE.md",
+          "final_score": 80.0,
+          "cap_tier": 100,
+          "lav_breakdown": {
+            "L1": 2,
+            "L2": 2,
+            "L3": 1,
+            "L4": 1,
+            "L5": 1,
+            "L6": 1
+          }
+        },
+        {
+          "path": "packages/bar",
+          "claude_md_path": "packages/bar/CLAUDE.md",
+          "final_score": 65.0,
+          "cap_tier": 100,
+          "lav_breakdown": {
+            "L1": 2,
+            "L2": 0,
+            "L3": 1,
+            "L4": 0,
+            "L5": 0,
+            "L6": 1
+          }
+        },
+        {
+          "path": "packages/baz",
+          "claude_md_path": "packages/baz/CLAUDE.md",
+          "final_score": 45.0,
+          "cap_tier": 100,
+          "lav_breakdown": {
+            "L1": 0,
+            "L2": 0,
+            "L3": 0,
+            "L4": 0,
+            "L5": 0,
+            "L6": 0
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "tier-a/gradle/04-programmatic-skip",
+  "ecosystem": "gradle",
+  "spec_ref": "monorepo-detection §1.6",
+  "description": "Programmatic enumeration (rootProject.children.forEach { ... }) is SKIPPED with parse_error noting manual review required. parse_error alone does not set detected=true.",
+  "input": {
+    "manifests": {
+      "settings.gradle": "rootProject.name = 'meta'\nrootDir.eachDirMatch(~/svc-.*/) { dir ->\n    include dir.name\n}\n"
+    },
+    "directories": []
+  },
+  "expected": {
+    "detected": false,
+    "evidence_types": ["parse_error"],
+    "package_roots_count": 0,
+    "type": "single_project",
+    "notes_codes": []
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.1.0",
+  "metadata": {
+    "last_updated": "2026-05-07T00:00:00Z"
+  },
+  "recommendations": [
+    {
+      "id": "add-mcp-server",
+      "description": "Consider adding an MCP server for project documentation lookup",
+      "issued_by": "audit",
+      "status": "PENDING",
+      "pending_count": 2,
+      "first_seen": "2026-05-01T00:00:00Z",
+      "last_seen": "2026-05-07T00:00:00Z",
+      "resolved_by": null,
+      "declined_reason": null,
+      "decline_count": 0
+    },
+    {
+      "id": "enable-skill-foo",
+      "description": "Enable the foo skill for this stack",
+      "issued_by": "create",
+      "status": "DECLINED",
+      "pending_count": 1,
+      "first_seen": "2026-04-10T00:00:00Z",
+      "last_seen": "2026-05-07T00:00:00Z",
+      "resolved_by": null,
+      "declined_reason": "User explicitly skipped in Phase 2A Question 6",
+      "decline_count": 4
+    }
+  ]
+}

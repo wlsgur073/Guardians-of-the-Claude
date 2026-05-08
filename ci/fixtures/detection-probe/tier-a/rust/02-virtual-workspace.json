@@ -1,0 +1,21 @@
+{
+  "name": "tier-a/rust/02-virtual-workspace",
+  "ecosystem": "rust",
+  "spec_ref": "monorepo-detection §1.2",
+  "description": "Virtual workspace — [workspace] table without top-level [package]. Project root is NOT a package root.",
+  "input": {
+    "manifests": {
+      "Cargo.toml": "[workspace]\nmembers = [\"libs/lexer\", \"libs/parser\"]\nresolver = \"2\"\n",
+      "libs/lexer/Cargo.toml": "[package]\nname = \"lexer\"\nversion = \"0.1.0\"\nedition = \"2021\"\n",
+      "libs/parser/Cargo.toml": "[package]\nname = \"parser\"\nversion = \"0.1.0\"\nedition = \"2021\"\n"
+    },
+    "directories": ["libs/lexer", "libs/parser"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

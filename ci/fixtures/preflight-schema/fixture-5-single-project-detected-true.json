@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.2.0",
+  "metadata": {
+    "generated_by": "guardians-of-the-claude",
+    "last_updated": "2026-04-26T12:00:00Z",
+    "source_files_checked": ["package.json", "pnpm-workspace.yaml"]
+  },
+  "runtime_and_language": { "runtime": "Node.js 22.x", "language": "TypeScript 5.7", "module_system": "ESM" },
+  "framework_and_libraries": { "framework": "Next.js 15", "ui": "React 19", "styling": "Tailwind CSS v4" },
+  "package_management": { "manager": "pnpm", "lock_file": "pnpm-lock.yaml" },
+  "testing": { "unit": "Vitest", "e2e": "Playwright" },
+  "build_and_dev": { "bundler": "Turbopack", "linter": "ESLint 9", "formatter": "Prettier" },
+  "project_structure": { "type": "single_project", "source_convention": "src/", "key_directories": ["packages/", "apps/"] },
+  "monorepo_detection": {
+    "detected": true,
+    "evidence": [
+      {
+        "type": "workspace_declaration",
+        "ecosystem": "node",
+        "manifest": "package.json",
+        "field": "workspaces",
+        "raw_value": "[\"packages/*\"]",
+        "resolved_roots": ["packages/foo", "packages/bar"],
+        "resolved_roots_total": 2,
+        "resolved_roots_truncated": false
+      }
+    ],
+    "package_roots": ["packages/bar", "packages/foo"],
+    "package_roots_for_scoring": ["packages/bar", "packages/foo"],
+    "package_root_caps": { "display": 20, "scored": 50, "unscored_count_in_view": 0, "total_filtered": 2 },
+    "notes": []
+  },
+  "claude_code_configuration_state": {
+    "model": "claude-sonnet-4-6",
+    "scoring_model_ack": { "version": "audit-score-v4.1.0", "seen_count": 2 },
+    "claude_md": {
+      "exists": true,
+      "section_count": 5,
+      "subpackages": [
+        {
+          "path": "packages/foo",
+          "claude_md_path": "packages/foo/CLAUDE.md",
+          "final_score": 75.5,
+          "cap_tier": 100,
+          "lav_breakdown": { "L1": 2, "L2": 0, "L3": 1, "L4": 0, "L5": 0, "L6": 1 },
+          "source_evidence_indices": [0]
+        }
+      ],
+      "subpackage_coverage": { "package_roots_total": 2, "with_claude_md": 1, "without_claude_md": 1, "scored_count": 1 }
+    },
+    "settings_json": { "exists": true, "has_permissions": true },
+    "rules_count": 3,
+    "agents_count": 2,
+    "hooks_count": 1,
+    "mcp_servers_count": 0
+  }
+}

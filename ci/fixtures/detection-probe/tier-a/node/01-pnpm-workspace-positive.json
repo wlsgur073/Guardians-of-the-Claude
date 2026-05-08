@@ -1,0 +1,23 @@
+{
+  "name": "tier-a/node/01-pnpm-workspace-positive",
+  "ecosystem": "node",
+  "spec_ref": "monorepo-detection §1.1",
+  "description": "Positive case: pnpm-workspace.yaml with packages glob resolving to 3 manifest-bearing subdirs.",
+  "input": {
+    "manifests": {
+      "package.json": "{\n  \"name\": \"root\",\n  \"private\": true\n}\n",
+      "pnpm-workspace.yaml": "packages:\n  - 'packages/*'\n",
+      "packages/api/package.json": "{ \"name\": \"@org/api\", \"version\": \"0.1.0\" }\n",
+      "packages/web/package.json": "{ \"name\": \"@org/web\", \"version\": \"0.1.0\" }\n",
+      "packages/shared/package.json": "{ \"name\": \"@org/shared\", \"version\": \"0.1.0\" }\n"
+    },
+    "directories": ["packages/api", "packages/web", "packages/shared"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 3,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

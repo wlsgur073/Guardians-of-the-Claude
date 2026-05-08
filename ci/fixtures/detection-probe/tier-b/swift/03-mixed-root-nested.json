@@ -1,0 +1,20 @@
+{
+  "name": "tier-b/swift/03-mixed-root-nested",
+  "ecosystem": "swift",
+  "spec_ref": "monorepo-detection §1.9",
+  "description": "Root Package.swift plus 1 nested Package.swift at examples/Sample/. Per spec, package_roots[] are the parent directories of nested manifests — root Package.swift is NOT itself a package root in this layout.",
+  "input": {
+    "manifests": {
+      "Package.swift": "// swift-tools-version:5.9\nimport PackageDescription\n\nlet package = Package(\n    name: \"MainLib\",\n    products: [\n        .library(name: \"MainLib\", targets: [\"MainLib\"]),\n    ],\n    targets: [\n        .target(name: \"MainLib\"),\n    ]\n)\n",
+      "examples/Sample/Package.swift": "// swift-tools-version:5.9\nimport PackageDescription\n\nlet package = Package(\n    name: \"Sample\",\n    dependencies: [\n        .package(path: \"../..\"),\n    ],\n    targets: [\n        .executableTarget(name: \"Sample\", dependencies: [\"MainLib\"]),\n    ]\n)\n"
+    },
+    "directories": ["examples/Sample"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 1,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

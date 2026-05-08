@@ -1,0 +1,21 @@
+{
+  "name": "tier-b/ruby/01-convention-multi-gemspec",
+  "ecosystem": "ruby",
+  "spec_ref": "monorepo-detection §1.10",
+  "description": "Convention-only monorepo: root Gemfile references 2 subdirectories via gemspec path: lines, plus 2 gems/<name>/<name>.gemspec files. Evidence type is convention (NOT workspace_declaration) per Ruby's lower-confidence detection.",
+  "input": {
+    "manifests": {
+      "Gemfile": "source \"https://rubygems.org\"\n\ngemspec path: \"gems/foo\"\ngemspec path: \"gems/bar\"\n",
+      "gems/foo/foo.gemspec": "Gem::Specification.new do |spec|\n  spec.name        = \"foo\"\n  spec.version     = \"0.1.0\"\n  spec.authors     = [\"Example\"]\n  spec.summary     = \"Foo gem\"\n  spec.files       = []\n  spec.require_paths = [\"lib\"]\nend\n",
+      "gems/bar/bar.gemspec": "Gem::Specification.new do |spec|\n  spec.name        = \"bar\"\n  spec.version     = \"0.1.0\"\n  spec.authors     = [\"Example\"]\n  spec.summary     = \"Bar gem\"\n  spec.files       = []\n  spec.require_paths = [\"lib\"]\nend\n"
+    },
+    "directories": ["gems/foo", "gems/bar"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["convention"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

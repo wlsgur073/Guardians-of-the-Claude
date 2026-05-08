@@ -1,0 +1,20 @@
+{
+  "name": "tier-a/maven/02-property-substitution",
+  "ecosystem": "maven",
+  "spec_ref": "monorepo-detection §1.5",
+  "description": "Property-substituted module name (${child.module}) — emit raw value, resolution is filesystem-real (skips nonexistent directory). One literal module also resolves.",
+  "input": {
+    "manifests": {
+      "pom.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project xmlns=\"http://maven.apache.org/POM/4.0.0\">\n  <modelVersion>4.0.0</modelVersion>\n  <groupId>com.example</groupId>\n  <artifactId>parent</artifactId>\n  <version>1.0.0</version>\n  <packaging>pom</packaging>\n  <properties>\n    <child.module>dynamic-mod</child.module>\n  </properties>\n  <modules>\n    <module>literal-mod</module>\n    <module>${child.module}</module>\n  </modules>\n</project>\n",
+      "literal-mod/pom.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project xmlns=\"http://maven.apache.org/POM/4.0.0\">\n  <modelVersion>4.0.0</modelVersion>\n  <artifactId>literal-mod</artifactId>\n</project>\n"
+    },
+    "directories": ["literal-mod"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 1,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

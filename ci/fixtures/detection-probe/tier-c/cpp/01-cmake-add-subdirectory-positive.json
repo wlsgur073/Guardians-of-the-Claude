@@ -1,0 +1,22 @@
+{
+  "name": "tier-c/cpp/01-cmake-add-subdirectory-positive",
+  "ecosystem": "cpp",
+  "spec_ref": "monorepo-detection §1.11",
+  "description": "Positive case: root CMakeLists.txt with three add_subdirectory() calls; each subdir has its own CMakeLists.txt. Single-level resolution per §1.11.",
+  "input": {
+    "manifests": {
+      "CMakeLists.txt": "cmake_minimum_required(VERSION 3.20)\nproject(umbrella CXX)\nadd_subdirectory(libA)\nadd_subdirectory(libB)\nadd_subdirectory(app)\n",
+      "libA/CMakeLists.txt": "add_library(libA STATIC src/lib.cpp)\n",
+      "libB/CMakeLists.txt": "add_library(libB STATIC src/lib.cpp)\n",
+      "app/CMakeLists.txt": "add_executable(app src/main.cpp)\ntarget_link_libraries(app PRIVATE libA libB)\n"
+    },
+    "directories": ["libA", "libB", "app"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 3,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

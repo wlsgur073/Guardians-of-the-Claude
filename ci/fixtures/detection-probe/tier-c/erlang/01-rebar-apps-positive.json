@@ -1,0 +1,21 @@
+{
+  "name": "tier-c/erlang/01-rebar-apps-positive",
+  "ecosystem": "erlang",
+  "spec_ref": "monorepo-detection §1.13",
+  "description": "Erlang umbrella project: root rebar.config + apps/ subdirs each with their own rebar.config. §1.13 enumerates apps/ subdirs with rebar.config or *.app.src.",
+  "input": {
+    "manifests": {
+      "rebar.config": "{erl_opts, [debug_info]}.\n{deps, []}.\n",
+      "apps/foo/rebar.config": "{erl_opts, [debug_info]}.\n",
+      "apps/bar/rebar.config": "{erl_opts, [debug_info]}.\n"
+    },
+    "directories": ["apps/foo", "apps/bar"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

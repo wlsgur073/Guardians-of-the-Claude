@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "profile.schema.v1.2.0.json",
+  "type": "object",
+  "allOf": [
+    { "$ref": "profile.schema.base.json" },
+    {
+      "if": {
+        "required": ["project_structure"],
+        "properties": {
+          "project_structure": {
+            "type": "object",
+            "required": ["type"],
+            "properties": { "type": { "const": "monorepo" } }
+          }
+        }
+      },
+      "then": {
+        "required": ["monorepo_detection"],
+        "properties": {
+          "monorepo_detection": {
+            "type": "object",
+            "required": ["detected"],
+            "properties": { "detected": { "const": true } }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["monorepo_detection"],
+        "properties": {
+          "monorepo_detection": {
+            "type": "object",
+            "required": ["detected"],
+            "properties": { "detected": { "const": true } }
+          }
+        }
+      },
+      "then": {
+        "required": ["project_structure"],
+        "properties": {
+          "project_structure": {
+            "type": "object",
+            "required": ["type"],
+            "properties": { "type": { "const": "monorepo" } }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["monorepo_detection"],
+        "properties": {
+          "monorepo_detection": {
+            "type": "object",
+            "required": ["detected"],
+            "properties": { "detected": { "type": "boolean" } }
+          }
+        }
+      },
+      "then": {
+        "required": ["project_structure"],
+        "properties": {
+          "project_structure": {
+            "type": "object",
+            "required": ["type"],
+            "properties": { "type": { "enum": ["single_project", "monorepo"] } }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["monorepo_detection"],
+        "properties": {
+          "monorepo_detection": {
+            "type": "object",
+            "required": ["detected"],
+            "properties": { "detected": { "type": "null" } }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "project_structure": {
+            "type": "object",
+            "properties": { "type": { "type": "null" } }
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "schema_version": { "const": "1.2.0" },
+    "metadata": {
+      "allOf": [{ "$ref": "profile.schema.base.json#/$defs/metadata" }],
+      "unevaluatedProperties": false
+    },
+    "runtime_and_language": {
+      "allOf": [{ "$ref": "profile.schema.base.json#/$defs/runtime_and_language" }],
+      "unevaluatedProperties": false
+    },
+    "framework_and_libraries": {
+      "allOf": [{ "$ref": "profile.schema.base.json#/$defs/framework_and_libraries" }],
+      "unevaluatedProperties": false
+    },
+    "package_management": {
+      "allOf": [{ "$ref": "profile.schema.base.json#/$defs/package_management" }],
+      "unevaluatedProperties": false
+    },
+    "testing": {
+      "allOf": [{ "$ref": "profile.schema.base.json#/$defs/testing" }],
+      "unevaluatedProperties": false
+    },
+    "build_and_dev": {
+      "allOf": [{ "$ref": "profile.schema.base.json#/$defs/build_and_dev" }],
+      "unevaluatedProperties": false
+    },
+    "project_structure": {
+      "allOf": [{ "$ref": "profile.schema.base.json#/$defs/project_structure" }],
+      "unevaluatedProperties": false
+    },
+    "monorepo_detection": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "properties": {
+            "detected": { "type": ["boolean", "null"] },
+            "evidence": { "type": "array" },
+            "package_roots": { "type": "array", "items": { "type": "string" } },
+            "package_roots_for_scoring": { "type": "array", "items": { "type": "string" } },
+            "package_root_caps": { "type": "object" },
+            "notes": { "type": "array" }
+          },
+          "required": ["detected"],
+          "unevaluatedProperties": false
+        }
+      ]
+    },
+    "claude_code_configuration_state": {
+      "allOf": [
+        { "$ref": "profile.schema.base.json#/$defs/state" },
+        {
+          "type": "object",
+          "properties": {
+            "model": { "type": "string" },
+            "scoring_model_ack": {
+              "type": "object",
+              "properties": {
+                "version": {
+                  "oneOf": [
+                    { "type": "null" },
+                    { "type": "string", "pattern": "^audit-score-v[0-9]+\\.[0-9]+\\.[0-9]+$" }
+                  ]
+                },
+                "seen_count": { "type": "integer", "minimum": 0, "maximum": 2 }
+              },
+              "required": ["version", "seen_count"],
+              "unevaluatedProperties": false
+            },
+            "claude_md": {
+              "type": "object",
+              "description": "Inner claude_md declares exists and section_count locally because base.json#state.claude_md is loose ({\"type\":\"object\"}). The v1.2.0 wrapper closure (unevaluatedProperties: false at this scope) requires explicit declaration of all expected fields. Future contributors adding new fields here MUST also declare them in properties to avoid the cascade where failed allOf-branch property evaluation rejects sibling fields at the outer claude_code_configuration_state scope.",
+              "properties": {
+                "exists": { "type": "boolean" },
+                "section_count": { "type": "integer", "minimum": 0 },
+                "subpackage_coverage": {
+                  "type": "object",
+                  "properties": {
+                    "package_roots_total": { "type": "integer", "minimum": 0 },
+                    "with_claude_md": { "type": "integer", "minimum": 0 },
+                    "without_claude_md": { "type": "integer", "minimum": 0 },
+                    "scored_count": { "type": "integer", "minimum": 0 }
+                  },
+                  "required": ["package_roots_total", "with_claude_md", "without_claude_md", "scored_count"],
+                  "unevaluatedProperties": false
+                },
+                "subpackages": {
+                  "type": "array",
+                  "maxItems": 50,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "path": { "type": "string", "minLength": 1 },
+                      "claude_md_path": { "type": "string", "minLength": 1 },
+                      "final_score": { "type": "number", "minimum": 0, "maximum": 100 },
+                      "cap_tier": { "enum": [50, 60, 100] },
+                      "lav_breakdown": {
+                        "type": "object",
+                        "properties": {
+                          "L1": { "enum": [-3, 0, 2] },
+                          "L2": { "enum": [-2, 0, 2] },
+                          "L3": { "enum": [0, 1, 3] },
+                          "L4": { "enum": [-1, 0, 1] },
+                          "L5": { "enum": [-3, 0, 1] },
+                          "L6": { "enum": [0, 1] }
+                        },
+                        "required": ["L1", "L2", "L3", "L4", "L5", "L6"],
+                        "unevaluatedProperties": false
+                      },
+                      "source_evidence_indices": {
+                        "type": "array",
+                        "items": { "type": "integer", "minimum": 0 },
+                        "uniqueItems": true
+                      }
+                    },
+                    "required": ["path", "claude_md_path", "final_score", "cap_tier", "lav_breakdown"],
+                    "unevaluatedProperties": false
+                  }
+                }
+              },
+              "unevaluatedProperties": false
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  },
+  "unevaluatedProperties": false
+}

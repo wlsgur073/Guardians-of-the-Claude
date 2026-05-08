@@ -1,0 +1,21 @@
+{
+  "name": "tier-b/swift/01-nested-packages-positive",
+  "ecosystem": "swift",
+  "spec_ref": "monorepo-detection §1.9",
+  "description": "Positive: root Package.swift plus 2 nested Package.swift files at pkgs/Foo and pkgs/Bar. Nested manifests are the high-confidence multi-package signal; package_roots[] are the parent directories of nested manifests.",
+  "input": {
+    "manifests": {
+      "Package.swift": "// swift-tools-version:5.9\nimport PackageDescription\n\nlet package = Package(\n    name: \"RootPackage\",\n    products: [\n        .library(name: \"RootPackage\", targets: [\"RootPackage\"]),\n    ],\n    targets: [\n        .target(name: \"RootPackage\"),\n    ]\n)\n",
+      "pkgs/Foo/Package.swift": "// swift-tools-version:5.9\nimport PackageDescription\n\nlet package = Package(\n    name: \"Foo\",\n    products: [\n        .library(name: \"Foo\", targets: [\"Foo\"]),\n    ],\n    targets: [\n        .target(name: \"Foo\"),\n    ]\n)\n",
+      "pkgs/Bar/Package.swift": "// swift-tools-version:5.9\nimport PackageDescription\n\nlet package = Package(\n    name: \"Bar\",\n    products: [\n        .library(name: \"Bar\", targets: [\"Bar\"]),\n    ],\n    targets: [\n        .target(name: \"Bar\"),\n    ]\n)\n"
+    },
+    "directories": ["pkgs/Foo", "pkgs/Bar"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

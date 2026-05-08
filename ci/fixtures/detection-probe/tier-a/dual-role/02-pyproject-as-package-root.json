@@ -1,0 +1,22 @@
+{
+  "name": "tier-a/dual-role/02-pyproject-as-package-root",
+  "ecosystem": "dual-role",
+  "spec_ref": "monorepo-detection §1.4 (dual-role manifest)",
+  "description": "Subdirectory pyproject.toml acts in PACKAGE-ROOT role only. Single-level resolution prevents recursion into subdir's own [tool.uv.workspace] (if any). Root has separate workspace declaration source (pnpm-workspace.yaml) for clean isolation of the package-root role under test.",
+  "input": {
+    "manifests": {
+      "package.json": "{\n  \"name\": \"polyglot-root\",\n  \"private\": true\n}\n",
+      "pnpm-workspace.yaml": "packages:\n  - 'libs/*'\n",
+      "libs/python-pkg/pyproject.toml": "[project]\nname = \"python-pkg\"\nversion = \"0.1.0\"\n\n[tool.uv.workspace]\nmembers = [\"nested/*\"]\n",
+      "libs/python-pkg/nested/sub/pyproject.toml": "[project]\nname = \"sub\"\nversion = \"0.1.0\"\n"
+    },
+    "directories": ["libs/python-pkg", "libs/python-pkg/nested/sub"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 1,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

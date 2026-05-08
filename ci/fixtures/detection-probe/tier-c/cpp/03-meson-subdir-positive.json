@@ -1,0 +1,21 @@
+{
+  "name": "tier-c/cpp/03-meson-subdir-positive",
+  "ecosystem": "cpp",
+  "spec_ref": "monorepo-detection §1.11",
+  "description": "Meson project: root meson.build with subdir() calls; each subdir has its own meson.build. §1.11 treats subdir('name') analogously to CMake add_subdirectory.",
+  "input": {
+    "manifests": {
+      "meson.build": "project('umbrella', 'cpp', version : '0.1.0')\nsubdir('module1')\nsubdir('module2')\n",
+      "module1/meson.build": "module1_lib = static_library('module1', 'src/lib.cpp')\n",
+      "module2/meson.build": "module2_lib = static_library('module2', 'src/lib.cpp')\n"
+    },
+    "directories": ["module1", "module2"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

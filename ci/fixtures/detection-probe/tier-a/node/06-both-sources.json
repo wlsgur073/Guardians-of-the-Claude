@@ -1,0 +1,23 @@
+{
+  "name": "tier-a/node/06-both-sources",
+  "ecosystem": "node",
+  "spec_ref": "monorepo-detection §1.1",
+  "description": "Both package.json workspaces and pnpm-workspace.yaml present — emit both as separate evidence entries; package_roots[] is the deduplicated union.",
+  "input": {
+    "manifests": {
+      "package.json": "{\n  \"name\": \"root\",\n  \"private\": true,\n  \"workspaces\": [\"packages/*\"]\n}\n",
+      "pnpm-workspace.yaml": "packages:\n  - 'packages/*'\n  - 'apps/*'\n",
+      "packages/lib1/package.json": "{ \"name\": \"@org/lib1\" }\n",
+      "packages/lib2/package.json": "{ \"name\": \"@org/lib2\" }\n",
+      "apps/web/package.json": "{ \"name\": \"@org/web\" }\n"
+    },
+    "directories": ["packages/lib1", "packages/lib2", "apps/web"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration", "workspace_declaration"],
+    "package_roots_count": 3,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

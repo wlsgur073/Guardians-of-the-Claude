@@ -26,6 +26,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
 from dataclasses import dataclass, field
@@ -1528,6 +1529,7 @@ PROFILE_KEY_ORDER = [
     "testing",
     "build_and_dev",
     "project_structure",
+    "monorepo_detection",
     "claude_code_configuration_state",
 ]
 
@@ -1578,10 +1580,13 @@ def merge_profile(current: dict | None, delta: dict, skill: str) -> dict:
         "build_and_dev",
         "project_structure",
     ]
+    owned_by_audit_only = [
+        "monorepo_detection",
+    ]
     if current is None:
         current = _empty_profile(delta.get("metadata", {}).get("last_updated", ""))
     merged = json.loads(json.dumps(current))  # deep copy via JSON
-    merged["schema_version"] = "1.1.0"
+    merged["schema_version"] = "1.2.0"
     delta_meta = delta.get("metadata", {})
     existing_meta = merged.setdefault("metadata", {})
     existing_meta["generated_by"] = "guardians-of-the-claude"
@@ -1617,6 +1622,10 @@ def merge_profile(current: dict | None, delta: dict, skill: str) -> dict:
                     ccs_m["model"] = ccs_d["model"]
                 if "scoring_model_ack" in ccs_d:
                     ccs_m["scoring_model_ack"] = ccs_d["scoring_model_ack"]
+    if skill == "audit":
+        for k in owned_by_audit_only:
+            if k in delta:
+                merged[k] = delta[k]
     if skill == "secure":
         if "claude_code_configuration_state" in delta:
             ccs_d = delta["claude_code_configuration_state"]
@@ -1937,15 +1946,19 @@ def handle_audit(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
             f"- Recommendations: (none)"
         )
         state.changelog = _changelog_with_entry(state.changelog, entry)
-        # Also emit monorepo audit-output.md (disclosure-only).
+        # Emit monorepo audit-output.md per per-package-rollup.md format.
+        # Subpackage Score Rollup section renders when monorepo_detection.detected==true
+        # AND subpackage_coverage.package_roots_total>0 (output-format.md conditional rule).
         audit_output = (
             "# /audit — Monorepo Run\n\n"
             "Root `CLAUDE.md` detected; 2 workspace packages contain their own `CLAUDE.md`.\n\n"
-            "## Additional CLAUDE.md Files\n\n"
-            "Disclosure only — per-package scoring is scheduled for a future audit\n"
-            "release (see `docs/ROADMAP.md` \"Audit v4 Phase 2\").\n\n"
-            "- packages/api/CLAUDE.md (9 lines)\n"
-            "- packages/web/CLAUDE.md (8 lines)\n"
+            "## Subpackage Score Rollup\n\n"
+            "  min=60.0, median=60.0, worst=packages/api, packages/web "
+            "(2 scored, 0 without CLAUDE.md, 0 unscored)\n\n"
+            "| Path | Score | Cap |\n"
+            "|---|---|---|\n"
+            "| packages/api | 60.0 | 100 |\n"
+            "| packages/web | 60.0 | 100 |\n"
         )
         atomic_write_text(ctx.work_dir / "audit-output.md", audit_output)
     # migration fixture: the /audit run doesn't add a changelog entry —
@@ -2000,7 +2013,7 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "mcp_servers_count": 0,
                 "model": "claude-opus-4-7",
                 "scoring_model_ack": {
-                    "version": "audit-score-v4.0.0",
+                    "version": "audit-score-v4.1.0",
                     "seen_count": 0,
                 },
             },
@@ -2042,7 +2055,7 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "mcp_servers_count": 0,
                 "model": "claude-opus-4-7",
                 "scoring_model_ack": {
-                    "version": "audit-score-v4.0.0",
+                    "version": "audit-score-v4.1.0",
                     "seen_count": 0,
                 },
             },
@@ -2075,8 +2088,61 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "source_convention": "packages/",
                 "key_directories": ["packages/api/", "packages/web/"],
             },
+            "monorepo_detection": {
+                "detected": True,
+                "evidence": [
+                    {
+                        "type": "workspace_declaration",
+                        "ecosystem": "node",
+                        "manifest": "package.json",
+                        "field": "workspaces",
+                        "raw_value": ["packages/*"],
+                        "resolved_roots": ["packages/api", "packages/web"],
+                        "resolved_roots_total": 2,
+                        "resolved_roots_truncated": False,
+                    },
+                ],
+                "package_roots": ["packages/api", "packages/web"],
+                "package_roots_for_scoring": ["packages/api", "packages/web"],
+                "package_root_caps": {
+                    "display": 20,
+                    "scored": 50,
+                    "unscored_count_in_view": 0,
+                    "total_filtered": 2,
+                },
+                "notes": [],
+            },
             "claude_code_configuration_state": {
-                "claude_md": {"exists": True, "section_count": 5},
+                "claude_md": {
+                    "exists": True,
+                    "section_count": 5,
+                    "subpackage_coverage": {
+                        "package_roots_total": 2,
+                        "with_claude_md": 2,
+                        "without_claude_md": 0,
+                        "scored_count": 2,
+                    },
+                    "subpackages": [
+                        {
+                            "path": "packages/api",
+                            "claude_md_path": "packages/api/CLAUDE.md",
+                            "final_score": 60.0,
+                            "cap_tier": 100,
+                            "lav_breakdown": {
+                                "L1": 0, "L2": 0, "L3": 0, "L4": 0, "L5": 1, "L6": 0,
+                            },
+                        },
+                        {
+                            "path": "packages/web",
+                            "claude_md_path": "packages/web/CLAUDE.md",
+                            "final_score": 60.0,
+                            "cap_tier": 100,
+                            "lav_breakdown": {
+                                "L1": 0, "L2": 0, "L3": 0, "L4": 0, "L5": 1, "L6": 0,
+                            },
+                        },
+                    ],
+                },
                 "settings_json": {"exists": False, "has_permissions": False},
                 "rules_count": 0,
                 "agents_count": 0,
@@ -2084,7 +2150,7 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "mcp_servers_count": 0,
                 "model": "claude-opus-4-7",
                 "scoring_model_ack": {
-                    "version": "audit-score-v4.0.0",
+                    "version": "audit-score-v4.1.0",
                     "seen_count": 0,
                 },
             },
@@ -2123,7 +2189,7 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "mcp_servers_count": 0,
                 "model": "claude-opus-4-7",
                 "scoring_model_ack": {
-                    "version": "audit-score-v4.0.0",
+                    "version": "audit-score-v4.1.0",
                     "seen_count": 0,
                 },
             },
@@ -2270,9 +2336,21 @@ def assert_schema_valid(ctx: RunContext, state: WorkspaceState) -> list[str]:
     version_to_wrapper = {
         "1.0.0": "profile.schema.v1.0.0.json",
         "1.1.0": "profile.schema.v1.1.0.json",
+        "1.2.0": "profile.schema.v1.2.0.json",
     }
 
-    recs_schema = _load_schema("recommendations.schema.json")
+    # Recommendations dispatcher (mirrors profile pattern).
+    # combined recommendations.schema.json was retired in favor of the
+    # base + versioned-wrapper architecture.
+    recs_version_to_wrapper = {
+        "1.0.0": "recommendations.schema.v1.0.0.json",
+        "1.1.0": "recommendations.schema.v1.1.0.json",
+    }
+    recs_base_schema = _load_schema("recommendations.schema.base.json")
+    registry = registry.with_resources(
+        [("recommendations.schema.base.json", Resource.from_contents(recs_base_schema))]
+    )
+
     if state.profile is None:
         failures.append("profile.json was not written")
     else:
@@ -2291,10 +2369,18 @@ def assert_schema_valid(ctx: RunContext, state: WorkspaceState) -> list[str]:
     if state.recommendations is None:
         failures.append("recommendations.json was not written")
     else:
-        try:
-            jsonschema.validate(state.recommendations, recs_schema)
-        except jsonschema.ValidationError as e:
-            failures.append(f"recommendations.json schema invalid: {e.message}")
+        declared_recs_version = state.recommendations.get("schema_version")
+        if declared_recs_version not in recs_version_to_wrapper:
+            failures.append(
+                f"recommendations.json schema_version '{declared_recs_version}' not dispatchable; "
+                f"expected one of {sorted(recs_version_to_wrapper)}"
+            )
+        else:
+            recs_schema = _load_schema(recs_version_to_wrapper[declared_recs_version])
+            try:
+                jsonschema.Draft202012Validator(recs_schema, registry=registry).validate(state.recommendations)
+            except jsonschema.ValidationError as e:
+                failures.append(f"recommendations.json schema invalid ({declared_recs_version}): {e.message}")
     return failures
 
 
@@ -2374,6 +2460,17 @@ def assert_summary_derived_from_sources(ctx: RunContext, state: WorkspaceState) 
 # ---------------------------------------------------------------------------
 
 
+# Golden-only artifacts: present as frozen reference snapshots in golden/
+# but the reference Python skill handlers in this script do not (yet) emit
+# them. byte-diff comparison is skipped when the file is missing from the
+# actual run; once present, byte equality is enforced. This existence guard
+# lets goldens land ahead of generator wiring while still catching golden
+# regression once a future task connects the handler to the artifact path.
+# Migration fixture has no entry here (and no qa-report.md golden) — its
+# legacy-state preservation contract is unchanged.
+GOLDEN_ONLY_ARTIFACTS = frozenset({"local/qa-report.md"})
+
+
 def byte_diff_tree(actual: Path, golden: Path, input_dir: Path | None = None) -> str:
     """Recursive byte-for-byte comparison of directory trees.
 
@@ -2382,6 +2479,11 @@ def byte_diff_tree(actual: Path, golden: Path, input_dir: Path | None = None) ->
     unchanged in the fixture's input/ (the verifier mutates a work-copy of
     input/, so input source files like package.json are allowed to linger
     unchanged — goldens only capture the skill-produced artifacts).
+
+    Files listed in GOLDEN_ONLY_ARTIFACTS are skipped from the
+    "missing file" check when absent in actual — they are frozen
+    reference snapshots whose generators are not yet wired. When such a
+    file IS present in actual, byte equality is still enforced.
 
     Returns "" if equal, else a concise multi-line diff summary."""
     actual_files = _collect_files(actual)
@@ -2394,6 +2496,10 @@ def byte_diff_tree(actual: Path, golden: Path, input_dir: Path | None = None) ->
     diffs = []
     missing = sorted(golden_files - actual_files)
     for rel in missing:
+        # Allowed: golden-only reference snapshot whose generator is
+        # not yet wired into the Python reference handler.
+        if rel in GOLDEN_ONLY_ARTIFACTS:
+            continue
         diffs.append(f"missing file (in golden, not in actual): {rel}")
 
     extra = sorted(actual_files - golden_files)
@@ -2511,6 +2617,198 @@ def run_fixture(
         return (True, "ok")
 
 
+def _find_bash() -> str:
+    """Locate a working bash interpreter.
+
+    On Windows, prefer Git Bash over WSL bash — WSL may resolve via PATH
+    but fail with Hyper-V errors when Hyper-V isn't enabled, breaking
+    fixture runs. On Linux/macOS, /usr/bin/bash from PATH is canonical.
+    Returns absolute path or 'bash' as last-resort.
+    """
+    import platform  # noqa: PLC0415
+    if platform.system() == "Windows":
+        for cand in (
+            r"C:\Program Files\Git\bin\bash.exe",
+            r"C:\Program Files (x86)\Git\bin\bash.exe",
+            r"C:\Program Files\Git\usr\bin\bash.exe",
+        ):
+            if Path(cand).is_file():
+                return cand
+    found = shutil.which("bash")
+    return found if found else "bash"
+
+
+def _find_pwsh() -> str | None:
+    """Locate a working PowerShell interpreter, or return None to skip.
+
+    On Windows, prefer pwsh (PowerShell 7+) over powershell.exe (5.1) for
+    parity with Linux. On Linux/macOS, /usr/bin/pwsh from PATH (provided by
+    PowerShell 7+ install). Linux ubuntu-latest CI runner ships pwsh by
+    default so the ps1 fixture lane runs in CI.
+    Returns absolute path or None if no PowerShell is available — caller
+    skips the lane with a warning rather than failing.
+    """
+    import platform  # noqa: PLC0415
+    if platform.system() == "Windows":
+        for cand in (
+            r"C:\Program Files\PowerShell\7\pwsh.exe",
+            r"C:\Program Files\PowerShell\6\pwsh.exe",
+            r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe",
+        ):
+            if Path(cand).is_file():
+                return cand
+    found = shutil.which("pwsh")
+    if found:
+        return found
+    return shutil.which("powershell")
+
+
+def _canonical_json(s: str) -> str:
+    """Return canonical-form JSON string for cross-format comparison.
+
+    The bash hook emits jq-default formatting (2-space indent, single-space
+    after colons). The PowerShell hook emits ConvertTo-Json formatting
+    (4-space indent, double-space after colons). For semantic equivalence
+    checks across both lanes, normalize via json.loads + json.dumps with
+    sorted keys and compact separators. Empty input returns empty string.
+    """
+    if not s.strip():
+        return ""
+    try:
+        return json.dumps(json.loads(s), sort_keys=True, separators=(",", ":"))
+    except json.JSONDecodeError:
+        return s  # malformed; let exact comparison surface the failure
+
+
+def run_sessionstart_fixture(name: str) -> tuple[bool, str]:
+    """Run plugin/hooks/session-start.sh against a sessionstart-orchestrator fixture.
+
+    Each fixture has input/ (synthetic project state) and expected.json.
+    Optional setup.sh per fixture handles mtime adjustment for drift legacy_mtime
+    scenarios (git checkout does not preserve mtimes).
+    Hook runs with cwd=input, stdin source determined by fixture name,
+    SMOKE_PINNED_UTC=2026-05-07T00:00:00Z. Output byte-equal to expected.json.
+    """
+    fixture_dir = ROOT / "ci" / "fixtures" / "sessionstart-orchestrator" / name
+    input_dir = fixture_dir / "input"
+    expected_path = fixture_dir / "expected.json"
+    setup_path = fixture_dir / "setup.sh"
+    if not input_dir.is_dir() or not expected_path.is_file():
+        return False, f"fixture missing: {fixture_dir}"
+
+    if "clear" in name:
+        stdin_payload = '{"source":"clear"}'
+    elif "compact" in name:
+        stdin_payload = '{"source":"compact"}'
+    else:
+        stdin_payload = '{"source":"startup"}'
+
+    hook_path = ROOT / "plugin" / "hooks" / "session-start.sh"
+    env = os.environ.copy()
+    env["SMOKE_PINNED_UTC"] = "2026-05-07T00:00:00Z"
+    bash_bin = _find_bash()
+
+    # Optional setup.sh runs first (mtime adjustments for drift legacy_mtime fixtures).
+    # setup.sh self-locates via $(dirname "$0") so cwd doesn't matter.
+    if setup_path.is_file():
+        try:
+            subprocess.run(
+                [bash_bin, str(setup_path)],
+                check=True, capture_output=True,
+                cwd=str(fixture_dir), env=env, timeout=10,
+            )
+        except subprocess.TimeoutExpired:
+            return False, "setup.sh timed out"
+        except subprocess.CalledProcessError as exc:
+            stderr_decoded = exc.stderr.decode("utf-8", errors="replace") if exc.stderr else ""
+            stdout_decoded = exc.stdout.decode("utf-8", errors="replace") if exc.stdout else ""
+            return False, f"setup.sh failed (rc={exc.returncode}): stdout={stdout_decoded[:200]!r} stderr={stderr_decoded[:200]!r}"
+
+    try:
+        proc = subprocess.run(
+            [bash_bin, str(hook_path)],
+            input=stdin_payload.encode("utf-8"),
+            capture_output=True,
+            cwd=str(input_dir), env=env, timeout=10,
+        )
+    except subprocess.TimeoutExpired:
+        return False, "hook timed out"
+
+    # Normalize line endings before comparison.
+    # Python's read_text uses universal newlines (CRLF -> LF on Windows checkout)
+    # but subprocess stdout preserves whatever bash emitted (CRLF on Git Bash).
+    # Without normalization, every line break would diverge on Windows.
+    actual = proc.stdout.decode("utf-8", errors="replace").replace("\r\n", "\n").strip() if proc.stdout else ""
+    expected = expected_path.read_text(encoding="utf-8").strip()
+    if actual == expected:
+        return True, "byte-equal"
+    return False, f"diverged:\n  expected: {expected[:200]}\n  actual:   {actual[:200]}"
+
+
+def run_sessionstart_ps1_fixture(name: str) -> tuple[bool, str]:
+    """Run plugin/hooks/session-start.ps1 against a sessionstart-orchestrator
+    fixture for cross-platform parity verification.
+
+    Mirrors run_sessionstart_fixture's contract: same setup.sh handling, same
+    SMOKE_PINNED_UTC, same fixture directory layout. Comparison is against
+    canonical JSON form (json.loads + sorted keys + compact separators) since
+    bash uses jq-default pretty format and PowerShell uses ConvertTo-Json
+    formatting that differ in whitespace/indent — equivalence is semantic.
+    Caller is responsible for not invoking this when _find_pwsh() returns None.
+    """
+    fixture_dir = ROOT / "ci" / "fixtures" / "sessionstart-orchestrator" / name
+    input_dir = fixture_dir / "input"
+    expected_path = fixture_dir / "expected.json"
+    setup_path = fixture_dir / "setup.sh"
+    if not input_dir.is_dir() or not expected_path.is_file():
+        return False, f"fixture missing: {fixture_dir}"
+
+    if "clear" in name:
+        stdin_payload = '{"source":"clear"}'
+    elif "compact" in name:
+        stdin_payload = '{"source":"compact"}'
+    else:
+        stdin_payload = '{"source":"startup"}'
+
+    hook_path = ROOT / "plugin" / "hooks" / "session-start.ps1"
+    env = os.environ.copy()
+    env["SMOKE_PINNED_UTC"] = "2026-05-07T00:00:00Z"
+    pwsh_bin = _find_pwsh()
+    if pwsh_bin is None:
+        return False, "pwsh not found (caller should have skipped)"
+
+    if setup_path.is_file():
+        bash_bin = _find_bash()
+        try:
+            subprocess.run(
+                [bash_bin, str(setup_path)],
+                check=True, capture_output=True,
+                cwd=str(fixture_dir), env=env, timeout=10,
+            )
+        except subprocess.TimeoutExpired:
+            return False, "setup.sh timed out"
+        except subprocess.CalledProcessError as exc:
+            stderr_decoded = exc.stderr.decode("utf-8", errors="replace") if exc.stderr else ""
+            stdout_decoded = exc.stdout.decode("utf-8", errors="replace") if exc.stdout else ""
+            return False, f"setup.sh failed (rc={exc.returncode}): stdout={stdout_decoded[:200]!r} stderr={stderr_decoded[:200]!r}"
+
+    try:
+        proc = subprocess.run(
+            [pwsh_bin, "-NoProfile", "-File", str(hook_path)],
+            input=stdin_payload.encode("utf-8"),
+            capture_output=True,
+            cwd=str(input_dir), env=env, timeout=10,
+        )
+    except subprocess.TimeoutExpired:
+        return False, "hook timed out"
+
+    actual = _canonical_json(proc.stdout.decode("utf-8", errors="replace") if proc.stdout else "")
+    expected = _canonical_json(expected_path.read_text(encoding="utf-8"))
+    if actual == expected:
+        return True, "canonical-json-equal"
+    return False, f"diverged:\n  expected: {expected[:200]}\n  actual:   {actual[:200]}"
+
+
 # ---------------------------------------------------------------------------
 # Entrypoint
 # ---------------------------------------------------------------------------
@@ -2589,7 +2887,7 @@ def main() -> int:
     if local_dir:
         return run_local_lane(Path(local_dir))
 
-    # CI lane: frozen 4-fixture manifest.
+    # CI lane: frozen skill-flow fixture manifest.
     fixtures = ["migration", "beginner-path", "warm-start", "monorepo"]
     fail_count = 0
     for name in fixtures:
@@ -2602,6 +2900,46 @@ def main() -> int:
         print(f"[{tag}] {name}: {msg}")
         if not passed:
             fail_count += 1
+
+    # SessionStart orchestrator fixtures (separate lane — exercises the hook
+    # script directly rather than the skill-execution simulation).
+    sessionstart_fixtures = [
+        "fixture_no_signal", "fixture_drift_legacy_mtime", "fixture_drift_multi_reason",
+        "fixture_unresolved_only", "fixture_unresolved_K_isolation",
+        "fixture_repeated_decline_only", "fixture_all_three",
+        "fixture_clear_source", "fixture_compact_source",
+        "fixture_legacy_v1_0_0_read", "fixture_unknown_future_version",
+        "fixture_stale_excluded", "fixture_pending_decline_count_status_guard",
+    ]
+    for name in sessionstart_fixtures:
+        try:
+            passed, msg = run_sessionstart_fixture(name)
+        except Exception as exc:  # noqa: BLE001
+            passed = False
+            msg = f"exception: {exc.__class__.__name__}: {exc}"
+        tag = "PASS" if passed else "FAIL"
+        print(f"[{tag}] sessionstart-bash/{name}: {msg}")
+        if not passed:
+            fail_count += 1
+
+    # PowerShell parity lane — both bash and ps1 hooks must produce semantically
+    # equivalent advisory text for each fixture. Skipped (with notice) when no
+    # PowerShell interpreter is available; runs in CI on ubuntu-latest (pwsh
+    # pre-installed) and on Windows local dev (pwsh 7+ or powershell.exe 5.1).
+    if _find_pwsh() is None:
+        print("[SKIP] sessionstart-ps1: no pwsh / powershell on PATH")
+    else:
+        for name in sessionstart_fixtures:
+            try:
+                passed, msg = run_sessionstart_ps1_fixture(name)
+            except Exception as exc:  # noqa: BLE001
+                passed = False
+                msg = f"exception: {exc.__class__.__name__}: {exc}"
+            tag = "PASS" if passed else "FAIL"
+            print(f"[{tag}] sessionstart-ps1/{name}: {msg}")
+            if not passed:
+                fail_count += 1
+
     return 1 if fail_count else 0
 
 

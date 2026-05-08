@@ -1,7 +1,7 @@
 ---
 title: "시작하기"
 description: "프로젝트에 Claude Code 설정을 구성하는 단계별 가이드"
-version: 1.2.4
+version: 1.2.5
 ---
 
 # 시작하기
@@ -12,7 +12,7 @@ version: 1.2.4
 
 - Claude Code가 설치되어 있고 정상 동작하는 상태 (`claude --version`으로 확인)
 - 설정을 적용할 프로젝트
-- **Windows 사용자**: 플러그인 SessionStart 훅은 bash 스크립트와 PowerShell 스크립트(`plugin/hooks/session-start.ps1`)를 함께 제공하고, advanced 템플릿의 `validate-prompt` 훅도 동일하게 `.ps1` 동반 스크립트(`templates/advanced/scripts/validate-prompt.ps1`)를 함께 제공합니다. PowerShell 5.1+ (Windows 10+ 기본 탑재) 또는 Git Bash/WSL 중 어느 쪽이든 양쪽 레이어가 모두 동작합니다 — 추가 쉘 설정 불필요
+- **Windows 사용자**: 플러그인 SessionStart 훅은 bash 스크립트와 PowerShell 스크립트(`plugin/hooks/session-start.ps1`)를 함께 제공하고, advanced 템플릿의 `validate-prompt` 훅도 동일하게 `.ps1` 동반 스크립트(`templates/advanced/hooks/validate-prompt.ps1`)를 함께 제공합니다. PowerShell 5.1+ (Windows 10+ 기본 탑재) 또는 Git Bash/WSL 중 어느 쪽이든 양쪽 레이어가 모두 동작합니다 — 추가 쉘 설정 불필요
 
 ## Step 1: 설정 방법 선택
 

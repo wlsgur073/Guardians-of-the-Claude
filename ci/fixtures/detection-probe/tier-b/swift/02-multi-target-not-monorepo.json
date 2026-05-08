@@ -1,0 +1,19 @@
+{
+  "name": "tier-b/swift/02-multi-target-not-monorepo",
+  "ecosystem": "swift",
+  "spec_ref": "monorepo-detection §1.9",
+  "description": "Single root Package.swift declaring 3 targets in the targets: array, with NO nested Package.swift files. Per spec, multiple targets in a single Package.swift are NOT a monorepo — single-package, multi-target layout.",
+  "input": {
+    "manifests": {
+      "Package.swift": "// swift-tools-version:5.9\nimport PackageDescription\n\nlet package = Package(\n    name: \"MyApp\",\n    products: [\n        .library(name: \"Core\", targets: [\"Core\"]),\n        .library(name: \"Networking\", targets: [\"Networking\"]),\n        .executable(name: \"App\", targets: [\"App\"]),\n    ],\n    targets: [\n        .target(name: \"Core\", path: \"Sources/Core\"),\n        .target(name: \"Networking\", dependencies: [\"Core\"], path: \"Sources/Networking\"),\n        .executableTarget(name: \"App\", dependencies: [\"Core\", \"Networking\"], path: \"Sources/App\"),\n    ]\n)\n"
+    },
+    "directories": ["Sources/Core", "Sources/Networking", "Sources/App"]
+  },
+  "expected": {
+    "detected": false,
+    "evidence_types": [],
+    "package_roots_count": 0,
+    "type": "single_project",
+    "notes_codes": []
+  }
+}

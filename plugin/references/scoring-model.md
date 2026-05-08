@@ -1,8 +1,8 @@
 ---
 title: "Scoring Model"
 description: "Conservative scoring formula for /audit — LAV item-aware multiplier with cap tier {50, 60, 100}"
-version: "1.0.1"
-scoring_contract_id: "audit-score-v4.0.0"
+version: "1.0.3"
+scoring_contract_id: "audit-score-v4.1.0"
 ---
 
 # Scoring Model
@@ -148,6 +148,12 @@ Complementary item pairs earn bonus points when BOTH achieve PASS (1.0):
 Maximum total synergy bonus: **+5 points**
 
 Both items in a pair must score PASS (1.0). If either item is SKIP, PARTIAL, MINIMAL, or FAIL, the pair is not eligible.
+
+---
+
+## Per-Package Scoring (sub-package CLAUDE.md, monorepo audit)
+
+Per-package scoring procedure (mechanical T1+T2+T3 package-rebased + LAV + SB + Cap + Final, package-local with no root inheritance) is documented in `plugin/skills/audit/references/checks/per-package-scoring.md`. Rollup procedure (min/median/worst over `scored_count` + coverage counters with no aggregate score) is in `per-package-rollup.md`. Both are consumed by `/audit` when iterating sub-package CLAUDE.md files in monorepo projects.
 
 ## Quality Gate
 

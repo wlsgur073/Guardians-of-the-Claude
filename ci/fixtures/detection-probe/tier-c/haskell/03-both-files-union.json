@@ -1,0 +1,22 @@
+{
+  "name": "tier-c/haskell/03-both-files-union",
+  "ecosystem": "haskell",
+  "spec_ref": "monorepo-detection §1.14",
+  "description": "Both cabal.project and stack.yaml present per §1.14 — emit both as evidence; package_roots[] is the union of distinct subdirs.",
+  "input": {
+    "manifests": {
+      "cabal.project": "packages: ./pkgA\n",
+      "stack.yaml": "resolver: lts-21.0\npackages:\n- ./pkgB\n",
+      "pkgA/pkgA.cabal": "cabal-version: 2.4\nname: pkgA\nversion: 0.1.0.0\nlibrary\n  exposed-modules: PkgA\n",
+      "pkgB/pkgB.cabal": "cabal-version: 2.4\nname: pkgB\nversion: 0.1.0.0\nlibrary\n  exposed-modules: PkgB\n"
+    },
+    "directories": ["pkgA", "pkgB"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration", "workspace_declaration"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

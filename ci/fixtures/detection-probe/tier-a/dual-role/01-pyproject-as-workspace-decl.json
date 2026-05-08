@@ -1,0 +1,21 @@
+{
+  "name": "tier-a/dual-role/01-pyproject-as-workspace-decl",
+  "ecosystem": "dual-role",
+  "spec_ref": "monorepo-detection §1.4 (dual-role manifest)",
+  "description": "pyproject.toml at project root with [tool.uv.workspace] — root manifest acts in WORKSPACE role; the field is the workspace declaration.",
+  "input": {
+    "manifests": {
+      "pyproject.toml": "[project]\nname = \"workspace-root\"\nversion = \"0.1.0\"\n\n[tool.uv.workspace]\nmembers = [\"packages/*\"]\n",
+      "packages/foo/pyproject.toml": "[project]\nname = \"foo\"\nversion = \"0.1.0\"\n",
+      "packages/bar/pyproject.toml": "[project]\nname = \"bar\"\nversion = \"0.1.0\"\n"
+    },
+    "directories": ["packages/foo", "packages/bar"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

@@ -259,19 +259,6 @@ jobs:
       - name: Changelog parser check
         run: python ci/scripts/check-changelog-parser.py
 
-  sample-list-preconditions:
-    name: Sample list preconditions
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
-
-      - name: Check sample list preconditions
-        run: python ci/scripts/check-sample-list-preconditions.py
-
   audit-goldens-check:
     name: Audit goldens formula + bucket check
     runs-on: ubuntu-latest
@@ -320,3 +307,100 @@ jobs:
 
       - name: Run scoring-contract consistency validator
         run: python ci/scripts/check-scoring-contract-consistency.py
+
+  detection-probe-check:
+    name: Detection probe fixture schema check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Check detection probe fixtures
+        run: |
+          python ci/scripts/check-detection-probe.py || EXIT_CODE=$?
+          EXIT_CODE=${EXIT_CODE:-0}
+          if [ "$EXIT_CODE" -eq 2 ]; then
+            echo "::warning::ci/fixtures/detection-probe/ not found; detection-probe check skipped."
+            exit 0
+          fi
+          exit "$EXIT_CODE"
+
+  qa-report-shape-check:
+    name: qa-report.md golden shape validator
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Validate qa-report.md goldens
+        run: python .github/scripts/check-qa-report-shape.py
+
+  hook-script-parity:
+    name: Hook script byte-equal parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Run hook script parity validator
+        run: python .github/scripts/check-hook-script-parity.py
+
+  readme-badge-sync:
+    name: README badge sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Check README badge sync
+        run: python .github/scripts/check-readme-badge-sync.py
+
+  tag-sha-propagation:
+    name: Annotated tag SHA propagation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Check tag SHA propagation (soft-skip on non-tag push)
+        env:
+          TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+        run: |
+          python .github/scripts/check-tag-sha-propagation.py || EXIT_CODE=$?
+          EXIT_CODE=${EXIT_CODE:-0}
+          if [ "$EXIT_CODE" -eq 2 ]; then
+            echo "::notice::No tag context; tag SHA check skipped."
+            exit 0
+          fi
+          exit "$EXIT_CODE"
+
+  changelog-anchor-slug:
+    name: CHANGELOG anchor slug derivation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Validate CHANGELOG anchor slugs
+        run: python .github/scripts/check-changelog-anchor-slug.py

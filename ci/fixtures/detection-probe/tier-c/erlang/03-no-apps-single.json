@@ -1,0 +1,20 @@
+{
+  "name": "tier-c/erlang/03-no-apps-single",
+  "ecosystem": "erlang",
+  "spec_ref": "monorepo-detection §1.13",
+  "description": "Single-app Erlang project: rebar.config present without apps/ directory and without project_app_dirs override. Per §1.13 this is a single-app layout.",
+  "input": {
+    "manifests": {
+      "rebar.config": "{erl_opts, [debug_info]}.\n{deps, []}.\n",
+      "src/myapp.app.src": "{application, myapp,\n [{description, \"single app\"},\n  {vsn, \"0.1.0\"},\n  {modules, []}]}.\n"
+    },
+    "directories": []
+  },
+  "expected": {
+    "detected": false,
+    "evidence_types": [],
+    "package_roots_count": 0,
+    "type": "single_project",
+    "notes_codes": []
+  }
+}

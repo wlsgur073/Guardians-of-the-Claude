@@ -1,12 +1,10 @@
 ---
 title: State I/O Primitives
 description: Skill-facing spec for atomic write, state-mutation lock, and deterministic I/O. Skills reference this file instead of restating rules inline.
-version: 1.0.0
+version: 1.0.1
 ---
 
 # State I/O Primitives
-
-Authoritative source: `docs/superpowers/v3-roadmap/phase-1-contracts.md` §Shared Primitives 1, 2, 5. This file is the skill-facing projection.
 
 ---
 

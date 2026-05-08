@@ -1,0 +1,26 @@
+{
+  "name": "tier-a/node/05-glob-negation",
+  "ecosystem": "node",
+  "spec_ref": "monorepo-detection §1.1",
+  "description": "Negation pattern subtracts internal/* from packages/* — only public packages resolve.",
+  "input": {
+    "manifests": {
+      "package.json": "{\n  \"name\": \"root\",\n  \"private\": true,\n  \"workspaces\": [\"packages/*\", \"!packages/internal/*\"]\n}\n",
+      "packages/public-a/package.json": "{ \"name\": \"@org/public-a\" }\n",
+      "packages/public-b/package.json": "{ \"name\": \"@org/public-b\" }\n",
+      "packages/internal/secret/package.json": "{ \"name\": \"@org/secret\" }\n"
+    },
+    "directories": [
+      "packages/public-a",
+      "packages/public-b",
+      "packages/internal/secret"
+    ]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

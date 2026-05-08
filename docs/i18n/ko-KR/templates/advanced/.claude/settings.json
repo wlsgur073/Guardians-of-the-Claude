@@ -54,15 +54,69 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/scripts/validate-prompt.sh\"",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/hooks/validate-prompt.sh\"",
             "timeout": 5,
             "statusMessage": "Checking for migration keywords"
           },
           {
             "type": "command",
-            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/scripts/validate-prompt.ps1\"",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/hooks/validate-prompt.ps1\"",
             "timeout": 5,
             "statusMessage": "Checking for migration keywords"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/hooks/pre-compact.sh\"",
+            "timeout": 5,
+            "statusMessage": "Capturing pre-compact snapshot"
+          },
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/hooks/pre-compact.ps1\"",
+            "timeout": 5,
+            "statusMessage": "Capturing pre-compact snapshot"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/hooks/subagent-stop.sh\"",
+            "timeout": 5,
+            "statusMessage": "Logging subagent stop"
+          },
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/hooks/subagent-stop.ps1\"",
+            "timeout": 5,
+            "statusMessage": "Logging subagent stop"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/hooks/stop.sh\"",
+            "timeout": 5,
+            "statusMessage": "Recording turn entry"
+          },
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/hooks/stop.ps1\"",
+            "timeout": 5,
+            "statusMessage": "Recording turn entry"
           }
         ]
       }

@@ -1,0 +1,21 @@
+{
+  "name": "tier-b/elixir/02-custom-apps-path",
+  "ecosystem": "elixir",
+  "spec_ref": "monorepo-detection §1.8",
+  "description": "Custom apps_path respected literally: apps_path: \"lib\" + 2 lib/<name>/mix.exs subdirectories produce 2 package roots.",
+  "input": {
+    "manifests": {
+      "mix.exs": "defmodule CustomUmbrella.MixProject do\n  use Mix.Project\n\n  def project do\n    [\n      apps_path: \"lib\",\n      version: \"0.1.0\",\n      start_permanent: Mix.env() == :prod,\n      deps: []\n    ]\n  end\nend\n",
+      "lib/foo/mix.exs": "defmodule Foo.MixProject do\n  use Mix.Project\n\n  def project do\n    [\n      app: :foo,\n      version: \"0.1.0\",\n      build_path: \"../../_build\",\n      deps_path: \"../../deps\",\n      lockfile: \"../../mix.lock\",\n      elixir: \"~> 1.15\",\n      deps: []\n    ]\n  end\nend\n",
+      "lib/bar/mix.exs": "defmodule Bar.MixProject do\n  use Mix.Project\n\n  def project do\n    [\n      app: :bar,\n      version: \"0.1.0\",\n      build_path: \"../../_build\",\n      deps_path: \"../../deps\",\n      lockfile: \"../../mix.lock\",\n      elixir: \"~> 1.15\",\n      deps: []\n    ]\n  end\nend\n"
+    },
+    "directories": ["lib/foo", "lib/bar"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

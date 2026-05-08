@@ -1,0 +1,6 @@
+{
+  "hookSpecificOutput": {
+    "hookEventName": "SessionStart",
+    "additionalContext": "Guardians: project state needs attention.\n- Open recommendations: 1 pending since 2026-05-05; oldest: deny-env (seen pending 3 times)."
+  }
+}

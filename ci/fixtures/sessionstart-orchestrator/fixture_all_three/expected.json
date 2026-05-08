@@ -1,0 +1,6 @@
+{
+  "hookSpecificOutput": {
+    "hookEventName": "SessionStart",
+    "additionalContext": "Guardians: project state needs attention.\n- Drift: package.json newer than profile (+1 other drift signals); run /guardians-of-the-claude:audit.\n- Open recommendations: 3 pending since 2026-04-29; oldest: deny-env (seen pending 1 times).\n- Repeated declines: split-rules declined 4 times total; consider acknowledging or updating manually."
+  }
+}

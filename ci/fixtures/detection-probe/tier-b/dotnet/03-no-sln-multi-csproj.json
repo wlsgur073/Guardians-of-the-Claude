@@ -1,0 +1,20 @@
+{
+  "name": "tier-b/dotnet/03-no-sln-multi-csproj",
+  "ecosystem": "dotnet",
+  "spec_ref": "monorepo-detection §1.7",
+  "description": "No .sln at project root, multiple .csproj in subdirectories. Per spec §1.7, each parent dir is a low-confidence candidate (defer to §2 heuristic signals); §1.7 alone emits no workspace evidence.",
+  "input": {
+    "manifests": {
+      "src/A/A.csproj": "<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <TargetFramework>net8.0</TargetFramework>\n  </PropertyGroup>\n</Project>\n",
+      "src/B/B.csproj": "<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <TargetFramework>net8.0</TargetFramework>\n  </PropertyGroup>\n</Project>\n"
+    },
+    "directories": ["src/A", "src/B"]
+  },
+  "expected": {
+    "detected": false,
+    "evidence_types": [],
+    "package_roots_count": 0,
+    "type": "single_project",
+    "notes_codes": []
+  }
+}

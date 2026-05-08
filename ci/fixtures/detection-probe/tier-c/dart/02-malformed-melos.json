@@ -1,0 +1,20 @@
+{
+  "name": "tier-c/dart/02-malformed-melos",
+  "ecosystem": "dart",
+  "spec_ref": "monorepo-detection §1.12",
+  "description": "melos.yaml present without packages: field — malformed per §1.12; emit parse_error and fall back to §2 heuristics. With no monorepo-shaped subdirs, detection stays false.",
+  "input": {
+    "manifests": {
+      "melos.yaml": "name: dart_monorepo\nrepository: https://example.com/repo\n",
+      "pubspec.yaml": "name: dart_root\nenvironment:\n  sdk: '>=3.0.0 <4.0.0'\n"
+    },
+    "directories": []
+  },
+  "expected": {
+    "detected": false,
+    "evidence_types": ["parse_error"],
+    "package_roots_count": 0,
+    "type": "single_project",
+    "notes_codes": []
+  }
+}

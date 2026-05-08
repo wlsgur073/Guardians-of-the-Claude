@@ -50,11 +50,15 @@ After T1 completes, note project signals for conditional loading:
 - Does `.claude/settings.json` exist?
 - Does `.claude/rules/` or `.claude/agents/` exist?
 
-## Phase 1.5: Subpackage CLAUDE.md Discovery
+## Phase 1.5: Subpackage Discovery and Monorepo Detection
 
-Walk the project for additional `CLAUDE.md` files that represent true subpackage configs in a monorepo. Use `Glob` with pattern `**/CLAUDE.md`, then apply all filter layers below in order — a candidate must pass every layer to be reported.
+This phase performs both subpackage `CLAUDE.md` disclosure and monorepo classification, emitting `monorepo_detection` evidence (`detected`, `package_roots`, `package_roots_for_scoring`, `evidence`, `notes`) consumed by Phase 3.6 per-package scoring.
 
 **Path normalization (Windows):** Normalize candidate path separators to `/` before any comparison, and match directory names case-insensitively.
+
+### Subpackage CLAUDE.md disclosure walk (4-layer filter)
+
+Walk the project for additional `CLAUDE.md` files that represent true subpackage configs in a monorepo. Use `Glob` with pattern `**/CLAUDE.md`, then apply all filter layers below in order — a candidate must pass every layer to be reported.
 
 **Layer 1 — Root exclusion:** Exclude the root `CLAUDE.md` and the root `.claude/CLAUDE.md` (both already counted in T1.1).
 
@@ -65,15 +69,45 @@ Walk the project for additional `CLAUDE.md` files that represent true subpackage
 - Normal case: the directory immediately containing `CLAUDE.md`.
 - Nested `.claude/` exception: if the path is `…/.claude/CLAUDE.md`, the package root is the **parent of `.claude/`**. Example: `packages/api/.claude/CLAUDE.md` → package root `packages/api/`. This keeps legitimate subpackage `.claude/CLAUDE.md` layouts visible.
 
-Keep the candidate only if its package root contains at least one of these manifest files (literal filenames, no glob): `package.json`, `Cargo.toml`, `go.mod`, `pyproject.toml`, `build.gradle`, `build.gradle.kts`, `pom.xml`, `composer.json`, `Gemfile`. This list is deliberately conservative for v2.10.0; projects using `setup.py`, `setup.cfg`, `Package.swift`, `mix.exs`, `*.csproj`, or `*.gemspec` as the only manifest will be silently missed (documented false-negative tradeoff — see CHANGELOG).
+Keep the candidate only if its package root contains at least one of the manifest patterns listed below. Most patterns are literal filenames; four are single-segment globs (`*.csproj`, `*.fsproj`, `*.gemspec`, `*.cabal`) for ecosystems where the manifest filename varies per project. Glob match is single-segment only (e.g., `*.csproj` matches `Project.csproj`, NOT `nested/Project.csproj`) and case-insensitive on Windows.
+
+| Ecosystem | Manifest pattern(s) |
+|---|---|
+| Node | `package.json` |
+| Rust | `Cargo.toml` |
+| Go | `go.mod` |
+| Python | `pyproject.toml`, `setup.py`, `setup.cfg` |
+| Java/Maven | `pom.xml` |
+| Java/Gradle | `build.gradle`, `build.gradle.kts` |
+| .NET | `*.csproj`, `*.fsproj` |
+| Elixir | `mix.exs` |
+| Swift | `Package.swift` |
+| Ruby | `Gemfile`, `*.gemspec` |
+| C/C++ | `CMakeLists.txt`, `BUILD.bazel`, `BUILD`, `conanfile.txt`, `conanfile.py`, `meson.build` |
+| Dart/Flutter | `pubspec.yaml` |
+| Erlang | `rebar.config` |
+| Haskell | `*.cabal` |
+| PHP | `composer.json` |
 
 **Layer 4 — Git-ignore drop (best-effort):** If a `.git` entry (file or directory) exists at the project root — Git worktrees and submodules use a `.git` **file pointer** rather than a directory, so a plain directory check would incorrectly disable this layer for them — run `git check-ignore -q <path>` on each remaining candidate via `Bash`. `git check-ignore` returns exit `0` when the path is ignored (drop the candidate) or exit `1` when it is not ignored (keep the candidate). Any other exit code indicates a per-candidate error (broken index, unusual path, permission, etc.) — in that case, treat the candidate as **not ignored** (keep it, conservative default) and continue processing the remaining candidates, never aborting the layer. If there is no `.git` entry at the project root at all, or `git` is unavailable, or the `Bash` tool is not permitted, **silently skip this layer** — do not fail the audit and do not emit a warning.
 
 **Never walk ancestors** looking for a manifest — always use the immediate package root as defined in Layer 3. "Any ancestor up to repo root" would over-match on any repo whose root already has a `package.json` or equivalent.
 
-After filtering, limit displayed results to 20 files; if more remain, append `(+N more not shown)` in the output. For each reported file, record its repository-relative path and line count. Line count is newline count (`wc -l` semantics) including blank lines. **Do not score these files in this version** — this phase is disclosure only. If the filtered result is empty, do not render the "Additional CLAUDE.md Files" section in the output at all.
+**Workspace declaration files** (consumed by per-ecosystem parsing rules in `references/checks/monorepo-detection.md`, NOT used in Layer 3 package-root identification):
 
-Per-package scoring is planned for a future audit release (see `docs/ROADMAP.md` "Audit v4 Phase 2" entry).
+| Ecosystem | File(s) |
+|---|---|
+| Node | `pnpm-workspace.yaml` |
+| Go | `go.work` |
+| Java/Gradle | `settings.gradle`, `settings.gradle.kts` |
+| .NET | `*.sln` |
+| C/C++ (Bazel) | `WORKSPACE`, `MODULE.bazel` |
+| Dart/Flutter | `melos.yaml` |
+| Haskell | `cabal.project`, `stack.yaml` |
+
+For workspace declaration parsing per ecosystem and the full detection algorithm (Phase A through E), read `references/checks/monorepo-detection.md`.
+
+After filtering, limit displayed disclosure results to 20 files; if more remain, append `(+N more not shown)`. For each reported file, record its repository-relative path and line count. Line count is newline count (`wc -l` semantics) including blank lines.
 
 ## Phase 2: Protection Checks (T2)
 
@@ -92,6 +126,16 @@ Otherwise, read `references/checks/t3-optimization.md` and execute all T3 checks
 Read `references/checks/lav.md` and execute the LAV evaluation.
 
 This phase cross-references CLAUDE.md claims against actual project state. Use the information gathered during T1–T3 to inform your evaluation. Apply the LAV/T3 Boundary Rule to avoid double-counting with mechanical checks.
+
+## Phase 3.6: Per-Package Scoring (when monorepo detected)
+
+If `monorepo_detection.detected == true` AND `monorepo_detection.package_roots_for_scoring[]` is non-empty, iterate per-package scoring after Phase 3.5 LAV completes:
+
+1. Read `references/checks/per-package-scoring.md` and execute the per-package scoring procedure for each package root in `monorepo_detection.package_roots_for_scoring[:scored_cap]`.
+2. Read `references/checks/per-package-rollup.md` and emit the rollup output (min, median, worst, coverage counters) per the rendering rules.
+3. **Per-package findings are transient.** Per-package score rows (`subpackages[]`) and coverage counters (`subpackage_coverage`) ARE persisted per `plugin/references/lib/merge_rules.md` `/audit` ownership. Statistical aggregates (`min`, `median`, `worst`) are computed-on-render per `references/checks/per-package-rollup.md` §4 (No Persistence). Any advisory-style observations surfaced for individual subpackages render to terminal output only — they MUST NOT be added to `recommendations.json`. Persistence semantics for per-package recommendations are deferred to a later minor; v2.13.0 maintains a transient-by-default contract for per-subpackage findings.
+
+If `monorepo_detection.detected != true` OR `package_roots_for_scoring[]` is empty, skip Phase 3.6 entirely.
 
 ## Phase 4: Summary
 
@@ -114,6 +158,22 @@ Read `references/output-format.md` and present results using the defined action-
 **If previous audit results exist (from Phase 0):** Add a comparison line at the end:
 > "Since your last audit (DATE): score changed from X → Y. [If /secure or /optimize ran since the last audit, list them.] Resolved: [issues]. Still open: [issues]."
 
+## Phase 4.5: Render qa-report.md
+
+After Phase 4 completes, all scoring facts are frozen (LAV L1-L6 scores, DS, SB, cap, Final, bucket). Render `qa-report.md` from these frozen facts only.
+
+Read `references/qa-report-template.md` for the full template skeleton (5-section list, S1-S5 render rules, S5 negative-transparency filter scope).
+
+**Steps:**
+
+1. **Sprint contract parse (optional, post-freeze)**: read `references/checks/sprint-contract.md` and execute the parser. Always capture the resulting branch state (B1/B2/B3/B4/B5); capture extracted In Scope items only when state is B4 or B2.
+2. **Section 1-4 render** (always): emit Score Summary + LAV Item Rationale (with counterfactual column from LAV-time generation, see `references/checks/lav.md` Counterfactual Generation section) + Bucket Rationale + Recommendations Linkage (3-state branch by `local/recommendations.json` state).
+3. **Section 5 conditional render**: if sprint-contract parse reached B4 (valid) or B2 (frontmatter advisory), emit Sprint Contract Coverage with In Scope ↔ LAV mapping (P4 alignment rule). Otherwise omit.
+4. **Negative-transparency filter** (S5): apply forbidden-token filter to generator-authored regions only. User-quoted content (CLAUDE.md evidence, sprint contract labels/bodies, and file paths, command strings, and identifiers extracted from the audited project) passes through verbatim.
+5. **Write target**: `local/qa-report.md`. If `local/` is unwritable (same check that triggers stateless mode per Phase 1 Global Invariant #6) or stateless mode is active, render to terminal output instead of writing — no silent skip.
+
+**Invocation-agnostic**: this phase MUST NOT branch on invocation context (subagent / reviewer / direct user / hook-triggered). The same write/terminal rule applies in every context.
+
 ## Phase 5: Persist Results & Learn
 
 Read `../../references/learning-system.md` and follow the **Common Final Phase** steps with these audit-specific overrides:
@@ -124,10 +184,11 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
   - `Profile updated:` — sections refreshed this run (for `/audit`, always all owned sections; see below).
   - `Applied:` — always `(none)` for `/audit` (audit does not mutate user files).
   - `Recommendations:` — all PENDING/DECLINED items emitted this run with appropriate status.
+  For DECLINED items, increment `decline_count` per `plugin/references/lib/merge_rules.md §recommendations.json merge rules`: PENDING -> DECLINED sets `decline_count = 1`; DECLINED -> DECLINED re-record increments `decline_count++`. Monotonic — never decremented. Writes always emit schema 1.1.0; reading a 1.0.0 file performs lazy migration (inflate missing `decline_count` to 0). The repeated-decline trigger in `plugin/hooks/session-start.{sh,ps1}` reads this field after status==DECLINED filter and renders `"declined N times total"` for the rec with the highest `decline_count`.
 
   The score itself (`XX/100`, grade, maturity level) is a user-facing snapshot surfaced in the terminal output of Phase 4 and in `state-summary.md`'s Recent Skill Results section. It must NOT be written into the `config-changelog.md` entry as a field — the changelog is learning data, not a report ledger.
 
-  Profile merge under the state-mutation lock: `/audit` is the authoritative full refresh (Layer 3 of stale prevention). Always regenerate all `/audit`-owned sections — `runtime_and_language`, `framework_and_libraries`, `package_management`, `testing`, `build_and_dev`, `project_structure`, and `claude_code_configuration_state.claude_md` — from detected state, regardless of whether changes were detected. Other sections (e.g., `claude_code_configuration_state.settings_json` owned by `/secure`) must be preserved from the re-read `current_profile` (see `plugin/references/lib/merge_rules.md` §profile.json merge rules).
+  Profile merge under the state-mutation lock: `/audit` is the authoritative full refresh (Layer 3 of stale prevention). Always regenerate all `/audit`-owned sections — `runtime_and_language`, `framework_and_libraries`, `package_management`, `testing`, `build_and_dev`, `project_structure`, `monorepo_detection`, and `claude_code_configuration_state.claude_md` — from detected state, regardless of whether changes were detected. When `monorepo_detection.detected` flips from `true` to `false` or `null`, full-replace regeneration must clear stale `claude_md.subpackages` and reset `claude_md.subpackage_coverage` counters per `merge_rules.md` full-replace semantics. Other sections (e.g., `claude_code_configuration_state.settings_json` owned by `/secure`) must be preserved from the re-read `current_profile` (see `plugin/references/lib/merge_rules.md` §profile.json merge rules).
 
   **A1 merge rule amendments** (applied summary; mechanism in `plugin/references/lib/merge_rules.md`):
   - **Row 1 — `claude_code_configuration_state.model`**: any-skill writer; last-write-wins; written at Step 0.5 and Final Phase. Stateless mode: no-op (Phase 1 Global Invariant #6).

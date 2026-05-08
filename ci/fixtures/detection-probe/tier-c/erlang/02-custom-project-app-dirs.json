@@ -1,0 +1,21 @@
+{
+  "name": "tier-c/erlang/02-custom-project-app-dirs",
+  "ecosystem": "erlang",
+  "spec_ref": "monorepo-detection §1.13",
+  "description": "Erlang project with custom project_app_dirs glob pointing at lib/* per §1.13; subdirs use *.app.src instead of nested rebar.config.",
+  "input": {
+    "manifests": {
+      "rebar.config": "{erl_opts, [debug_info]}.\n{project_app_dirs, [\"lib/*\"]}.\n",
+      "lib/foo/src/foo.app.src": "{application, foo,\n [{description, \"foo app\"},\n  {vsn, \"0.1.0\"},\n  {modules, []}]}.\n",
+      "lib/bar/src/bar.app.src": "{application, bar,\n [{description, \"bar app\"},\n  {vsn, \"0.1.0\"},\n  {modules, []}]}.\n"
+    },
+    "directories": ["lib/foo", "lib/bar"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

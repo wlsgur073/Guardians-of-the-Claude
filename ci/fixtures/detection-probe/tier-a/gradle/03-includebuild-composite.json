@@ -1,0 +1,19 @@
+{
+  "name": "tier-a/gradle/03-includebuild-composite",
+  "ecosystem": "gradle",
+  "spec_ref": "monorepo-detection §1.6",
+  "description": "includeBuild() emits composite_build evidence and is NOT in package_roots[]. Without other workspace evidence, detected=false.",
+  "input": {
+    "manifests": {
+      "settings.gradle": "rootProject.name = 'consumer'\nincludeBuild 'other-project'\n"
+    },
+    "directories": ["other-project"]
+  },
+  "expected": {
+    "detected": false,
+    "evidence_types": ["composite_build"],
+    "package_roots_count": 0,
+    "type": "single_project",
+    "notes_codes": []
+  }
+}

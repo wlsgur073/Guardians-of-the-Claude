@@ -1,0 +1,20 @@
+{
+  "name": "tier-a/node/04-zero-roots",
+  "ecosystem": "node",
+  "spec_ref": "monorepo-detection §1.1",
+  "description": "Workspace declaration parses but resolves to zero existing directories — zero-root fallback note emitted; detected stays true.",
+  "input": {
+    "manifests": {
+      "package.json": "{\n  \"name\": \"root\",\n  \"private\": true\n}\n",
+      "pnpm-workspace.yaml": "packages:\n  - 'missing-dir/*'\n"
+    },
+    "directories": []
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 0,
+    "type": "monorepo",
+    "notes_codes": ["workspace_declaration_resolved_zero_roots"]
+  }
+}

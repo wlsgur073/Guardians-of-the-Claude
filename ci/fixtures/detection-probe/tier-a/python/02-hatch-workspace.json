@@ -1,0 +1,22 @@
+{
+  "name": "tier-a/python/02-hatch-workspace",
+  "ecosystem": "python",
+  "spec_ref": "monorepo-detection §1.4",
+  "description": "[tool.hatch.workspace] members glob — alternative workspace declaration.",
+  "input": {
+    "manifests": {
+      "pyproject.toml": "[project]\nname = \"root\"\nversion = \"0.1.0\"\n\n[tool.hatch.workspace]\nmembers = [\"libs/*\"]\n",
+      "libs/utils/pyproject.toml": "[project]\nname = \"utils\"\nversion = \"0.1.0\"\n",
+      "libs/api/pyproject.toml": "[project]\nname = \"api\"\nversion = \"0.1.0\"\n",
+      "libs/cli/pyproject.toml": "[project]\nname = \"cli\"\nversion = \"0.1.0\"\n"
+    },
+    "directories": ["libs/utils", "libs/api", "libs/cli"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 3,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

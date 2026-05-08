@@ -1,0 +1,21 @@
+{
+  "name": "tier-a/python/01-uv-workspace-positive",
+  "ecosystem": "python",
+  "spec_ref": "monorepo-detection §1.4",
+  "description": "[tool.uv.workspace] members glob resolving to 2 packages.",
+  "input": {
+    "manifests": {
+      "pyproject.toml": "[project]\nname = \"root\"\nversion = \"0.1.0\"\n\n[tool.uv.workspace]\nmembers = [\"packages/*\"]\n",
+      "packages/core/pyproject.toml": "[project]\nname = \"core\"\nversion = \"0.1.0\"\n",
+      "packages/web/pyproject.toml": "[project]\nname = \"web\"\nversion = \"0.1.0\"\n"
+    },
+    "directories": ["packages/core", "packages/web"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

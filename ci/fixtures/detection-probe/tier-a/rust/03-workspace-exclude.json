@@ -1,0 +1,22 @@
+{
+  "name": "tier-a/rust/03-workspace-exclude",
+  "ecosystem": "rust",
+  "spec_ref": "monorepo-detection §1.2",
+  "description": "[workspace.exclude] subtracts one crate from the members glob expansion.",
+  "input": {
+    "manifests": {
+      "Cargo.toml": "[workspace]\nmembers = [\"crates/*\"]\nexclude = [\"crates/legacy\"]\nresolver = \"2\"\n",
+      "crates/core/Cargo.toml": "[package]\nname = \"core\"\nversion = \"0.1.0\"\nedition = \"2021\"\n",
+      "crates/cli/Cargo.toml": "[package]\nname = \"cli\"\nversion = \"0.1.0\"\nedition = \"2021\"\n",
+      "crates/legacy/Cargo.toml": "[package]\nname = \"legacy\"\nversion = \"0.1.0\"\nedition = \"2021\"\n"
+    },
+    "directories": ["crates/core", "crates/cli", "crates/legacy"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "tier-c/cpp/02-bazel-workspace-multi-build",
+  "ecosystem": "cpp",
+  "spec_ref": "monorepo-detection §1.11",
+  "description": "Bazel project: root WORKSPACE + four BUILD.bazel-bearing subdirectories. §1.11 enumerates dirs with BUILD.bazel/BUILD as package candidates.",
+  "input": {
+    "manifests": {
+      "WORKSPACE": "workspace(name = \"umbrella\")\n",
+      "pkg/a/BUILD.bazel": "cc_library(name = \"a\", srcs = [\"a.cc\"])\n",
+      "pkg/b/BUILD.bazel": "cc_library(name = \"b\", srcs = [\"b.cc\"])\n",
+      "pkg/c/BUILD.bazel": "cc_library(name = \"c\", srcs = [\"c.cc\"])\n",
+      "pkg/d/BUILD.bazel": "cc_binary(name = \"d\", srcs = [\"d.cc\"], deps = [\"//pkg/a\", \"//pkg/b\", \"//pkg/c\"])\n"
+    },
+    "directories": ["pkg/a", "pkg/b", "pkg/c", "pkg/d"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 4,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

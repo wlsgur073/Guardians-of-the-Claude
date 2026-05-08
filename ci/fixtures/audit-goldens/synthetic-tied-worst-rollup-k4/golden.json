@@ -1,0 +1,131 @@
+{
+  "scoring_contract_id": "audit-score-v4.1.0",
+  "sample": {
+    "name": "synthetic/tied-worst-rollup-k4",
+    "url": null,
+    "ecosystem": "Rust",
+    "claude_md_location": "root"
+  },
+  "profile": {
+    "claude_md_lines": 220,
+    "rules_count": 0,
+    "hooks_count": 0,
+    "agents_count": 0,
+    "mcp_count": 0,
+    "deny_count": 0,
+    "has_meta_marketplace": false,
+    "has_symlink_claude_md": false
+  },
+  "scoring_inputs": {
+    "DS": 40.0,
+    "SB": 2,
+    "L1": 0,
+    "L2": 2,
+    "L3": 1,
+    "L4": 0,
+    "L5": 0,
+    "L6": 1,
+    "LAV_nonL5": 4,
+    "cap": 100
+  },
+  "expected_bucket": "Outlier",
+  "expected_final_score": 45.2,
+  "bucket_rationale": "Outlier (verbose-prose-sparse-config path) per bucket rubric: 220 lines >= 200 AND rules_count 0 AND hooks_count 0 AND agents_count 0 AND mcp_count 0. Labeled synthetic Rust cargo workspace with 4 sub-crates (crate-a / crate-b / crate-c / crate-d), all 4 with sub-CLAUDE.md tied at final_score 60.0 (uniform per-package score covering the rollup overflow case where all subpackages tie at the worst position). Verbose root CLAUDE.md (220 lines) describes all 4 crates as narrative prose without formal Claude Code rules/hooks/agents/MCP files. LAV: L2=+2 (concrete workspace usage examples in prose), L3=+1 (Rust workspace target-dir conflict gotchas), L6=+1 (concrete cargo invocations e.g., 'cargo test --workspace --all-features'). source_type=synthetic; labeled and excluded from empirical OSS denominators. Exercises 4-package tied-worst rollup display path unavailable in current OSS samples.",
+  "project_structure": {
+    "type": "monorepo",
+    "monorepo_detection": {
+      "detected": true,
+      "evidence": [
+        {
+          "type": "workspace_declaration",
+          "ecosystem": "rust",
+          "manifest": "Cargo.toml",
+          "field": "members",
+          "raw_value": ["crate-a", "crate-b", "crate-c", "crate-d"],
+          "resolved_roots": ["crate-a", "crate-b", "crate-c", "crate-d"],
+          "resolved_roots_total": 4,
+          "resolved_roots_truncated": false
+        }
+      ],
+      "package_roots": ["crate-a", "crate-b", "crate-c", "crate-d"],
+      "package_roots_for_scoring": ["crate-a", "crate-b", "crate-c", "crate-d"],
+      "package_root_caps": {
+        "display": 20,
+        "scored": 50,
+        "unscored_count_in_view": 0,
+        "total_filtered": 4
+      },
+      "notes": []
+    }
+  },
+  "claude_code_configuration_state": {
+    "claude_md": {
+      "exists": true,
+      "section_count": 12,
+      "subpackage_coverage": {
+        "package_roots_total": 4,
+        "with_claude_md": 4,
+        "without_claude_md": 0,
+        "scored_count": 4
+      },
+      "subpackages": [
+        {
+          "path": "crate-a",
+          "claude_md_path": "crate-a/CLAUDE.md",
+          "final_score": 60.0,
+          "cap_tier": 100,
+          "lav_breakdown": {
+            "L1": 0,
+            "L2": 2,
+            "L3": 1,
+            "L4": 0,
+            "L5": 0,
+            "L6": 0
+          }
+        },
+        {
+          "path": "crate-b",
+          "claude_md_path": "crate-b/CLAUDE.md",
+          "final_score": 60.0,
+          "cap_tier": 100,
+          "lav_breakdown": {
+            "L1": 0,
+            "L2": 2,
+            "L3": 1,
+            "L4": 0,
+            "L5": 0,
+            "L6": 0
+          }
+        },
+        {
+          "path": "crate-c",
+          "claude_md_path": "crate-c/CLAUDE.md",
+          "final_score": 60.0,
+          "cap_tier": 100,
+          "lav_breakdown": {
+            "L1": 0,
+            "L2": 2,
+            "L3": 1,
+            "L4": 0,
+            "L5": 0,
+            "L6": 0
+          }
+        },
+        {
+          "path": "crate-d",
+          "claude_md_path": "crate-d/CLAUDE.md",
+          "final_score": 60.0,
+          "cap_tier": 100,
+          "lav_breakdown": {
+            "L1": 0,
+            "L2": 2,
+            "L3": 1,
+            "L4": 0,
+            "L5": 0,
+            "L6": 0
+          }
+        }
+      ]
+    }
+  }
+}

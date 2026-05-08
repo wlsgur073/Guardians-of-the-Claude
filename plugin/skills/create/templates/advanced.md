@@ -14,6 +14,7 @@ Scan the current configuration silently:
 4. Check `.claude/agents/` — list existing agent files
 5. Check `.claude/skills/` — list existing skill directories
 6. Check `.mcp.json` — check if MCP servers are configured
+7. Check `sprint-contract.md` at project root — note presence/absence
 
 Present a checklist of what's already configured and what's missing:
 
@@ -27,6 +28,7 @@ Present a checklist of what's already configured and what's missing:
 > ✗ Agents (none defined)
 > ✗ Skills (none defined)
 > ✗ MCP servers (no .mcp.json)
+> ✗ Sprint contract (no scope boundary defined)
 >
 > "Which of the missing items would you like to add? (pick all that apply)"
 >
@@ -36,8 +38,11 @@ Present a checklist of what's already configured and what's missing:
 > - (d) Custom agent roles
 > - (e) Custom skill commands
 > - (f) Other (describe what you need)
+> - (g) Sprint contract (define current work cycle scope)
 
 Adjust the checklist based on what actually exists and what's missing. Only show unconfigured items as options.
+
+If user selects (g), run Phase 2B (negotiation) then write the file via Phase 3A's `sprint-contract.md` step. Skip other Phase 3A items (project is already configured).
 
 For each selected item, follow the corresponding generation logic in Phase 3A below (jump directly to the relevant conditional section). Skip Phase 1A and Phase 2A — the project is already analyzed and configured.
 
@@ -120,6 +125,58 @@ Ask the user the following questions **one at a time**. For each question, use t
    - (e) Custom skill commands — reusable multi-step workflow automations
    - (f) MCP server configuration — connect Claude to databases, APIs, or external tools
    - (g) None for now
+
+## Phase 2B: Sprint Contract Negotiation
+
+After Phase 2A questions complete, elicit the user's scope contract for the
+current work cycle. This produces `sprint-contract.md` (Advanced path only —
+Starter path skips this phase).
+
+### Existence check (idempotency guard)
+
+Check if `<project-root>/sprint-contract.md` exists.
+
+- **If yes** → skip Questions B1 and B2. Phase 3A's `sprint-contract.md` step
+  will detect the existing file and skip the write (preserve notice emitted
+  there). No further action needed in Phase 2B.
+- **If no** → proceed to Question B1.
+
+If proceeding past the existence check, ask both questions in sequence —
+capture user responses for Phase 3A generation. If the user provides
+empty answers, record placeholder fallback values explicitly.
+
+### Question B1: In Scope
+
+> "Now that the project setup is configured, let's define the scope of your
+> current work cycle. What outcomes do you want to commit to? List specific
+> features, endpoints, or modules — examples: a user CRUD endpoint, an
+> authentication flow, a specific service layer."
+
+Capture user response. Paraphrase each item to match the schema guideline:
+**bold noun phrase** + clarifying sentence.
+
+If response is empty / refused, record placeholder:
+`- Initial setup — to be defined`
+
+### Question B2: Deferred
+
+> "What adjacent work are you explicitly deferring out of this cycle?
+> Reasons help future-you decide when to revisit. Examples: an OAuth flow
+> that requires provider design, a notification system that depends on
+> external services."
+
+Capture user response. Each item must include a `Reason: ...` clause.
+
+If response is empty / refused, record explicit placeholder:
+`- None recorded during initial setup`
+
+### Output
+
+Store the negotiated In Scope and Deferred lists in memory for Phase 3A's
+sprint-contract.md generation step. Do NOT write the file in Phase 2B —
+generation belongs in Phase 3A.
+
+---
 
 ## Phase 3A: Generate Files
 
@@ -218,6 +275,43 @@ Include `✗ bad / ✓ good` code examples for non-obvious rules.
 ```gitignore
 .claude/settings.local.json
 ```
+
+**`sprint-contract.md`** (Advanced path only) — write to project root with
+the In Scope and Deferred lists captured in Phase 2B:
+
+```markdown
+---
+title: "Sprint Contract"
+description: "Scope contract for the current work cycle"
+version: "1.0.0"
+---
+
+# Sprint Contract
+
+This file defines the current scope boundary. Work not listed under In Scope
+is outside this contract unless the user explicitly updates this file.
+
+## In Scope
+
+[render Phase 2B Question B1 captured items as flat bullets — bold noun + sentence]
+
+## Deferred
+
+[render Phase 2B Question B2 captured items as flat bullets — bold noun + Reason: ...]
+```
+
+Use the existing atomic-write primitive (temp file + rename) per
+`../../references/lib/state_io.md`. Path: `<project-root>/sprint-contract.md`.
+
+**Existence check (idempotency)**: Before writing, check if
+`<project-root>/sprint-contract.md` already exists. If yes, skip the write
+and emit a 1-line terminal notice: `Existing sprint-contract.md preserved —
+edit manually if scope evolves.` Do NOT validate or repair existing content.
+
+After writing (or preserving), emit:
+`Sprint contract created: N in-scope items, M deferred items.`
+(Where N and M are counts from Phase 2B captures, or `1, 1` if both
+placeholders were used.)
 
 ### Conditionally generate (only if user opted in)
 

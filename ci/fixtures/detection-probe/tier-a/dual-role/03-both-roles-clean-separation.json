@@ -1,0 +1,21 @@
+{
+  "name": "tier-a/dual-role/03-both-roles-clean-separation",
+  "ecosystem": "dual-role",
+  "spec_ref": "monorepo-detection §1.2 (dual-role manifest)",
+  "description": "Cargo.toml dual-role: at project root acts as WORKSPACE declaration (members glob); subdir Cargo.toml acts as PACKAGE-ROOT identifier only. Single-level resolution prevents the root parser from recursing into subdir [workspace] tables (if any).",
+  "input": {
+    "manifests": {
+      "Cargo.toml": "[workspace]\nmembers = [\"crates/*\"]\nresolver = \"2\"\n",
+      "crates/lexer/Cargo.toml": "[package]\nname = \"lexer\"\nversion = \"0.1.0\"\nedition = \"2021\"\n",
+      "crates/parser/Cargo.toml": "[package]\nname = \"parser\"\nversion = \"0.1.0\"\nedition = \"2021\"\n"
+    },
+    "directories": ["crates/lexer", "crates/parser"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

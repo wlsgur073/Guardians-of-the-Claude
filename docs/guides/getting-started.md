@@ -1,7 +1,7 @@
 ---
 title: "Getting Started"
 description: "Step-by-step guide to set up Claude Code configuration for your project"
-version: 1.2.4
+version: 1.2.5
 ---
 
 # Getting Started
@@ -12,7 +12,7 @@ This guide walks you through setting up Claude Code configuration for your proje
 
 - Claude Code installed and working (run `claude --version` to confirm)
 - A project you want to configure
-- **On Windows**: the plugin's SessionStart hook ships both a bash and a PowerShell script (`plugin/hooks/session-start.ps1`), and the advanced template's `validate-prompt` hook does the same (`templates/advanced/scripts/validate-prompt.ps1` alongside the `.sh`). PowerShell 5.1+ (pre-installed on Windows 10+) or Git Bash/WSL works end-to-end — no extra shell setup needed
+- **On Windows**: the plugin's SessionStart hook ships both a bash and a PowerShell script (`plugin/hooks/session-start.ps1`), and the advanced template's `validate-prompt` hook does the same (`templates/advanced/hooks/validate-prompt.ps1` alongside the `.sh`). PowerShell 5.1+ (pre-installed on Windows 10+) or Git Bash/WSL works end-to-end — no extra shell setup needed
 
 ## Step 1: Choose Your Setup Method
 

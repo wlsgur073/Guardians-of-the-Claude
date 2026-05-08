@@ -1,0 +1,22 @@
+{
+  "name": "tier-a/gradle/01-settings-gradle-include",
+  "ecosystem": "gradle",
+  "spec_ref": "monorepo-detection §1.6",
+  "description": "Groovy DSL settings.gradle with include lines. Colon path separator (:lib:core) resolves to lib/core.",
+  "input": {
+    "manifests": {
+      "settings.gradle": "rootProject.name = 'my-app'\ninclude 'lib:core'\ninclude 'lib:utils'\ninclude 'app'\n",
+      "lib/core/build.gradle": "plugins { id 'java-library' }\n",
+      "lib/utils/build.gradle": "plugins { id 'java-library' }\n",
+      "app/build.gradle": "plugins { id 'application' }\n"
+    },
+    "directories": ["lib/core", "lib/utils", "app"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 3,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

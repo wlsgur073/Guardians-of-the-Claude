@@ -1,20 +1,21 @@
 {
-  "description": "Read-only project state check on session start — suggests /create if no config, /audit if no profile, or re-audit if profile is stale. Ships two command entries (bash + powershell) so bare Windows shells without Git Bash or WSL still get the hint; the entry whose interpreter is missing exits with ENOENT and is silently skipped.",
+  "description": "Read-only state-aware re-entry digest on session start (startup + resume sources only via matcher: \"startup|resume\" first-line filter, with script-side parser as defense-in-depth; clear and compact suppressed). Bootstrap cases (no config / no profile) early-return with the same prompts as before. After profile exists, stacks up to 3 trigger families -- drift (manifest staleness, schema mismatch, ecosystem change, scoring contract bump), unresolved recommendations, repeated declines -- into a capped 2000-char multi-line digest in fixed priority order. Lock-based first-wins de-duplication prevents duplicate emit on machines with both bash and powershell interpreters. Ships two command entries so bare Windows shells without Git Bash or WSL still get the hint; missing-interpreter entries exit with ENOENT and are silently skipped.",
   "hooks": {
     "SessionStart": [
       {
+        "matcher": "startup|resume",
         "hooks": [
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"",
             "timeout": 5,
-            "statusMessage": "Checking for Claude Code configuration"
+            "statusMessage": "Checking for project state signals"
           },
           {
             "type": "command",
             "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.ps1\"",
             "timeout": 5,
-            "statusMessage": "Checking for Claude Code configuration"
+            "statusMessage": "Checking for project state signals"
           }
         ]
       }

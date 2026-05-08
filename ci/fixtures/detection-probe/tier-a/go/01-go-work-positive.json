@@ -1,0 +1,21 @@
+{
+  "name": "tier-a/go/01-go-work-positive",
+  "ecosystem": "go",
+  "spec_ref": "monorepo-detection §1.3",
+  "description": "go.work block form with two modules listed via use ( ... ) directive.",
+  "input": {
+    "manifests": {
+      "go.work": "go 1.22\n\nuse (\n    ./moduleA\n    ./moduleB\n)\n",
+      "moduleA/go.mod": "module example.com/a\n\ngo 1.22\n",
+      "moduleB/go.mod": "module example.com/b\n\ngo 1.22\n"
+    },
+    "directories": ["moduleA", "moduleB"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

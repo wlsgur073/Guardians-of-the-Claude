@@ -1,0 +1,19 @@
+{
+  "name": "tier-a/node/07-no-workspaces-single-package",
+  "ecosystem": "node",
+  "spec_ref": "monorepo-detection §1.1",
+  "description": "Standard single-package Node project — no workspaces field, no pnpm-workspace.yaml, no heuristic patterns. Expect detected=false.",
+  "input": {
+    "manifests": {
+      "package.json": "{\n  \"name\": \"my-app\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    "directories": []
+  },
+  "expected": {
+    "detected": false,
+    "evidence_types": [],
+    "package_roots_count": 0,
+    "type": "single_project",
+    "notes_codes": []
+  }
+}

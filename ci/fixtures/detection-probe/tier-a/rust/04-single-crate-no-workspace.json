@@ -1,0 +1,19 @@
+{
+  "name": "tier-a/rust/04-single-crate-no-workspace",
+  "ecosystem": "rust",
+  "spec_ref": "monorepo-detection §1.2",
+  "description": "Standard single-crate Rust project — Cargo.toml has [package] but no [workspace] table.",
+  "input": {
+    "manifests": {
+      "Cargo.toml": "[package]\nname = \"my-tool\"\nversion = \"0.1.0\"\nedition = \"2021\"\n\n[dependencies]\nserde = \"1\"\n"
+    },
+    "directories": []
+  },
+  "expected": {
+    "detected": false,
+    "evidence_types": [],
+    "package_roots_count": 0,
+    "type": "single_project",
+    "notes_codes": []
+  }
+}

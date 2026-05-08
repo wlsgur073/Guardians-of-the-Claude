@@ -1,0 +1,6 @@
+{
+  "hookSpecificOutput": {
+    "hookEventName": "SessionStart",
+    "additionalContext": "Guardians: project state needs attention.\n- Repeated declines: deny-env declined 4 times total; consider acknowledging or updating manually."
+  }
+}

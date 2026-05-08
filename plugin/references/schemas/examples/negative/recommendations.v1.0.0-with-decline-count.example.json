@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "metadata": {
+    "last_updated": "2026-05-07T00:00:00Z"
+  },
+  "recommendations": [
+    {
+      "id": "test-rec",
+      "description": "test",
+      "issued_by": "audit",
+      "status": "DECLINED",
+      "pending_count": 1,
+      "first_seen": "2026-05-01T00:00:00Z",
+      "last_seen": "2026-05-07T00:00:00Z",
+      "resolved_by": null,
+      "declined_reason": "test",
+      "decline_count": 3
+    }
+  ]
+}

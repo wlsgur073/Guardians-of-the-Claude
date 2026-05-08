@@ -1,5 +1,5 @@
 {
-  "scoring_contract_id": "audit-score-v4.0.0",
+  "scoring_contract_id": "audit-score-v4.1.0",
   "sample": {
     "name": "vercel/next.js",
     "url": "https://github.com/vercel/next.js",
@@ -13,7 +13,6 @@
     "agents_count": null,
     "mcp_count": null,
     "deny_count": null,
-    "is_monorepo": true,
     "has_meta_marketplace": false,
     "has_symlink_claude_md": true
   },
@@ -31,5 +30,5 @@
   },
   "expected_bucket": "Outlier",
   "expected_final_score": 25.6,
-  "bucket_rationale": "Outlier via monorepo short-circuit per the monorepo short-circuit rule. packages/ + apps/ directories present. CLAUDE.md is symlink to AGENTS.md (cross-tool compat pattern); 446 lines counted via symlink target. Score computed from AGENTS.md content visible through symlink: strong T1 (PASS all 4) + weak T2 (dev-focused content) + moderate T3 (strong directory refs + env docs, no rules/agents/mcp). LAV: L5=-3 triggers cap tier 60 (no other Li at minimum)."
+  "bucket_rationale": "Outlier via claude_md_lines > 250 (446 lines) per the verbose-CLAUDE.md rule. packages/ + apps/ directories present (monorepo facet, no longer Outlier-determining per audit-score-v4.1.0). CLAUDE.md is symlink to AGENTS.md (cross-tool compat pattern); 446 lines counted via symlink target. Score computed from AGENTS.md content visible through symlink: strong T1 (PASS all 4) + weak T2 (dev-focused content) + moderate T3 (strong directory refs + env docs, no rules/agents/mcp). LAV: L5=-3 triggers cap tier 60 (no other Li at minimum)."
 }

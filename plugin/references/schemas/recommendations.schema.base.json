@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "recommendations.schema.base.json",
+  "title": "Open Recommendations — Shared Base",
+  "description": "Shared structural elements common across recommendations.json schema versions. Open at every scope: NO additionalProperties: false and NO unevaluatedProperties: false at base level. Versioned wrappers (recommendations.schema.v1.0.0.json, recommendations.schema.v1.1.0.json) compose this base via $ref and close at wrapper scope plus per-property (metadata + items) via allOf + unevaluatedProperties: false, mirroring profile.schema.v1.1.0.json's per-property closure pattern. Drift advisories are transient output rendered by the drift advisory state machine and are NOT persisted as registry entries.",
+  "type": "object",
+  "required": ["schema_version", "metadata", "recommendations"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "metadata": { "$ref": "#/$defs/metadata" },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/recommendationItemBase"
+      }
+    }
+  },
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "required": ["last_updated"],
+      "properties": {
+        "last_updated": { "type": "string", "format": "date-time" }
+      }
+    },
+    "recommendationItemBase": {
+      "type": "object",
+      "required": ["id", "description", "issued_by", "status", "pending_count", "first_seen", "last_seen"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "description": { "type": "string", "minLength": 1 },
+        "issued_by": { "enum": ["audit", "create", "secure", "optimize"] },
+        "status": { "enum": ["PENDING", "RESOLVED", "DECLINED", "STALE"] },
+        "pending_count": { "type": "integer", "minimum": 0 },
+        "first_seen": { "type": "string", "format": "date-time" },
+        "last_seen": { "type": "string", "format": "date-time" },
+        "resolved_by": { "enum": ["audit", "create", "secure", "optimize", null] },
+        "declined_reason": { "type": ["string", "null"] }
+      },
+      "allOf": [
+        {
+          "$comment": "state-machine: status RESOLVED requires non-null resolved_by; non-RESOLVED requires null or absent",
+          "if": { "properties": { "status": { "const": "RESOLVED" } }, "required": ["status"] },
+          "then": {
+            "required": ["resolved_by"],
+            "properties": { "resolved_by": { "type": "string", "enum": ["audit", "create", "secure", "optimize"] } }
+          },
+          "else": {
+            "properties": { "resolved_by": { "type": "null" } }
+          }
+        }
+      ]
+    }
+  }
+}

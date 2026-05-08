@@ -1,0 +1,20 @@
+{
+  "name": "tier-a/go/02-no-go-work-multi-mod",
+  "ecosystem": "go",
+  "spec_ref": "monorepo-detection §1.3",
+  "description": "No go.work + multiple go.mod files in subdirectories. Phase A emits no workspace evidence per spec — defer to heuristic signals (none configured here, so detected=false).",
+  "input": {
+    "manifests": {
+      "services/auth/go.mod": "module example.com/auth\n\ngo 1.22\n",
+      "services/api/go.mod": "module example.com/api\n\ngo 1.22\n"
+    },
+    "directories": ["services/auth", "services/api"]
+  },
+  "expected": {
+    "detected": false,
+    "evidence_types": [],
+    "package_roots_count": 0,
+    "type": "single_project",
+    "notes_codes": []
+  }
+}

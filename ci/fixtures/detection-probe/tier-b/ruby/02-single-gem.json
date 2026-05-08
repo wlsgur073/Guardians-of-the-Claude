@@ -1,0 +1,20 @@
+{
+  "name": "tier-b/ruby/02-single-gem",
+  "ecosystem": "ruby",
+  "spec_ref": "monorepo-detection §1.10",
+  "description": "Single-gem layout: root Gemfile + root *.gemspec, no subdirectory gemspecs. Single-gem; no evidence emitted.",
+  "input": {
+    "manifests": {
+      "Gemfile": "source \"https://rubygems.org\"\n\ngemspec\n",
+      "mygem.gemspec": "Gem::Specification.new do |spec|\n  spec.name        = \"mygem\"\n  spec.version     = \"0.1.0\"\n  spec.authors     = [\"Example\"]\n  spec.summary     = \"My gem\"\n  spec.files       = Dir[\"lib/**/*\"]\n  spec.require_paths = [\"lib\"]\nend\n"
+    },
+    "directories": []
+  },
+  "expected": {
+    "detected": false,
+    "evidence_types": [],
+    "package_roots_count": 0,
+    "type": "single_project",
+    "notes_codes": []
+  }
+}

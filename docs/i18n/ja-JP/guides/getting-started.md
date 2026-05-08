@@ -1,7 +1,7 @@
 ---
 title: "はじめに"
 description: "プロジェクトに Claude Code 設定をセットアップするためのステップバイステップガイド"
-version: 1.2.4
+version: 1.2.5
 ---
 
 # はじめに
@@ -12,7 +12,7 @@ version: 1.2.4
 
 - Claude Code がインストール済みで動作していること（`claude --version` で確認）
 - 設定したいプロジェクトがあること
-- **Windows をお使いの場合**: プラグインの SessionStart フックは bash スクリプトと PowerShell スクリプト（`plugin/hooks/session-start.ps1`）の両方を同梱しており、advanced テンプレートの `validate-prompt` フックも同様に `.ps1` 版（`templates/advanced/scripts/validate-prompt.ps1`）を `.sh` 版と並べて同梱しています。PowerShell 5.1+（Windows 10+ に標準搭載）または Git Bash/WSL のいずれかがあれば両レイヤーとも動作するため、追加のシェル設定は不要です
+- **Windows をお使いの場合**: プラグインの SessionStart フックは bash スクリプトと PowerShell スクリプト（`plugin/hooks/session-start.ps1`）の両方を同梱しており、advanced テンプレートの `validate-prompt` フックも同様に `.ps1` 版（`templates/advanced/hooks/validate-prompt.ps1`）を `.sh` 版と並べて同梱しています。PowerShell 5.1+（Windows 10+ に標準搭載）または Git Bash/WSL のいずれかがあれば両レイヤーとも動作するため、追加のシェル設定は不要です
 
 ## Step 1: セットアップ方法を選ぶ
 

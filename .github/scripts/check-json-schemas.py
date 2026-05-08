@@ -14,6 +14,7 @@ Exit codes:
 """
 from __future__ import annotations
 
+import datetime
 import json
 import sys
 from pathlib import Path
@@ -21,6 +22,20 @@ from pathlib import Path
 import jsonschema
 import requests
 from referencing import Registry, Resource
+
+
+# FormatChecker with stdlib-only date-time validator. Avoids the jsonschema[format]
+# extra (rfc3339-validator dependency) by using datetime.fromisoformat directly.
+# Python 3.11+ handles trailing 'Z' via the explicit '+00:00' replacement.
+_FORMAT_CHECKER = jsonschema.FormatChecker()
+
+
+@_FORMAT_CHECKER.checks("date-time", raises=ValueError)
+def _is_iso_date_time(instance: object) -> bool:
+    if not isinstance(instance, str):
+        return True
+    datetime.datetime.fromisoformat(instance.replace("Z", "+00:00"))
+    return True
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 PROFILE_SCHEMAS_DIR = ROOT / "plugin" / "references" / "schemas"
@@ -55,13 +70,10 @@ RULES: list[tuple[str, str | None, list[str] | None]] = [
 
 
 # Local schema validation: (schema_path, example_path) relative to ROOT.
-# Profile instances use the dispatcher (see select_profile_wrapper + _profile_registry);
-# other schemas are validated directly.
+# Profile instances use the dispatcher (see select_profile_wrapper + _profile_registry).
+# Recommendations instances use the dispatcher (see select_recommendations_wrapper + _recommendations_registry).
+# Other schemas are validated directly.
 LOCAL_SCHEMAS: list[tuple[str, str]] = [
-    (
-        "plugin/references/schemas/recommendations.schema.json",
-        "plugin/references/schemas/examples/recommendations.example.json",
-    ),
     (
         "plugin/references/recommendation-registry.schema.json",
         "plugin/references/recommendation-registry.json",
@@ -69,17 +81,9 @@ LOCAL_SCHEMAS: list[tuple[str, str]] = [
 ]
 
 # Negative fixtures: (schema_path, negative_example_path) — each MUST be rejected.
-# Profile negative fixtures are handled by validate_profile_negative_examples.
-NEGATIVE_LOCAL_SCHEMAS: list[tuple[str, str]] = [
-    (
-        "plugin/references/schemas/recommendations.schema.json",
-        "plugin/references/schemas/examples/negative/recommendations.invalid-id-format.example.json",
-    ),
-    (
-        "plugin/references/schemas/recommendations.schema.json",
-        "plugin/references/schemas/examples/negative/recommendations.resolved-without-by.example.json",
-    ),
-]
+# Profile and recommendations negative fixtures are handled by their respective
+# dispatcher-aware validators below.
+NEGATIVE_LOCAL_SCHEMAS: list[tuple[str, str]] = []
 
 # Profile positive examples — dispatcher selects wrapper by schema_version literal.
 PROFILE_POSITIVE_EXAMPLES: list[str] = [
@@ -90,6 +94,28 @@ PROFILE_POSITIVE_EXAMPLES: list[str] = [
 PROFILE_NEGATIVE_EXAMPLES: list[str] = [
     "plugin/references/schemas/examples/negative/profile.missing-required.example.json",
     "plugin/references/schemas/examples/negative/profile.wrong-version.example.json",
+    "plugin/references/schemas/examples/negative/profile.monorepo-without-detection.example.json",
+    "plugin/references/schemas/examples/negative/profile.detection-without-monorepo.example.json",
+    "plugin/references/schemas/examples/negative/profile.detected-boolean-type-null.example.json",
+    "plugin/references/schemas/examples/negative/profile.detected-null-type-not-null.example.json",
+]
+
+# Recommendations positive examples — dispatcher selects wrapper by schema_version literal.
+RECOMMENDATIONS_POSITIVE_EXAMPLES: list[str] = [
+    "plugin/references/schemas/examples/recommendations.example.json",
+    "plugin/references/schemas/examples/recommendations.v1.1.0.example.json",
+]
+
+# Recommendations negative examples — dispatcher selects wrapper; each MUST be rejected.
+RECOMMENDATIONS_NEGATIVE_EXAMPLES: list[str] = [
+    "plugin/references/schemas/examples/negative/recommendations.invalid-id-format.example.json",
+    "plugin/references/schemas/examples/negative/recommendations.resolved-without-by.example.json",
+    "plugin/references/schemas/examples/negative/recommendations.v1.0.0-with-decline-count.example.json",
+    "plugin/references/schemas/examples/negative/recommendations.v1.1.0-decline-count-negative.example.json",
+    "plugin/references/schemas/examples/negative/recommendations.metadata-extra.example.json",
+    "plugin/references/schemas/examples/negative/recommendations.invalid-status-enum.example.json",
+    "plugin/references/schemas/examples/negative/recommendations.empty-description.example.json",
+    "plugin/references/schemas/examples/negative/recommendations.invalid-iso-date.example.json",
 ]
 
 
@@ -114,6 +140,36 @@ def select_profile_wrapper(schema_version: str) -> tuple[dict, str]:
     with a diagnostic naming the literal and the candidate path that was tried.
     """
     candidate = PROFILE_SCHEMAS_DIR / f"profile.schema.v{schema_version}.json"
+    if not candidate.exists():
+        raise ValueError(
+            f"Unknown schema_version '{schema_version}': no wrapper found at"
+            f" {candidate.relative_to(ROOT)}"
+        )
+    return json.loads(candidate.read_text(encoding="utf-8")), candidate.name
+
+
+def _recommendations_registry() -> Registry:
+    """Build a referencing Registry with the base recommendations schema registered.
+
+    Versioned wrappers use $ref to recommendations.schema.base.json; the registry
+    resolves those references without network I/O. Mirrors _profile_registry().
+    """
+    base = json.loads(
+        (PROFILE_SCHEMAS_DIR / "recommendations.schema.base.json").read_text(encoding="utf-8")
+    )
+    return Registry().with_resources(
+        [("recommendations.schema.base.json", Resource.from_contents(base))]
+    )
+
+
+def select_recommendations_wrapper(schema_version: str) -> tuple[dict, str]:
+    """Select the versioned recommendations schema wrapper by schema_version literal.
+
+    Returns (schema_dict, wrapper_filename). Raises ValueError on unknown version
+    with a diagnostic naming the literal and the candidate path that was tried.
+    Mirrors select_profile_wrapper's signature, return type, and registry pattern.
+    """
+    candidate = PROFILE_SCHEMAS_DIR / f"recommendations.schema.v{schema_version}.json"
     if not candidate.exists():
         raise ValueError(
             f"Unknown schema_version '{schema_version}': no wrapper found at"
@@ -217,6 +273,76 @@ def validate_profile_negative_examples(errors: list[str]) -> None:
             pass  # expected: fixture correctly rejected
 
 
+def validate_recommendations_positive_examples(errors: list[str]) -> int:
+    """Validate recommendations positive examples via the schema_version dispatcher.
+
+    Returns the count of files checked. Mirrors validate_profile_positive_examples.
+    Uses FormatChecker so `format: date-time` on first_seen/last_seen/last_updated
+    is enforced — non-ISO-8601 strings will reject.
+    """
+    registry = _recommendations_registry()
+    checked = 0
+    for example_path in RECOMMENDATIONS_POSITIVE_EXAMPLES:
+        e_rel = example_path
+        try:
+            instance = json.loads((ROOT / example_path).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"[example load error] {e_rel}: {exc}")
+            continue
+        sv = instance.get("schema_version")
+        if sv is None:
+            errors.append(f"[missing schema_version] {e_rel}: cannot dispatch without schema_version")
+            continue
+        try:
+            schema, wrapper_name = select_recommendations_wrapper(sv)
+        except ValueError as exc:
+            errors.append(f"[dispatcher error] {e_rel}: {exc}")
+            continue
+        try:
+            jsonschema.Draft202012Validator(
+                schema, registry=registry, format_checker=_FORMAT_CHECKER
+            ).validate(instance)
+        except jsonschema.ValidationError as exc:
+            errors.append(
+                f"[schema violation] {e_rel} against {wrapper_name}: {exc.message}"
+            )
+            continue
+        checked += 1
+    return checked
+
+
+def validate_recommendations_negative_examples(errors: list[str]) -> None:
+    """Assert that recommendations negative examples are REJECTED by the dispatcher.
+
+    Mirrors validate_profile_negative_examples. FormatChecker enabled so
+    invalid-iso-date fixture (non-ISO-8601 first_seen/last_seen) rejects.
+    """
+    registry = _recommendations_registry()
+    for fixture_path in RECOMMENDATIONS_NEGATIVE_EXAMPLES:
+        f_rel = fixture_path
+        try:
+            instance = json.loads((ROOT / fixture_path).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"[fixture load error] {f_rel}: {exc}")
+            continue
+        sv = instance.get("schema_version")
+        if sv is None:
+            continue  # missing schema_version is itself a rejection
+        try:
+            schema, wrapper_name = select_recommendations_wrapper(sv)
+        except ValueError:
+            continue  # unknown schema_version — dispatcher correctly rejects
+        try:
+            jsonschema.Draft202012Validator(
+                schema, registry=registry, format_checker=_FORMAT_CHECKER
+            ).validate(instance)
+            errors.append(
+                f"[schema regression] {f_rel} was accepted by {wrapper_name} but must be rejected"
+            )
+        except jsonschema.ValidationError:
+            pass  # expected: fixture correctly rejected
+
+
 def validate_negative_fixtures(errors: list[str]) -> None:
     """Assert that each negative fixture is REJECTED by its schema.
 
@@ -300,8 +426,10 @@ def main() -> int:
 
     total_checked += validate_local_schemas(errors)
     total_checked += validate_profile_positive_examples(errors)
+    total_checked += validate_recommendations_positive_examples(errors)
     validate_negative_fixtures(errors)
     validate_profile_negative_examples(errors)
+    validate_recommendations_negative_examples(errors)
 
     if errors:
         print("JSON schema errors:")

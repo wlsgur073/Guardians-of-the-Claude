@@ -1,0 +1,21 @@
+{
+  "name": "tier-a/node/03-package-json-object-form",
+  "ecosystem": "node",
+  "spec_ref": "monorepo-detection §1.1",
+  "description": "Object form of package.json workspaces field — shape variant of array form.",
+  "input": {
+    "manifests": {
+      "package.json": "{\n  \"name\": \"root\",\n  \"private\": true,\n  \"workspaces\": {\n    \"packages\": [\"packages/*\"]\n  }\n}\n",
+      "packages/alpha/package.json": "{ \"name\": \"@org/alpha\" }\n",
+      "packages/beta/package.json": "{ \"name\": \"@org/beta\" }\n"
+    },
+    "directories": ["packages/alpha", "packages/beta"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

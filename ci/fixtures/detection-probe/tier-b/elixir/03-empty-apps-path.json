@@ -1,0 +1,19 @@
+{
+  "name": "tier-b/elixir/03-empty-apps-path",
+  "ecosystem": "elixir",
+  "spec_ref": "monorepo-detection §1.8",
+  "description": "apps_path: \"apps\" is set but no apps/<name>/mix.exs subdirectories exist (apps/ dir absent). Detected stays true with resolved_roots=[]; emit Elixir-specific note umbrella_apps_path_empty (override of generic zero-root code).",
+  "input": {
+    "manifests": {
+      "mix.exs": "defmodule EmptyUmbrella.MixProject do\n  use Mix.Project\n\n  def project do\n    [\n      apps_path: \"apps\",\n      version: \"0.1.0\",\n      deps: []\n    ]\n  end\nend\n"
+    },
+    "directories": []
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 0,
+    "type": "monorepo",
+    "notes_codes": ["umbrella_apps_path_empty"]
+  }
+}

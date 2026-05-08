@@ -1,0 +1,22 @@
+{
+  "name": "tier-b/dotnet/01-sln-multiple-projects-positive",
+  "ecosystem": "dotnet",
+  "spec_ref": "monorepo-detection §1.7",
+  "description": "Positive case: Solution.sln with 3 Project() entries pointing to 3 .csproj files in distinct subdirectories.",
+  "input": {
+    "manifests": {
+      "Solution.sln": "Microsoft Visual Studio Solution File, Format Version 12.00\nProject(\"{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}\") = \"A\", \"src/A/A.csproj\", \"{11111111-1111-1111-1111-111111111111}\"\nEndProject\nProject(\"{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}\") = \"B\", \"src/B/B.csproj\", \"{22222222-2222-2222-2222-222222222222}\"\nEndProject\nProject(\"{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}\") = \"C\", \"src/C/C.csproj\", \"{33333333-3333-3333-3333-333333333333}\"\nEndProject\n",
+      "src/A/A.csproj": "<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <TargetFramework>net8.0</TargetFramework>\n  </PropertyGroup>\n</Project>\n",
+      "src/B/B.csproj": "<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <TargetFramework>net8.0</TargetFramework>\n  </PropertyGroup>\n</Project>\n",
+      "src/C/C.csproj": "<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <TargetFramework>net8.0</TargetFramework>\n  </PropertyGroup>\n</Project>\n"
+    },
+    "directories": ["src/A", "src/B", "src/C"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 3,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

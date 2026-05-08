@@ -1,0 +1,19 @@
+{
+  "name": "tier-a/maven/03-profile-conditional-skip",
+  "ecosystem": "maven",
+  "spec_ref": "monorepo-detection §1.5",
+  "description": "<modules> only inside <profiles> — profile-conditional modules are NOT evaluated (parse base only). No base <modules> means no workspace evidence.",
+  "input": {
+    "manifests": {
+      "pom.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project xmlns=\"http://maven.apache.org/POM/4.0.0\">\n  <modelVersion>4.0.0</modelVersion>\n  <groupId>com.example</groupId>\n  <artifactId>app</artifactId>\n  <version>1.0.0</version>\n  <profiles>\n    <profile>\n      <id>integration-tests</id>\n      <modules>\n        <module>itest</module>\n      </modules>\n    </profile>\n  </profiles>\n</project>\n"
+    },
+    "directories": []
+  },
+  "expected": {
+    "detected": false,
+    "evidence_types": [],
+    "package_roots_count": 0,
+    "type": "single_project",
+    "notes_codes": []
+  }
+}

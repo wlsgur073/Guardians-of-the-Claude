@@ -1,0 +1,19 @@
+{
+  "name": "tier-b/elixir/04-no-apps-path",
+  "ecosystem": "elixir",
+  "spec_ref": "monorepo-detection §1.8",
+  "description": "Single-package mix.exs without apps_path: not an umbrella; no workspace evidence; detected=false.",
+  "input": {
+    "manifests": {
+      "mix.exs": "defmodule MyApp.MixProject do\n  use Mix.Project\n\n  def project do\n    [\n      app: :my_app,\n      version: \"0.1.0\",\n      elixir: \"~> 1.15\",\n      start_permanent: Mix.env() == :prod,\n      deps: deps()\n    ]\n  end\n\n  def application do\n    [extra_applications: [:logger]]\n  end\n\n  defp deps, do: []\nend\n"
+    },
+    "directories": []
+  },
+  "expected": {
+    "detected": false,
+    "evidence_types": [],
+    "package_roots_count": 0,
+    "type": "single_project",
+    "notes_codes": []
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "scoring_contract_id": "audit-score-v4.1.0",
+  "sample": {
+    "name": "synthetic/go-work-monorepo",
+    "url": null,
+    "ecosystem": "Go",
+    "claude_md_location": "root"
+  },
+  "profile": {
+    "claude_md_lines": 70,
+    "rules_count": 0,
+    "hooks_count": 0,
+    "agents_count": 0,
+    "mcp_count": 0,
+    "deny_count": 0,
+    "has_meta_marketplace": false,
+    "has_symlink_claude_md": false
+  },
+  "scoring_inputs": {
+    "DS": 12.0,
+    "SB": 0,
+    "L1": 0,
+    "L2": 0,
+    "L3": 0,
+    "L4": 0,
+    "L5": 0,
+    "L6": 0,
+    "LAV_nonL5": 0,
+    "cap": 100
+  },
+  "expected_bucket": "Starter",
+  "expected_final_score": 12.0,
+  "bucket_rationale": "Starter per bucket rubric: 70 lines in [20, 80] range + rules_count 0 <= 1 + hooks_count 0 + agents_count 0 + mcp_count 0. Labeled synthetic Go workspace with go.work declaring 2 sub-modules (pkg/api + pkg/client), neither has sub-CLAUDE.md (scored_count=0 reflects empirical 'rare sub-CLAUDE.md adoption' pattern observed in popular OSS monorepos). Minimal root CLAUDE.md with project overview only — no test/build commands formally documented (T1.2 + T1.3 FAIL). LAV all neutral (synthetic minimal config; no claims to verify against). source_type=synthetic; labeled and excluded from empirical OSS denominators.",
+  "project_structure": {
+    "type": "monorepo",
+    "monorepo_detection": {
+      "detected": true,
+      "evidence": [
+        {
+          "type": "workspace_declaration",
+          "ecosystem": "go",
+          "manifest": "go.work",
+          "field": "use",
+          "raw_value": ["./pkg/api", "./pkg/client"],
+          "resolved_roots": ["pkg/api", "pkg/client"],
+          "resolved_roots_total": 2,
+          "resolved_roots_truncated": false
+        }
+      ],
+      "package_roots": ["pkg/api", "pkg/client"],
+      "package_roots_for_scoring": ["pkg/api", "pkg/client"],
+      "package_root_caps": {
+        "display": 20,
+        "scored": 50,
+        "unscored_count_in_view": 0,
+        "total_filtered": 2
+      },
+      "notes": []
+    }
+  },
+  "claude_code_configuration_state": {
+    "claude_md": {
+      "exists": true,
+      "section_count": 4,
+      "subpackage_coverage": {
+        "package_roots_total": 2,
+        "with_claude_md": 0,
+        "without_claude_md": 2,
+        "scored_count": 0
+      },
+      "subpackages": []
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "tier-c/haskell/02-stack-yaml-positive",
+  "ecosystem": "haskell",
+  "spec_ref": "monorepo-detection §1.14",
+  "description": "Positive case: stack.yaml YAML packages array per §1.14; two .cabal-bearing subdirs.",
+  "input": {
+    "manifests": {
+      "stack.yaml": "resolver: lts-21.0\npackages:\n- ./pkgA\n- ./pkgB\n",
+      "pkgA/pkgA.cabal": "cabal-version: 2.4\nname: pkgA\nversion: 0.1.0.0\nlibrary\n  exposed-modules: PkgA\n",
+      "pkgB/pkgB.cabal": "cabal-version: 2.4\nname: pkgB\nversion: 0.1.0.0\nlibrary\n  exposed-modules: PkgB\n"
+    },
+    "directories": ["pkgA", "pkgB"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

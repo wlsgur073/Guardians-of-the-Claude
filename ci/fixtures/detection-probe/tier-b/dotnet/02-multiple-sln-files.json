@@ -1,0 +1,22 @@
+{
+  "name": "tier-b/dotnet/02-multiple-sln-files",
+  "ecosystem": "dotnet",
+  "spec_ref": "monorepo-detection §1.7",
+  "description": "Two .sln files at root (AppA.sln, AppB.sln); spec mandates lex-first selection (AppA.sln). Fixture asserts package_roots_count=1 from AppA's single Project entry; AppB.sln is ignored. Spec's 'warning about alternates' has no schema representation (no warning evidence_type, no declared notes_code in shipped doc) — notes_codes remains empty.",
+  "input": {
+    "manifests": {
+      "AppA.sln": "Microsoft Visual Studio Solution File, Format Version 12.00\nProject(\"{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}\") = \"AppA\", \"src/AppA/AppA.csproj\", \"{AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA}\"\nEndProject\n",
+      "AppB.sln": "Microsoft Visual Studio Solution File, Format Version 12.00\nProject(\"{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}\") = \"AppB\", \"src/AppB/AppB.csproj\", \"{BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB}\"\nEndProject\n",
+      "src/AppA/AppA.csproj": "<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <TargetFramework>net8.0</TargetFramework>\n  </PropertyGroup>\n</Project>\n",
+      "src/AppB/AppB.csproj": "<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <TargetFramework>net8.0</TargetFramework>\n  </PropertyGroup>\n</Project>\n"
+    },
+    "directories": ["src/AppA", "src/AppB"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 1,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

@@ -143,6 +143,8 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
   - `Applied:` — list of items improved (CLAUDE.md split, agent model diversification, MCP added, hook quality fixes).
   - `Recommendations:` — items the user skipped this run marked as `DECLINED by user`; any previously PENDING recommendation from `/audit` that was addressed this run marked as `RESOLVED`.
 
+  For DECLINED items, increment `decline_count` per `plugin/references/lib/merge_rules.md §recommendations.json merge rules`: PENDING -> DECLINED sets `decline_count = 1`; DECLINED -> DECLINED re-record increments `decline_count++`. Monotonic — never decremented. Writes always emit schema 1.1.0; reading a 1.0.0 file performs lazy migration (inflate missing `decline_count` to 0). The repeated-decline trigger in `plugin/hooks/session-start.{sh,ps1}` reads this field after status==DECLINED filter and renders `"declined N times total"` for the rec with the highest `decline_count`.
+
   Profile merge under the state-mutation lock must update `claude_code_configuration_state.{rules_count, agents_count, hooks_count, mcp_servers_count}` for any entity classes changed by this run (see `plugin/references/lib/merge_rules.md` §profile.json merge rules). `/optimize` must NOT touch the six project-structure sections (`runtime_and_language` through `project_structure`).
 
   **A1 merge rule amendments** (applied summary; mechanism in `plugin/references/lib/merge_rules.md`):

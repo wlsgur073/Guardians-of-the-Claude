@@ -1,7 +1,7 @@
 ---
 title: Learning System
 description: Shared state management reference for /create, /audit, /secure, /optimize
-version: 2.3.3
+version: 2.3.5
 ---
 
 # Learning System
@@ -317,7 +317,7 @@ After compaction (~4 lines):
 
 ## Legacy Project Profile Format (pre-v2.11.0)
 
-> **Note**: Current canonical format is `profile.json` — see `plugin/references/schemas/profile.schema.base.json` (shape) and `profile.schema.v1.0.0.json` / `profile.schema.v1.1.0.json` (versioned validators). This legacy MD format is still parsed by Phase 0.5 migration (Task 3) to convert existing installations.
+> **Note**: Current canonical format is `profile.json` — see `plugin/references/schemas/profile.schema.base.json` (shape) and `profile.schema.v1.0.0.json` / `profile.schema.v1.1.0.json` / `profile.schema.v1.2.0.json` (versioned validators). This legacy MD format is still parsed by Phase 0.5 migration (Task 3) to convert existing installations.
 
 Frontmatter:
 
@@ -418,6 +418,8 @@ Changelog entries must NOT include audit scores. Scores are user-facing snapshot
 ## State Rendering
 
 Skills write `profile.json` + `recommendations.json` as **canonical state**. The derived `state-summary.md` is a human-readable view produced by the shared renderer defined below — never a source.
+
+`/audit` additionally writes `local/qa-report.md` — a self-versioned post-audit transparency artifact, sibling to `profile.json` / `recommendations.json` / `state-summary.md` / `config-changelog.md`. Terminal-output fallback when `local/` unwritable or stateless mode active.
 
 **Invocation**: Every skill's Final Phase Step 1 substep 4 (see §Common Final Phase above) invokes this renderer. Input is the in-memory `new_profile` + `new_recommendations` + `new_changelog` produced at substep 3; atomic write of `state-summary.md` happens at substep 5. Render is pre-write, not post-write, to avoid TOCTOU against the same Step 1's writes.
 

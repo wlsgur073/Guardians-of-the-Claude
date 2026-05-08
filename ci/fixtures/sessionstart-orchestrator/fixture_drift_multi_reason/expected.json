@@ -1,0 +1,6 @@
+{
+  "hookSpecificOutput": {
+    "hookEventName": "SessionStart",
+    "additionalContext": "Guardians: project state needs attention.\n- Drift: package.json newer than profile (+1 other drift signals); run /guardians-of-the-claude:audit."
+  }
+}

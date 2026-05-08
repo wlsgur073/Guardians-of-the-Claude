@@ -1,0 +1,21 @@
+{
+  "name": "tier-a/python/03-rye-workspace-without-members",
+  "ecosystem": "python",
+  "spec_ref": "monorepo-detection §1.4",
+  "description": "[tool.rye.workspace] table present but no members field — Rye discovers subfolder Python projects automatically (judgment: emit detected=true with workspace_declaration evidence).",
+  "input": {
+    "manifests": {
+      "pyproject.toml": "[project]\nname = \"root\"\nversion = \"0.1.0\"\n\n[tool.rye.workspace]\n",
+      "subprojects/alpha/pyproject.toml": "[project]\nname = \"alpha\"\nversion = \"0.1.0\"\n",
+      "subprojects/beta/pyproject.toml": "[project]\nname = \"beta\"\nversion = \"0.1.0\"\n"
+    },
+    "directories": ["subprojects/alpha", "subprojects/beta"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

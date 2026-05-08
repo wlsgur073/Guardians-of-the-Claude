@@ -1,10 +1,10 @@
 {
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "claude_code_configuration_state": {
     "model": "claude-sonnet-4-6",
     "scoring_model_ack": {
-      "version": "audit-score-v4.0.0",
-      "seen_count": 0
+      "version": "audit-score-v4.1.0",
+      "seen_count": 2
     },
     "claude_md": {"exists": true},
     "settings_json": {"exists": true},

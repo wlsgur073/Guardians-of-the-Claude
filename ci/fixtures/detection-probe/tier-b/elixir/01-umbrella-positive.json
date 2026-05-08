@@ -1,0 +1,21 @@
+{
+  "name": "tier-b/elixir/01-umbrella-positive",
+  "ecosystem": "elixir",
+  "spec_ref": "monorepo-detection §1.8",
+  "description": "Umbrella positive: root mix.exs declares apps_path: \"apps\"; immediate subdirectories of apps/ contain their own mix.exs files.",
+  "input": {
+    "manifests": {
+      "mix.exs": "defmodule MyUmbrella.MixProject do\n  use Mix.Project\n\n  def project do\n    [\n      apps_path: \"apps\",\n      version: \"0.1.0\",\n      start_permanent: Mix.env() == :prod,\n      deps: deps()\n    ]\n  end\n\n  defp deps, do: []\nend\n",
+      "apps/foo/mix.exs": "defmodule Foo.MixProject do\n  use Mix.Project\n\n  def project do\n    [\n      app: :foo,\n      version: \"0.1.0\",\n      build_path: \"../../_build\",\n      config_path: \"../../config/config.exs\",\n      deps_path: \"../../deps\",\n      lockfile: \"../../mix.lock\",\n      elixir: \"~> 1.15\",\n      deps: []\n    ]\n  end\nend\n",
+      "apps/bar/mix.exs": "defmodule Bar.MixProject do\n  use Mix.Project\n\n  def project do\n    [\n      app: :bar,\n      version: \"0.1.0\",\n      build_path: \"../../_build\",\n      config_path: \"../../config/config.exs\",\n      deps_path: \"../../deps\",\n      lockfile: \"../../mix.lock\",\n      elixir: \"~> 1.15\",\n      deps: []\n    ]\n  end\nend\n"
+    },
+    "directories": ["apps/foo", "apps/bar"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 2,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

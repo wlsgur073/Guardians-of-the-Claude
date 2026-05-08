@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "recommendations.schema.v1.0.0.json",
+  "title": "Open Recommendations — v1.0.0 Wrapper",
+  "description": "Versioned wrapper for legacy recommendations.json schema 1.0.0. Closes at wrapper scope (rejects decline_count and any unknown root field) AND per-property: metadata is wrapped with allOf + unevaluatedProperties: false (rejects metadata.extra), recommendations items wrapped the same. Frozen post-bump — no further modifications. Mirrors profile.schema.v1.1.0.json's per-property closure pattern.",
+  "type": "object",
+  "allOf": [{ "$ref": "recommendations.schema.base.json" }],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "metadata": {
+      "allOf": [{ "$ref": "recommendations.schema.base.json#/$defs/metadata" }],
+      "unevaluatedProperties": false
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "allOf": [{ "$ref": "recommendations.schema.base.json#/$defs/recommendationItemBase" }],
+        "unevaluatedProperties": false
+      }
+    }
+  },
+  "unevaluatedProperties": false
+}

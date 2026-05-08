@@ -109,7 +109,19 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
   - `Applied:` — list of files created or modified this run (CLAUDE.md, settings.json, rules/*, agents/*, hooks, skills, MCP config).
   - `Recommendations:` — features the user explicitly skipped in Phase 2A Question 6 marked as `DECLINED by user`. This enables Learning Rule 2 (Preference Respect) in future runs.
 
+  Each DECLINED entry written this run must increment `decline_count` per `plugin/references/lib/merge_rules.md §recommendations.json merge rules`: if the rec is a fresh DECLINE (no current entry, or current entry was PENDING), set `decline_count = 1`; if re-recording a DECLINE on an already-DECLINED rec, increment `decline_count++` (monotonic — never decremented even when a previously-DECLINED rec re-transitions to PENDING). Writes always emit schema 1.1.0; reading a 1.0.0 file performs lazy migration in-memory (inflate missing `decline_count` to 0) before the merge.
+
   Profile merge under the state-mutation lock: `/create` owns the project-structure sections (`runtime_and_language`, `framework_and_libraries`, `package_management`, `testing`, `build_and_dev`, `project_structure`) and `claude_code_configuration_state.claude_md`. It must update `claude_code_configuration_state.{rules_count, agents_count, hooks_count, mcp_servers_count}` for entity classes it added (see `plugin/references/lib/merge_rules.md` §profile.json merge rules). Sections owned exclusively by `/secure` (`settings_json`) must be preserved from the re-read `current_profile`.
+
+  Sections owned exclusively by `/audit` (`monorepo_detection`) must be preserved. Per `plugin/references/lib/merge_rules.md §project_structure / monorepo_detection consistency precondition`:
+
+  | `current_profile.monorepo_detection.detected` | `project_structure.type` rule for `/create` |
+  |---|---|
+  | `true` | preserve `"monorepo"` |
+  | `false` | preserve existing value if present; when writing `project_structure.type`, write `"single_project"` only (must NOT write `"monorepo"` or `null`) |
+  | `null` (or `monorepo_detection == null`) | may write `"single_project"` or `null` (must NOT write `"monorepo"`) |
+
+  Never write `monorepo_detection` itself — `/audit` is exclusive owner.
 
   **A1 merge rule amendments** (applied summary; mechanism in `plugin/references/lib/merge_rules.md`):
   - **Row 1 — `claude_code_configuration_state.model`**: any-skill writer; last-write-wins; written at Step 0.5 and Final Phase. Stateless mode: no-op (Phase 1 Global Invariant #6).

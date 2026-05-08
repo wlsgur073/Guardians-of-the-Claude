@@ -1,0 +1,22 @@
+{
+  "name": "tier-a/rust/01-cargo-workspace-positive",
+  "ecosystem": "rust",
+  "spec_ref": "monorepo-detection §1.2",
+  "description": "Standard Cargo workspace with members glob resolving to 3 crates.",
+  "input": {
+    "manifests": {
+      "Cargo.toml": "[workspace]\nmembers = [\"crates/*\"]\nresolver = \"2\"\n",
+      "crates/core/Cargo.toml": "[package]\nname = \"core\"\nversion = \"0.1.0\"\nedition = \"2021\"\n",
+      "crates/cli/Cargo.toml": "[package]\nname = \"cli\"\nversion = \"0.1.0\"\nedition = \"2021\"\n",
+      "crates/wasm/Cargo.toml": "[package]\nname = \"wasm\"\nversion = \"0.1.0\"\nedition = \"2021\"\n"
+    },
+    "directories": ["crates/core", "crates/cli", "crates/wasm"]
+  },
+  "expected": {
+    "detected": true,
+    "evidence_types": ["workspace_declaration"],
+    "package_roots_count": 3,
+    "type": "monorepo",
+    "notes_codes": []
+  }
+}

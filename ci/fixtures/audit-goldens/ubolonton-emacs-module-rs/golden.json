@@ -1,5 +1,5 @@
 {
-  "scoring_contract_id": "audit-score-v4.0.0",
+  "scoring_contract_id": "audit-score-v4.1.0",
   "sample": {
     "name": "ubolonton/emacs-module-rs",
     "url": "https://github.com/ubolonton/emacs-module-rs",
@@ -13,7 +13,6 @@
     "agents_count": 0,
     "mcp_count": 0,
     "deny_count": 0,
-    "is_monorepo": false,
     "has_meta_marketplace": false,
     "has_symlink_claude_md": false
   },

@@ -1,0 +1,20 @@
+{
+  "name": "tier-a/python/04-setup-py-fallback",
+  "ecosystem": "python",
+  "spec_ref": "monorepo-detection §1.4",
+  "description": "Legacy single-package — setup.py present, no pyproject.toml workspace. Single-package indicator only.",
+  "input": {
+    "manifests": {
+      "setup.py": "from setuptools import setup, find_packages\n\nsetup(\n    name='legacy-app',\n    version='1.0.0',\n    packages=find_packages(),\n)\n",
+      "setup.cfg": "[metadata]\nname = legacy-app\nversion = 1.0.0\n"
+    },
+    "directories": []
+  },
+  "expected": {
+    "detected": false,
+    "evidence_types": [],
+    "package_roots_count": 0,
+    "type": "single_project",
+    "notes_codes": []
+  }
+}

@@ -8,3 +8,8 @@
 # the golden diff on Windows checkouts).
 ci/fixtures/** text eol=lf
 ci/golden/** text eol=lf
+# Config assets not covered by wildcard rules above (hook scripts already covered by *.sh / *.ps1)
+templates/advanced/.claude/.gitignore text eol=lf
+templates/advanced/.claude/settings.json text eol=lf
+docs/i18n/*/templates/advanced/.claude/.gitignore text eol=lf
+docs/i18n/*/templates/advanced/.claude/settings.json text eol=lf

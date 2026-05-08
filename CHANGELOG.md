@@ -7,6 +7,608 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.17.3] - 2026-05-08
+
+### Fixed
+
+- **`recommendations.json` `format: date-time` enforcement gap** — the
+  `Draft202012Validator` invocation in `check-json-schemas.py`'s recommendations
+  validator path did not enable `FormatChecker`, so non-ISO-8601 strings on
+  `first_seen` / `last_seen` / `metadata.last_updated` passed silently. v2.17.2
+  T6 surfaced this gap (the planned `recommendations.invalid-iso-date` negative
+  fixture had to be dropped because it was accepted as valid). Patch now uses
+  an instance-level `FormatChecker` with a stdlib-only `date-time` checker
+  (`datetime.fromisoformat` after `Z` → `+00:00` swap), avoiding the
+  `jsonschema[format]` extra (`rfc3339-validator`) dependency.
+
+### Added
+
+- **`recommendations.invalid-iso-date.example.json` negative fixture** —
+  registered in `RECOMMENDATIONS_NEGATIVE_EXAMPLES`. Sets `first_seen` to
+  `"05/08/2026"` (US-locale slash format, not ISO-8601). Verifies the
+  FormatChecker activation rejects it. Total recommendations negative fixtures:
+  8 (was 7).
+
+### Changed
+
+- `CLAUDE.md` L60 wording disambiguated — "All 11 must pass GREEN" became
+  "All 11 Python validators must pass GREEN" with explicit 6-routine /
+  5-release-only category breakdown plus a note that `lychee` is a separate
+  non-Python link checker excluded from the count. Closes a wording ambiguity
+  surfaced during the v2.17.2 release-prep review.
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.17.2` → `2.17.3`.
+- `README.md`: version badge `2.17.2` → `2.17.3`.
+
+## [2.17.2] - 2026-05-08
+
+### Removed
+
+- **Dead `check-sample-list-preconditions.py` CI job** — script hardcoded a path
+  (`docs/superpowers/v3-roadmap/phase-2a-sample-list.md`) that never shipped
+  (gitignored from inception) and is permanently unreachable after the
+  v3-roadmap directory was deleted on 2026-05-07. Soft-skip path preserved CI
+  green but the docs-check job was a no-op consuming a CI slot. Removes script,
+  workflow job, and updates `CLAUDE.md` job count 20 → 22 (one removed, three
+  added below — net +2).
+
+### Added
+
+- **README badge sync verifier** (`.github/scripts/check-readme-badge-sync.py`,
+  CI job `readme-badge-sync`) — compares README shields.io version badge to
+  `plugin/.claude-plugin/plugin.json` version. Catches the cascade-miss class
+  that left v2.17.0 shipping with `2.16.0` badge until v2.17.1 caught it.
+- **Annotated tag SHA propagation verifier**
+  (`.github/scripts/check-tag-sha-propagation.py`, CI job
+  `tag-sha-propagation`) — converts CLAUDE.md prose rule into scripted check;
+  compares `git rev-parse v<tag>` (local annotated SHA) to `refs/tags/v<tag>`
+  on origin (NOT `^{commit}` peeled). Soft-skip when no tag context.
+- **CHANGELOG anchor slug derivation validator**
+  (`.github/scripts/check-changelog-anchor-slug.py`, CI job
+  `changelog-anchor-slug`) — derives GitHub-flavored slug per CLAUDE.md
+  convention from each `## [X.Y.Z] - YYYY-MM-DD` heading and asserts
+  well-formedness + collision-free. Tolerates trailing-annotation headings
+  like `[1.0.0] - 2026-03-27 [DEPRECATED]` and emits a count-assertion safety
+  net to detect silent skips.
+- **profile.schema v1.2.0 type-consistency negative fixtures (4 files)** —
+  `profile.monorepo-without-detection`, `profile.detection-without-monorepo`,
+  `profile.detected-boolean-type-null`, `profile.detected-null-type-not-null`
+  cover the 4 if/then invariants linking `project_structure.type` and
+  `monorepo_detection.detected`. Closes the negative-coverage gap.
+- **recommendations.schema status/minLength negative fixtures (2 files)** —
+  covers `status` enum violation and `description: minLength: 1`. (Date
+  format-checker fixture deferred — `Draft202012Validator` does not enforce
+  `format: date-time` by default; enabling FormatChecker is minor-surface
+  scope, not patch.)
+
+### Changed
+
+- `CLAUDE.md` Release Process: README badge sync verifier rule, scripted tag
+  SHA propagation rule (replaces prose), and CHANGELOG anchor slug verifier
+  rule codified.
+- `CLAUDE.md`: docs-check job count 20 → 22 (one removed, three added).
+- `CLAUDE.md`: release-time validator sweep updated 8 → 11 with category split
+  (6 routine + 5 release-only).
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.17.1` → `2.17.2`.
+- `README.md`: version badge `2.17.1` → `2.17.2`.
+
+### Notes
+
+- Audit category P7 (advanced template hooks parity audit) executed locally
+  with zero shipping-relevant findings; cosmetic drift (subagent-stop bash
+  manual-JSON vs ps1 ConvertTo-Json; validate-prompt ps1 dual-fire deferral)
+  noted as expected and not a bug.
+
+## [2.17.1] - 2026-05-07
+
+### Fixed
+
+- **Linux smoke fixtures (8/13 false-fire fix)** — non-drift sessionstart-orchestrator
+  fixtures (no_signal, unresolved_only, unresolved_K_isolation,
+  repeated_decline_only, legacy_v1_0_0_read, unknown_future_version,
+  stale_excluded, pending_decline_count_status_guard) now ship `setup.sh` that
+  pins all `input/` files to a deterministic old timestamp then bumps
+  `local/profile.json` to the latest. Restores Linux 8/13 FAIL to 13/13 PASS.
+  Root cause: `actions/checkout` lexicographic order on Linux ext4 leaves
+  `.claude/settings.json` strictly newer than `local/profile.json`,
+  false-firing legacy_mtime drift in fixtures meant to be silent.
+
+- **`recommendations.schema.{base,v1.0.0,v1.1.0}.json` metadata closure
+  regression** — wrappers previously closed only at root scope plus per-item;
+  nested `metadata` was silently open and accepted `metadata.extra: "anything"`.
+  `profile.schema.v1.1.0.json` precedent closes metadata via per-property
+  `allOf $ref + unevaluatedProperties: false`. Patch extracts metadata into
+  `recommendations.schema.base.json $defs/metadata` and applies the same
+  per-property closure to v1.0.0 + v1.1.0. Adds negative fixture
+  `recommendations.metadata-extra.example.json` registered in
+  `check-json-schemas.py` to assert rejection. Tightening only — existing
+  files lacking `metadata.extra` remain valid.
+
+- **`session-start.ps1` date locale bug** (uncovered by new ps1 fixture lane)
+  — `ConvertFrom-Json` auto-converts ISO 8601 strings to `[DateTime]` in
+  PowerShell 5.1+ and 7+, and `-split "T"` then stringifies via current
+  culture, producing `04/29/2026 00:00:00` on en-US instead of the
+  bash-equivalent `2026-04-29`. Fixed by detecting the DateTime case and
+  formatting via `InvariantCulture` `yyyy-MM-dd`. Drift and repeated-decline
+  families do not display dates and were unaffected.
+
+- **README.md version badge** — was stale at `2.16.0` after v2.17.0 release
+  (cascade missed). Bumped directly to `2.17.1`.
+
+### Added
+
+- **PowerShell sessionstart fixture lane** — `check-smoke-fixtures.py` gains
+  `_find_pwsh()` (Windows pwsh-7-then-powershell-5.1; Linux pwsh from PATH),
+  `_canonical_json()`, and `run_sessionstart_ps1_fixture()` mirroring the
+  bash variant. Each of the 13 sessionstart-orchestrator fixtures now runs
+  through BOTH `session-start.sh` AND `session-start.ps1`; equivalence is
+  checked via canonical JSON (sorted keys + compact separators) since bash
+  uses jq-default pretty format and ps1 uses `ConvertTo-Json` formatting that
+  differ in whitespace. Lane gracefully skipped when no PowerShell
+  interpreter is available; ubuntu-latest CI ships pwsh by default. Total
+  smoke runs: 4 skill-flow + 13 sessionstart-bash + 13 sessionstart-ps1 = 30.
+
+### Changed
+
+- `CLAUDE.md` Release Process: pre-publish smoke-status gate codified —
+  the smoke workflow triggered by tag push (`push: tags: ['v*']`) MUST
+  conclude `success` before `gh release create`. Polling sequence handles
+  tag-trigger registration delay then blocks on
+  `gh run watch <id> --exit-status`. Without this gate v2.17.0 published
+  76 seconds after Linux smoke FAILED on tag SHA, leaving main RED.
+
+- `CLAUDE.md`: cross-platform shell/fixture gotchas codified — 5 entries on
+  Git Bash `/dev/stdin` absence, subprocess CRLF vs `Path.read_text()` LF
+  normalization, Windows `bash` resolving to WSL (Git Bash explicit path
+  preference / `_find_bash()` helper), fixture mtime not preserved by git
+  checkout (setup.sh required), and jq `fromdateiso8601` Z-suffix handling.
+  Also extends `Verifying Changes Locally` with file `open(encoding='utf-8')`
+  note + lists 4 release-only Python validators alongside the routine 4 +
+  lychee.
+
+- `plugin/hooks/session-start.sh` source-filter comment rewritten: jq is a
+  HARD dependency throughout the hook (source parsing, profile/recs JSON
+  reads, final emit_digest output). The fail-open near the source filter
+  only protects against a malformed stdin payload, not against jq absence.
+
+- `CHANGELOG.md` v2.17.0 entry: gains a supersession header pointing readers
+  to v2.17.1.
+
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.17.0` → `2.17.1`.
+
+- `README.md`: version badge updated `2.16.0` → `2.17.1` (also restores the
+  v2.17.0 cascade miss).
+
+### Notes
+
+- Linux smoke divergence pattern (`actions/checkout` lexicographic order
+  leaving `.claude/settings.json` strictly newer than `local/profile.json`
+  on ext4) was masked on Windows NTFS by lower-resolution mtime + different
+  checkout ordering. Local Windows sanity is now formally a fast precheck;
+  only Linux CI conclusion qualifies as a release gate.
+- Manifest content fingerprint persisted in `profile.json` (long-term
+  replacement for live mtime comparison entirely) is deferred to v2.18.0
+  design.
+
+## [2.17.0] - 2026-05-07
+
+> **Superseded by v2.17.1** — Linux smoke 8/13 fixtures false-fired
+> `legacy_mtime` drift due to `actions/checkout` mtime ordering on ext4
+> (`.claude/settings.json` checked out after `local/profile.json` lexicographically).
+> Recommendations schema wrappers also left nested `metadata` open contrary to
+> the `profile` precedent. v2.17.1 ships fixture `setup.sh` mtime pinning,
+> per-property metadata closure on both wrappers, a codified pre-publish smoke
+> gate in `CLAUDE.md` Release Process, an honest jq hard-dependency note in the
+> hook source, and a PowerShell fixture lane in the smoke runner.
+
+### Added
+
+- **SessionStart Orchestrator** — `plugin/hooks/session-start.{sh,ps1}` extended
+  from a 4-case mutually-exclusive bootstrap-detection hook to a gate-then-stack
+  state-aware re-entry digest. After bootstrap cases (no config / no profile)
+  early-return with their existing prompts, three trigger families stack into a
+  capped 2000-char multi-line digest in fixed priority order: drift (manifest
+  staleness with absorbed prior stale-detection + schema version mismatch +
+  ecosystem change + scoring contract bump), unresolved recommendations
+  (PENDING items >= N days old or surface count >= K, default N=7 K=3), and
+  repeated declines (DECLINED items with decline_count >= M, default M=3).
+  Source filter limits emission to `startup` and `resume` only via `hooks.json`
+  `matcher: "startup|resume"` first-line filter (script-side stdin parser
+  remains as defense-in-depth); `clear` and `compact` silenced. Lock-based
+  first-wins de-duplication (atomic `mkdir local/.session-start.lock` with 30s
+  TTL) prevents duplicate emit on machines with both bash and PowerShell
+  interpreters.
+
+- **`recommendations.json` schema additive minor (1.0.0 -> 1.1.0)** via
+  versioned-wrapper architecture — 3 new schema files
+  (`recommendations.schema.base.json` open at every scope,
+  `recommendations.schema.v1.0.0.json` frozen with `unevaluatedProperties: false`
+  at wrapper scope, `recommendations.schema.v1.1.0.json` adds `decline_count`
+  integer field with same closure). Pre-existing 1.0.0 files accepted via
+  parser inflation; writes from all four state-writing skills (`/create`,
+  `/audit`, `/secure`, `/optimize`) populate and increment the field.
+  `check-json-schemas.py` registers the 3 new schemas + new
+  `select_recommendations_wrapper(schema_version)` dispatcher mirroring
+  existing `select_profile_wrapper`. `merge_rules.md` cascade adds
+  `decline_count` increment-on-DECLINE-transition contract spanning all 4
+  state-writing skills.
+
+- **CI smoke lane extended** — `check-smoke-fixtures.py` adds
+  `run_sessionstart_fixture` covering 13 sessionstart-orchestrator fixtures
+  (no_signal / drift_legacy_mtime / drift_multi_reason / unresolved_only /
+  unresolved_K_isolation / repeated_decline_only / all_three / clear_source /
+  compact_source / legacy_v1_0_0_read / unknown_future_version /
+  stale_excluded / pending_decline_count_status_guard) alongside existing 4
+  skill-flow fixtures = 17 total CI runs. Fixtures use `SMOKE_PINNED_UTC` env
+  var for deterministic now_utc; mtime-sensitive fixtures source `setup.sh`
+  first to manipulate file mtimes (git checkout does not preserve mtimes).
+
+### Changed
+
+- `CLAUDE.md`: 3 release-flow learnings codified — Change Propagation Checklist
+  gains `templates/` path-rename → CLAUDE.md `Repository Structure` cascade
+  target; Release Process gains pre-publish release notes verification grep +
+  branch+tag same-name `push --delete` disambiguation note.
+
+### Notes
+
+- Auto-mode deny counter trigger is not shipped in this release; a future
+  v2.18.0 will design the PermissionDenied collector and re-evaluate the
+  auto-mode territory.
+- Schema migration follows the prior versioned-wrapper precedent + closure-keyword
+  pattern: base schemas are open, versioned wrappers close with
+  `unevaluatedProperties: false` (NOT `additionalProperties: false`, which
+  evaluates within the base scope and rejects wrapper-added fields).
+  Forward-only compatibility contract: new plugin supports current minor +
+  N-1; downgrade and mixed-version local state are unsupported.
+- Threshold calibration: N=7 days / K=3 surfaces / M=3 declines locked after
+  7-scenario sanity check across all boundaries (empty / under-N-and-K /
+  N-boundary / K-boundary / under-M / M-boundary / above-M); full 27-combination
+  matrix deferred to a v2.17.x patch if production noise/signal feedback
+  surfaces.
+
+## [2.16.0] - 2026-05-06
+
+### Added
+
+- **Advanced template hook templates** — three new lifecycle observability
+  hooks (PreCompact, SubagentStop, Stop) ship under
+  `templates/advanced/hooks/`, each with bash + PowerShell dual-entry.
+  Outputs land in `<project>/.claude/local/hooks/` (gitignored).
+- **`templates/advanced/.claude/.gitignore`** — ignores `local/` directory
+  (skill state + hook outputs).
+- **`.github/scripts/check-hook-script-parity.py`** validator and new
+  **`hook-script-parity`** CI job verify byte-equal mirroring of
+  `templates/advanced/hooks/*.{sh,ps1}`, `.gitignore`, and `settings.json`
+  across EN / ko-KR / ja-JP.
+- **Root `.gitattributes`** entries for advanced template config assets
+  (`.gitignore` and `settings.json` paths) to enforce LF line endings on
+  Windows checkouts. Wildcard `*.sh` / `*.ps1` rules already covered hook
+  scripts.
+
+### Changed
+
+- `templates/advanced/scripts/validate-prompt.{sh,ps1}` moved to
+  `templates/advanced/hooks/validate-prompt.{sh,ps1}` for directory
+  unification. `templates/advanced/.claude/settings.json` UserPromptSubmit
+  wire path updated accordingly. Behavior unchanged. Empty `scripts/`
+  directory removed in EN and both i18n mirrors.
+- `docs/guides/getting-started.md` (+ ko-KR / ja-JP mirrors): validate-prompt
+  path reference updated. Frontmatter version bumped `1.2.4` → `1.2.5`.
+- `CLAUDE.md`: docs-check job count updated to 20 with full names listed;
+  shell-script path list aligned with `validate-prompt` move
+  (`templates/advanced/scripts/*.sh` → `hooks/*.sh`).
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.15.0` → `2.16.0`.
+- `README.md`: version badge updated `2.15.0` → `2.16.0`.
+
+### i18n
+
+- `docs/i18n/ko-KR/templates/advanced/hooks/` and
+  `docs/i18n/ja-JP/templates/advanced/hooks/` mirrored byte-equal,
+  including `.gitignore` and `settings.json` under `.claude/`.
+
+### Notes
+
+- **SemVer rationale.** Minor (y) — adds new user-callable surface
+  (active-wired hook templates in the advanced template) without breaking
+  existing skill contracts. No schema changes, no breaking field shapes.
+- **Boundary preserved.** Starter template, plugin SessionStart hook, skill
+  bodies, `profile.json` schema, `audit-score-v4.1.0` scoring contract, and
+  `recommendation-registry.json` all unchanged.
+
+## [2.15.0] - 2026-05-05
+
+### Added
+
+- **qa-report.md post-audit transparency artifact** — `/audit` writes a
+  new `local/qa-report.md` file after the Summary phase. Self-versioned
+  (independent semver, starting `1.0.0`), sibling to existing canonical
+  state files. Section list: 4 always-present sections (Score Summary /
+  LAV Item Rationale / Bucket Rationale / Recommendations Linkage) + 1
+  conditional section (Sprint Contract Coverage, present if and only if
+  `<project-root>/sprint-contract.md` is present and contains an
+  extractable `## In Scope` section).
+- **LAV-time counterfactual generation** — each LAV item (L1-L6) gains a
+  "Counterfactual to next band" cell describing what evidence would lift
+  the score one band, framed as hypothetical observation only (never
+  imperative). Generation occurs immediately after each score commits;
+  scores are immutable (counterfactual analysis MUST NOT change the
+  just-committed L1-L6 score). Material counterfactuals require exactly
+  one piece of evidence; multi-piece deltas render as `—`.
+- **Optional `<project-root>/sprint-contract.md` read** — `/audit` parses
+  the user-managed `sprint-contract.md` (created by `/create` Advanced in
+  v2.14.0) after audit-fact freeze, extracts `## In Scope` bullets, and
+  aligns them with LAV evidence in the qa-report Sprint Contract Coverage
+  table. Read is optional, read-only, non-fatal on any failure
+  (frontmatter advisory / missing header / unreadable file all degrade
+  gracefully).
+- **CI validator `check-qa-report-shape.py`** — enforces section-list
+  invariance, generator-authored forbidden-token absence, and
+  imperative-mood absence in shipped golden fixtures. Wired into
+  `docs-check.yml` as the 19th CI job.
+- **3 qa-report.md golden snapshots** — `ci/golden/{beginner-path,monorepo,warm-start}/local/qa-report.md`
+  covering absent / valid / per-package contexts. Smoke fixture verifier
+  extended to byte-diff `qa-report.md` per fixture.
+
+### Changed
+
+- **`/audit` execution gains a new render step** between the Summary and
+  Persist phases. The render emits `local/qa-report.md` from
+  already-frozen audit facts only. Stateless mode and unwritable `local/`
+  both fall back to terminal-output rendering (no silent skip).
+- **`plugin/references/learning-system.md`** documents `qa-report.md` as
+  a sibling canonical state file (frontmatter bump 2.3.4 → 2.3.5).
+- **LAV scoring is unchanged.** A pre-release calibration probe (42
+  cells: 7 cases × 6 LAV items, each scored under both control and
+  treatment prompts) showed 0 calibration shift between the two prompts,
+  so the planned LAV prompt hardening was dropped from this release.
+  `audit-score-v4.1.0` stays. `profile.json` schema stays at 1.2.0 (no
+  new durable state introduced).
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.14.0` → `2.15.0`.
+- `README.md`: version badge updated `2.14.0` → `2.15.0`.
+
+### Notes
+
+- **SemVer rationale.** Minor (y) — adds new user-callable surface
+  (`qa-report.md` artifact emitted by `/audit` + Sprint Contract Coverage
+  table when `sprint-contract.md` is present) without breaking existing
+  skill contracts. No schema changes, no breaking field shapes.
+- **Static sprint-contract.md lifecycle preserved** — `/audit`'s read of
+  `sprint-contract.md` is read-only; the file remains user-managed (per
+  v2.14.0 contract). Edits to `sprint-contract.md` are still user-driven.
+- **Invocation-agnostic write** — `qa-report.md` rendering follows the
+  same write/terminal rule in every `/audit` invocation context
+  (subagent / reviewer / direct user / hook-triggered). No
+  context-specific branching.
+- **Forward-compatible versioning** — `qa-report.md` frontmatter starts at
+  `1.0.0`. Future additive changes to the section list or render contract
+  are minor `1.x.0` bumps.
+- **Change Propagation Checklist followed.** Files touched:
+  `plugin/skills/audit/references/qa-report-template.md` (NEW) +
+  `plugin/skills/audit/references/checks/sprint-contract.md` (NEW) +
+  `plugin/skills/audit/references/checks/lav.md` (counterfactual section
+  appended) + `plugin/skills/audit/SKILL.md` (new render step inserted) +
+  `plugin/references/learning-system.md` (canonical state file list
+  expansion + frontmatter bump) + `.github/workflows/docs-check.yml`
+  (new validator job) + `.github/scripts/check-qa-report-shape.py` (NEW
+  validator) + `.github/scripts/check-smoke-fixtures.py` (`qa-report.md`
+  byte-diff extension) + 3 `ci/golden/*/local/qa-report.md` (NEW) + 1
+  `ci/fixtures/*/sprint-contract.md` (NEW input fixture for valid-state
+  path coverage) + `plugin/.claude-plugin/plugin.json` (version bump) +
+  `README.md` (badge bump) + `CHANGELOG.md` (this entry).
+- **Validation.** 15 validators GREEN on local pre-release sweep + 1 expected SKIP (sample-list, local-only curation artifact): `check-frontmatter-parity.py` (18 pairs), `check-i18n-parity.py` (60 files / 4 pairs), `check-json-schemas.py` (14 JSON), `check-qa-report-shape.py` (3 goldens), `check-recommendation-registry.py` (2 negative examples rejected), `check-skill-stability.py` (4 skills), `check-changelog-parser.py` (6/6), `check-scoring-formula.py` (5/5 samples), `check-scoring-model-lav-linkage.py` (4/4), `check-audit-goldens.py` (15/15 with A1-A10), `check-detection-probe.py` (56 fixtures), `check-audit-drift-aware.py` (6/6), `check-scoring-contract-consistency.py` (canonical = audit-score-v4.1.0), `preflight-schema.py` (10/10), `check-smoke-fixtures.py` (4/4 with `SMOKE_PINNED_UTC` pinning).
+
+## [2.14.0] - 2026-05-03
+
+### Added
+
+- **Sprint Contract artifact** — `/create` Advanced path now generates a
+  `sprint-contract.md` file at the project root, capturing the user's
+  scope commitments for the current work cycle. Schema: YAML frontmatter
+  (`title`, `description`, `version`) + boundary sentence + `## In Scope`
+  section (flat bullets, bold noun phrase + clarifying sentence) +
+  `## Deferred` section (each item with `Reason: ...`). Independent semver
+  starting `1.0.0`.
+- **Phase 2B negotiation step** in `/create` Advanced path — two
+  conversational questions (In Scope / Deferred) inserted between Phase 2A
+  questions and Phase 3A generation. Empty user responses fall back to
+  explicit placeholders (`- Initial setup — to be defined` /
+  `- None recorded during initial setup`). Zero-options principle
+  preserved (no flags, no `$ARGUMENTS`).
+- **Phase 2A-Incremental gap detection** — existing-project re-run now
+  scans for `sprint-contract.md` presence and offers it as missing-item
+  option (g) when absent.
+- **i18n templates** — `sprint-contract.md` template added in EN
+  (`templates/advanced/`) plus ko-KR and ja-JP mirrors under
+  `docs/i18n/<lang>/templates/advanced/`.
+
+### Changed
+
+- `plugin/skills/create/templates/advanced.md`: new Phase 2B inserted
+  between Phase 2A and Phase 3A; Phase 3A "Always generate" gains
+  `sprint-contract.md` write step (Advanced path only); Phase 2A-Incremental
+  scan list and missing-items checklist updated to include
+  `sprint-contract.md`.
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.13.1` → `2.14.0`.
+- `README.md`: version badge updated `2.13.1` → `2.14.0`.
+
+### Notes
+
+- **SemVer rationale.** Minor (y) — adds new user-callable surface (`/create` Advanced Phase 2B negotiation step + `sprint-contract.md` artifact + Phase 2A-Incremental gap detection of the new file) without breaking existing skill contracts. Starter path is zero-impact; existing Advanced workflows gain two new conversational questions and one new generated file. No schema changes, no breaking field shapes.
+- **Static lifecycle** — `sprint-contract.md` is user-managed after
+  creation. `/audit`, `/secure`, and `/optimize` do NOT interact with the
+  file. User edits manually if scope evolves.
+- **Starter zero-impact** — Starter path generates no `sprint-contract.md`.
+  Verified via existing `beginner-path` smoke fixture (negative assertion
+  implicit — Starter fixture's expected output does not include
+  `sprint-contract.md`).
+- **No new CI surface** — `sprint-contract.md` is markdown free-form content
+  (no JSON schema). Existing validators absorb the new files automatically:
+  `check-frontmatter-parity.py` + `check-i18n-parity.py` enforce the
+  EN/ko-KR/ja-JP parity invariants on the trio, `check-skill-stability.py`
+  covers the `advanced.md` Phase 2B edits, `check-json-schemas.py` validates
+  the `plugin.json` version bump, and `check-changelog-parser.py` validates
+  this entry. No new validator script added.
+- **Idempotency** — re-running `/create` Advanced on a project with existing
+  `sprint-contract.md` preserves the file (skips negotiation, emits 1-line
+  terminal notice).
+- **profile.json schema unchanged** — `sprint-contract.md` presence is NOT
+  tracked in `profile.json` (standalone artifact, no skill state-machine
+  coupling). Future `/audit`-based features that want to read scope content
+  will use filesystem-direct access.
+- **Forward-compatible versioning** — `sprint-contract.md` frontmatter starts
+  at `1.0.0`. Future additive changes (e.g., parse anchors for downstream
+  feature integration) are minor `1.x.0` bumps.
+- **Change Propagation Checklist followed.** Files touched: `templates/advanced/sprint-contract.md` (NEW EN template) + `docs/i18n/ko-KR/templates/advanced/sprint-contract.md` (NEW KR mirror) + `docs/i18n/ja-JP/templates/advanced/sprint-contract.md` (NEW JP mirror) + `plugin/skills/create/templates/advanced.md` (Phase 2B insertion + Phase 3A always-generate entry + Phase 2A-Incremental gap-detection updates) + `plugin/.claude-plugin/plugin.json` (version bump) + `README.md` (badge bump) + `CHANGELOG.md` (this entry). Frontmatter parity (3-trio) + i18n parity validators auto-applied per CLAUDE.md change-propagation rule.
+- **Validation.** 13 validators GREEN on local pre-release sweep + 1 expected SKIP (sample-list, local-only curation artifact): `check-frontmatter-parity.py` (18 pairs), `check-i18n-parity.py` (60 files / 4 pairs), `check-json-schemas.py` (14 JSON), `check-skill-stability.py` (4 skills), `check-changelog-parser.py` (6/6), `check-scoring-formula.py` (5/5 samples), `check-scoring-model-lav-linkage.py` (4/4), `check-audit-goldens.py` (15/15 with A1-A10), `check-detection-probe.py` (56 fixtures), `check-audit-drift-aware.py` (6/6), `check-scoring-contract-consistency.py` (canonical = audit-score-v4.1.0), `preflight-schema.py` (10/10), `check-smoke-fixtures.py` (4/4 with `SMOKE_PINNED_UTC` pinning). Manual conversational scenarios verified via code-path inspection: `advanced.md` Phase 2B existence-check guard + Phase 3A `sprint-contract.md` write step (covers Advanced first-run, re-run idempotency, empty-response placeholder fallback, and ko-KR / ja-JP locale variants) + Starter zero-impact via `templates/starter.md` grep showing 0 sprint-contract references + atomic-write primitive at `plugin/references/lib/state_io.md` unchanged in v2.14.0 (graceful-abort path preserved for write-failure scenarios).
+
+## [2.13.1] - 2026-05-02
+
+### Added
+
+- **6 synthetic monorepo audit-goldens fixtures** covering 6 ecosystems with the `synthetic/` slug prefix and `source_type=synthetic` labeling (excluded from empirical OSS denominators per scoring-model semantics):
+  - `synthetic-rust-cargo-workspace` (Rust): `Cargo.toml [workspace] members` declares 3 sub-crates, 2 with sub-CLAUDE.md
+  - `synthetic-go-work-monorepo` (Go): `go.work` declares 2 sub-modules, 0 with sub-CLAUDE.md (low-adoption baseline)
+  - `synthetic-gradle-composite` (Java/Gradle): `settings.gradle.kts` mixes `includeBuild('build-logic')` with multi-project `include(':app', ':lib')` — first audit-goldens fixture exercising the `composite_build` evidence type
+  - `synthetic-python-uv-workspace` (Python): `pyproject.toml [tool.uv.workspace] members` declares 5 sub-packages, 3 with sub-CLAUDE.md (diverse final_scores 80/65/45 demonstrating per-package variance)
+  - `synthetic-dotnet-sln-4non-id` (.NET): `Solution.sln` declares 4 csproj sub-projects, all 4 with sub-CLAUDE.md (pairwise distinct final_scores 90/75/60/40 — non-identical even-count distribution exercising the per-package-rollup median-of-evens path)
+  - `synthetic-tied-worst-rollup-k4` (Rust): `Cargo.toml [workspace] members` declares 4 sub-crates, all 4 with sub-CLAUDE.md tied at final_score 60.0 — exercises the `(and K-N more tied)` rollup display path per `per-package-rollup.md` §2.3 with K=4, N=3
+  - `nrwl/nx` Node baseline retained from v2.13.0
+
+- **Detection probe fixture infrastructure** — 56 fixtures across 14 ecosystems organized into three tiers under `ci/fixtures/detection-probe/` (Tier A 29 fixtures across Node + Rust + Go + Python + Maven + Gradle + dual-role-manifest scenarios; Tier B 14 fixtures across .NET + Elixir + Swift + Ruby; Tier C 13 fixtures across C/C++ + Dart + Erlang + Haskell). Each fixture exercises `monorepo-detection.md` parsing rules with positive / negative / edge-case scenarios. New validator `ci/scripts/check-detection-probe.py` wired into CI as 18th job validating fixture schema invariants.
+
+- **`distributed_config` bucket rubric** in `plugin/skills/audit/references/checks/distributed-config-bucket.md` (NEW shipped, ~81 lines). Required conditions (`with_claude_md >= 2` + `project_structure.type == "monorepo"` + `monorepo_detection.detected == true`), 4 supporting signals with `>=2` threshold (distributed config ratio `>= 0.5`, root CLAUDE.md compactness `<= 150` lines, mean L6 actionability ratio `>= 0.5` over scored subpackages, verbose-prose-sparse-config exclusion), exclusion conditions (excessive root `> 1000` lines, all scored subpackages `final_score < 30`), and advisory numeric guardrails (`with_claude_md ∈ [3, 20]`, `distributed_config_ratio ∈ [0.5, 1.0]`). Captures monorepos that distribute Claude Code configuration across sub-package CLAUDE.md files rather than centralizing in root.
+
+### Changed
+
+- **`classify_bucket()` extension** in `ci/scripts/check-audit-goldens.py`. New `classify_bucket_full(data: dict) -> str` orchestrator wraps existing `classify_bucket(profile: dict) -> str` (signature preserved, backward compatible). Evaluation order: Outlier short-circuits + verbose-prose-sparse-config Outlier → `distributed_config` (NEW, applied via `classify_bucket_distributed(data: dict) -> bool`) → Advanced/Intermediate/Starter. `VALID_BUCKETS` set extended with `"distributed_config"`. `validate_golden()` now calls `classify_bucket_full(data)` so the A6 bucket-rubric assertion covers all paths.
+
+- **3 audit-goldens fixtures reclassified** to `distributed_config` per the new rubric. Each fixture's `expected_bucket` and `bucket_rationale` updated:
+  - `synthetic-rust-cargo-workspace`: Intermediate → distributed_config (4/4 supporting signals — ratio 0.67, compactness 120 lines, mean L6 0.5, verbose-prose-sparse-config exclusion holds)
+  - `synthetic-python-uv-workspace`: Intermediate → distributed_config (4/4 supporting signals — ratio 0.6, compactness 140 lines, mean L6 0.67, verbose-prose-sparse-config exclusion holds)
+  - `synthetic-dotnet-sln-4non-id`: Advanced → distributed_config (3/4 supporting signals — ratio 1.0, mean L6 0.75, verbose-prose-sparse-config exclusion holds; root compactness signal fails at 180 > 150)
+
+- `plugin/references/scoring-model.md` frontmatter `1.0.2` → `1.0.3` — cross-references to `per-package-scoring.md` and `per-package-rollup.md` added adjacent to the Scoring Formula section (downstream skill navigation aid). Edits shipped within the v2.13.0 brand but not captured in that release's CHANGELOG entry; recorded here for documentation completeness.
+
+- `plugin/skills/audit/references/checks/monorepo-detection.md` §3 sub-step Phase A.5 renamed to Phase B.5 — its position in the algorithm body is between Phase B (heuristic signals) and Phase C (4-layer filter); the prior "A.5" naming implied an A-adjacent position and was inconsistent with the algorithm code order. The 5-phase A/B/C/D/E structure is preserved with B.5 as the disclosure-walk sub-step. Documentation clarity only — algorithm behavior unchanged. The v2.13.0 release note's phase-sequence shorthand reads correctly under the new naming as `workspace declaration → heuristic → disclosure walk inclusion → 4-layer filter → cap`.
+
+- `plugin/skills/audit/references/checks/monorepo-detection.md` frontmatter `version` field unquoted (`"1.0.0"` → `1.0.0`) for stylistic alignment with sibling reference docs (`per-package-rollup.md`, `per-package-scoring.md`). YAML parse-equivalent — no semantic change.
+
+### Notes
+
+- **SemVer rationale.** Patch (z) — adds new fixtures, new shipped rubric doc, and validator extension via wrapper pattern that preserves existing function signatures (backward compatible). No new user-callable skill surface, no breaking schema changes, no migration required for existing users. Per CLAUDE.md release process: patch covers fixes and platform-compat work; this release also covers test-surface expansion and validator additivity which fits the patch envelope (no contract change).
+
+- **Validation set scope.** Empirical measurement of 10 OSS monorepo candidates was conducted, with 6 accepted and 4 rejected per detection criteria. The "popular OSS monorepo + root CLAUDE.md" intersection was found near-empty in 2026 (`nrwl/nx` is the lone real-OSS exemplar across the candidate set + existing audit-goldens). All 6 new fixtures in v2.13.1 are labeled synthetic, excluded from empirical OSS denominators per scoring-model semantics. The synthetic fixture set provides three distinct cardinality coverage areas: ≥2 fixtures with `scored_count >= 3` (synthetic-python-uv 3 + synthetic-dotnet 4 + synthetic-tied 4), ≥1 fixture with even-count `scored_count` of 4 with non-identical middle values (synthetic-dotnet 90/75/60/40), and ≥1 fixture K≥4 worst-tie (synthetic-tied uniform 60/60/60/60).
+
+- **Bucket distribution.** Post-v2.13.1 audit-goldens count is 15 fixtures across 5 buckets — Outlier×6 (5 baseline + synthetic-tied-worst-rollup-k4), Intermediate×3 (2 baseline + synthetic-gradle-composite), Starter×3 (2 baseline + synthetic-go-work-monorepo), distributed_config×3 (synthetic-rust-cargo-workspace + synthetic-python-uv-workspace + synthetic-dotnet-sln-4non-id), Advanced×0 (no fixtures meet the Advanced rubric thresholds — empirical OSS reality preserved).
+
+- **Validation.** 13 validators GREEN on local pre-release sweep: `check-frontmatter-parity.py`, `check-i18n-parity.py`, `check-json-schemas.py`, `check-audit-goldens.py` (15/15 with A1-A10), `check-detection-probe.py` (56 fixtures schema-valid), `check-audit-drift-aware.py`, `check-scoring-contract-consistency.py` (canonical = `audit-score-v4.1.0`), `check-scoring-formula.py`, `check-scoring-model-lav-linkage.py`, `check-changelog-parser.py`, `check-sample-list-preconditions.py`, `preflight-schema.py` (10 assertions), `check-smoke-fixtures.py` (4 fixtures GREEN with `SMOKE_PINNED_UTC` pinning).
+
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.13.0` → `2.13.1`.
+- `README.md`: version badge updated `2.13.0` → `2.13.1`.
+
+### Per-fixture score matrix
+
+| Fixture | Bucket (v2.13.1) | Baseline (v2.13.0) | v2.13.1 | Delta | New | Reason |
+|---|---|---|---|---|---|---|
+| exa-networks-exabgp | Outlier | 22.68 | 22.68 | 0.0 | no | Bucket and score unchanged |
+| guardians-of-the-claude | Outlier | 60.112 | 60.112 | 0.0 | no | Self-reference, bucket and score unchanged |
+| nrwl-nx | Outlier | 46.84 | 46.84 | 0.0 | no | Verbose-prose-sparse-config Outlier path takes precedence over distributed_config check (lines 226 + zero mechanical config) |
+| rilldata-rill | Intermediate | 26.168 | 26.168 | 0.0 | no | Bucket and score unchanged |
+| stacksjs-ts-collect | Starter | 4.16 | 4.16 | 0.0 | no | Bucket and score unchanged |
+| the-cafe-git-ai-commit | Starter | 9.152 | 9.152 | 0.0 | no | Bucket and score unchanged |
+| ubolonton-emacs-module-rs | Intermediate | 27.536 | 27.536 | 0.0 | no | Bucket and score unchanged |
+| vercel-next-js | Outlier | 25.6 | 25.6 | 0.0 | no | Bucket and score unchanged |
+| wesm-moneyflow | Outlier | 48.38 | 48.38 | 0.0 | no | Bucket and score unchanged |
+| synthetic-go-work-monorepo | Starter | new | 12.0 | new | yes | Synthetic Go workspace fixture; with_claude_md=0 fails distributed_config required condition (>=2) |
+| synthetic-gradle-composite | Intermediate | new | 43.6 | new | yes | Synthetic Gradle composite-build fixture; with_claude_md=1 fails distributed_config required condition (>=2) |
+| synthetic-rust-cargo-workspace | distributed_config | new | 38.4 | new | yes | Synthetic Rust cargo workspace fixture; reclassified from Intermediate (4/4 supporting signals) |
+| synthetic-python-uv-workspace | distributed_config | new | 50.6 | new | yes | Synthetic Python uv workspace fixture; reclassified from Intermediate (4/4 supporting signals) |
+| synthetic-dotnet-sln-4non-id | distributed_config | new | 63.6 | new | yes | Synthetic .NET solution fixture; reclassified from Advanced (3/4 supporting signals; root compactness fails at 180 > 150) |
+| synthetic-tied-worst-rollup-k4 | Outlier | new | 45.2 | new | yes | Synthetic Rust cargo workspace K=4 worst-tie fixture; verbose-prose-sparse-config Outlier path (lines=220 + zero mechanical config) precedes distributed_config check |
+
+## [2.13.0] - 2026-05-01
+
+### Added
+
+- **Per-package `CLAUDE.md` scoring with rollup output for monorepos.** `/audit` now scores each subpackage `CLAUDE.md` independently using the same LAV/scoring formula and emits a Subpackage Score Rollup section in the audit output (min/median/worst across LAV components + counts of scored / disclosure-only / total subpackages). Subpackages without `CLAUDE.md` contribute to coverage metrics (`scored_count`, `disclosure_only_count`) but no score row. Cap policy: display=20 / scored=50 — projects above the scored cap have remaining subpackages reported as visible unscored counts. Phase 3.6 Per-Package Scoring runs after the root LAV computation; structure is treated as a facet contributing to scoring inputs, not a sole-criterion bucket override. New reference docs: `plugin/skills/audit/references/checks/per-package-scoring.md` (per-package LAV + Score Boost + cap + Final + degraded modes) and `plugin/skills/audit/references/checks/per-package-rollup.md` (rollup format + scored_count=0 fixture handling).
+
+- **Deterministic monorepo detection** codified in `plugin/skills/audit/references/checks/monorepo-detection.md` (217 lines). Workspace-declaration parsing across 14 ecosystems, 7 directory heuristic patterns with High/Medium/Low confidence semantics, a 5-phase algorithm (workspace declaration → disclosure walk inclusion → heuristic → 4-layer filter → cap), a 5-type evidence schema (`workspace_declaration` / `heuristic_signal` / `convention` / `composite_build` / `parse_error`), and cap policy. Detection is deterministic — no LLM-runtime heuristic, no deep manifest parsing beyond declared globs, no cross-ecosystem inference.
+
+- **`profile.json` schema 1.2.0 (additive)** with two new field families:
+  - `project_structure.monorepo_detection { detected, evidence[], package_roots[], package_roots_for_scoring[], package_root_caps, notes[] }` — replaces the v2.10-era fixture-only `is_monorepo` boolean with structured detection output.
+  - `claude_code_configuration_state.claude_md.subpackages[]` — array of `{ path, exists, section_count }` per disclosed subpackage. `/audit` is the sole writer; full-list replace under one Final Phase lock (no per-row partial merge — per-package scores have no historical-trend semantic in this version).
+  - Cross-field type consistency: schema rejects `type:single_project + monorepo_detection.detected:true`; `type:monorepo` requires `detected:true`; `null` only with absent/null detection.
+
+- **`/create` `monorepo_detection` write-precondition decision table** in `plugin/skills/create/SKILL.md`. Documents the merge-rule boundary: `/create` does not author `monorepo_detection` (no write path); `/audit` is the sole writer. Surfaces this contract to future contributors before they add a write path.
+
+- **Outlier rubric — verbose-prose-sparse-config path.** `classify_bucket()` in `ci/scripts/check-audit-goldens.py` now classifies `CLAUDE.md` files with rich prose but minimal mechanical configuration (rules / hooks / agents / MCP all near-zero) as Outlier. Captures real-world projects where the maintainer documented intent extensively but never wired up Claude Code automation surfaces.
+
+- **`audit-goldens` validator monorepo invariants.**
+  - **A8** `monorepo_detection` shape: `detected` boolean + `evidence[]` non-empty disjoint with `package_roots_for_scoring[]` non-empty when `detected:true`.
+  - **A9** `subpackage_coverage` consistency: `scored_count + disclosure_only_count + unscored_count == total_count`.
+  - **A10** per-row subpackage invariants: `section_count >= 0`, `exists` boolean, `path` non-empty string.
+  Conditional on fixture shape — A8/A9/A10 only run when `monorepo_detection.detected:true` to avoid false positives on single-project fixtures.
+
+- **`nrwl/nx` audit-goldens fixture** — first native monorepo with sub-`CLAUDE.md` adoption (`pnpm-workspace.yaml` + `packages/devkit/CLAUDE.md` 62 lines + `packages/nx/src/native/CLAUDE.md` 51 lines). Validates the per-package scoring path with real-world workspace metadata; brings the audit-goldens count to 9 fixtures.
+
+- **`CLAUDE.md` "Verifying Changes Locally"** gains the `SMOKE_PINNED_UTC` env var pin example for `check-smoke-fixtures.py` (matches the value used in `.github/workflows/smoke.yml`). Local validation now reproduces the CI smoke-lane byte-diff verification deterministically.
+
+### Changed
+
+- **Scoring contract bumped** `audit-score-v4.0.0` → `audit-score-v4.1.0`, triggered by the monorepo audit reporting semantics change below. Source-of-truth `plugin/references/scoring-model.md` frontmatter updated; 8 audit-goldens + 8 generated profile.json fixtures regenerated to match; 5 hand-authored t6-* fixtures normalized to current contract with `seen_count: 2` (silent steady — isolates banner trigger from drift/silence test scope). Banner trigger fires on next audit run for users on the previous contract — expected behavior. `scoring-model.md` frontmatter version 1.0.1 → 1.0.2.
+
+- **"Monorepo => Outlier" sole short-circuit retired.** Structure now contributes to scoring inputs (subpackage rollup, coverage metrics) instead of forcing the Outlier bucket as a sole criterion. Existing fixtures previously gated by `is_monorepo:true` re-classify via the `claude_md_lines > 250` Outlier path with the same bucket result (validated against `vercel/next-js` — bucket unchanged, score delta = 0). Removes the contract-declaration vs implementation mismatch that the v4.1.0 bump exposed.
+
+- **`/audit` `SKILL.md` — Phase 1.5 expansion + Phase 3.6 hook + always-regenerate list extended.** Phase 1.5 Subpackage Discovery now consumes the manifest list defined in `monorepo-detection.md` (workspace-declaration files across 14 ecosystems + 7 heuristic patterns) instead of a hard-coded subset. Phase 3.6 Per-Package Scoring is invoked after root LAV computation. Always-regenerate list extended to include `subpackages[]` and `monorepo_detection`. **Per-package findings are transient by default** — score rows (`subpackages[]`) and coverage counters (`subpackage_coverage`) persist per `merge_rules.md` `/audit` ownership; advisory-style observations surfaced for individual subpackages render to terminal output only and MUST NOT be added to `recommendations.json`. Statistical aggregates (`min`, `median`, `worst`) are computed-on-render per `per-package-rollup.md` §4. Persistence semantics for per-package recommendations are deferred to a later minor.
+
+- **`output-format.md` Subpackage Score Rollup conditional rendering.** Section renders only when `subpackages[]` non-empty; rollup `total_count` invariant matches `subpackages[].length`. Canonical "Subpackage" heading style applied consistently across `per-package-scoring.md` and `per-package-rollup.md`. New **"Polyglot Example (Mixed Ecosystems)"** subsection demonstrates that the rollup format is ecosystem-agnostic — paths follow each ecosystem's native convention (`crates/<name>` Rust, `packages/<name>` Node, `python/<name>` Python, `services/<name>` heuristic-gated), while the LAV multiplier, cap tiers, and per-row table format render identically across ecosystems.
+
+- **`plugin/references/lib/merge_rules.md`** gains the `/audit`-only ownership entry for `monorepo_detection` + `claude_md.subpackages` + `claude_md.subpackage_coverage` and a `project_structure` consistency precondition. Frontmatter version 1.2.1 → 1.3.0.
+
+- **`plugin/references/learning-system.md`** adds cross-references for `per-package-scoring.md` and `per-package-rollup.md` so downstream skill implementations have a single navigation anchor.
+
+- **JSON Schema architecture extended to `base + v1.0.0 + v1.1.0 + v1.2.0` wrappers.** `profile.schema.base.json` extended with `monorepo_detection` + `subpackages[]` field shapes; `profile.schema.v1.2.0.json` is the new sibling wrapper selecting `unevaluatedProperties: false` at every nested level (continues the v2.12.0 base+wrapper pattern). Dispatchers in `.github/scripts/check-json-schemas.py` and `.github/scripts/check-smoke-fixtures.py` route by `schema_version` literal. `ci/scripts/preflight-schema.py` extended to **10 assertions** covering v1.2.0 closure-coverage gates and cross-field type-consistency rejection.
+
+- **Smoke runner per-skill target-version rule.** `.github/scripts/check-smoke-fixtures.py` now allows different skills within a fixture to emit different `schema_version` values (e.g., `/audit` emits v1.2.0 with `monorepo_detection`; `/secure` and `/optimize` continue at v1.2.0 without authoring those fields per the `/audit`-only ownership rule). Replaces the previous fixture-wide single-version assumption.
+
+- **`audit-goldens` 8 existing fixtures migrated to schema 1.2.0.** Each fixture declares `monorepo_detection` (with `detected:false` + empty evidence/roots arrays for single-project fixtures). Vestigial `is_monorepo` boolean removed from all 8 fixtures.
+
+- **Smoke goldens migrated to schema 1.2.0** across 4 canonical fixtures (`migration` / `beginner-path` / `warm-start` / `monorepo`). State-summary cascade: smoke runner's `Source: profile.json v{schema_version}` inline interpolation propagates the new schema_version into all 4 `state-summary.md` goldens. Same migration applied to 5 t6-* fixtures and 3 t7-* fixtures (8 profile.json + 7 state-summary.md cascade).
+
+### Removed
+
+- **Vestigial `is_monorepo` field** removed from `REQUIRED_PROFILE_KEYS` in `ci/scripts/check-audit-goldens.py` (was a fixture-only flag, never declared in the JSON schema).
+- **`is_monorepo` boolean field** removed from the 8 pre-existing audit-goldens fixtures. Replaced by structured `monorepo_detection`.
+
+### Migration
+
+- **`profile.json` schema auto-upgrade on first writable `/audit` run.** v2.11.x / v2.12.x `local/profile.json` with `schema_version: "1.1.0"` is upgraded to `schema_version: "1.2.0"` on the first writable `/audit` invocation after upgrade. Existing fields are preserved; new fields populated automatically:
+  - `project_structure.monorepo_detection` from manifest scan + heuristic detection per `monorepo-detection.md`.
+  - `claude_code_configuration_state.claude_md.subpackages[]` from disclosure walk (per-subpackage `path` + `exists` + `section_count`).
+
+  Additive-only — no breaking changes to existing field shapes. No manual action required.
+
+- **Single-project users are unaffected.** Schema declares both new field families as optional with empty defaults; existing single-project workflows render `detected:false` / empty `subpackages[]` and continue unchanged.
+
+- **`audit-score-v4.1.0` contract banner.** Users on `audit-score-v4.0.0` (v2.12.x) see the scoring-contract-change banner on their next two `/audit` runs (per the v2.12.0 two-write acknowledgement protocol). Persistence-backed; skipped in stateless mode.
+
+### Fixed
+
+- **Shipped surface boundary cleanup** (3 files): `plugin/references/lib/state_io.md` and `plugin/references/lib/merge_rules.md` (line 9 each) had a redundant authoritative-source pointer to a maintainer-local document not present in the published tree. The pointer is removed; frontmatter description already provides self-contained intent. `docs/ROADMAP.md` lines 53-54 (Audit v4 forward-plan section) rewritten with version-centric phrasing in place of internal workstream labels — public roadmap now reads correctly without referring to maintainer-internal organizational vocabulary. Frontmatter versions bumped: `state_io.md` 1.0.0 → 1.0.1, `merge_rules.md` 1.2.0 → 1.2.1 (content modification per file-version semver).
+
+### Notes
+
+- **SemVer rationale.** Minor (y) — adds new user-callable surface (per-package scoring + monorepo detection + Subpackage Score Rollup output section + new reference docs + new schema version 1.2.0) without breaking existing skill contracts. Schema 1.2.0 is additive-only.
+
+- **Validation set scope.** v2.13.0 ships per-package scoring with **1 native monorepo sample (`nrwl/nx`)** as initial coverage. Empirical reality: major popular OSS frameworks have effectively 0 sub-`CLAUDE.md` adoption today, so single-sample is acceptable for v2.13.0's initial validation goal. Wider validation (25-40 monorepo candidates across ≥5 ecosystems) is scheduled for v2.13.1.
+
+- **Validation.** 13 validators GREEN on local pre-release sweep: `check-frontmatter-parity.py`, `check-i18n-parity.py`, `check-json-schemas.py`, `check-audit-goldens.py` (9/9 with A1-A10), `check-audit-drift-aware.py`, `check-scoring-contract-consistency.py` (canonical = `audit-score-v4.1.0`), `check-scoring-formula.py`, `check-scoring-model-lav-linkage.py`, `check-changelog-parser.py`, `check-sample-list-preconditions.py`, `preflight-schema.py` (10 assertions), `check-smoke-fixtures.py` (4 fixtures GREEN with `SMOKE_PINNED_UTC` pinning), and `lychee` link check.
+
+- **`plugin/.claude-plugin/plugin.json`:** version bumped `2.12.3` → `2.13.0`.
+- **`README.md`:** version badge updated `2.12.3` → `2.13.0`.
+
+- **Change Propagation Checklist followed:** `plugin.json`, `README.md` badge, `CHANGELOG.md`. Fix scopes touched: `plugin/skills/audit/` (SKILL.md + references/checks/* + references/output-format.md), `plugin/skills/create/SKILL.md`, `plugin/references/` (scoring-model.md + learning-system.md + lib/merge_rules.md + lib/state_io.md + schemas/*), `ci/scripts/check-audit-goldens.py`, `.github/scripts/check-smoke-fixtures.py`, `ci/scripts/preflight-schema.py`, `ci/fixtures/audit-goldens/**` (8 migrated + 1 new), `ci/fixtures/migration|beginner-path|warm-start|monorepo/**` (4 smoke fixtures), `ci/fixtures/t6-*/**` + `ci/fixtures/t7-*/**` (8 fixtures). No `security-patterns.md`, no shell-script surface, no i18n mirror updates required (changes are plugin-only — single source).
+
 ## [2.12.3] - 2026-04-26
 
 ### Changed

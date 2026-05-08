@@ -1,0 +1,19 @@
+{
+  "name": "tier-b/ruby/03-no-gemspec-paths",
+  "ecosystem": "ruby",
+  "spec_ref": "monorepo-detection §1.10",
+  "description": "Root Gemfile without any gemspec path: lines (just normal gem dependencies). Without convention markers, single-package; no evidence emitted.",
+  "input": {
+    "manifests": {
+      "Gemfile": "source \"https://rubygems.org\"\n\ngem \"rails\", \"~> 7.1\"\ngem \"pg\", \"~> 1.5\"\ngem \"puma\", \"~> 6.4\"\n\ngroup :development, :test do\n  gem \"rspec-rails\", \"~> 6.1\"\nend\n"
+    },
+    "directories": []
+  },
+  "expected": {
+    "detected": false,
+    "evidence_types": [],
+    "package_roots_count": 0,
+    "type": "single_project",
+    "notes_codes": []
+  }
+}

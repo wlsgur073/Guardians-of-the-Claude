@@ -1,0 +1,19 @@
+{
+  "name": "tier-c/dart/03-pubspec-only-no-melos",
+  "ecosystem": "dart",
+  "spec_ref": "monorepo-detection §1.12",
+  "description": "Single pubspec.yaml at root with no melos.yaml — single-package per §1.12.",
+  "input": {
+    "manifests": {
+      "pubspec.yaml": "name: my_dart_app\nversion: 1.0.0\nenvironment:\n  sdk: '>=3.0.0 <4.0.0'\n"
+    },
+    "directories": []
+  },
+  "expected": {
+    "detected": false,
+    "evidence_types": [],
+    "package_roots_count": 0,
+    "type": "single_project",
+    "notes_codes": []
+  }
+}

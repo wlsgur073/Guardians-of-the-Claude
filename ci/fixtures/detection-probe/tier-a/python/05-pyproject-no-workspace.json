@@ -1,0 +1,19 @@
+{
+  "name": "tier-a/python/05-pyproject-no-workspace",
+  "ecosystem": "python",
+  "spec_ref": "monorepo-detection §1.4",
+  "description": "pyproject.toml with no workspace tables — single-package, no evidence emitted.",
+  "input": {
+    "manifests": {
+      "pyproject.toml": "[project]\nname = \"my-package\"\nversion = \"0.1.0\"\n\n[build-system]\nrequires = [\"hatchling\"]\nbuild-backend = \"hatchling.build\"\n"
+    },
+    "directories": []
+  },
+  "expected": {
+    "detected": false,
+    "evidence_types": [],
+    "package_roots_count": 0,
+    "type": "single_project",
+    "notes_codes": []
+  }
+}
