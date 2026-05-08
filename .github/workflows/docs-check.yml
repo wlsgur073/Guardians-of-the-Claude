@@ -366,3 +366,28 @@ jobs:
 
       - name: Check README badge sync
         run: python .github/scripts/check-readme-badge-sync.py
+
+  tag-sha-propagation:
+    name: Annotated tag SHA propagation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Check tag SHA propagation (soft-skip on non-tag push)
+        env:
+          TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+        run: |
+          python .github/scripts/check-tag-sha-propagation.py || EXIT_CODE=$?
+          EXIT_CODE=${EXIT_CODE:-0}
+          if [ "$EXIT_CODE" -eq 2 ]; then
+            echo "::notice::No tag context; tag SHA check skipped."
+            exit 0
+          fi
+          exit "$EXIT_CODE"
