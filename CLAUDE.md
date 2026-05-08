@@ -1,5 +1,5 @@
 # CLAUDE.md
-<!-- Last reviewed: 2026-05-03 -->
+<!-- Last reviewed: 2026-05-09 -->
 
 This is a documentation and template repository — no application source code and no runtime build system, but CI validates it via Python structural checks (frontmatter parity, i18n parity, JSON schemas), shellcheck, link checking, and an LLM-output eval framework in `test/`. Its purpose is to teach developers how to configure Claude Code for their own projects.
 
@@ -57,7 +57,10 @@ Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetc
 - `lychee 'README.md' 'docs/**/*.md' 'plugin/**/*.md' 'CHANGELOG.md' 'templates/**/*.md'` — link check (requires [lychee](https://github.com/lycheeverse/lychee))
 - `SMOKE_PINNED_UTC="2026-04-14T00:00:00Z" python .github/scripts/check-smoke-fixtures.py` — smoke fixture byte-diff verifier (env var required, value matches `.github/workflows/smoke.yml`)
 - Python on Windows: prepend `import sys; sys.stdout.reconfigure(encoding="utf-8")` before printing non-ASCII / U+FFFD / mixed CJK; use `open(path, encoding='utf-8')` for files with em-dashes / non-ASCII (e.g., schema descriptions) — default `cp949` codec raises `UnicodeEncodeError` / `UnicodeDecodeError`
-- 5 additional Python validators in `.github/scripts/` for release-time sweep (not in routine local checks): `check-recommendation-registry.py`, `check-skill-stability.py`, `check-qa-report-shape.py`, `check-hook-script-parity.py`, `check-tag-sha-propagation.py` (post-tag-push only). Routine local Python checks now also include `check-readme-badge-sync.py` and `check-changelog-anchor-slug.py`. **All 11 Python validators** must pass GREEN before tag/push (6 routine: frontmatter-parity, i18n-parity, json-schemas, smoke-fixtures, readme-badge-sync, changelog-anchor-slug; 5 release-only: recommendation-registry, skill-stability, qa-report-shape, hook-script-parity, tag-sha-propagation post-tag-push). The `lychee` link checker on the routine-bullet list is a separate non-Python tool and is not included in the "All 11" count.
+- **All 11 Python validators must pass GREEN before tag/push** (release-time sweep):
+  - 6 routine (run on every push/PR via docs-check): `check-frontmatter-parity.py`, `check-i18n-parity.py`, `check-json-schemas.py`, `check-smoke-fixtures.py`, `check-readme-badge-sync.py`, `check-changelog-anchor-slug.py`
+  - 5 release-only (manual or release-flow): `check-recommendation-registry.py`, `check-skill-stability.py`, `check-qa-report-shape.py`, `check-hook-script-parity.py`, `check-tag-sha-propagation.py` (post-tag-push only)
+  - `lychee` link checker is a separate non-Python tool, NOT counted in the "All 11"
 - `jsonschema.Draft202012Validator` does NOT enforce `format` keyword by default — pass `format_checker=FormatChecker()` with a custom checker registered (`.github/scripts/check-json-schemas.py:_FORMAT_CHECKER` shows the stdlib-only `datetime.fromisoformat` pattern that avoids the `jsonschema[format]` extra / `rfc3339-validator` dependency).
 
 **Cross-platform shell/fixture gotchas** (encountered when authoring hook scripts or extending the smoke runner):
