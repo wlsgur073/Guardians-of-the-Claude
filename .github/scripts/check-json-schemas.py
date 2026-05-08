@@ -79,6 +79,10 @@ PROFILE_POSITIVE_EXAMPLES: list[str] = [
 PROFILE_NEGATIVE_EXAMPLES: list[str] = [
     "plugin/references/schemas/examples/negative/profile.missing-required.example.json",
     "plugin/references/schemas/examples/negative/profile.wrong-version.example.json",
+    "plugin/references/schemas/examples/negative/profile.monorepo-without-detection.example.json",
+    "plugin/references/schemas/examples/negative/profile.detection-without-monorepo.example.json",
+    "plugin/references/schemas/examples/negative/profile.detected-true-type-missing.example.json",
+    "plugin/references/schemas/examples/negative/profile.detected-null-type-not-null.example.json",
 ]
 
 # Recommendations positive examples — dispatcher selects wrapper by schema_version literal.
