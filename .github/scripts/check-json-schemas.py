@@ -81,7 +81,7 @@ PROFILE_NEGATIVE_EXAMPLES: list[str] = [
     "plugin/references/schemas/examples/negative/profile.wrong-version.example.json",
     "plugin/references/schemas/examples/negative/profile.monorepo-without-detection.example.json",
     "plugin/references/schemas/examples/negative/profile.detection-without-monorepo.example.json",
-    "plugin/references/schemas/examples/negative/profile.detected-true-type-missing.example.json",
+    "plugin/references/schemas/examples/negative/profile.detected-boolean-type-null.example.json",
     "plugin/references/schemas/examples/negative/profile.detected-null-type-not-null.example.json",
 ]
 
