@@ -14,6 +14,7 @@ Exit codes:
 """
 from __future__ import annotations
 
+import datetime
 import json
 import sys
 from pathlib import Path
@@ -21,6 +22,20 @@ from pathlib import Path
 import jsonschema
 import requests
 from referencing import Registry, Resource
+
+
+# FormatChecker with stdlib-only date-time validator. Avoids the jsonschema[format]
+# extra (rfc3339-validator dependency) by using datetime.fromisoformat directly.
+# Python 3.11+ handles trailing 'Z' via the explicit '+00:00' replacement.
+_FORMAT_CHECKER = jsonschema.FormatChecker()
+
+
+@_FORMAT_CHECKER.checks("date-time", raises=ValueError)
+def _is_iso_date_time(instance: object) -> bool:
+    if not isinstance(instance, str):
+        return True
+    datetime.datetime.fromisoformat(instance.replace("Z", "+00:00"))
+    return True
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 PROFILE_SCHEMAS_DIR = ROOT / "plugin" / "references" / "schemas"
@@ -100,6 +115,7 @@ RECOMMENDATIONS_NEGATIVE_EXAMPLES: list[str] = [
     "plugin/references/schemas/examples/negative/recommendations.metadata-extra.example.json",
     "plugin/references/schemas/examples/negative/recommendations.invalid-status-enum.example.json",
     "plugin/references/schemas/examples/negative/recommendations.empty-description.example.json",
+    "plugin/references/schemas/examples/negative/recommendations.invalid-iso-date.example.json",
 ]
 
 
@@ -261,6 +277,8 @@ def validate_recommendations_positive_examples(errors: list[str]) -> int:
     """Validate recommendations positive examples via the schema_version dispatcher.
 
     Returns the count of files checked. Mirrors validate_profile_positive_examples.
+    Uses FormatChecker so `format: date-time` on first_seen/last_seen/last_updated
+    is enforced — non-ISO-8601 strings will reject.
     """
     registry = _recommendations_registry()
     checked = 0
@@ -281,7 +299,9 @@ def validate_recommendations_positive_examples(errors: list[str]) -> int:
             errors.append(f"[dispatcher error] {e_rel}: {exc}")
             continue
         try:
-            jsonschema.Draft202012Validator(schema, registry=registry).validate(instance)
+            jsonschema.Draft202012Validator(
+                schema, registry=registry, format_checker=_FORMAT_CHECKER
+            ).validate(instance)
         except jsonschema.ValidationError as exc:
             errors.append(
                 f"[schema violation] {e_rel} against {wrapper_name}: {exc.message}"
@@ -294,7 +314,8 @@ def validate_recommendations_positive_examples(errors: list[str]) -> int:
 def validate_recommendations_negative_examples(errors: list[str]) -> None:
     """Assert that recommendations negative examples are REJECTED by the dispatcher.
 
-    Mirrors validate_profile_negative_examples.
+    Mirrors validate_profile_negative_examples. FormatChecker enabled so
+    invalid-iso-date fixture (non-ISO-8601 first_seen/last_seen) rejects.
     """
     registry = _recommendations_registry()
     for fixture_path in RECOMMENDATIONS_NEGATIVE_EXAMPLES:
@@ -312,7 +333,9 @@ def validate_recommendations_negative_examples(errors: list[str]) -> None:
         except ValueError:
             continue  # unknown schema_version — dispatcher correctly rejects
         try:
-            jsonschema.Draft202012Validator(schema, registry=registry).validate(instance)
+            jsonschema.Draft202012Validator(
+                schema, registry=registry, format_checker=_FORMAT_CHECKER
+            ).validate(instance)
             errors.append(
                 f"[schema regression] {f_rel} was accepted by {wrapper_name} but must be rejected"
             )
