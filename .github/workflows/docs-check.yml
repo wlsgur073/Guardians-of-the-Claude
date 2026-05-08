@@ -391,3 +391,16 @@ jobs:
             exit 0
           fi
           exit "$EXIT_CODE"
+
+  changelog-anchor-slug:
+    name: CHANGELOG anchor slug derivation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Validate CHANGELOG anchor slugs
+        run: python .github/scripts/check-changelog-anchor-slug.py
