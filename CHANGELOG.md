@@ -7,6 +7,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.17.3] - 2026-05-08
+
+### Fixed
+
+- **`recommendations.json` `format: date-time` enforcement gap** — the
+  `Draft202012Validator` invocation in `check-json-schemas.py`'s recommendations
+  validator path did not enable `FormatChecker`, so non-ISO-8601 strings on
+  `first_seen` / `last_seen` / `metadata.last_updated` passed silently. v2.17.2
+  T6 surfaced this gap (the planned `recommendations.invalid-iso-date` negative
+  fixture had to be dropped because it was accepted as valid). Patch now uses
+  an instance-level `FormatChecker` with a stdlib-only `date-time` checker
+  (`datetime.fromisoformat` after `Z` → `+00:00` swap), avoiding the
+  `jsonschema[format]` extra (`rfc3339-validator`) dependency.
+
+### Added
+
+- **`recommendations.invalid-iso-date.example.json` negative fixture** —
+  registered in `RECOMMENDATIONS_NEGATIVE_EXAMPLES`. Sets `first_seen` to
+  `"05/08/2026"` (US-locale slash format, not ISO-8601). Verifies the
+  FormatChecker activation rejects it. Total recommendations negative fixtures:
+  8 (was 7).
+
+### Changed
+
+- `CLAUDE.md` L60 wording disambiguated — "All 11 must pass GREEN" became
+  "All 11 Python validators must pass GREEN" with explicit 6-routine /
+  5-release-only category breakdown plus a note that `lychee` is a separate
+  non-Python link checker excluded from the count. Closes a wording ambiguity
+  surfaced during the v2.17.2 release-prep review.
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.17.2` → `2.17.3`.
+- `README.md`: version badge `2.17.2` → `2.17.3`.
+
 ## [2.17.2] - 2026-05-08
 
 ### Removed
