@@ -1,7 +1,7 @@
 ---
 title: "Writing Effective CLAUDE.md Files"
 description: "How to write, organize, and maintain CLAUDE.md files for Claude Code"
-version: 1.1.1
+version: 1.2.0
 ---
 
 # Writing Effective CLAUDE.md Files
@@ -45,7 +45,7 @@ This keeps your root CLAUDE.md focused on project-wide instructions while provid
 
 ## Writing Principles
 
-- **Target under 200 lines.** This is a soft guideline, not a hard cap. Claude loads the entire file regardless of length, but shorter files produce better adherence to your instructions.
+- **Target under 200 lines.** This is a soft guideline, not a hard cap. Claude loads the entire file regardless of length, but shorter files produce better adherence to your instructions. Long contexts also interact with a documented phenomenon ("context rot") in which model recall from long contexts degrades as context fills — keeping CLAUDE.md short reduces unnecessary context pressure.
 - **Use markdown headers and bullets.** Structure makes instructions scannable for both Claude and humans.
 - **Be specific and verifiable.** Write "Use 2-space indentation" not "Format code properly." Write "Run `npm test` to verify" not "Make sure it works."
 - **Avoid conflicting instructions.** If your CLAUDE.md says one thing and a rule file says another, Claude may follow either. Audit for contradictions.

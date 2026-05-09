@@ -1,7 +1,7 @@
 ---
 title: "Advanced Features"
 description: "Hooks、agents、skills -- 基本的な構成を超えて Claude Code を拡張する"
-version: 1.2.2
+version: 1.3.0
 ---
 
 # Advanced Features
@@ -157,13 +157,17 @@ Run build and tests to confirm everything works.
 
 主要なフィールド:
 
-- **`name`** / **`description`** -- 識別と目的
+- **`name`** / **`description`** -- 識別子とトリガ表現。Claude はスキルを起動するか判断する際に両フィールドを読むため、description には起動条件を明示してください（例: `"Use when the user asks to ..."`）
 - **`argument-hint`** -- スラッシュコマンドメニューの使い方ヒント（例: `"<resource> [operations]"`）
 - **`user-invocable`** -- スラッシュコマンドメニューに表示するかどうか（デフォルト: `true`）
 - **`disable-model-invocation`** -- Claude の自動トリガを無効にする（デフォルト: `false`）
 - **`model`** -- スキル実行中に使うモデルを上書き
 
 スキルには 2 種類あります: **ユーザー起動型**（スラッシュコマンド）と **モデル起動型**（Claude が自動的にトリガ）です。モデル起動型の description には、トリガとなる表現を含めてください: `"Use when the user asks to 'do X' or 'do Y'."`。スキルは SKILL.md と並べてサポートファイルを置けます: `references/`、`examples/`、`scripts/`。
+
+### Progressive Disclosure
+
+スキルはコンテキストを 3 段階でロードしてウィンドウを軽く保ちます — スキルの**メタデータ**（最初にロード、トリガ判定用）、SKILL.md の**本文**（スキル起動時にロード）、**サポートファイル**（`references/`、`examples/`、`scripts/` — ワークフロー内で必要なときにのみロード）。skill-local の `references/` を SKILL.md と並べて束ねるのが canonical な Agent Skills 構造です。共有の `plugin/references/*.md` は非標準であり、コンテンツが本当に cross-skill な場合のみ使用してください。
 
 ### スキル設計のパターン
 
@@ -172,6 +176,10 @@ Run build and tests to confirm everything works.
 **リファレンスファイル:** プロジェクトの規約・例・API ドキュメントは SKILL.md と並べて `references/` に置いてください。最初にまとめて読み込むのではなく、必要なステップで読み込みましょう -- これによりコンテキストを節約できます。
 
 **フォールバックパターン:** スキルが任意のツール（MCP サーバー、CI システム）に依存する場合、2 つの経路を用意してください: パス A はツールが利用できる場合に使い、パス B はツールがない場合の手動代替手段です。
+
+**評価駆動の反復:** まず例として呼び出しと期待される出力を書き、その評価が通るまで SKILL.md を反復改善します。各パスの後に、成功したアプローチと典型的な失敗を Claude がスキルテキストに反映するようにしてください。
+
+**セキュリティ:** スキルは実行可能な指示です — 信頼できるソースからのみインストールし、見慣れない SKILL.md は呼び出す前にレビューしてください。スクリプトを実行する前にレビューするのと同じように扱ってください。
 
 > **注意:** レガシーの `commands/` ディレクトリは非推奨です。すべてのスキルタイプに `skills/<name>/SKILL.md` を使ってください。
 

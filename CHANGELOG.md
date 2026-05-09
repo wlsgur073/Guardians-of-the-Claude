@@ -55,6 +55,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   consolidating the review series' 22 proposals into adopt / pilot /
   defer / skip buckets with one-line rationale and prerequisite per
   row. Defines explicit stop conditions for further review rounds.
+- **Best Practices parity refinement** in
+  `docs/guides/claude-md-guide.md` (bumped to v1.2.0) — added
+  context-rot rationale to the 200-line guidance, citing model recall
+  degradation from long contexts as the documented mechanism behind
+  length-pressure motivation. Framing kept conservative ("one
+  motivation behind length limits") to avoid post-hoc rationalization.
+  i18n mirrors (`ko-KR`, `ja-JP`) bumped to v1.2.0 in lockstep.
+- **Agent Skills authoring guidance** in
+  `docs/guides/advanced-features-guide.md` (bumped to v1.3.0) — new
+  Progressive Disclosure subsection (three-level loading: metadata /
+  SKILL.md body / supporting files), distinguished skill-local
+  `references/` (canonical bundled-skill structure) from shared
+  `plugin/references/*.md` (non-canonical, cross-skill content only),
+  enhanced `name`/`description` field documentation to surface the
+  trigger-phrasing role, added evaluation-driven iteration design
+  pattern, and added install-from-trusted-sources security note.
+  i18n mirrors bumped to v1.3.0 in lockstep.
 
 ## [2.17.3] - 2026-05-08
 

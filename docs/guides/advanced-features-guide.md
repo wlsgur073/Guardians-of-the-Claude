@@ -1,7 +1,7 @@
 ---
 title: "Advanced Features"
 description: "Hooks, agents, and skills -- extending Claude Code beyond basic configuration"
-version: 1.2.2
+version: 1.3.0
 ---
 
 # Advanced Features
@@ -157,13 +157,17 @@ Run build and tests to confirm everything works.
 
 Key fields:
 
-- **`name`** / **`description`** -- identity and purpose
+- **`name`** / **`description`** -- identity and trigger phrasing. Claude reads both when deciding whether to invoke the skill, so the description should make activation criteria explicit (e.g., `"Use when the user asks to ..."`)
 - **`argument-hint`** -- usage hint for slash command menu (e.g., `"<resource> [operations]"`)
 - **`user-invocable`** -- show in slash command menu (default: `true`)
 - **`disable-model-invocation`** -- prevent Claude from auto-triggering (default: `false`)
 - **`model`** -- override model when skill is active
 
 Skills come in two types: **user-invoked** (slash command) and **model-invoked** (auto-triggered by Claude). Model-invoked descriptions should include trigger phrases: `"Use when the user asks to 'do X' or 'do Y'."` Skills can include supporting files alongside SKILL.md: `references/`, `examples/`, `scripts/`.
+
+### Progressive Disclosure
+
+Skills load context in three levels — skill **metadata** (first, for trigger decision), the SKILL.md **body** (when the skill activates), and **supporting files** (on demand inside the workflow) — keeping the window lean. Bundle skill-local `references/` alongside SKILL.md as the canonical Agent Skills structure; use shared `plugin/references/*.md` only when content is genuinely cross-skill.
 
 ### Skill Design Patterns
 
@@ -172,6 +176,10 @@ Skills come in two types: **user-invoked** (slash command) and **model-invoked**
 **Reference files:** Put project conventions, examples, or API docs in `references/` alongside SKILL.md. Read them at the step where they're needed, not upfront -- this saves context.
 
 **Fallback pattern:** When a skill depends on an optional tool (MCP server, CI system), provide two paths: Path A uses the tool when available, Path B falls back to a manual alternative.
+
+**Evaluation-driven iteration:** Start by writing example invocations and expected outputs, then iterate the SKILL.md until those evaluations pass. Have Claude capture successful approaches and common mistakes back into the skill text after each pass.
+
+**Security:** Skills are executable instructions — install only from trusted sources, and audit unfamiliar SKILL.md files before invoking. Review them the way you'd review a script before running it.
 
 > **Note:** The legacy `commands/` directory is deprecated. Use `skills/<name>/SKILL.md` for all skill types.
 
