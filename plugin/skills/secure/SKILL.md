@@ -40,6 +40,18 @@ Check if `.claude/settings.json` exists and has `deny` patterns covering sensiti
 
 Check if `.claude/settings.json` has `hooks` with `PreToolUse` entries that block edits to sensitive files (`.env`, `.pem`, `.key`).
 
+### 1.4 Permission Mode
+
+Read `.claude/settings.json` and record the value of `permissions.defaultMode` (or note its absence — Claude Code defaults to `default` mode when unset).
+
+### 1.5 Sandbox State
+
+Check whether `sandbox.enabled` is `true` in `.claude/settings.json` (project scope). Note that sandbox settings can also be set in user (`~/.claude/settings.json`), local (`.claude/settings.local.json`), or managed scopes — if absent in project scope, report "project setting absent" rather than "sandboxing is off" (the effective state may differ across scopes per Claude Code's [settings precedence](https://code.claude.com/docs/en/settings#settings-precedence)).
+
+### 1.6 Auto Mode Trust Environment
+
+Check whether `autoMode.environment` is configured in user (`~/.claude/settings.json`), local (`.claude/settings.local.json`), or managed scopes. The classifier ignores `autoMode` in shared project settings (`.claude/settings.json`).
+
 Do NOT output your scan results yet — use them to inform Phase 2.
 
 ## Phase 2: Present Checklist
@@ -62,6 +74,18 @@ If all items are already configured:
 > "Your security configuration looks solid. No changes needed. Run `/guardians-of-the-claude:audit` for a full evaluation."
 
 Then skip to **Write History** (Phase 4.2) to record the result (Fixed: none, Declined: none).
+
+### Permission and Safety State (informational)
+
+After the checklist above (regardless of which items were selected), also report the current permission and safety state from Phase 1.4–1.6:
+
+> Permission mode (`defaultMode`): `<value>` (or "not set — defaults to `default`")
+> Sandboxing: enabled / disabled / not configured
+> Auto Mode trust environment: configured / not configured
+
+If any are not set and the user wants guidance, point to `docs/guides/settings-guide.md` § "Permission Modes and Safety (Advanced)" plus the canonical [permission modes](https://code.claude.com/docs/en/permission-modes), [auto mode configuration](https://code.claude.com/docs/en/auto-mode-config), and [sandboxing](https://code.claude.com/docs/en/sandboxing) documentation. These are decision points (plan tier, platform prerequisites, trust model) — `/secure` does not auto-configure them.
+
+For decision principles when choosing among modes and whether to enable sandboxing, see `../../references/security-patterns.md` § "Permission and Safety Decision Principles".
 
 ## Phase 3: Fix Selected Items
 

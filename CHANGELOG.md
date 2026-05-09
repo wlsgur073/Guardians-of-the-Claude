@@ -7,6 +7,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **Permission Modes and Sandboxing teaching content** in
+  `docs/guides/settings-guide.md` (bumped to v1.1.0) — new
+  "Permission Modes and Safety (Advanced)" section covering
+  `permissions.defaultMode` (six modes — `default`, `acceptEdits`,
+  `plan`, `auto`, `dontAsk`, `bypassPermissions`), `autoMode`
+  configuration with explicit scope-precedence note (the classifier
+  deliberately ignores `autoMode` in shared `.claude/settings.json`),
+  and `sandbox` configuration. Anthropic-internal measurement claims
+  (84% prompt reduction; 0.4% FP / 17% FN at Stage 1 + Stage 2
+  full-pipeline) carry explicit qualifiers and separate denominators
+  (n=10,000 benign tool calls; n=52 real overeager actions). i18n
+  mirrors (`ko-KR`, `ja-JP`) bumped to v1.1.0 in lockstep.
+- **`templates/advanced/.claude/settings.json` permission/sandbox
+  demonstration** — added `permissions.defaultMode: "acceptEdits"` and
+  a `sandbox` block with `excludedCommands: ["docker *"]` (matching the
+  docker-sandbox incompatibility note in canonical sandboxing docs).
+  `autoMode` intentionally not in shared project settings; users
+  configure it in user / local / managed scopes per the guide section.
+  i18n mirrors updated to match structure.
+- **`plugin/skills/secure/SKILL.md` Phase 1.4–1.6 informational scans**
+  for `permissions.defaultMode`, sandbox state (multi-scope-aware
+  reporting), and Auto Mode trust environment (notes the
+  shared-project scope ignore rule). Phase 2 adds a "Permission and
+  Safety State (informational)" subsection. Phase 3 fix actions remain
+  limited to 1.1–1.3 — permission mode, sandbox, and Auto Mode are
+  decision points (plan tier, platform prerequisites, trust model),
+  not surfaces `/secure` should auto-write.
+- **`plugin/references/security-patterns.md` Permission and Safety
+  Decision Principles section** — work-type-by-mode mapping with full
+  Auto Mode eligibility (Anthropic API only on Max / Team / Enterprise
+  / API plans; Sonnet 4.6, Opus 4.6, or Opus 4.7 — Max plan: Opus 4.7
+  only; admin enablement on Team / Enterprise), sandboxing-by-blast-
+  radius criteria including the canonical "effective sandboxing
+  requires both filesystem and network isolation" warning, and a
+  combination-guidance table framed as "principle, not flowchart".
+
 ## [2.17.3] - 2026-05-08
 
 ### Fixed
