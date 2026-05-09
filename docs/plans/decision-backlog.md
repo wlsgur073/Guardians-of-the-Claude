@@ -1,6 +1,6 @@
 # Anthropic Engineering Insights — Decision Backlog
 
-**Status**: Draft (consolidation artifact, not an approved change)
+**Status**: Active (routing artifact; bucket assignments are recommendations, not approvals)
 **Created**: 2026-05-09
 **Scope**: Single entry point that consolidates 22 proposals from [R1](./anthropic-engineering-insights-review.md), [R2](./anthropic-engineering-insights-review-round-2.md), [R3](./anthropic-engineering-insights-review-round-3.md), [R4](./anthropic-engineering-insights-review-round-4.md), [R5](./anthropic-engineering-insights-review-round-5.md) into one decision table. Five round documents remain authoritative for their reasoning; this file is the routing layer.
 
@@ -12,7 +12,7 @@ The 5-round review series produced 22 proposals + 7 explicit source skips across
 
 The taxonomy and stop conditions below are the converged output of:
 1. The series' own self-described maturity signal (R5 § "Plan Series Maturity Signal").
-2. Two independent re-reads with explicit instructions to surface blind spots; the second pass reclassified 6 buckets, split 2 proposals into halves with different prerequisites, redefined 3 defer conditions, and tightened the stop criteria.
+2. Two independent re-reads with explicit instructions to surface blind spots; the second pass adjusted bucket assignments, split proposals where prerequisites differed, redefined defer conditions, and tightened stop criteria.
 
 No proposal is authorized by this document. A bucket assignment is a recommended next state, not a commit.
 
@@ -20,7 +20,7 @@ No proposal is authorized by this document. A bucket assignment is a recommended
 
 ## Decision Table
 
-Coupling annotations: rows sharing a **Unit** label move as one decision; rows without a Unit are independent.
+**Reading the IDs**: Single and primed letters (`L`, `D`, `H`, `O`, `A'`, `C'`) are stable proposal references whose statements live in the round documents (see [References](#references)). Hyphens split a proposal into halves with separate prerequisites (`A'-postcheck`, `K-schema`, `A'-briefing`, `K-judge`, `K-ref`); plus signs combine proposals that move as one decision (`P + G`, `E + E-ext`). The **Unit** column's `U-`-prefixed labels group rows that move together — rows sharing a Unit move as one decision; rows without a Unit are independent.
 
 ### Adopt (move on)
 

@@ -46,6 +46,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   radius criteria including the canonical "effective sandboxing
   requires both filesystem and network isolation" warning, and a
   combination-guidance table framed as "principle, not flowchart".
+- **Five-round Anthropic engineering insights review series** in
+  `docs/plans/` (`anthropic-engineering-insights-review.md` and
+  `…-round-2.md` through `…-round-5.md`) — review of Anthropic
+  engineering blog posts mapped against repo surfaces (skills,
+  guides, templates, CI scripts).
+- **`docs/plans/decision-backlog.md`** — single entry point
+  consolidating the review series' 22 proposals into adopt / pilot /
+  defer / skip buckets with one-line rationale and prerequisite per
+  row. Defines explicit stop conditions for further review rounds.
 
 ## [2.17.3] - 2026-05-08
 
