@@ -72,6 +72,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   trigger-phrasing role, added evaluation-driven iteration design
   pattern, and added install-from-trusted-sources security note.
   i18n mirrors bumped to v1.3.0 in lockstep.
+- **`docs/plans/oracle-coverage-map.md`** — discovery artifact mapping
+  the 14 `/audit` rules (Tiers 1-3) against the 11
+  `.github/scripts/check-*.py` CI validators. Surfaces null direct
+  oracle coverage as the substantive finding (CI scripts validate
+  this repo's content; `/audit` rules evaluate user projects —
+  disjoint domains) and reframes the downstream "Oracle check"
+  terminology toward rule-internal determinism (re-execute the rule's
+  own primitives on subagent claims) rather than external CI re-run.
+  `decision-backlog.md` L-row updated with shipped marker.
 
 ## [2.17.3] - 2026-05-08
 
