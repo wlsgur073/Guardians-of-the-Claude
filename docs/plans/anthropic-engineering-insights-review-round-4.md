@@ -107,9 +107,9 @@ The Demystifying Evals article identifies three canonical grader categories (cod
 - **Model-based (LLM-as-judge)** — YAML sub-type: `llm_rubric`. Uses the redefined five-rubric for subjective findings.
 - **Human-based**: periodic spot-check against LLM-judge output for calibration. (Not represented in YAML because it is an evaluation-time process, not a runtime grader.)
 
-**Expansion order**: start with `deterministic_tests` + `llm_rubric` — the two highest-leverage sub-types, one per code/model category. Add the other code-based sub-types (`static_analysis`, `state_check`, `tool_calls`) as specific failure modes warrant. Human-based review remains a complementary, out-of-band calibration step in this Round 4 baseline. (Prior phrasing "must precede trust in llm_rubric output" contradicted the pre-patch rollout model — corrected 2026-04-23 post-Codex review. Round 4 state here preserves the pre-K-ref baseline per R5's Document Handling principle; no forward reference to K-ref is inserted.)
+**Expansion order**: start with `deterministic_tests` + `llm_rubric` — the two highest-leverage sub-types, one per code/model category. Add the other code-based sub-types (`static_analysis`, `state_check`, `tool_calls`) as specific failure modes warrant. Human-based review remains a complementary, out-of-band calibration step in this Round 4 baseline. (Prior phrasing "must precede trust in llm_rubric output" contradicted the pre-patch rollout model — corrected 2026-04-23 post-external review. Round 4 state here preserves the pre-K-ref baseline per R5's Document Handling principle; no forward reference to K-ref is inserted.)
 
-Earlier drafts said "use all three grader types explicitly" while the YAML showed five sub-types and the Risks section said "start with two" — a 3-layer inconsistency. Corrected 2026-04-23 post-Codex review into the canonical-type / YAML-sub-type hierarchy above.
+Earlier drafts said "use all three grader types explicitly" while the YAML showed five sub-types and the Risks section said "start with two" — a 3-layer inconsistency. Corrected 2026-04-23 post-external review into the canonical-type / YAML-sub-type hierarchy above.
 
 The article frames these as complementary: *"LLM-as-judge graders should be closely calibrated with human experts to gain confidence that there is little divergence between the human grading and model grading"* (earlier drafts truncated the "that there is little divergence..." tail; restored to literal 2026-04-29 post-Tier 2 sweep)
 
@@ -127,7 +127,7 @@ The article recommends: *"To avoid hallucinations, give the LLM a way out, like 
 
 **5. Introduce pass@k and pass^k metrics at the `test/` framework level.**
 - `pass@k` — probability `/audit` catches the core issue in at least one of k runs (single-success mode)
-- `pass^k` — probability `/audit` succeeds on all k independent trials for the same fixture (consistency-under-success mode — an agent that repeats the *same wrong answer* across k runs is perfectly consistent but still scores 0 on pass^k, so "consistency" alone is not the right gloss). (Earlier drafts glossed this as "produces consistent findings"; corrected 2026-04-23 post-Codex review to match the article's literal definition.)
+- `pass^k` — probability `/audit` succeeds on all k independent trials for the same fixture (consistency-under-success mode — an agent that repeats the *same wrong answer* across k runs is perfectly consistent but still scores 0 on pass^k, so "consistency" alone is not the right gloss). (Earlier drafts glossed this as "produces consistent findings"; corrected 2026-04-23 post-external review to match the article's literal definition.)
 
 The article frames these as complementary: *"By k=10, they tell opposite stories: pass@k approaches 100% while pass^k falls to 0%"*; both are needed. (Earlier drafts italicized a paraphrased gloss "tell opposite stories about consistency requirements" that does not appear in the source; replaced with the literal sentence 2026-04-29 post-R5 sweep.)
 
@@ -145,7 +145,7 @@ The article frames these as complementary: *"By k=10, they tell opposite stories
 #### Risks / Tradeoffs
 
 - `test/` is gitignored and internal to the repository. Work here does not ship to external users; value is calibration of our own development process.
-- Judge calibration requires human ground truth. A statistically useful ground-truth set targets 20–50 manually-scored historical audit outputs spanning the main failure modes; earlier drafts budgeted "5–10" which functions only as an initial smoke test, not as calibration for a trust gate. Building either set is non-trivial and has not been costed. (Sample-size target updated 2026-04-23 post-Codex review.)
+- Judge calibration requires human ground truth. A statistically useful ground-truth set targets 20–50 manually-scored historical audit outputs spanning the main failure modes; earlier drafts budgeted "5–10" which functions only as an initial smoke test, not as calibration for a trust gate. Building either set is non-trivial and has not been costed. (Sample-size target updated 2026-04-23 post-external review.)
 - pass^k is noise-dominated at small k. Small fixture sets may not produce a statistically useful pass^k.
 - Grader proliferation (five YAML sub-types per eval) adds orchestration complexity; the expansion order in item 2 above (start with `deterministic_tests` + `llm_rubric`, add others as failure modes warrant) mitigates this.
 
@@ -209,7 +209,7 @@ Advanced Tool Use describes a pattern where Claude writes code to orchestrate mu
 
 Add a short section to `docs/guides/mcp-guide.md` — parallel to, and possibly consolidated with, R3 Proposal H — titled something like *"When to consider Programmatic Tool Calling"*.
 
-Content: one paragraph on the pattern, one on applicability conditions, one on the anti-pattern list. The article's "Less beneficial when" trio for PTC: (a) making simple single-tool invocations, (b) working on tasks where Claude should see and reason about all intermediate results, (c) running quick lookups with small responses. Note: the "fewer than ten tools" threshold cited in even earlier drafts of this proposal belongs to the article's **Tool Search Tool** section, not Programmatic Tool Calling — do not conflate. (First corrected 2026-04-23 for Tool-Search-Tool conflation; refined 2026-04-23 post-Codex review to add item (b), which was still missing from the intermediate correction.)
+Content: one paragraph on the pattern, one on applicability conditions, one on the anti-pattern list. The article's "Less beneficial when" trio for PTC: (a) making simple single-tool invocations, (b) working on tasks where Claude should see and reason about all intermediate results, (c) running quick lookups with small responses. Note: the "fewer than ten tools" threshold cited in even earlier drafts of this proposal belongs to the article's **Tool Search Tool** section, not Programmatic Tool Calling — do not conflate. (First corrected 2026-04-23 for Tool-Search-Tool conflation; refined 2026-04-23 post-external review to add item (b), which was still missing from the intermediate correction.)
 
 #### Source Evidence
 

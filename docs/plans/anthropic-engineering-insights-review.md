@@ -39,7 +39,7 @@ The content below reflects the Pass 2 state.
 | B  | "Agent Patterns" guide addition                   | Low-medium        | Medium-high  | Strategic positioning (meta-system narrative)     |
 | —  | Contextual Retrieval — direct adoption            | Skipped           | —            | Not a RAG system; insight absorbed into A'        |
 
-Priority ordering: **A' > D > C' > B**. Based on expected value, prerequisite density, and actionability — not confidence levels alone. After the 2026-04-23 downgrade of A' from Medium-high to Medium (see Proposal A' Confidence section), A', D, and C' share Medium confidence; the ordering reflects leverage and actionability rather than confidence deltas. All are contingent on the "Unverified Assumptions" ledger at the end of this document. (Earlier drafts labeled this "Confidence ordering", which no longer fits after the downgrade — corrected 2026-04-23 post-Codex review.)
+Priority ordering: **A' > D > C' > B**. Based on expected value, prerequisite density, and actionability — not confidence levels alone. After the 2026-04-23 downgrade of A' from Medium-high to Medium (see Proposal A' Confidence section), A', D, and C' share Medium confidence; the ordering reflects leverage and actionability rather than confidence deltas. All are contingent on the "Unverified Assumptions" ledger at the end of this document. (Earlier drafts labeled this "Confidence ordering", which no longer fits after the downgrade — corrected 2026-04-23 post-external review.)
 
 ---
 
@@ -56,7 +56,7 @@ All four articles share a common failure mode and a common response:
 | SWE-bench engineering     | Boundary between failure and fix        | Reproducer script as an observable intermediate state | Adjacent — intermediate-state observability rather than strict boundary restoration |
 | Building Effective Agents | Boundary between generator and consumer | Evaluator pass that revisits output with criteria     | Strong       |
 
-Our project's known pain point — subagent false positives at 38–50% (per the private memory entry `feedback_subagent_verification.md`) — may reflect this failure mode at the parent→subagent dispatch boundary: briefing context can be lost across the handoff, and findings are surfaced without a reconstruction step. The current evidence establishes the rate, not the dominant cause; whether boundary loss is causally responsible is unmeasured (see Unverified Assumptions #1). Earlier drafts presented the memory as a markdown-linked citation pointing to `../../CLAUDE.md`, which misrepresented a pointer-through-CLAUDE.md as a direct file link; corrected to plain prose attribution 2026-04-23 post-Codex review.
+Our project's known pain point — subagent false positives at 38–50% (per the private memory entry `feedback_subagent_verification.md`) — may reflect this failure mode at the parent→subagent dispatch boundary: briefing context can be lost across the handoff, and findings are surfaced without a reconstruction step. The current evidence establishes the rate, not the dominant cause; whether boundary loss is causally responsible is unmeasured (see Unverified Assumptions #1). Earlier drafts presented the memory as a markdown-linked citation pointing to `../../CLAUDE.md`, which misrepresented a pointer-through-CLAUDE.md as a direct file link; corrected to plain prose attribution 2026-04-23 post-external review.
 
 ---
 
@@ -64,7 +64,7 @@ Our project's known pain point — subagent false positives at 38–50% (per the
 
 ### Background
 
-Memory entry `feedback_subagent_verification.md` (2026-04-22) records an observed false-positive / hallucination rate of 38% in one subagent batch (3 of 8 claims) and 50% in a second batch (3 of 6 claims) during a single session — n=14 total raw claims across 2 batches. The 38–50% range reflects **batch-to-batch variance in a 14-case sample**, not a measured population rate. The memory also records that claims are verified by re-reading cited files before inclusion. This practice is currently implicit — not codified in `plugin/skills/audit/SKILL.md`. (Earlier drafts quoted "38–50%" without numerator, denominator, or range-vs-point qualifier — corrected 2026-04-23 post-Codex review.)
+Memory entry `feedback_subagent_verification.md` (2026-04-22) records an observed false-positive / hallucination rate of 38% in one subagent batch (3 of 8 claims) and 50% in a second batch (3 of 6 claims) during a single session — n=14 total raw claims across 2 batches. The 38–50% range reflects **batch-to-batch variance in a 14-case sample**, not a measured population rate. The memory also records that claims are verified by re-reading cited files before inclusion. This practice is currently implicit — not codified in `plugin/skills/audit/SKILL.md`. (Earlier drafts quoted "38–50%" without numerator, denominator, or range-vs-point qualifier — corrected 2026-04-23 post-external review.)
 
 ### Proposal
 
@@ -98,13 +98,13 @@ Before adopting, run a **two-stage causal sampling**:
 - Criterion ambiguity (subagent read correctly but interpreted rule differently)
 - Other
 
-A 5-case sample is suitable for identifying *candidate* dominant causes only; it is not statistically sufficient for a gating decision (≥40% of 5 = 2 cases, well within chance variance). Earlier drafts proposed ≥40% as a decision threshold at n=5 — corrected 2026-04-23 post-Codex review.
+A 5-case sample is suitable for identifying *candidate* dominant causes only; it is not statistically sufficient for a gating decision (≥40% of 5 = 2 cases, well within chance variance). Earlier drafts proposed ≥40% as a decision threshold at n=5 — corrected 2026-04-23 post-external review.
 
 **Stage 2 — decision gate (n≈15–20).** If Stage 1 suggests briefing-gap as a plausible dominant cause, collect a larger sample (target 15–20 cases). Adopt A' only if briefing-gap is materially common in the larger sample. If hallucination dominates at either stage, prioritize Proposal D instead.
 
 ### Confidence
 
-**Medium**, conditional on the prerequisite sampling exercise. (Earlier drafts labeled Medium-high; downgraded 2026-04-23 post-Codex review because the central causal premise — briefing-gap as dominant cause — is explicitly unmeasured per Background and Unverified Assumptions #1, which makes Medium-high hard to defend while the mechanism remains hypothetical.)
+**Medium**, conditional on the prerequisite sampling exercise. (Earlier drafts labeled Medium-high; downgraded 2026-04-23 post-external review because the central causal premise — briefing-gap as dominant cause — is explicitly unmeasured per Background and Unverified Assumptions #1, which makes Medium-high hard to defend while the mechanism remains hypothetical.)
 
 ---
 
@@ -259,7 +259,7 @@ Before committing to any proposal, run the **two-stage causal sampling exercise*
 - **Stage 1 (n=5)** — classify 5 recent false-positive cases by cause (briefing-gap / model hallucination / criterion ambiguity / other) for hypothesis generation only; n=5 is not statistically sufficient for a gating decision.
 - **Stage 2 (n≈15–20)** — if Stage 1 suggests briefing-gap as a plausible dominant cause, expand to 15–20 cases before using the distribution to gate A' vs D vs C'.
 
-(Earlier drafts reverted to a single 5-case exercise at this location and treated its distribution as decision-enabling — reintroducing the same undersized-sample problem Proposal A' was corrected to avoid. Stale copy corrected 2026-04-23 post-Codex review.)
+(Earlier drafts reverted to a single 5-case exercise at this location and treated its distribution as decision-enabling — reintroducing the same undersized-sample problem Proposal A' was corrected to avoid. Stale copy corrected 2026-04-23 post-external review.)
 
 The distribution disambiguates which proposals are worth pursuing:
 

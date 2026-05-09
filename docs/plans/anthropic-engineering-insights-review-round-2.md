@@ -86,9 +86,9 @@ Perform a parity audit against the canonical document. The checklist below cover
 
 **Secondary targets** (for checklist items outside CLAUDE.md scope — items 6–8):
 - `docs/guides/advanced-features-guide.md` — skill authoring items (e.g., `disable-model-invocation: true` is already documented at L163)
-- `docs/guides/effective-usage-guide.md` — session-management items (`/rewind` / checkpointing vocabulary, confirmed present at L54–55). The Writer/Reviewer parallel-session pattern named in checklist item 7 is **not currently documented** in any guide under `docs/guides/` — its audit answer should be recorded as a gap rather than as coverage from this file. (Earlier drafts listed Writer/Reviewer as a covered item here; corrected 2026-04-23 post-Codex review after repo-wide grep confirmed absence.)
+- `docs/guides/effective-usage-guide.md` — session-management items (`/rewind` / checkpointing vocabulary, confirmed present at L54–55). The Writer/Reviewer parallel-session pattern named in checklist item 7 is **not currently documented** in any guide under `docs/guides/` — its audit answer should be recorded as a gap rather than as coverage from this file. (Earlier drafts listed Writer/Reviewer as a covered item here; corrected 2026-04-23 post-external review after repo-wide grep confirmed absence.)
 
-Earlier drafts restricted the target set to three CLAUDE.md-scoped files while including skills- and session-management items in the checklist — a scope/content mismatch that made items 6–8 unanchored. Corrected 2026-04-23 post-Codex review.
+Earlier drafts restricted the target set to three CLAUDE.md-scoped files while including skills- and session-management items in the checklist — a scope/content mismatch that made items 6–8 unanchored. Corrected 2026-04-23 post-external review.
 
 Checklist, derived directly from the canonical document's prescriptions:
 
@@ -116,7 +116,7 @@ Checklist, derived directly from the canonical document's prescriptions:
 
 #### Prerequisites
 
-Read the five target files listed in the Proposal section (three CLAUDE.md-scoped primary targets + two secondary-scope guides for skill-authoring and session-management checklist items). No other dependency. (Earlier drafts said "three target files" here while the Proposal had expanded to five — stale scope corrected 2026-04-23 post-Codex review.)
+Read the five target files listed in the Proposal section (three CLAUDE.md-scoped primary targets + two secondary-scope guides for skill-authoring and session-management checklist items). No other dependency. (Earlier drafts said "three target files" here while the Proposal had expanded to five — stale scope corrected 2026-04-23 post-external review.)
 
 #### Confidence
 
@@ -156,7 +156,7 @@ Codify as a template in `plugin/skills/audit/SKILL.md`, not as implicit practice
 
 1. Sample 5 recent `/audit` false-positive cases; classify by cause (briefing-gap / hallucination / criterion-ambiguity / other)
 2. Read current `plugin/skills/audit/SKILL.md` to determine existing briefing structure
-3. Use the initial 5-case sample only for hypothesis generation. If briefing-gap appears materially common, expand to a larger sample (target ~15–20 cases) before using the distribution as an adoption gate. (Earlier drafts used n=5, ≥40% as a direct decision threshold — only two cases, within chance variance. Parallel flaw to R1 L93; corrected 2026-04-23 post-Codex review.)
+3. Use the initial 5-case sample only for hypothesis generation. If briefing-gap appears materially common, expand to a larger sample (target ~15–20 cases) before using the distribution as an adoption gate. (Earlier drafts used n=5, ≥40% as a direct decision threshold — only two cases, within chance variance. Parallel flaw to R1 L93; corrected 2026-04-23 post-external review.)
 
 #### Confidence
 
@@ -198,7 +198,7 @@ Output format: single LLM call returning 0.0–1.0 scores plus pass/fail grade p
 #### Prerequisites
 
 1. Read current `test/` rubric structure **if present in the local checkout** (per `CLAUDE.md:19,32` and `.gitignore:21`, `test/` is gitignored and local-only — if absent in the executing environment, treat this prerequisite as blocked pending access to the local eval workspace; CI-visible validation lives under `.github/scripts/*.py`, which is not a substitute for the rubric here).
-2. Validate the redefined rubric on 20–50 manually-scored historical audit outputs spanning the main failure modes. If only 5 outputs are available initially, treat them as a smoke test rather than sufficient validation — at n=5, one disagreement shifts the observed error rate by 20 percentage points across any single rubric metric, and a hand-picked small set can miss entire failure modes. (Earlier drafts proposed n=5 as sufficient validation; corrected 2026-04-23 post-Codex review.)
+2. Validate the redefined rubric on 20–50 manually-scored historical audit outputs spanning the main failure modes. If only 5 outputs are available initially, treat them as a smoke test rather than sufficient validation — at n=5, one disagreement shifts the observed error rate by 20 percentage points across any single rubric metric, and a hand-picked small set can miss entire failure modes. (Earlier drafts proposed n=5 as sufficient validation; corrected 2026-04-23 post-external review.)
 3. Compare judge output variance vs manual variance
 
 #### Confidence
@@ -373,7 +373,7 @@ A single Read round unlocks verification for nearly all proposals:
 
 After this Read, proposals move from hypothesis to actionable diff plans. This document together with Round 1 provides the decision framework; Read unlocks execution.
 
-An alternative narrower first step: run the **two-stage causal sampling exercise** from Proposal A' in Round 1 (see its Prerequisites section — Stage 1 hypothesis-generation at n=5, then Stage 2 decision-gate at n≈15–20) — that disambiguates whether A'-rt's briefing-gap hypothesis is worth pursuing before any doc work. (Earlier drafts compressed this reference to "classify 5 false-positive cases", which replicated the single-exercise phrasing that R1 already moved away from — parallel stale copy to R1 L257; corrected 2026-04-23 post-Codex review.)
+An alternative narrower first step: run the **two-stage causal sampling exercise** from Proposal A' in Round 1 (see its Prerequisites section — Stage 1 hypothesis-generation at n=5, then Stage 2 decision-gate at n≈15–20) — that disambiguates whether A'-rt's briefing-gap hypothesis is worth pursuing before any doc work. (Earlier drafts compressed this reference to "classify 5 false-positive cases", which replicated the single-exercise phrasing that R1 already moved away from — parallel stale copy to R1 L257; corrected 2026-04-23 post-external review.)
 
 ---
 
