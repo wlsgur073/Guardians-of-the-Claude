@@ -36,7 +36,7 @@ No proposal is authorized by this document. A bucket assignment is a recommended
 |---|---|---|---|---|---|
 | **C'** | Dual-layer SKILL audit (scope-reduced), pilot on `/audit` | R2 | — | Pilot first; full rollout decided by yield. If pilot finds nothing, do not roll out to other skills. | Read `plugin/skills/audit/SKILL.md` |
 | **A'-postcheck** | Deterministic post-check half of A' / A'-rt (split out) | R1 / R2 | — | The post-check half overlaps with L and is valuable independent of cause distribution. Unblocks once L reveals concrete oracle coverage. **Shipped 2026-05-09** as `/audit` Phase 3.7 — see `plugin/skills/audit/SKILL.md`. | L completed first |
-| **K-schema** | YAML rubric schema + deterministic graders only (split from K family) | R4 | — | Schema scaffolding does not depend on judge calibration. R5 K-ref blocks LLM-judge trust, not framework cleanup. `llm_rubric` grader stays disabled / experimental. | L completed first |
+| **K-schema** | YAML rubric schema + deterministic graders only (split from K family) | R4 | — | Schema scaffolding does not depend on judge calibration. R5 K-ref blocks LLM-judge trust, not framework cleanup. `llm_rubric` grader stays disabled / experimental. **Shipped 2026-05-09** as `test/rubrics/audit-deterministic-graders.yaml` (local-only; `test/` is gitignored per CLAUDE.md L19). | L completed first |
 
 ### Defer (blocked on evidence or external trigger)
 
