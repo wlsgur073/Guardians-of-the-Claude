@@ -1,6 +1,6 @@
 ---
 name: audit
-description: "Validates your Claude Code configuration — checks essential settings, project alignment, and suggests improvements"
+description: "Validates your Claude Code configuration — checks essential settings and project alignment, lists improvement opportunities (does not modify files). Use when the user asks to check, audit, or evaluate their Claude Code setup."
 ---
 
 # Claude Code Configuration Audit
@@ -147,7 +147,7 @@ Apply the scoring model in this order:
 2. **Calculate T1 Score** — `T1_Score = weighted average of non-SKIP T1 items` (used for Maturity Level Level 1 condition)
 3. **Calculate Detail Score** — `DS = (T2_weighted × 0.60 + T3_weighted × 0.40) × 100`
 4. **Calculate Synergy Bonus** — check qualifying pairs
-5. **Calculate LAV components** — L1, L2, L3, L4, L5, L6 individually from Phase 3.5
+5. **Calculate LAV components** — L1, L2, L3, L4, L5, L6 individually from Phase 3.5 (LLM Accuracy Verification components — definitions in `references/checks/lav.md`)
 6. **Calculate cap tier** — `cap = 60` if L5 = −3 AND no other negative-minimum Li at its minimum; `cap = 50` if L5 = −3 AND at least one other Li at its negative minimum (L1 = −3, L2 = −2, or L4 = −1); `cap = 100` otherwise
 7. **Calculate Final** — `min(DS × (1 + LAV_nonL5 / 50) + SB, cap)` where `LAV_nonL5 = L1 + L2 + L3 + L4 + L6` (L5 routed via cap tier per step 6)
 8. **Check Quality Gate** — CLAUDE.md exists AND test command present; test condition waived if SKIP
@@ -166,7 +166,7 @@ Read `references/qa-report-template.md` for the full template skeleton (5-sectio
 
 **Steps:**
 
-1. **Sprint contract parse (optional, post-freeze)**: read `references/checks/sprint-contract.md` and execute the parser. Always capture the resulting branch state (B1/B2/B3/B4/B5); capture extracted In Scope items only when state is B4 or B2.
+1. **Sprint contract parse (optional, post-freeze)**: read `references/checks/sprint-contract.md` and execute the parser. Always capture the resulting branch state (B1/B2/B3/B4/B5 — sprint-contract parser branches; definitions in the same reference file); capture extracted In Scope items only when state is B4 or B2.
 2. **Section 1-4 render** (always): emit Score Summary + LAV Item Rationale (with counterfactual column from LAV-time generation, see `references/checks/lav.md` Counterfactual Generation section) + Bucket Rationale + Recommendations Linkage (3-state branch by `local/recommendations.json` state).
 3. **Section 5 conditional render**: if sprint-contract parse reached B4 (valid) or B2 (frontmatter advisory), emit Sprint Contract Coverage with In Scope ↔ LAV mapping (P4 alignment rule). Otherwise omit.
 4. **Negative-transparency filter** (S5): apply forbidden-token filter to generator-authored regions only. User-quoted content (CLAUDE.md evidence, sprint contract labels/bodies, and file paths, command strings, and identifiers extracted from the audited project) passes through verbatim.

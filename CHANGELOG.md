@@ -81,6 +81,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   terminology toward rule-internal determinism (re-execute the rule's
   own primitives on subagent claims) rather than external CI re-run.
   `decision-backlog.md` L-row updated with shipped marker.
+- **Skill description trigger phrasing** across all four plugin
+  skills (`plugin/skills/{create,audit,secure,optimize}/SKILL.md`) —
+  added "Use when the user asks to …" trigger guidance per the new
+  Agent Skills authoring section in `advanced-features-guide` v1.3.0
+  (closes a self-consistency gap where the recently-shipped guide
+  recommended trigger phrasing that our own skills did not follow).
+  `/audit` and `/optimize` descriptions additionally clarify the
+  detect-vs-modify boundary — `/audit` "lists improvement
+  opportunities (does not modify files)", `/optimize` "fixes hook
+  quality (modifies files)" — to reduce skill-purpose overlap in
+  the slash-command menu.
+- **`/audit` SKILL.md inline ID glosses** — added one-line pointers
+  on first reference for `L1`–`L6` (LAV components, definitions in
+  `references/checks/lav.md`) in Phase 4 and `B1`–`B5` (sprint-
+  contract parser branches, definitions in
+  `references/checks/sprint-contract.md`) in Phase 4.5, so a reader
+  of `SKILL.md` does not need to fetch the reference files before
+  parsing the surrounding text.
 
 ## [2.17.3] - 2026-05-08
 

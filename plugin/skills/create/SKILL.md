@@ -1,6 +1,6 @@
 ---
 name: create
-description: "Guided Claude Code setup — creates CLAUDE.md, settings.json, rules, and optional hooks/agents/skills for any project"
+description: "Guided Claude Code setup — creates CLAUDE.md, settings.json, rules, and optional hooks/agents/skills for any project. Use when the user asks to initialize or set up Claude Code for a project."
 ---
 
 # Claude Code Project Setup

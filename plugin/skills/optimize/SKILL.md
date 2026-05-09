@@ -1,6 +1,6 @@
 ---
 name: optimize
-description: "Improves your Claude Code configuration — splits rules, tunes agents, adds MCP, and fixes hook quality"
+description: "Improves your Claude Code configuration — splits rules, tunes agents, adds MCP, and fixes hook quality (modifies files). Use when the user asks to optimize, improve, or organize their Claude Code setup."
 ---
 
 # Claude Code Configuration Optimization

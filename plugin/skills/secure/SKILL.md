@@ -1,6 +1,6 @@
 ---
 name: secure
-description: "Strengthens your project's security — adds deny patterns, security rules, and file protection hooks"
+description: "Strengthens your project's security — adds deny patterns, security rules, and file protection hooks. Use when the user asks to add security or fix security gaps in their Claude Code configuration."
 ---
 
 # Claude Code Security Hardening
