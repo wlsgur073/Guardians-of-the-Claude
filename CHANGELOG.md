@@ -99,6 +99,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   `references/checks/sprint-contract.md`) in Phase 4.5, so a reader
   of `SKILL.md` does not need to fetch the reference files before
   parsing the surrounding text.
+- **`/audit` Phase 3.7 Output Validation contract** in
+  `plugin/skills/audit/SKILL.md` — every finding from Phase 1–3.6
+  must trace to a deterministic primitive (`Read`, `Grep`, `Glob`,
+  line count, JSON parse) actually invoked against project state,
+  with hypothesis-vs-oracle agreement before surfacing and BOTH-
+  sides surfacing on disagreement. Reframes the original Round 4
+  "Oracle check" terminology toward rule-internal determinism per
+  the null-coverage finding in
+  `docs/plans/oracle-coverage-map.md`; conditional recommendations
+  and free-text remediation language are explicitly carved out as
+  not requiring an oracle. `decision-backlog.md` A'-postcheck row
+  updated with shipped marker.
 
 ## [2.17.3] - 2026-05-08
 

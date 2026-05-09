@@ -137,6 +137,20 @@ If `monorepo_detection.detected == true` AND `monorepo_detection.package_roots_f
 
 If `monorepo_detection.detected != true` OR `package_roots_for_scoring[]` is empty, skip Phase 3.6 entirely.
 
+## Phase 3.7: Output Validation (Oracle Check)
+
+Between Phase 3.6 and Phase 4, every finding produced by Phase 1 through 3.6 must be traceable to a deterministic primitive that was actually invoked against project state. This blocks the failure mode where an agent infers a result ("CLAUDE.md probably exists") without running the rule's primitive (`Read`, `Grep`, `Glob`, line count, or JSON parse).
+
+**Per finding, validate**:
+
+1. **Rule-internal post-check** (default for T1–T3 mechanical rules): re-execute the rule's own primitive on the cited evidence. The rule's output is the hypothesis; the re-run is the oracle. The finding is valid only when the two agree.
+2. **LAV-style multi-file citation** (default for Phase 3.5 findings): when a claim spans multiple files (e.g., "CLAUDE.md mentions `src/api/` but no such directory exists"), cite both sides explicitly — the primitive output on the project side AND the source quotation on the CLAUDE.md side.
+3. **Disagreement handling**: when hypothesis and oracle disagree, surface BOTH sides for human resolution rather than picking one. Disagreements are rare in practice but a real signal when they happen.
+
+CI scripts in `.github/scripts/check-*.py` are NOT a usable oracle for `/audit` rules: they validate this repo's own content (frontmatter parity, JSON schemas, smoke fixtures), not user project state. Rule-internal determinism is the only working primitive. See [`docs/plans/oracle-coverage-map.md`](../../../docs/plans/oracle-coverage-map.md) for the mapping that established this constraint.
+
+Conditional recommendations and free-text remediation language (e.g., "consider extracting", "consider differentiating models") are surface-side text and do not require an oracle — they describe action paths, not deterministic facts.
+
 ## Phase 4: Summary
 
 Read `../../references/scoring-model.md` for the complete scoring formula, then calculate results.
