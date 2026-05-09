@@ -18,6 +18,29 @@ No proposal is authorized by this document. A bucket assignment is a recommended
 
 ---
 
+## Cycle Summary — 2026-05-09
+
+Shipped this cycle (Adopt + Pilot bucket cleared):
+
+- **P + G (U-perm)** — Permission Modes + Sandboxing teaching content (settings guide v1.1.0 + templates settings.json + `/secure` Phase 1.4–1.6 + security-patterns reference)
+- **E + E-ext + J (U-bestp)** — Best Practices parity audit + Progressive Disclosure axis + context-rot rationale (claude-md-guide v1.2.0 + advanced-features-guide v1.3.0 + i18n cascade)
+- **L** — Oracle coverage map (`/audit` rules × CI scripts; null direct coverage finding documented in [`oracle-coverage-map.md`](./oracle-coverage-map.md))
+- **C' pilot** — Dual-layer SKILL audit on `/audit`, then 4-skill rollout (trigger phrasing + `/audit`–`/optimize` boundary clarification + low-signal ID gloss)
+- **A'-postcheck** — `/audit` Phase 3.7 Output Validation contract (rule-internal determinism, post L's reframe away from CI script invocation)
+- **K-schema** — YAML deterministic-grader scaffolding (local-only in `test/rubrics/audit-deterministic-graders.yaml`; `llm_rubric` disabled pending calibration)
+
+Adjacent cleanup:
+
+- Internal-review attribution removed from R1-R5 body content (27 occurrences); pre-v2.12.3 CHANGELOG entries and pre-v2.12.0 `smoke.yml` comment left immutable per published cutoff.
+
+Defer reasons re-examined:
+
+- **A'-briefing**: reframed to require a data-capture mechanism (per-finding rejection logging in `/audit` Phase 3.7 or alternative) before the n=5 sampling step is meaningful — see [`false-positive-sampling-attempt.md`](./false-positive-sampling-attempt.md).
+
+Remaining scope: 8 Defer proposals (D, A'-ev, K-judge, K-ref, F, F-ext, B, B-cond) + 2 Skip proposals (H, O). Re-entry from this point: check Defer trigger conditions before starting new work; do not begin without trigger evidence.
+
+---
+
 ## Decision Table
 
 **Reading the IDs**: Single and primed letters (`L`, `D`, `H`, `O`, `A'`, `C'`) are stable proposal references whose statements live in the round documents (see [References](#references)). Hyphens split a proposal into halves with separate prerequisites (`A'-postcheck`, `K-schema`, `A'-briefing`, `K-judge`, `K-ref`); plus signs combine proposals that move as one decision (`P + G`, `E + E-ext`). The **Unit** column's `U-`-prefixed labels group rows that move together — rows sharing a Unit move as one decision; rows without a Unit are independent.
