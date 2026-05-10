@@ -1,12 +1,12 @@
 ---
 title: "Recommended Plugins"
 description: "Curated list of Claude Code plugins organized by category"
-version: 1.0.0
+version: 1.0.1
 ---
 
 # Recommended Plugins
 
-Claude Code supports official plugins that extend its capabilities. Browse available plugins with `/plugin` in Claude Code, or see [Plugin docs](https://code.claude.com/docs/en/discover-plugins) for details.
+Claude Code supports both official (Anthropic-maintained) and community plugins that extend its capabilities. Browse available plugins with `/plugin` in Claude Code, or see [Plugin docs](https://code.claude.com/docs/en/discover-plugins) for details.
 
 ## Development Workflow
 

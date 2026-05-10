@@ -1,12 +1,12 @@
 ---
 title: "おすすめプラグイン"
 description: "カテゴリ別に整理した Claude Code プラグインの厳選リスト"
-version: 1.0.0
+version: 1.0.1
 ---
 
 # おすすめプラグイン
 
-Claude Code は機能を拡張する公式プラグインをサポートしています。Claude Code 内で `/plugin` を実行すると利用可能なプラグインを閲覧できます。詳細は[プラグインのドキュメント](https://code.claude.com/docs/en/discover-plugins)を参照してください。
+Claude Code は公式（Anthropic 提供）プラグインとコミュニティプラグインの両方をサポートしており、機能を拡張できます。Claude Code 内で `/plugin` を実行すると利用可能なプラグインを閲覧できます。詳細は[プラグインのドキュメント](https://code.claude.com/docs/en/discover-plugins)を参照してください。
 
 ## 開発ワークフロー
 

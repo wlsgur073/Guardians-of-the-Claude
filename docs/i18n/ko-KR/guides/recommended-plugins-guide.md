@@ -1,12 +1,12 @@
 ---
 title: "추천 플러그인"
 description: "카테고리별로 정리된 Claude Code 추천 플러그인 목록"
-version: 1.0.0
+version: 1.0.1
 ---
 
 # 추천 플러그인
 
-Claude Code는 기능을 확장하는 공식 플러그인을 지원합니다. Claude Code에서 `/plugin`으로 탐색하거나, [플러그인 문서](https://code.claude.com/docs/en/discover-plugins)를 참고하세요.
+Claude Code는 기능을 확장하는 공식(Anthropic 유지보수) 플러그인과 커뮤니티 플러그인을 모두 지원합니다. Claude Code에서 `/plugin`으로 탐색하거나, [플러그인 문서](https://code.claude.com/docs/en/discover-plugins)를 참고하세요.
 
 ## 개발 워크플로우
 
