@@ -105,7 +105,7 @@ v2.10.x를 사용하셨다면, 상태(state) 형식이 별도의 Markdown 파일
 
 **마이그레이션 실패 보고:** https://github.com/wlsgur073/Guardians-of-the-Claude/issues 에 경고 출력과 (가능하면) 파싱 실패 파일의 redacted 스니펫을 첨부해 주세요. 자동 수집되는 텔레메트리는 없습니다.
 
-**`local/` 쓰기 불가 처리**: `local/`을 읽을 수 없을 때 Step 0.5가 일회성 경고(`local/ not writable`)를 출력하고 state 로딩을 건너뜁니다. `local/`이 쓰기 불가일 때 모든 JSON 쓰기를 건너뛰는 완전한 Final Phase persistence-bypass는 Step 0.5 contract에 선언되어 있지만 v2.11.0에서는 아직 구현되지 않았습니다 — state 쓰기 자체가 발생해서는 안 되는 개인정보 민감 프로젝트는 향후 minor release까지 v2.10.x를 고정해 사용하시기 바랍니다.
+**`local/` 쓰기 불가 처리 (stateless mode)**: `local/`에 쓸 수 없을 때(읽기 전용 마운트, 개인정보 민감 프로젝트, 사용자 비활성화) 스킬은 **stateless mode**로 진입합니다 — Step 0.5가 일회성 경고(`local/ not writable; stateless run — learning disabled`)를 출력하고, 모든 state 파일 쓰기(`profile.json`, `recommendations.json`, `config-changelog.md`, `state-summary.md`, `qa-report.md`)를 건너뛰며, 학습 상태가 세션 간에 유지되지 않습니다. v2.12.0부터 구현되어 이후 모든 버전에서 활성. 개인정보 민감 프로젝트는 구버전을 고정하는 대신 stateless mode에 의존할 수 있습니다.
 
 ## CI smoke 레인 (전환기 브릿지)
 
@@ -145,7 +145,7 @@ Guardians-of-the-Claude/
 ├── docs/
 │   ├── guides/              ← 가이드
 │   ├── i18n/ko-KR/          ← 한국어 번역 (가이드, 템플릿)
-│   ├── i18n/ja-JP/          ← 일본어 번역 (README, 가이드, 부분 템플릿)
+│   ├── i18n/ja-JP/          ← 일본어 번역 (가이드, 템플릿)
 │   ├── plans/               ← 설계 및 계획 문서
 │   └── *.md                 ← 커뮤니티 문서 및 프로젝트 로드맵
 └── CHANGELOG.md             ← 버전 이력 (Keep a Changelog 형식)
@@ -210,7 +210,7 @@ Claude Code가 `~/.claude/statusline.sh`를 자동으로 감지합니다 — 추
 
 > **필수 조건:**
 > - [jq](https://jqlang.org)가 설치되어 있어야 합니다 (`brew install jq` / `apt install jq` / `choco install jq`)
-> - Bash 호환 쉘이 필요합니다. **Windows**에서는 **Git Bash** 또는 **WSL**을 사용하세요 — 플러그인 훅과 고급 템플릿이 Unix 쉘 구문(`bash`, `grep` 등)을 사용합니다
+> - `statusline.sh`를 실행하기 위한 Bash 호환 쉘이 필요합니다. **Windows**에서는 **Git Bash** 또는 **WSL**을 사용하세요. (플러그인 훅과 advanced 템플릿 훅은 `.sh`와 `.ps1` 양쪽을 제공하므로 statusline 자체를 제외하고는 PowerShell-only Windows에서도 동작합니다.)
 
 ## 참여
 

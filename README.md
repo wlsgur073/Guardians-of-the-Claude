@@ -113,7 +113,7 @@ If any file fails to parse, the skill continues with empty state and Learning Ru
 
 **Report migration failures** at https://github.com/wlsgur073/Guardians-of-the-Claude/issues with the warning output and (if possible) a redacted snippet of the file that failed to parse. No telemetry is collected automatically.
 
-**Unwritable `local/` handling**: when `local/` cannot be read, Step 0.5 prints a one-time warning (`local/ not writable`) and skips state load. Full Final Phase persistence-bypass (skipping all JSON writes when `local/` is unwritable) is declared in the Step 0.5 contract but NOT yet implemented in v2.11.0 — privacy-sensitive projects that require zero state writes should pin v2.10.x until a future minor.
+**Unwritable `local/` handling (stateless mode)**: when `local/` cannot be written (read-only mount, privacy-sensitive project, user-disabled), the skill enters **stateless mode** — Step 0.5 prints a one-time warning (`local/ not writable; stateless run — learning disabled`), all state file writes are skipped (no `profile.json`, `recommendations.json`, `config-changelog.md`, `state-summary.md`, `qa-report.md` writes), and learning state does not persist across sessions. Implemented as of v2.12.0 and active in all subsequent versions. Privacy-sensitive projects can rely on stateless mode rather than pinning an old version.
 
 ## CI smoke lane (transitional bridge)
 
@@ -218,7 +218,7 @@ Claude Code automatically detects `~/.claude/statusline.sh` — no additional co
 
 > **Prerequisites:**
 > - [jq](https://jqlang.org) must be installed (`brew install jq` / `apt install jq` / `choco install jq`)
-> - A Bash-compatible shell. On **Windows**, use **Git Bash** or **WSL** — plugin hooks and advanced templates use Unix shell syntax (`bash`, `grep`, etc.)
+> - A Bash-compatible shell to run `statusline.sh`. On **Windows**, use **Git Bash** or **WSL**. (Plugin hooks and the advanced-template hooks ship both `.sh` and `.ps1` variants, so PowerShell-only Windows works for everything except the statusline itself.)
 
 ## Contributing
 
