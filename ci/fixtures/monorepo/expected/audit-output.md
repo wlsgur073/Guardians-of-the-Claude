@@ -2,10 +2,11 @@
 
 Root `CLAUDE.md` detected; 2 workspace packages contain their own `CLAUDE.md`.
 
-## Additional CLAUDE.md Files
+## Subpackage Score Rollup
 
-Disclosure only — per-package scoring is scheduled for a future audit
-release (see `docs/ROADMAP.md` "Audit v4 Phase 2").
+  min=60.0, median=60.0, worst=packages/api, packages/web (2 scored, 0 without CLAUDE.md, 0 unscored)
 
-- packages/api/CLAUDE.md (9 lines)
-- packages/web/CLAUDE.md (8 lines)
+| Path | Score | Cap |
+|---|---|---|
+| packages/api | 60.0 | 100 |
+| packages/web | 60.0 | 100 |
