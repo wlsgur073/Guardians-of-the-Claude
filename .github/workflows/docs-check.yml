@@ -167,12 +167,17 @@ jobs:
       - name: Check for U+FFFD replacement characters
         run: |
           set -e
+          # Use bash ANSI-C quoting ($'...') to inject the literal byte
+          # sequence EF BF BD. Plain `grep -lP '\xef\xbf\xbd'` fails under
+          # Ubuntu's UTF-8 locale because PCRE2 interprets `\xhh` as a
+          # Unicode codepoint (U+00EF, U+00BF, U+00BD) rather than as
+          # bytes — silently missing real U+FFFD corruption.
           MATCHES=$(find . -type f \
             \( -name '*.md' -o -name '*.json' -o -name '*.sh' -o -name '*.yml' -o -name '*.yaml' \) \
             -not -path './.git/*' \
             -not -path './docs/superpowers/*' \
             -not -path './node_modules/*' \
-            -exec grep -lP '\xef\xbf\xbd' {} + 2>/dev/null || true)
+            -exec grep -l $'\xef\xbf\xbd' {} + 2>/dev/null || true)
           if [ -n "$MATCHES" ]; then
             echo "::error::Encoding corruption (U+FFFD) found in:"
             echo "$MATCHES" | sed 's/^/  /'
