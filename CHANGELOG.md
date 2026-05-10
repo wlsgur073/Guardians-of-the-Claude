@@ -112,6 +112,90 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   not requiring an oracle. `decision-backlog.md` A'-postcheck row
   updated with shipped marker.
 
+### Fixed
+
+- **`.github/workflows/docs-check.yml` encoding-check job: PCRE byte-match
+  correctness.** Replaced `grep -lP '\xef\xbf\xbd'` with
+  `grep -l $'\xef\xbf\xbd'` (bash ANSI-C quoting). Under Ubuntu's UTF-8
+  locale, PCRE2 interprets `\xhh` escapes as Unicode codepoints
+  (U+00EF, U+00BF, U+00BD) rather than as bytes, silently failing to
+  match the actual U+FFFD UTF-8 byte sequence. The bash `$'...'` form
+  injects the literal three-byte sequence into grep's pattern argument,
+  restoring the intended detection. The job had been GREEN since v2.11.1
+  shipped in 2026-04-22 despite the embedded glyph in CHANGELOG.md L812
+  going undetected for the full window.
+- **`CHANGELOG.md` L812: removed embedded U+FFFD glyph** that the v2.11.1
+  notes used as a visual citation of the corruption being described. With
+  the encoding-check fix above, leaving the glyph in place would now
+  cause the job to fail on every push. Replaced the parenthetical glyph
+  with a descriptive phrase ("the U+FFFD glyph (the standard Unicode
+  'unknown character' placeholder)") and added an explicit note that the
+  literal glyph is intentionally NOT embedded.
+- **`ci/fixtures/monorepo/expected/` alignment with golden snapshot.**
+  `expected/audit-output.md` now shows the v2.13.0 Subpackage Score
+  Rollup table instead of the pre-v2.13.0 "scheduled for a future audit
+  release" placeholder, and the missing `expected/local/qa-report.md`
+  was added to mirror `ci/golden/monorepo/local/qa-report.md`.
+  `compare-golden.{sh,ps1}` (the maintainer debug helper) now reports
+  `[OK] monorepo` instead of byte mismatch + missing-file errors.
+  `ci/fixtures/**` smoke test (`check-smoke-fixtures.py`) is unaffected
+  — it consumes `expected.json` per fixture, not the `expected/`
+  directory contents.
+- **`docs/i18n/ko-KR/README.md` + `docs/i18n/ja-JP/README.md` ja-JP
+  template label drift.** The Repository Structure tree described
+  ja-JP as carrying a partial-template subset, but
+  `docs/i18n/ja-JP/templates/` has been at full structural parity
+  with `docs/i18n/ko-KR/templates/` (28 files: starter + advanced with
+  `.claude/` agents/rules/skills, hooks, `.mcp.json`, `sprint-contract.md`).
+  Both i18n READMEs now describe ja-JP as "guides + templates", matching
+  the root README phrasing. Drift fix per `CLAUDE.md` `Change Propagation
+  Checklist` semantics — no frontmatter version bump.
+
+### Changed
+
+- **`docs/PRIVACY.md` clarified separation of remote transmission vs
+  local state files.** Previous wording ("does not collect, store, or
+  transmit any user data" + "does not store any information outside your
+  project directory") created ambiguity against the visible local state
+  files (`profile.json`, `recommendations.json`, `config-changelog.md`,
+  `state-summary.md`, `qa-report.md`). The policy now distinguishes the
+  two: no remote transmission / telemetry / network access (unchanged
+  promise), AND explicit description of the local state files written
+  inside the project directory to support cross-skill learning. Added a
+  Stateless mode section explaining the no-state-write fallback when
+  `local/` is unwritable.
+- **`README.md` "Unwritable `local/` handling" updated to reflect current
+  stateless mode implementation.** Previous text said "NOT yet
+  implemented in v2.11.0 — privacy-sensitive projects ... should pin
+  v2.10.x until a future minor", which was outdated since v2.12.0
+  shipped the full Final Phase persistence-bypass. Updated text now
+  documents stateless mode (one-time warning, all state file writes
+  skipped, learning state non-persistent across sessions) as the
+  recommended approach for privacy-sensitive projects. ko-KR + ja-JP
+  README mirrors updated in lockstep.
+- **`README.md` Statusline prerequisites scope narrowed.** Previous text
+  ("plugin hooks and advanced templates use Unix shell syntax") implied
+  the entire plugin requires Bash, but plugin hooks and advanced-template
+  hooks ship both `.sh` and `.ps1` ports. Updated text now scopes the
+  Bash dependency to `statusline.sh` itself and explicitly notes that
+  PowerShell-only Windows works for everything else. ko-KR + ja-JP
+  README mirrors updated in lockstep.
+- **`docs/ROADMAP.md` Audit v4 backlog item — v2.13.0 status updated
+  from "(planned)" to "(released 2026-05-01)".** With both v2.12.0 and
+  v2.13.0 now shipped, the bullet is marked "(COMPLETE)" with a
+  parenthetical noting Audit v4 Phase 2 (Raw exposure surfaces,
+  Excellence Opportunities tier) remains a future item if the
+  LAV-as-multiplier formula is revisited.
+- **`docs/guides/recommended-plugins-guide.md` wording broadened**
+  (bumped to v1.0.1). Previous opening line ("Claude Code supports
+  official plugins that extend its capabilities") understated the actual
+  table contents, which mix Anthropic-maintained official plugins
+  (`feature-dev`, `code-review`, `code-simplifier`, `typescript-lsp`,
+  `security-guidance`, etc.) with at least one community plugin
+  (`superpowers` from obra/superpowers). New line: "supports both
+  official (Anthropic-maintained) and community plugins". ko-KR + ja-JP
+  guide mirrors bumped to v1.0.1 in lockstep.
+
 ## [2.17.3] - 2026-05-08
 
 ### Fixed
