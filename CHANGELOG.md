@@ -310,6 +310,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   intent; the disclaimer surfaces it where the guidance itself
   lives so a contributor reading the guide alongside the ignore
   file does not see them as contradictions.
+- **`README.md` (EN + ko-KR + ja-JP) two micro-tightenings from
+  the `/claude-md-management:claude-md-improver` audit.**
+  (1) "What's Inside" tree + directory-purpose table dual
+  representation collapsed to tree-only: each tree line already
+  carries an inline purpose comment, making the parallel six-row
+  table redundant; the ROADMAP link previously hosted in that
+  table already exists in the Contributing section, so no link
+  loss. (2) `v2.11 Migration` section condensed from five
+  paragraphs to three: full migration detail and parse-failure
+  recovery delegated to the `CHANGELOG.md` v2.11.0 entry, which
+  hosts the canonical record; stateless-mode summary and
+  failure-report guidance retained inline since both remain
+  user-facing for any current version. ko-KR + ja-JP mirrors
+  updated in lockstep.
 
 ### Removed
 

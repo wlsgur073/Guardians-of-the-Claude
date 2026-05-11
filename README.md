@@ -104,17 +104,13 @@ After multiple skill runs, the plugin activates its **meta-system layer** — pe
 
 **You never need to read about this to use the plugin.** It runs automatically. See [learning-system.md](plugin/references/learning-system.md) if you want to understand the internals.
 
-## v2.11 Migration
+## v2.11+ State Format & Stateless Mode
 
-If you used v2.10.x, the state format changed from separate Markdown files to JSON as the source of truth. On first skill run after upgrade, `local/project-profile.md` and `local/latest-*.md` are auto-converted to `local/profile.json` + `local/recommendations.json`. A single human-readable view `local/state-summary.md` replaces the former MD files. Originals are preserved under `local/legacy-backup/<ISO-8601-UTC>/`.
+**v2.11 migration** (for users upgrading from v2.10.x): state format moved from Markdown files to JSON. First skill run after upgrade auto-converts `local/project-profile.md` + `local/latest-*.md` into `local/profile.json` + `local/recommendations.json`, preserving originals under `local/legacy-backup/<ISO-8601-UTC>/`. Forward-only — rollback requires manual restoration plus pinning v2.10.x. See [CHANGELOG.md](CHANGELOG.md) v2.11.0 entry for parse-failure recovery and full migration details.
 
-If any file fails to parse, the skill continues with empty state and Learning Rules (PENDING counts, DECLINED history) re-accumulate from that run forward. **To manually restore counts**, consult `legacy-backup` — e.g., if `latest-audit.md` in legacy-backup shows 2 PENDING items, run `/audit` again and those items re-surface as new PENDING entries (their counters restart from 1; they are not auto-carried).
+**Stateless mode** (since v2.12.0): when `local/` cannot be written (read-only mount, privacy-sensitive project, user-disabled), the skill prints a one-time warning and skips all state file writes — learning does not persist across sessions. Privacy-sensitive projects can rely on stateless mode rather than pinning an old version.
 
-**Forward-only migration:** once `local/profile.json` exists, there is no automated path back to MD-primary state. Rollback requires manual restoration from `local/legacy-backup/<ISO-8601-UTC>/` and pinning v2.10.x.
-
-**Report migration failures** at https://github.com/wlsgur073/Guardians-of-the-Claude/issues with the warning output and (if possible) a redacted snippet of the file that failed to parse. No telemetry is collected automatically.
-
-**Unwritable `local/` handling (stateless mode)**: when `local/` cannot be written (read-only mount, privacy-sensitive project, user-disabled), the skill enters **stateless mode** — Step 0.5 prints a one-time warning (`local/ not writable; stateless run — learning disabled`), all state file writes are skipped (no `profile.json`, `recommendations.json`, `config-changelog.md`, `state-summary.md`, `qa-report.md` writes), and learning state does not persist across sessions. Implemented as of v2.12.0 and active in all subsequent versions. Privacy-sensitive projects can rely on stateless mode rather than pinning an old version.
+**Report migration failures** at [GitHub Issues](https://github.com/wlsgur073/Guardians-of-the-Claude/issues) with the warning output and (if possible) a redacted snippet of the file that failed to parse. No telemetry is collected automatically.
 
 ## CI smoke lane (transitional bridge)
 
@@ -158,15 +154,6 @@ Guardians-of-the-Claude/
 │   └── *.md                 ← Community health files and project roadmap
 └── CHANGELOG.md             ← Version history (Keep a Changelog format)
 ```
-
-| Directory | Purpose |
-| ------------- | --------- |
-| `templates/starter/` | Filled starter example — minimal TaskFlow configuration |
-| `templates/advanced/` | Filled advanced example — rules, hooks, agents, skills |
-| `docs/guides/` | Standalone guides — read any one without the others |
-| `docs/i18n/ko-KR/` | Korean translations (guides, templates) |
-| `docs/i18n/ja-JP/` | Japanese translations (guides, templates) |
-| `docs/*.md` | Community health files and project [roadmap](docs/ROADMAP.md) |
 
 ## How Claude Code Memory Works
 
