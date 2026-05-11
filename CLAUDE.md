@@ -1,5 +1,5 @@
 # CLAUDE.md
-<!-- Last reviewed: 2026-05-09 -->
+<!-- Last reviewed: 2026-05-11 -->
 
 This is a documentation and template repository — no application source code and no runtime build system, but CI validates it via Python structural checks (frontmatter parity, i18n parity, JSON schemas), shellcheck, link checking, and an LLM-output eval framework in `test/`. Its purpose is to teach developers how to configure Claude Code for their own projects.
 
