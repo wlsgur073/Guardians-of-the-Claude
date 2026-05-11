@@ -1,6 +1,6 @@
 # Anthropic Engineering Insights — Applicability Review (Round 5)
 
-**Status**: Draft (evaluation basis, not an approved change)
+**Status**: Sealed evidence record; routed in decision-backlog.md on 2026-05-09; not an approved change
 **Created**: 2026-04-22
 **Last revised**: 2026-04-29 (Tier 0 raw-HTML verification at Loop 15; Tier 2 narrative paraphrase sweep at Loop 14; post-R4 parallel class-level provenance sweep at Loop 13)
 **Scope**: Fifth review round covering four additional sources. Continues [Round 1](./anthropic-engineering-insights-review.md), [Round 2](./anthropic-engineering-insights-review-round-2.md), [Round 3](./anthropic-engineering-insights-review-round-3.md), and [Round 4](./anthropic-engineering-insights-review-round-4.md).

@@ -1,6 +1,6 @@
 # Anthropic Engineering Insights — Applicability Review
 
-**Status**: Draft (evaluation basis, not an approved change)
+**Status**: Sealed evidence record; routed in decision-backlog.md on 2026-05-09; not an approved change
 **Created**: 2026-04-22
 **Last revised**: 2026-04-29 (Tier 0 raw-HTML verification + Tier 2 narrative paraphrase sweep — Tier 0 found one additional summarizer-introduced capitalization ("Augmented LLM" → "augmented LLM") at Proposal B that Tier 1+2 sweeps had inherited from WebFetch summarizer; previous Tier 2 fixes at Pass 2 Source Evidence for A' (Building Effective Agents quotes), C' (path handling), and B (pattern enumeration); previous 2026-04-22 calibrations were three Tier 1 items at end of Unifying Theme, end of Proposal A' Source Evidence, and Contextual Retrieval Skip rationale)
 **Scope**: Assesses whether patterns from four Anthropic engineering posts transfer to this repository (documentation + plugin marketplace, no runtime application code).

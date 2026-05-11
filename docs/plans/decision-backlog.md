@@ -2,7 +2,7 @@
 
 **Status**: Active (routing artifact; bucket assignments are recommendations, not approvals)
 **Created**: 2026-05-09
-**Scope**: Single entry point that consolidates 22 proposals from [R1](./anthropic-engineering-insights-review.md), [R2](./anthropic-engineering-insights-review-round-2.md), [R3](./anthropic-engineering-insights-review-round-3.md), [R4](./anthropic-engineering-insights-review-round-4.md), [R5](./anthropic-engineering-insights-review-round-5.md) into one decision table. Five round documents remain authoritative for their reasoning; this file is the routing layer.
+**Scope**: Single entry point that consolidates 22 proposals from [R1](./anthropic-engineering-insights-review.md), [R2](./anthropic-engineering-insights-review-round-2.md), [R3](./anthropic-engineering-insights-review-round-3.md), [R4](./anthropic-engineering-insights-review-round-4.md), [R5](./anthropic-engineering-insights-review-round-5.md) into one decision table. Five sealed round documents remain authoritative for their reasoning; this file is the routing layer.
 
 ---
 
