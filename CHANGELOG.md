@@ -196,6 +196,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   official (Anthropic-maintained) and community plugins". ko-KR + ja-JP
   guide mirrors bumped to v1.0.1 in lockstep.
 
+### Removed
+
+- **`docs/plans/` completed planning artifacts** — Removed R1-R5 round
+  documents (`anthropic-engineering-insights-review*.md`),
+  `decision-backlog.md`, and `false-positive-sampling-attempt.md` after
+  routing-complete state (all 22 originally raised proposals decided across
+  16 routing rows: Adopt 3, Pilot 3, Defer 5, Skip 2; shipped results
+  absorbed into prior CHANGELOG entries; deferred unblock conditions
+  extracted to `docs/ROADMAP.md` "Revisit Triggers").
+  `oracle-coverage-map.md` relocated to `plugin/skills/audit/references/`
+  (active dependency from `/audit` Phase 3.7). `docs/plans/` directory
+  removed entirely; recreate when a new planning cycle resumes.
+
 ## [2.17.3] - 2026-05-08
 
 ### Fixed

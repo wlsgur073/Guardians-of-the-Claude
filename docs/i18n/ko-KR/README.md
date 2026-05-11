@@ -146,7 +146,6 @@ Guardians-of-the-Claude/
 │   ├── guides/              ← 가이드
 │   ├── i18n/ko-KR/          ← 한국어 번역 (가이드, 템플릿)
 │   ├── i18n/ja-JP/          ← 일본어 번역 (가이드, 템플릿)
-│   ├── plans/               ← 설계 및 계획 문서
 │   └── *.md                 ← 커뮤니티 문서 및 프로젝트 로드맵
 └── CHANGELOG.md             ← 버전 이력 (Keep a Changelog 형식)
 ```
@@ -158,7 +157,6 @@ Guardians-of-the-Claude/
 | `docs/guides/` | 독립 가이드 — 각각 따로 읽을 수 있음 |
 | `docs/i18n/ko-KR/` | 한국어 번역 (가이드, 템플릿) |
 | `docs/i18n/ja-JP/` | 일본어 번역 (README, 가이드, 부분 템플릿) |
-| `docs/plans/` | 설계 및 계획 문서 |
 | `docs/*.md` | 커뮤니티 문서 및 프로젝트 [로드맵](../../ROADMAP.md) |
 
 ## Claude Code 메모리 작동 방식

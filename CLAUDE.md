@@ -13,7 +13,6 @@ This is a documentation and template repository — no application source code a
 - `docs/guides/` — Guides covering each Claude Code configuration concept (CLAUDE.md writing, rules, settings, directory structure, effective usage patterns, advanced features, MCP integration, recommended plugins)
 - `docs/i18n/ko-KR/` — Korean translations (`guides/`, `templates/`, `README.md`)
 - `docs/i18n/ja-JP/` — Japanese translations (`guides/`, `templates/`, `README.md`)
-- `docs/plans/` — Design and planning documents for feature work
 - `docs/*.md` — GitHub community health files and project governance (CODE_OF_CONDUCT.md, CONTRIBUTING.md, SECURITY.md, PRIVACY.md, ROADMAP.md)
 - `.claude/` — This repo's own Claude Code settings
 - `test/` — Skill evaluation framework (rubrics, scenarios, fixtures, scripts) and results. Not a unit test suite — used to grade skill output quality. See `test/testing-strategy.md`.
