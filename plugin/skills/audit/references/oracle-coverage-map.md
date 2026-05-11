@@ -84,7 +84,5 @@ These are the LLM-judge cluster's domain (currently in the backlog's Defer bucke
 
 ## References
 
-- [Round 4 review](./anthropic-engineering-insights-review-round-4.md) — proposal source for "oracle" vocabulary
-- [decision-backlog.md](./decision-backlog.md) — bucket assignments and dependent unblocking
-- `plugin/skills/audit/references/checks/{t1-foundation,t2-protection,t3-optimization}.md` — full `/audit` rule definitions
+- `checks/{t1-foundation,t2-protection,t3-optimization}.md` — full `/audit` rule definitions
 - `.github/scripts/check-*.py` — the 11 CI validators

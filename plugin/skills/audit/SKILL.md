@@ -147,7 +147,7 @@ Between Phase 3.6 and Phase 4, every finding produced by Phase 1 through 3.6 mus
 2. **LAV-style multi-file citation** (default for Phase 3.5 findings): when a claim spans multiple files (e.g., "CLAUDE.md mentions `src/api/` but no such directory exists"), cite both sides explicitly — the primitive output on the project side AND the source quotation on the CLAUDE.md side.
 3. **Disagreement handling**: when hypothesis and oracle disagree, surface BOTH sides for human resolution rather than picking one. Disagreements are rare in practice but a real signal when they happen.
 
-CI scripts in `.github/scripts/check-*.py` are NOT a usable oracle for `/audit` rules: they validate this repo's own content (frontmatter parity, JSON schemas, smoke fixtures), not user project state. Rule-internal determinism is the only working primitive. See [`docs/plans/oracle-coverage-map.md`](../../../docs/plans/oracle-coverage-map.md) for the mapping that established this constraint.
+CI scripts in `.github/scripts/check-*.py` are NOT a usable oracle for `/audit` rules: they validate this repo's own content (frontmatter parity, JSON schemas, smoke fixtures), not user project state. Rule-internal determinism is the only working primitive. See [`references/oracle-coverage-map.md`](references/oracle-coverage-map.md) for the mapping that established this constraint.
 
 Conditional recommendations and free-text remediation language (e.g., "consider extracting", "consider differentiating models") are surface-side text and do not require an oracle — they describe action paths, not deterministic facts.
 
