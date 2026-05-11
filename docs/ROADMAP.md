@@ -55,6 +55,23 @@ Items reviewed and accepted but not yet scheduled:
 
 See [CHANGELOG.md](../CHANGELOG.md) for version history.
 
+## Revisit Triggers
+
+These are not scheduled work and not part of the backlog. They are areas
+reviewed and explicitly set aside; reopen only when the listed trigger
+evidence exists. Recorded here so the trigger conditions survive periodic
+cleanup of planning artifacts.
+
+| Area | Reopen only if | Why dormant now |
+|---|---|---|
+| `/audit` subagent briefing refinement | Per-finding rejection logging mechanism exists, then n=5 hypothesis sample → n=15-20 decision gate | No data-capture mechanism for cause-classifiable rejection data |
+| `/audit` reasoning checkpoints (think-tool style) | n=5 real-failure sample shows hallucination or criterion-ambiguity signal | No trigger signal observed |
+| LLM-as-judge evals for `/audit` rubrics | 20-50 human-scored audit outputs exist as calibrated ground truth | Same-family judge bias makes uncalibrated adoption net-negative |
+| Phase-boundary contracts / intra-phase notes for `/audit` | Evidence of phase-boundary failure or state-loss pain | No observed pain reports |
+| Agent Patterns guide + harness subsection | Explicit user demand | Without external demand, becomes mission drift toward "Anthropic concepts explained" |
+| MCP guide: code-execution / programmatic-tool-calling sections | User demand, or MCP guide rework for other reasons | Narrow audience; consolidation lowers cost but does not create demand |
+| New Anthropic engineering insights review round | Canonical Claude Code docs change, new skills/plugins/evals normative guidance, empirical failure cluster (≥3 independent reports OR one high-severity issue), or implemented proposal failure outside current coverage | Generic blog mining without a trigger is out of scope |
+
 ## Propose a Change
 
 Have an idea or suggestion for this roadmap?
