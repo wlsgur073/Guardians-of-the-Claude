@@ -78,7 +78,7 @@ Rule-internal determinism is already at near-100% coverage of the deterministic 
 2. **Scope detection** (e.g., "is this project security-relevant?") — heuristic decision at the start of T2.2
 3. **Conditional recommendations** ("consider extracting…", "consider differentiating models…") — recommendation-heavy
 
-These are the LLM-judge cluster's domain (currently in the backlog's Defer bucket, blocked on a 20–50-item human-scored calibration set). The matrix confirms why that cluster cannot be skipped — deterministic coverage of rule-internal checks does not improve reliability on the judgment-heavy surface above it.
+These are the LLM-judge cluster's domain (tracked in `docs/ROADMAP.md` "Revisit Triggers" → "LLM-as-judge evals for `/audit` rubrics" row, blocked on a 20–50-item human-scored calibration set). The matrix confirms why that cluster cannot be skipped — deterministic coverage of rule-internal checks does not improve reliability on the judgment-heavy surface above it.
 
 ---
 

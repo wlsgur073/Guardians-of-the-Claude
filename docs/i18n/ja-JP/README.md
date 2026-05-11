@@ -156,7 +156,7 @@ Guardians-of-the-Claude/
 | `templates/advanced/` | 上級実例 — rules, hooks, agents, skills |
 | `docs/guides/` | 独立ガイド — それぞれ単独で読める |
 | `docs/i18n/ko-KR/` | 韓国語翻訳（ガイド、テンプレート） |
-| `docs/i18n/ja-JP/` | 日本語翻訳（README、ガイド、部分テンプレート） |
+| `docs/i18n/ja-JP/` | 日本語翻訳（README、ガイド、テンプレート） |
 | `docs/*.md` | コミュニティファイルとプロジェクト[ロードマップ](../../ROADMAP.md) |
 
 ## Claude Codeメモリの仕組み
@@ -185,7 +185,7 @@ Claude Codeは階層型メモリシステムで動作します：CLAUDE.md（ユ
 
 ## 推奨プラグイン
 
-Claude Codeは公式プラグインで機能を拡張できます。カテゴリ別の詳細リストは**[おすすめプラグインガイド](guides/recommended-plugins-guide.md)**を参照してください。
+Claude Codeは公式（Anthropic公式）プラグインとコミュニティプラグインの両方で機能を拡張できます。カテゴリ別の詳細リストは**[おすすめプラグインガイド](guides/recommended-plugins-guide.md)**を参照してください。
 
 Claude Codeで`/plugin`を実行してプラグインを検索するか、[プラグインドキュメント](https://code.claude.com/docs/en/discover-plugins)を参照してください。
 

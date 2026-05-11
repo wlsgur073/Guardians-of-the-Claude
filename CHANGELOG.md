@@ -150,6 +150,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   Both i18n READMEs now describe ja-JP as "guides + templates", matching
   the root README phrasing. Drift fix per `CLAUDE.md` `Change Propagation
   Checklist` semantics — no frontmatter version bump.
+- **`README.md` (root) + `docs/i18n/ko-KR/README.md` +
+  `docs/i18n/ja-JP/README.md` plugin-scope cascade.** All three READMEs
+  still described Claude Code as supporting "official plugins" only,
+  after `docs/guides/recommended-plugins-guide.md` v1.0.1 had broadened
+  to "official + community". The guide-side wording update did not
+  cascade to the three README mirrors. All three READMEs now match the
+  guide wording ("official (Anthropic-maintained) and community
+  plugins").
+- **`docs/i18n/ko-KR/README.md` + `docs/i18n/ja-JP/README.md` L159
+  Repository Structure row.** The earlier ja-JP template-label-drift
+  fix above covered the framing prose but missed the directory listing
+  in each i18n README, which still read "부분 템플릿" / "部分テンプレート".
+  Both rows now read "템플릿" / "テンプレート" — no "partial" qualifier,
+  matching the actual structural parity already in place.
+- **`CHANGELOG.md` Unreleased Removed entry arithmetic.** The phrasing
+  "16 routing rows: Adopt 3, Pilot 3, Defer 5, Skip 2" did not sum
+  (3+3+5+2 = 13). The original decision table held 13 rows (Adopt 3,
+  Pilot 3, Defer 5, Skip 2 — confirmed against the deleted file's git
+  history); the conflation came from mixing row count with the higher
+  proposal count. Entry rewritten as "proposals routed across 13
+  decision rows".
+- **`plugin/skills/audit/references/oracle-coverage-map.md` L81 stale
+  reference.** Text referenced "the backlog's Defer bucket"; the
+  backlog file (`docs/plans/decision-backlog.md`) was removed in the
+  same-cycle docs/plans/ cleanup and the LLM-judge cluster's tracking
+  moved to `docs/ROADMAP.md` "Revisit Triggers" → "LLM-as-judge evals
+  for `/audit` rubrics" row. Reference now updated.
 
 ### Changed
 
@@ -195,19 +222,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   (`superpowers` from obra/superpowers). New line: "supports both
   official (Anthropic-maintained) and community plugins". ko-KR + ja-JP
   guide mirrors bumped to v1.0.1 in lockstep.
+- **`docs/ROADMAP.md` Backlog section split into Backlog / Completed /
+  Will Not Pursue.** The previous single list mixed three states —
+  accepted-but-unscheduled items, a "(COMPLETE)" Audit v4 entry
+  (shipped in v2.12.0 + v2.13.0), and an "explicitly NOT closed"
+  diff-suggestion entry — making "remaining work" ambiguous on first
+  read. Each item now lives in a dedicated section with its own
+  header definition. The previously-titled "Audit Gap C decision"
+  item retitled to "Automatic diff suggestions inside `/audit`",
+  dropping the internal label and reusing the same trigger language.
+- **`CLAUDE.md` advanced-features-guide length cap widened from
+  `~200` to `~210`.** Anthropic's canonical "under 200 lines" target
+  (per the official Memory documentation) applies to CLAUDE.md files,
+  not to repo guides. `advanced-features-guide.md` is the longest
+  guide by intent (three topics with code examples plus a Further
+  Reading navigation block); at the time of writing it is 204 lines.
+  The previous `~200` self-rule was 4 lines below current length; the
+  new `~210` boundary keeps the conciseness spirit without forcing
+  trims of useful navigation content. Explanatory parenthetical
+  appended to the `CLAUDE.md` Contribution Rules bullet for clarity.
 
 ### Removed
 
 - **`docs/plans/` completed planning artifacts** — Removed R1-R5 round
   documents (`anthropic-engineering-insights-review*.md`),
   `decision-backlog.md`, and `false-positive-sampling-attempt.md` after
-  routing-complete state (all 22 originally raised proposals decided across
-  16 routing rows: Adopt 3, Pilot 3, Defer 5, Skip 2; shipped results
-  absorbed into prior CHANGELOG entries; deferred unblock conditions
-  extracted to `docs/ROADMAP.md` "Revisit Triggers").
-  `oracle-coverage-map.md` relocated to `plugin/skills/audit/references/`
-  (active dependency from `/audit` Phase 3.7). `docs/plans/` directory
-  removed entirely; recreate when a new planning cycle resumes.
+  routing-complete state (proposals routed across 13 decision rows:
+  Adopt 3, Pilot 3, Defer 5, Skip 2; shipped results absorbed into prior
+  CHANGELOG entries; deferred unblock conditions extracted to
+  `docs/ROADMAP.md` "Revisit Triggers"). `oracle-coverage-map.md`
+  relocated to `plugin/skills/audit/references/` (active dependency from
+  `/audit` Phase 3.7). `docs/plans/` directory removed entirely;
+  recreate when a new planning cycle resumes.
 
 ## [2.17.3] - 2026-05-08
 

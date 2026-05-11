@@ -193,7 +193,7 @@ Start here, then follow the path that matches your level:
 
 ## Recommended Plugins
 
-Claude Code supports official plugins that extend its capabilities — from full dev workflows to code intelligence. See the **[Recommended Plugins Guide](docs/guides/recommended-plugins-guide.md)** for the full curated list organized by category.
+Claude Code supports both official (Anthropic-maintained) and community plugins that extend its capabilities — from full dev workflows to code intelligence. See the **[Recommended Plugins Guide](docs/guides/recommended-plugins-guide.md)** for the full curated list organized by category.
 
 Browse available plugins with `/plugin` in Claude Code, or see [Plugin docs](https://code.claude.com/docs/en/discover-plugins) for details.
 
