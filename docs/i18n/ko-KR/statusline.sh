@@ -32,17 +32,26 @@ if [[ "$FULL_PATH" =~ ^([A-Za-z]):/ ]]; then
     DRIVE_LOWER=$(echo "${BASH_REMATCH[1]}" | tr 'A-Z' 'a-z')
     FULL_PATH="/${DRIVE_LOWER}${FULL_PATH:2}"
 fi
+
+# Track whether the path is actually home-relative so the truncated form
+# doesn't misleadingly prefix non-home paths with ~/
+IS_HOME=0
 if [[ "$FULL_PATH" == "$HOME"* ]]; then
     DISPLAY_PATH="~${FULL_PATH#$HOME}"
+    IS_HOME=1
 else
     DISPLAY_PATH="$FULL_PATH"
 fi
 
-MAX_PATH_LEN=40
+MAX_PATH_LEN=20
 if [ ${#DISPLAY_PATH} -gt $MAX_PATH_LEN ]; then
     CURRENT=$(basename "$DISPLAY_PATH")
     PARENT=$(basename "$(dirname "$DISPLAY_PATH")")
-    DISPLAY_PATH="~/**/${PARENT}/${CURRENT}"
+    if [ "$IS_HOME" -eq 1 ]; then
+        DISPLAY_PATH="~/…/${PARENT}/${CURRENT}"
+    else
+        DISPLAY_PATH="…/${PARENT}/${CURRENT}"
+    fi
 fi
 
 # Line 1: current dir + model + 5h rate limit bar

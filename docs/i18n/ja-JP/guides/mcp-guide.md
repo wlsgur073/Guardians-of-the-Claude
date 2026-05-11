@@ -1,10 +1,10 @@
 ---
-title: "MCP Integration"
+title: "MCP 連携"
 description: "Model Context Protocol を使って Claude Code を外部ツール・サービスに接続する"
 version: 1.0.3
 ---
 
-# MCP Integration
+# MCP 連携
 
 ## MCP とは
 

@@ -28,7 +28,7 @@ claude
 > /init
 ```
 
-**`/guardians-of-the-claude:create`**은 `/init` 스타일 분석에 더해 규칙, 권한, 선택적 고급 기능을 한 번에 생성합니다. 먼저 플러그인을 설치하세요 (`/plugin marketplace add wlsgur073/Guardians-of-the-Claude` 후 `/plugin install guardians-of-the-claude`). **둘 다 사용?** `/init`을 먼저 실행한 후, `/guardians-of-the-claude:create`에서 "기존 프로젝트"를 선택하세요 — 기존 CLAUDE.md를 감지하여 덮어쓰지 않고 병합합니다.
+**`/guardians-of-the-claude:create`**은 `/init` 스타일 분석에 더해 규칙, 권한, 선택적 고급 기능을 한 번에 생성합니다. 먼저 플러그인을 설치하세요 (`/plugin marketplace add wlsgur073/Guardians-of-the-Claude` 후 `/plugin install guardians-of-the-claude@guardians`, 그 다음 `/reload-plugins`). **둘 다 사용?** `/init`을 먼저 실행한 후, `/guardians-of-the-claude:create`에서 "기존 프로젝트"를 선택하세요 — 기존 CLAUDE.md를 감지하여 덮어쓰지 않고 병합합니다.
 
 ## Step 2: 템플릿 복사 (수동 대안)
 

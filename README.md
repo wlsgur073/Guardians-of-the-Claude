@@ -37,7 +37,8 @@ A meta-system for Claude Code configuration. Start with a 2-minute guided setup,
    ```text
    claude
    > /plugin marketplace add wlsgur073/Guardians-of-the-Claude
-   > /plugin install guardians-of-the-claude
+   > /plugin install guardians-of-the-claude@guardians
+   > /reload-plugins
    ```
 
 2. **Run the setup command** in your project:

@@ -1,10 +1,10 @@
 ---
-title: "Advanced Features"
+title: "高度な機能"
 description: "Hooks、agents、skills -- 基本的な構成を超えて Claude Code を拡張する"
 version: 1.3.0
 ---
 
-# Advanced Features
+# 高度な機能
 
 基本的な CLAUDE.md とルールでは物足りなくなったチーム向けの 3 つの機能です。これらを追加する前に、まず[はじめにガイド](getting-started.md)を読んでください。完全な記入済み例は `templates/advanced/` を参照してください。
 

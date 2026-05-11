@@ -177,6 +177,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   same-cycle docs/plans/ cleanup and the LLM-judge cluster's tracking
   moved to `docs/ROADMAP.md` "Revisit Triggers" → "LLM-as-judge evals
   for `/audit` rubrics" row. Reference now updated.
+- **`/plugin install` command form + `/reload-plugins` follow-up
+  missing across all install instructions.** Anthropic's canonical
+  plugin docs (`code.claude.com/docs/en/discover-plugins`) specify
+  `/plugin install plugin-name@marketplace-name` as the install
+  form, and require `/reload-plugins` to activate after install.
+  Six locations — `README.md:40`,
+  `docs/guides/getting-started.md:31`, and their ko-KR + ja-JP
+  mirrors — all showed `/plugin install guardians-of-the-claude`
+  without the marketplace suffix or the reload step. All six now
+  use `/plugin install guardians-of-the-claude@guardians`
+  (marketplace name from `.claude-plugin/marketplace.json`)
+  followed by `/reload-plugins`.
+- **`docs/i18n/ko-KR/statusline.sh` stale path-truncation logic.**
+  The ko-KR mirror retained the pre-fix logic (`MAX_PATH_LEN=40` and
+  unconditional `~/**/${PARENT}/${CURRENT}` truncation); root
+  `statusline.sh` had been updated to track an `IS_HOME` flag and
+  branch the truncated form, so non-home paths no longer get a
+  misleading `~/` prefix. ko-KR file now matches root byte-for-byte.
+  (No ja-JP `statusline.sh` exists; statusline mirror is ko-KR
+  only.)
+- **`docs/i18n/ja-JP/guides/{advanced-features-guide,mcp-guide}.md`
+  frontmatter `title:` + H1 untranslated.** Of the nine ja-JP
+  guides, these two were the only files whose `title:` and `# H1`
+  were still in English (`"Advanced Features"`, `"MCP Integration"`)
+  while body content was fully translated. Both now read
+  `"高度な機能"` and `"MCP 連携"` respectively, matching the body-
+  language consistency of the other seven ja-JP guides. The
+  corresponding link labels in `docs/i18n/ja-JP/README.md`
+  Documentation table (rows 7 and 8) updated to match in lockstep.
+- **`docs/i18n/ja-JP` `/create` prompt-option references unified
+  to original English.** The ja-JP doc set quoted the `/create`
+  option label as `「既存プロジェクト」` (translated) in three
+  locations and as `「Existing project」` (original) in two —
+  readers could not tell which form would appear at the actual
+  prompt. ja-JP now quotes the English original (`"Existing
+  project"`, plus the paired `"New project"` and
+  `"Add missing features"` rows in the path-selection table)
+  everywhere it cites the `/create` option list, matching the
+  actual prompt label produced by `plugin/skills/create/SKILL.md`.
+  Sentences that use 既存プロジェクト as a generic phrase rather
+  than a prompt-option quote (e.g., `effective-usage-guide.md` L91
+  section heading) are intentionally retained.
 
 ### Changed
 

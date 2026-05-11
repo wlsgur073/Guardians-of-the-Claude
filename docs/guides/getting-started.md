@@ -28,7 +28,7 @@ claude
 > /init
 ```
 
-**`/guardians-of-the-claude:create`** runs `/init`-style analysis plus generates rules, permissions, and optional advanced features. Install the plugin first (`/plugin marketplace add wlsgur073/Guardians-of-the-Claude`, then `/plugin install guardians-of-the-claude`). **Using both?** Run `/init` first, then `/guardians-of-the-claude:create` choosing "Existing project" -- it detects your existing CLAUDE.md and merges rather than overwrites.
+**`/guardians-of-the-claude:create`** runs `/init`-style analysis plus generates rules, permissions, and optional advanced features. Install the plugin first (`/plugin marketplace add wlsgur073/Guardians-of-the-Claude`, then `/plugin install guardians-of-the-claude@guardians`, then `/reload-plugins`). **Using both?** Run `/init` first, then `/guardians-of-the-claude:create` choosing "Existing project" -- it detects your existing CLAUDE.md and merges rather than overwrites.
 
 ## Step 2: Copy the Templates (Manual Alternative)
 

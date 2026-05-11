@@ -28,7 +28,7 @@ claude
 > /init
 ```
 
-**`/guardians-of-the-claude:create`** は `/init` と同様の解析に加えて、ルール・権限・任意の高度な機能まで生成します。先にプラグインをインストールしてください（`/plugin marketplace add wlsgur073/Guardians-of-the-Claude` のあと `/plugin install guardians-of-the-claude`）。**両方使いたい場合は** `/init` を先に実行し、次に `/guardians-of-the-claude:create` で「Existing project」を選択してください。既存の CLAUDE.md を検出して上書きせずにマージします。
+**`/guardians-of-the-claude:create`** は `/init` と同様の解析に加えて、ルール・権限・任意の高度な機能まで生成します。先にプラグインをインストールしてください（`/plugin marketplace add wlsgur073/Guardians-of-the-Claude` のあと `/plugin install guardians-of-the-claude@guardians`、続いて `/reload-plugins`）。**両方使いたい場合は** `/init` を先に実行し、次に `/guardians-of-the-claude:create` で「Existing project」を選択してください。既存の CLAUDE.md を検出して上書きせずにマージします。
 
 ## Step 2: テンプレートをコピーする（手動で行う場合）
 
