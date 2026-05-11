@@ -41,6 +41,26 @@ Remaining scope: 8 Defer proposals (D, A'-ev, K-judge, K-ref, F, F-ext, B, B-con
 
 ---
 
+## Cycle Re-Evaluation — 2026-05-11
+
+Defer trigger sweep (8 items): **0/8 fire**. Decision-backlog Defer/Skip rows unchanged from 2026-05-09 cycle.
+
+Trigger evaluation per item:
+
+- **A'-briefing** — Phase 3.7 shipped 2026-05-09 covers "disagreement handling" only, not per-finding rejection logging by cause. Data-capture mechanism (one of the routes outlined in [`false-positive-sampling-attempt.md`](./false-positive-sampling-attempt.md) Possible data-capture routes) not added. **No trigger.**
+- **D** — n=5 sampling blocked by the same data-capture gap as A'-briefing (D needs its own n=5 but no capture mechanism exists to produce it). **No trigger.**
+- **U-judge (A'-ev / K-judge / K-ref)** — `test/results/` files (28 dated 2026-04-04/05) measure simulation-accuracy grades, not judge-calibration ground truth (per `false-positive-sampling-attempt.md` Data Sources Surveyed row 1). **No trigger.**
+- **F / F-ext** — no phase-boundary failure / state-loss pain reports filed; C' pilot completed without surfacing such evidence. **No trigger.**
+- **B / B-cond** — E half satisfied (U-bestp shipped 2026-05-09); user-demand half not satisfied — no external request for Agent Patterns guide observed. **No trigger.**
+
+Adjacent cleanup:
+
+- B / B-cond Defer-table row clarified: condition narrowed from "doubly conditional (E + user demand)" to "single remaining condition: user demand" (E half shipped 2026-05-09).
+
+Remaining scope: 8 Defer + 2 Skip — unchanged. Next re-evaluation triggered by any condition in § Stop Conditions for Round 6.
+
+---
+
 ## Decision Table
 
 **Reading the IDs**: Single and primed letters (`L`, `D`, `H`, `O`, `A'`, `C'`) are stable proposal references whose statements live in the round documents (see [References](#references)). Hyphens split a proposal into halves with separate prerequisites (`A'-postcheck`, `K-schema`, `A'-briefing`, `K-judge`, `K-ref`); plus signs combine proposals that move as one decision (`P + G`, `E + E-ext`). The **Unit** column's `U-`-prefixed labels group rows that move together — rows sharing a Unit move as one decision; rows without a Unit are independent.
@@ -69,7 +89,7 @@ Remaining scope: 8 Defer proposals (D, A'-ev, K-judge, K-ref, F, F-ext, B, B-con
 | **D** | Think-tool-style reasoning checkpoints | R1 | — | Differs from A' — D can pilot on one phase if hallucination/criterion-ambiguity signal appears at n=5; does **not** require the n=15–20 briefing-gap gate | n=5 sampling with hallucination/ambiguity signal |
 | **A'-ev / K-judge / K-ref** | LLM-as-judge adoption (judge half of K family) | R2 / R4 / R5 | **U-judge** | R5 K-ref converted judge adoption to a high-effort evidence project; same-family judge bias makes uncalibrated adoption net-negative | 20–50 human-scored audit outputs as calibrated ground truth |
 | **F / F-ext** | Phase-Boundary Contract Check + intra-phase notes | R2 / R3 | — | Re-gated: the question is **not** "do contracts exist?" but "are there phase-boundary failures or state-loss pain in `/audit`?" If pain is real, minimal contracts may be justified even if none exist now. | Evidence of phase-boundary failure / state-loss pain (from C' pilot or false-positive sampling) |
-| **B / B-cond** | Agent Patterns guide + harness subsection | R1 / R2 / R4 | — | Strategically aligned with `project_meta_system_vision` memory but doubly conditional. **User-side signal is mandatory** — without external demand, B is mission drift toward "Anthropic concepts explained." | E + C' results delivering verified pattern-to-skill mappings **and** explicit user demand |
+| **B / B-cond** | Agent Patterns guide + harness subsection | R1 / R2 / R4 | — | Strategically aligned with `project_meta_system_vision` memory. E (under U-bestp) shipped + C' pilot completed 2026-05-09 — single remaining condition: **user-side signal is mandatory** — without external demand, B is mission drift toward "Anthropic concepts explained." | Explicit user demand (E results + C' pilot delivered 2026-05-09) |
 
 ### Skip (do not pursue)
 
