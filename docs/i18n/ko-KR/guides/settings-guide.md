@@ -1,7 +1,7 @@
 ---
 title: "settings.json 설정하기"
 description: "settings 파일을 사용하여 Claude Code 동작을 설정하는 방법"
-version: 1.1.0
+version: 1.1.1
 ---
 
 # settings.json 설정하기
@@ -23,7 +23,7 @@ Claude Code는 가장 넓은 범위부터 가장 구체적인 범위까지, 네 
 
 ## 어디에 무엇을 설정할 것인가
 
-**Project** (`.claude/settings.json`) -- 프로젝트의 모든 팀원이 사용하는 공유 설정입니다. 공통 명령어에 대한 권한, 공유 deny 규칙 등을 포함합니다. 이 파일은 커밋하세요.
+**Project** (`.claude/settings.json`) -- 프로젝트의 모든 팀원이 사용하는 공유 설정입니다. 공통 명령어에 대한 권한, 공유 deny 규칙 등을 포함합니다. 이 파일은 커밋하세요. (플러그인 **소스** 저장소는 자체 `.claude/*`를 개발 전용으로 gitignore할 수 있습니다 — 이 커밋 안내는 본 가이드를 따르는 **사용자** 프로젝트에 적용됩니다.)
 
 **Local** (`.claude/settings.local.json`) -- 팀원에게 영향을 주지 않아야 하는 개인 오버라이드입니다. `.gitignore`에 추가하세요.
 

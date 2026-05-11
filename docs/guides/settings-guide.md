@@ -1,7 +1,7 @@
 ---
 title: "Configuring settings.json"
 description: "How to configure Claude Code behavior with settings files"
-version: 1.1.0
+version: 1.1.1
 ---
 
 # Configuring settings.json
@@ -23,7 +23,7 @@ When the same setting appears at multiple levels, more specific scopes override 
 
 ## What Goes Where
 
-**Project** (`.claude/settings.json`) -- Team-shared configuration that everyone on the project uses. Permissions for common commands, shared deny rules. Commit this file.
+**Project** (`.claude/settings.json`) -- Team-shared configuration that everyone on the project uses. Permissions for common commands, shared deny rules. Commit this file. (Plugin **source** repositories may gitignore their own `.claude/*` as dev-only — this commit guidance applies to **user** projects following this guide.)
 
 **Local** (`.claude/settings.local.json`) -- Personal overrides that should not affect your teammates. Add this to `.gitignore`.
 

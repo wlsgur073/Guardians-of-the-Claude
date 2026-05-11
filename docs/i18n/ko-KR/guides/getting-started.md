@@ -28,7 +28,7 @@ claude
 > /init
 ```
 
-**`/guardians-of-the-claude:create`**은 `/init` 스타일 분석에 더해 규칙, 권한, 선택적 고급 기능을 한 번에 생성합니다. 먼저 플러그인을 설치하세요 (`/plugin marketplace add wlsgur073/Guardians-of-the-Claude` 후 `/plugin install guardians-of-the-claude@guardians`, 그 다음 `/reload-plugins`). **둘 다 사용?** `/init`을 먼저 실행한 후, `/guardians-of-the-claude:create`에서 "기존 프로젝트"를 선택하세요 — 기존 CLAUDE.md를 감지하여 덮어쓰지 않고 병합합니다.
+**`/guardians-of-the-claude:create`**은 `/init` 스타일 분석에 더해 규칙, 권한, 선택적 고급 기능을 한 번에 생성합니다. 먼저 플러그인을 설치하세요 (`/plugin marketplace add wlsgur073/Guardians-of-the-Claude` 후 `/plugin install guardians-of-the-claude@guardians`, 그 다음 `/reload-plugins`). **둘 다 사용?** `/init`을 먼저 실행한 후, `/guardians-of-the-claude:create`에서 "Existing project"를 선택하세요 — 기존 CLAUDE.md를 감지하여 덮어쓰지 않고 병합합니다.
 
 ## Step 2: 템플릿 복사 (수동 대안)
 
@@ -113,7 +113,7 @@ Rules를 사용하면 좋은 경우:
 
 기본 설정이 잘 동작하면, hooks, agents, skills 같은 고급 기능을 탐색해 보세요. [고급 기능 가이드](advanced-features-guide.md)를 참고하세요.
 
-**스타터에서 고급으로 업그레이드:** `/guardians-of-the-claude:create`을 다시 실행하고, 첫 번째 질문에서 "기존 프로젝트"를 선택한 후 6개의 고급 질문에 답하세요. Claude가 기존 구성을 감지하여 새로운 섹션을 병합합니다.
+**스타터에서 고급으로 업그레이드:** `/guardians-of-the-claude:create`을 다시 실행하고, 첫 번째 질문에서 "Existing project"를 선택한 후 6개의 고급 질문에 답하세요. Claude가 기존 구성을 감지하여 새로운 섹션을 병합합니다.
 
 > **팁:** `claude-code-setup` 플러그인은 감지된 스택에 맞는 추가 자동화(MCP 서버, hooks, skills)를 추천할 수 있습니다. 공식 마켓플레이스에서 설치하면 설정 후 제안을 받을 수 있습니다.
 

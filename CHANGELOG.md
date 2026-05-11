@@ -219,6 +219,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   Sentences that use 既存プロジェクト as a generic phrase rather
   than a prompt-option quote (e.g., `effective-usage-guide.md` L91
   section heading) are intentionally retained.
+- **`docs/i18n/ko-KR` `/create` prompt-option references unified
+  to original English** (continuation of the ja-JP policy from
+  the previous entry). ko-KR was self-consistent on "기존 프로젝트"
+  but mismatched the actual prompt label that `plugin/skills/create/
+  SKILL.md` produces ("Existing project"). Five locations updated:
+  `README.md` path-selection table (3 rows) and follow-up tip
+  quote; `guides/getting-started.md` Step 1 quote and the
+  Starter→Advanced upgrade quote; `guides/effective-usage-guide.md`
+  Onboarding section quote. Generic uses of "기존 프로젝트" as a
+  phrase rather than a prompt-option quote (e.g.,
+  `effective-usage-guide.md` L90 section heading, `README.md` L52
+  path-selection intro prose) intentionally retained — symmetric
+  with the ja-JP carve-out.
+- **`.gitignore` add `.pytest_cache/` entry.** Existing Python
+  cache section ignored `__pycache__/` and `*.pyc` but not
+  `.pytest_cache/`, leaving `git status` noise from local pytest
+  runs against the `.github/scripts/` validators.
 
 ### Changed
 
@@ -283,6 +300,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   new `~210` boundary keeps the conciseness spirit without forcing
   trims of useful navigation content. Explanatory parenthetical
   appended to the `CLAUDE.md` Contribution Rules bullet for clarity.
+- **`docs/guides/settings-guide.md` (EN + ko-KR + ja-JP, bumped to
+  v1.1.1): 1-line disclaimer added to the "Project
+  (`.claude/settings.json`) — Commit this file" guidance.** New
+  parenthetical clarifies that the commit guidance applies to
+  **user** projects, while plugin **source** repositories
+  (including this one) may gitignore their own `.claude/*` as
+  dev-only. The `.gitignore:17-18` comment already declared that
+  intent; the disclaimer surfaces it where the guidance itself
+  lives so a contributor reading the guide alongside the ignore
+  file does not see them as contradictions.
 
 ### Removed
 

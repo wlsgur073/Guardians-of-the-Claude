@@ -27,6 +27,7 @@ node_modules/
 # Python (CI scripts cache)
 __pycache__/
 *.pyc
+.pytest_cache/
 
 # Obsidian
 .obsidian/
