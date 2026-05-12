@@ -11,6 +11,15 @@ trap { exit 0 }
 # the system ANSI codepage.
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
+# Skip if bash is also on PATH -- the bash hook entry will handle the
+# logging, avoiding duplicate file entries on dual-interpreter systems
+# (e.g., Windows with Git Bash + PowerShell). The bash entry takes
+# precedence when both exist; this entry only runs as a fallback on
+# bare shells.
+if (Get-Command bash -ErrorAction SilentlyContinue) {
+    exit 0
+}
+
 $ProjectDir = if ($env:CLAUDE_PROJECT_DIR) { $env:CLAUDE_PROJECT_DIR } else { (Get-Location).Path }
 $OutDir = Join-Path $ProjectDir ".claude/local/hooks"
 $OutFile = Join-Path $OutDir "pre-compact-snapshot.md"
