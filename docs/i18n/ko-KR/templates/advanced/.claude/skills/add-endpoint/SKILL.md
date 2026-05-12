@@ -6,7 +6,7 @@ argument-hint: "<resource> [operations]"
 
 # 단계
 
-## Step 1: 정보 수집
+## 단계 1: 정보 수집
 
 TaskFlow API 패턴을 위해 `references/api-conventions.md`를 읽습니다.
 
@@ -15,13 +15,13 @@ TaskFlow API 패턴을 위해 `references/api-conventions.md`를 읽습니다.
 - 어떤 CRUD 작업이 필요한가요? (예: "create, read, list, delete")
 - 기존 엔티티에 속하나요? (예: task 댓글이라면 "tasks")
 
-## Step 2: 검증
+## 단계 2: 검증
 
 - `src/api/`에 해당 리소스가 이미 존재하지 않는지 확인
 - 중첩 리소스인 경우 상위 엔티티가 존재하는지 확인
 - 변경 전 테스트 스위트가 통과하는지 확인 (`npm test`)
 
-## Step 3: 실행
+## 단계 3: 실행
 
 기존 패턴을 따라 다음 파일을 생성합니다:
 
@@ -34,7 +34,7 @@ TaskFlow API 패턴을 위해 `references/api-conventions.md`를 읽습니다.
 
 `src/api/index.ts`에 새 라우트를 등록합니다.
 
-## Step 4: 검증
+## 단계 4: 검증
 
 - `npm run build`를 실행하여 TypeScript 컴파일 확인
 - `npm test`를 실행하여 모든 테스트 통과 확인

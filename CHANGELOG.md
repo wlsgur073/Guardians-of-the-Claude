@@ -262,6 +262,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - `CLAUDE.md` cross-platform gotchas (`< /dev/stdin` rule) narrowed in scope: the rule applies *only when piping stdin through jq* (SessionStart-style JSON payloads), and the whole-stdin `cat` / `[Console]::In.ReadToEnd()` pattern used by `UserPromptSubmit` / `Stop` / `SubagentStop` / `PreCompact` hooks is documented as a separate valid pattern.
   - `.github/scripts/check-smoke-fixtures.py:287` `acquire_lock` docstring gained an explicit "Caller contract until Phase 2+" paragraph stating that the current implementation does NOT detect contention and that two concurrent acquires would silently overwrite each other; future multi-shell fixtures must implement fcntl/msvcrt support *before* landing.
   - `.github/scripts/lib/recommendation_registry.py:53` — separated the `resolved_by is None` case from the `not in resolvers` case so the failure message no longer prints the ambiguous Python `'None'` literal and instead reads "RESOLVED requires non-null resolved_by".
+- **ko-KR i18n drift fixes (5 substantive corrections, drift only — no `version` bump)**:
+  - `docs/i18n/ko-KR/README.md:113` — corrected mistranslated heading from "템플릿 구조" to "내부 구성" so it accurately reflects the EN canonical "What's Inside" (whole-repo tree, not just templates).
+  - `docs/i18n/ko-KR/guides/claude-md-guide.md:91` — removed an EN-absent qualifier "커스텀" before "skill과 agent" that was narrowing the EN canonical's "multiple skills and agents" semantics.
+  - `docs/i18n/ko-KR/guides/advanced-features-guide.md` — unified "에이전트"→"agent" and "스킬"→"Skill" English loanwords throughout (was mixed: section headings used Korean while body used English), matching the convention already adopted in the rest of the ko-KR guide set after `mcp-guide.md` was aligned.
+  - `docs/i18n/ko-KR/templates/advanced/.claude/agents/backend-developer.md:28` — renamed "## 제약 사항" to "## 제한사항" so all three sibling agent files (backend-developer / security-reviewer / test-writer) use the same Korean rendering of the EN "Constraints" heading.
+  - `docs/i18n/ko-KR/templates/advanced/.claude/skills/add-endpoint/SKILL.md` — translated the four "## Step N:" headings to "## 단계 N:" so the file matches the sibling `run-checks/SKILL.md` (which already used "단계") inside the same `skills/` directory.
 
 ### Changed
 

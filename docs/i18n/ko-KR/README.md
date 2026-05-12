@@ -110,7 +110,7 @@ v3.0이 출시되거나 두 번째 maintainer가 합류할 때까지(둘 중 먼
 
 종료 조건 충족 후 smoke 레인은 모든 release-gate 검사로 확장되며, 이 전환기 안내는 README에서 제거됩니다.
 
-## 템플릿 구조
+## 내부 구성
 
 ```text
 Guardians-of-the-Claude/
