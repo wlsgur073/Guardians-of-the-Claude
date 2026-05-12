@@ -1,7 +1,7 @@
 ---
 title: "Sprint Contract"
 description: "Scope contract for the current work cycle"
-version: "1.0.0"
+version: 1.0.0
 ---
 
 # Sprint Contract
