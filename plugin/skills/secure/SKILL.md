@@ -40,15 +40,28 @@ Check if `.claude/settings.json` exists and has `deny` patterns covering sensiti
 
 Check if `.claude/settings.json` has `hooks` with `PreToolUse` entries that block edits to sensitive files (`.env`, `.pem`, `.key`).
 
-### 1.4 Permission Mode
+### 1.4 Autonomy Risk Policy
+
+Read `.claude/settings.json` (and `.claude/settings.local.json` if present) and `.mcp.json` (project-scope only). Apply the 5 sub-checks defined in `plugin/skills/audit/references/checks/t2-protection.md` §T2.4:
+
+- 4a wildcard allow: `permissions.allow[]` entries matching `Bash(*)`, `Bash(python*)`, `Bash(node*)`, `Bash(npm run *)`, `Agent(*)`, `PowerShell(*)`
+- 4b bypassPermissions: `defaultMode == "bypassPermissions"` in `.claude/settings.json` without CLAUDE.md isolation note
+- 4d-i / 4d-ii: `.mcp.json` `mcpServers[*].env` with literal secret (4d-i) or placeholder without migration note (4d-ii)
+- 4e scoped destructive Bash: allow entries matching `git push -f`, `rm -rf`, `curl|bash`, `gh api * DELETE`, etc.
+
+Skip 4c (advisory-only in `/audit`; `/secure` does not surface it).
+
+For each violation, record `(sub-check ID, evidence path:line, catalog incident ID)` — used by the Phase 2 checklist and the Phase 3.4 tightening logic.
+
+### 1.5 Permission Mode
 
 Read `.claude/settings.json` and record the value of `permissions.defaultMode` (or note its absence — Claude Code defaults to `default` mode when unset).
 
-### 1.5 Sandbox State
+### 1.6 Sandbox State
 
 Check whether `sandbox.enabled` is `true` in `.claude/settings.json` (project scope). Note that sandbox settings can also be set in user (`~/.claude/settings.json`), local (`.claude/settings.local.json`), or managed scopes — if absent in project scope, report "project setting absent" rather than "sandboxing is off" (the effective state may differ across scopes per Claude Code's [settings precedence](https://code.claude.com/docs/en/settings#settings-precedence)).
 
-### 1.6 Auto Mode Trust Environment
+### 1.7 Auto Mode Trust Environment
 
 Check whether `autoMode.environment` is configured in user (`~/.claude/settings.json`), local (`.claude/settings.local.json`), or managed scopes. The classifier ignores `autoMode` in shared project settings (`.claude/settings.json`).
 
@@ -77,7 +90,7 @@ Then skip to **Write History** (Phase 4.2) to record the result (Fixed: none, De
 
 ### Permission and Safety State (informational)
 
-After the checklist above (regardless of which items were selected), also report the current permission and safety state from Phase 1.4–1.6:
+After the checklist above (regardless of which items were selected), also report the current permission and safety state from Phase 1.5–1.7:
 
 > Permission mode (`defaultMode`): `<value>` (or "not set — defaults to `default`")
 > Sandboxing: enabled / disabled / not configured
