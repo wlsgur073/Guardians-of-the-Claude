@@ -1,0 +1,10 @@
+EXPECTED MARKERS (byte-exact match verified by check-smoke-fixtures.py once golden is frozen by Task 10):
+- T2.4 MINIMAL in Detailed Findings
+- "scope-escalation" cited (from 4a or 4e finding)
+- "safety-bypass" cited (from 4b finding)
+- "credential-exploration" cited (from 4d-i finding)
+- "See security-patterns.md#scope-escalation" anchor reference present
+- T2.4 sub-checks 4a, 4b, 4d-i, 4d-ii, 4e all listed in Detailed Findings
+- T2.4 score 0.3 reflected in DS calculation (MINIMAL band, weight 0.15)
+- Synergy bonus pair (sensitive + rules) NOT eligible because T2.4 brings score below cap
+- Scoring contract banner mentions audit-score-v4.2.0

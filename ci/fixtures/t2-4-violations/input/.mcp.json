@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "literal-secret-server": {
+      "command": "node",
+      "args": ["./server.js"],
+      "env": {
+        "API_KEY": "sk-abc123def456ghi789jkl012mno345pqr"
+      }
+    },
+    "placeholder-server": {
+      "command": "node",
+      "args": ["./other-server.js"],
+      "env": {
+        "TOKEN": "${MY_TOKEN}"
+      }
+    }
+  }
+}
