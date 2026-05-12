@@ -53,7 +53,12 @@ def check_recommendations(instances: list[dict], registry_by_key: dict) -> list[
         # Lint 2 cont: resolver authorization
         if inst.get("status") == "RESOLVED":
             resolved = inst.get("resolved_by")
-            if resolved not in row["resolvers"]:
+            if resolved is None:
+                failures.append(
+                    f"id '{rid}' status RESOLVED requires non-null resolved_by "
+                    f"(found null); registry resolvers: {row['resolvers']}"
+                )
+            elif resolved not in row["resolvers"]:
                 failures.append(
                     f"id '{rid}' resolved_by '{resolved}' "
                     f"not in registry resolvers {row['resolvers']}"

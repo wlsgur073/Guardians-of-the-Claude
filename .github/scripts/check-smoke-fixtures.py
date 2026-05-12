@@ -295,6 +295,15 @@ def acquire_lock(lock_path: Path, behavior: str, pinned_utc: str) -> None:
     contention; Final Phase waits up to 30s), but both branches currently
     take the happy path. Phase 2+ will implement real contention handling
     when multi-shell fixtures land.
+
+    **Caller contract until Phase 2+**: callers must guarantee single-shell
+    sequential execution per `lock_path` (no parallel acquire on the same
+    path). The current implementation does NOT detect contention; if a
+    multi-shell fixture lands without first implementing fcntl/msvcrt
+    contention handling, two concurrent acquires would silently overwrite
+    each other's lock content with no error and no exception. Adding a
+    contention test fixture before implementing real contention handling
+    is the correct order of operations.
     """
     if behavior not in {"abort_immediately", "wait_30s"}:
         raise ValueError(f"unknown lock behavior: {behavior}")

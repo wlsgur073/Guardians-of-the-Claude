@@ -64,7 +64,7 @@ Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetc
 
 **Cross-platform shell/fixture gotchas** (encountered when authoring hook scripts or extending the smoke runner):
 
-- `< /dev/stdin` does NOT exist on Git Bash. Hook scripts reading SessionStart-style stdin payload should use jq's default stdin (`jq -r '.field' 2>/dev/null`) without redirection.
+- `< /dev/stdin` does NOT exist on Git Bash. Hook scripts reading **SessionStart-style JSON payloads through jq** should use jq's default stdin (`jq -r '.field' 2>/dev/null`) without redirection. The whole-stdin `cat` / `[Console]::In.ReadToEnd()` pattern used by `UserPromptSubmit` / `Stop` / `SubagentStop` / `PreCompact` hooks is a separate, valid pattern (no jq pipeline involved) — this rule applies only when piping stdin through jq.
 - `subprocess.stdout` preserves source line endings (CRLF on Git Bash); `Path.read_text(encoding='utf-8')` uses universal newlines (CRLF→LF). Normalize both sides via `.replace("\r\n", "\n").strip()` before byte comparison.
 - Windows `bash` via PATH may resolve to WSL bash (fails with Hyper-V error if virtualization disabled). Python subprocess invoking shell should prefer explicit Git Bash path (`C:\Program Files\Git\bin\bash.exe`) — see `_find_bash()` in `.github/scripts/check-smoke-fixtures.py`.
 - CI fixtures requiring file mtime ordering (e.g., `legacy_mtime` drift trigger in `ci/fixtures/sessionstart-orchestrator/`): git checkout does NOT preserve mtimes. Each such fixture ships `setup.sh` with `touch -t YYYYMMDDHHMM <file>`; the smoke runner sources it before invoking the hook.

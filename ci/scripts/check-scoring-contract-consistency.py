@@ -38,11 +38,17 @@ def check_a1_canonical() -> tuple[str, list[str]]:
     return cid, []
 
 
+# Minimum coverage floor: 1 self (guardians-of-the-claude) + 7 real-project
+# goldens. Dropping below this floor means audit-rule coverage has regressed,
+# so the check fails loud rather than silent-passing on a shrinking set.
+MIN_GOLDENS = 8
+
+
 def check_a2_goldens(canonical_cid: str) -> list[str]:
     failures = []
     goldens = sorted(GOLDENS_DIR.glob("*/golden.json"))
-    if len(goldens) < 8:
-        failures.append(f"A2: expected >= 8 goldens, found {len(goldens)}")
+    if len(goldens) < MIN_GOLDENS:
+        failures.append(f"A2: expected >= {MIN_GOLDENS} goldens, found {len(goldens)}")
     for golden_path in goldens:
         with golden_path.open(encoding="utf-8") as f:
             golden = json.load(f)
