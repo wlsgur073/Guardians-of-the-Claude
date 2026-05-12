@@ -167,7 +167,7 @@ Run build and tests to confirm everything works.
 
 ### Progressive Disclosure
 
-スキルはコンテキストを 3 段階でロードしてウィンドウを軽く保ちます — スキルの**メタデータ**（最初にロード、トリガ判定用）、SKILL.md の**本文**（スキル起動時にロード）、**サポートファイル**（`references/`、`examples/`、`scripts/` — ワークフロー内で必要なときにのみロード）。skill-local の `references/` を SKILL.md と並べて束ねるのが canonical な Agent Skills 構造です。共有の `plugin/references/*.md` は非標準であり、コンテンツが本当に cross-skill な場合のみ使用してください。
+スキルはコンテキストを 3 段階でロードしてウィンドウを軽く保ちます — スキルの**メタデータ**（最初にロード、トリガ判定用）、SKILL.md の**本文**（スキル起動時にロード）、**サポートファイル**（ワークフロー内で必要なときにのみロード）。skill-local の `references/` を SKILL.md と並べて束ねるのが canonical な Agent Skills 構造です。共有の `plugin/references/*.md` は、コンテンツが本当に cross-skill な場合のみ使用してください。
 
 ### スキル設計のパターン
 

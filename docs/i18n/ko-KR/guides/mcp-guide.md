@@ -127,4 +127,4 @@ Claude Code는 로드 시점에 `${POSTGRES_CONNECTION_STRING}`을 쉘 환경에
 
 ## 추가 자료
 
-- [설정 가이드](settings-guide.md) (권한) 및 [고급 기능 가이드](advanced-features-guide.md) (훅, 에이전트, 스킬)
+- [설정 가이드](settings-guide.md) (권한) 및 [고급 기능 가이드](advanced-features-guide.md) (hooks, agents, skills)
