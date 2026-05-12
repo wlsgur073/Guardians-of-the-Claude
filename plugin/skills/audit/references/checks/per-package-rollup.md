@@ -2,7 +2,7 @@
 title: Per-Package Rollup Procedure
 description: Per-subpackage score rollup procedure for /audit Phase 3.6 hook output. Defines coverage counters (4 fields), min/median/worst computation over scored_count, median even-count handling, worst tie semantics, n/a rendering when scored_count=0, and runtime invariants. No aggregate score (v2.13.0 contract).
 version: 1.0.0
-applies_to: audit-score-v4.1.0
+applies_to: audit-score-v4.2.0
 ---
 
 # Per-Package Rollup Procedure

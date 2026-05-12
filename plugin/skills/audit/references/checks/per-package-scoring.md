@@ -2,7 +2,7 @@
 title: Per-Package Scoring Procedure
 description: Per-subpackage CLAUDE.md scoring procedure for /audit Phase 3.6 hook. Defines mechanical T1+T2+T3 (package-rebased), LAV evaluation per-package with LAV/T3 boundary rule, Synergy Bonus from package-local T1.2/T1.3 + T2.1/T2.2 pairs, cap tier resolution, Final formula, and degraded state handling. Consumed when /audit iterates monorepo_detection.package_roots_for_scoring[].
 version: 1.0.0
-applies_to: audit-score-v4.1.0
+applies_to: audit-score-v4.2.0
 ---
 
 # Per-Package Scoring Procedure

@@ -2,7 +2,7 @@
 title: "sprint-contract.md parser (audit-only consumer)"
 description: "Optional, read-only post-freeze parse of sprint-contract.md for qa-report Sprint Contract Coverage section"
 version: "1.0.0"
-applies_to: audit-score-v4.1.0
+applies_to: audit-score-v4.2.0
 ---
 
 # Sprint Contract Parser

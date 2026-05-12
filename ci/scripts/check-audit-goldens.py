@@ -3,7 +3,7 @@
 
 Assertions per golden (6 always + A7 self-only + A8/A9/A10 monorepo-only):
   A1: JSON schema required keys present
-  A2: scoring_contract_id == "audit-score-v4.1.0"
+  A2: scoring_contract_id == "audit-score-v4.2.0"
   A3: LAV_nonL5 == L1 + L2 + L3 + L4 + L6 (L5 routed via cap tier instead)
   A4: cap matches cap tier rule (60 / 50 / 100)
   A5: re-computed Final matches expected_final_score within +/-0.001
@@ -350,9 +350,9 @@ def validate_golden(path: Path) -> list[str]:
         return errors
 
     # A2: scoring_contract_id
-    if data["scoring_contract_id"] != "audit-score-v4.1.0":
+    if data["scoring_contract_id"] != "audit-score-v4.2.0":
         errors.append(
-            f"{slug} A2: scoring_contract_id must be 'audit-score-v4.1.0'; "
+            f"{slug} A2: scoring_contract_id must be 'audit-score-v4.2.0'; "
             f"got {data['scoring_contract_id']!r}"
         )
 

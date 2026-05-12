@@ -140,10 +140,10 @@ check_drift_family() {
   fi
 
   # Reason 4: scoring_contract_bump — profile.scoring_model_ack differs from plugin's current.
-  # Plugin's current scoring contract ID is audit-score-v4.1.0.
+  # Plugin's current scoring contract ID is audit-score-v4.2.0.
   local PROFILE_SCORE_ACK
   PROFILE_SCORE_ACK=$(jq -r '.claude_code_configuration_state.scoring_model_ack.contract_id // ""' < "$PROFILE" 2>/dev/null || echo "")
-  local EXPECTED_SCORE="audit-score-v4.1.0"
+  local EXPECTED_SCORE="audit-score-v4.2.0"
   if [ -n "$PROFILE_SCORE_ACK" ] && [ "$PROFILE_SCORE_ACK" != "$EXPECTED_SCORE" ]; then
     if [ -z "$primary" ]; then
       primary="scoring_contract_bump"

@@ -158,8 +158,8 @@ try {
             } else { $otherCount++ }
         }
 
-        # Reason 4: scoring_contract_bump -- expected audit-score-v4.1.0.
-        $expectedScore = "audit-score-v4.1.0"
+        # Reason 4: scoring_contract_bump -- expected audit-score-v4.2.0.
+        $expectedScore = "audit-score-v4.2.0"
         $profileScoreAck = if ($profileObj.claude_code_configuration_state.scoring_model_ack.contract_id) {
             $profileObj.claude_code_configuration_state.scoring_model_ack.contract_id
         } else { "" }

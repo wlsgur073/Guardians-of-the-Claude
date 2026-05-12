@@ -2,7 +2,7 @@
 title: "Monorepo Detection"
 description: "Per-ecosystem workspace declaration parsing rules and detection algorithm for /audit Phase 1.5. Defines parsing rules for 14 ecosystems, heuristic signals, detection algorithm pseudocode, type consistency rules, and cap policy."
 version: 1.0.0
-applies_to: "audit-score-v4.1.0"
+applies_to: "audit-score-v4.2.0"
 ---
 
 # Monorepo Detection

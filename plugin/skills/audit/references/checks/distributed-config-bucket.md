@@ -2,7 +2,7 @@
 title: Distributed-Config Bucket Rubric
 description: Bucket rubric for distributed-config monorepos — required conditions (with_claude_md >= 2 + monorepo type), 4 supporting signals (>=2 of {ratio, root compactness, subpackage actionability, verbose-prose-sparse-config exclusion}), exclusion conditions (excessive root, low-quality distribution), and advisory numeric guardrails. Classifies monorepos that distribute Claude Code configuration across sub-package CLAUDE.md files rather than centralizing in root.
 version: 1.0.0
-applies_to: audit-score-v4.1.0
+applies_to: audit-score-v4.2.0
 ---
 
 # Distributed-Config Bucket Rubric
