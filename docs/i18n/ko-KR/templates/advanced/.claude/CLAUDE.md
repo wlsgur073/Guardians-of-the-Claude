@@ -1,6 +1,6 @@
 ---
 title: "TaskFlow .claude/CLAUDE.md (대안 위치)"
-description: ".claude/ 디렉터리 내 프로젝트 지시문 배치 옵션을 보여주는 데모 스텁"
+description: ".claude/ 디렉토리 내 프로젝트 지시문 배치 옵션을 보여주는 데모 스텁"
 version: 1.1.0
 ---
 
@@ -10,7 +10,7 @@ version: 1.1.0
 
 프로젝트 루트 대신 `.claude/CLAUDE.md`에 지시문을 배치하는 방법을 보여줍니다. 전체 예시는 `templates/advanced/CLAUDE.md` (루트 배치)를 참고하세요.
 
-Claude는 프로젝트 루트와 `.claude/` 디렉터리 모두에서 `CLAUDE.md`를 자동으로 탐지합니다 — 별도 설정이 필요 없습니다. 두 위치 모두에 지시문을 두지 마세요. 충돌이 발생할 수 있습니다.
+Claude는 프로젝트 루트와 `.claude/` 디렉토리 모두에서 `CLAUDE.md`를 자동으로 탐지합니다 — 별도 설정이 필요 없습니다. 두 위치 모두에 지시문을 두지 마세요. 충돌이 발생할 수 있습니다.
 
 ## `.claude/CLAUDE.md`를 사용할 때
 

@@ -26,4 +26,4 @@ description: "TaskFlow 프로젝트의 레이어 구조와 의존성 방향"
 
 - 각 엔티티(Task, User, Comment)는 각 레이어에 자체 파일을 가짐
 - 엔티티 간 호출은 서비스를 통할 것, 레포지토리 직접 접근 금지
-- `src/errors/` 디렉터리는 공유 인프라 -- 모든 레이어에서 import 가능
+- `src/errors/` 디렉토리는 공유 인프라 -- 모든 레이어에서 import 가능

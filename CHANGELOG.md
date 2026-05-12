@@ -272,6 +272,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - `docs/i18n/ja-JP/guides/recommended-plugins-guide.md:15` — unified the in-file mix of Japanese-transliterated `subagent` and English-loanword `subagents` to the English form, matching the rest of the file.
   - `docs/i18n/ja-JP/README.md:11-13` — moved the language switcher block above the intro paragraph so the structural ordering matches the EN canonical (banner → switcher → intro), instead of the previous (banner → intro → switcher).
   - `docs/i18n/ja-JP/README.md:87` — retranslated the "Day 100+" section heading to preserve the EN canonical's "Engagement" nuance (user-engagement / participation), changing the previous wording that read closer to "activation" (a feature-on connotation).
+- **ko-KR cross-file spelling sweep (drift only — no `version` bump)** — two parallel cross-file inconsistencies were unified per user direction:
+  - "directory" loanword: 7 occurrences of the alternative Korean spelling across 5 files (`docs/i18n/ko-KR/guides/{settings-guide,advanced-features-guide}.md`, `docs/i18n/ko-KR/templates/advanced/.claude/{CLAUDE.md,rules/testing.md,rules/architecture.md}`) were normalized to the more prevalent variant already used by 21 occurrences across 6 sibling files.
+  - "no" response word: 4 occurrences of the verb-ending form `아니오` across 3 files (`docs/i18n/ko-KR/guides/{claude-md-guide,directory-structure-guide,mcp-guide}.md`) were normalized to the standard interjection form `아니요` per the National Institute of Korean Language convention (the verb-ending form `아니오` is grammatically reserved for sentence-final verb conjugations like `~이오`, not yes/no responses).
 
 ### Changed
 

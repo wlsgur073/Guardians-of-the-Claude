@@ -10,7 +10,7 @@ description: "TaskFlow 프로젝트의 Jest 테스트 컨벤션"
 - HTTP 엔드포인트 테스트에 Supertest 사용
 
 ## 구조
-- `src/` 디렉터리를 미러링: `tests/services/`는 `src/services/`를 테스트
+- `src/` 디렉토리를 미러링: `tests/services/`는 `src/services/`를 테스트
 - `describe` 블록은 메서드 또는 동작별로 그룹화
 - 테스트 파일 네이밍: `<module>.test.ts`
 
