@@ -110,7 +110,7 @@ The `/audit` skill determines this at runtime by inspecting the project, not fro
    Range: bounded above by cap; lower bound governed by inputs (no separate clamp).
 ```
 
-(Note: the v2.12.0 LAV item-aware multiplier replaces the v2.10.0 Foundation-Gated Multiplicative formula. FG is no longer a multiplier on DS — acceptance verified by 5-sample simulation under `ci/scripts/check-scoring-formula.py`.)
+(Note: the v2.12.0 LAV item-aware multiplier replaces the v2.10.0 Foundation-Gated Multiplicative formula. FG is no longer a multiplier on DS — acceptance verified by 6-sample simulation under `ci/scripts/check-scoring-formula.py`.)
 
 ## LAV Axis Summary
 

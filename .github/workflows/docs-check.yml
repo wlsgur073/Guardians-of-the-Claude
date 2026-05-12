@@ -209,7 +209,7 @@ jobs:
           exit "$EXIT_CODE"
 
   scoring-formula-simulation:
-    name: Scoring formula 5-sample simulation
+    name: Scoring formula 6-sample simulation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -218,7 +218,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Run 5-sample simulation
+      - name: Run 6-sample simulation
         run: |
           python ci/scripts/check-scoring-formula.py || EXIT_CODE=$?
           EXIT_CODE=${EXIT_CODE:-0}
