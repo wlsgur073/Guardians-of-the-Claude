@@ -268,6 +268,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - `docs/i18n/ko-KR/guides/advanced-features-guide.md` — unified "에이전트"→"agent" and "스킬"→"Skill" English loanwords throughout (was mixed: section headings used Korean while body used English), matching the convention already adopted in the rest of the ko-KR guide set after `mcp-guide.md` was aligned.
   - `docs/i18n/ko-KR/templates/advanced/.claude/agents/backend-developer.md:28` — renamed "## 제약 사항" to "## 제한사항" so all three sibling agent files (backend-developer / security-reviewer / test-writer) use the same Korean rendering of the EN "Constraints" heading.
   - `docs/i18n/ko-KR/templates/advanced/.claude/skills/add-endpoint/SKILL.md` — translated the four "## Step N:" headings to "## 단계 N:" so the file matches the sibling `run-checks/SKILL.md` (which already used "단계") inside the same `skills/` directory.
+- **ja-JP i18n drift fixes (3 corrections, drift only — no `version` bump)**:
+  - `docs/i18n/ja-JP/guides/recommended-plugins-guide.md:15` — unified the in-file mix of Japanese-transliterated `subagent` and English-loanword `subagents` to the English form, matching the rest of the file.
+  - `docs/i18n/ja-JP/README.md:11-13` — moved the language switcher block above the intro paragraph so the structural ordering matches the EN canonical (banner → switcher → intro), instead of the previous (banner → intro → switcher).
+  - `docs/i18n/ja-JP/README.md:87` — retranslated the "Day 100+" section heading to preserve the EN canonical's "Engagement" nuance (user-engagement / participation), changing the previous wording that read closer to "activation" (a feature-on connotation).
 
 ### Changed
 
