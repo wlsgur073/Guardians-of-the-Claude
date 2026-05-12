@@ -1,11 +1,11 @@
-"""5-sample scoring formula simulation verifier.
+"""6-sample scoring formula simulation verifier.
 
 Validates that the scoring formula declared in plugin/references/scoring-model.md
-produces the 5 expected Final values. Drift between the declared formula and
+produces the 6 expected Final values. Drift between the declared formula and
 the expected goldens fails this check.
 
 Exit codes:
-    0 — all 5 samples match expected
+    0 — all 6 samples match expected
     1 — at least one sample mismatches
     2 — plugin/references/scoring-model.md not yet committed
 """
@@ -15,8 +15,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SCORING_MODEL = ROOT / "plugin" / "references" / "scoring-model.md"
 
-# 5-sample goldens (verified within real LAV maxima).
+# 6-sample goldens (verified within real LAV maxima).
 # ci/fixtures/scoring-model-simulation/ mirrors these for T2c author reference.
+# Sample t2_4_minimal exercises the T2.4 autonomy-risk item (audit-score-v4.2.0).
+# DS=93.7 derived from renormalized T2 weights (0.35/0.30/0.20/0.15) with T2.4=0.3 MINIMAL.
 SAMPLES = [
     # (name, DS, SB, L1..L6, expected Final)
     ("X",  80,    5, [0,  0,  0, 0, -3, +1], 60),
@@ -24,6 +26,9 @@ SAMPLES = [
     ("Z",  65,    3, [-3, -2, +1, 0, -3, 0],  50),
     ("P",  70,    2, [-3, 0,  0, 0, -3, 0],   50),
     ("Q'", 4750/59, 5, [+2, +2, +3, +1, +1, +1], 100),
+    # T2.4 MINIMAL fixture: DS=93.7, SB=5 (test+build pair +2, sensitive+rules pair +3),
+    # all LAV positive -> cap=100, raw = 93.7 * 1.18 + 5 = 115.566 -> Final = 100.
+    ("t2_4_minimal", 93.7, 5, [+2, +2, +3, +1, +1, +1], 100),
 ]
 
 # Real LAV minima (negative-minimum axes only):
@@ -67,7 +72,7 @@ def main():
         for line in fails:
             print(line)
         sys.exit(1)
-    print("All 5 samples PASS -- formula matches the canonical scoring goldens.")
+    print("All 6 samples PASS -- formula matches the canonical scoring goldens.")
     sys.exit(0)
 
 
