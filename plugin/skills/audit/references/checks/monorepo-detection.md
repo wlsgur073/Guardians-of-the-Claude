@@ -161,7 +161,8 @@ function detect_monorepo(project_root):
     # Phase C: 4-layer filter
     filtered_roots = []
     for root in candidate_roots:
-        if matches_build_cache_exclusion(root): continue        # Layer 2
+        if matches_build_cache_exclusion(root): continue        # Layer 2a — segment list
+        if matches_test_fixture_prefix(root): continue          # Layer 2b — path-prefix list
         if not has_manifest_in(root, MANIFEST_LIST): continue   # Layer 3
         if git_check_ignore(root) == 0: continue                # Layer 4
         filtered_roots.append(repo_relative(root))
@@ -190,6 +191,8 @@ function detect_monorepo(project_root):
 ```
 
 **Phase 1.5 mapping**: candidate roots are the deduplicated union of three sources — workspace-declaration roots (Phase A), accepted heuristic roots (Phase B), and CLAUDE.md disclosure walk parents (Phase B.5). The uncapped filtered root set (Phase C output) MUST include every disclosed subpackage CLAUDE.md parent that passes Layer 2/3/4. `package_roots_for_scoring[]` is the `scored=50` capped prefix; truncation past the cap MUST be surfaced through `package_root_caps` and `notes`. `package_roots[]` is the display-capped prefix of `package_roots_for_scoring[]`.
+
+**Layer 2 split (2a + 2b)**: Layer 2 is two complementary exclusion checks. `matches_build_cache_exclusion` (Layer 2a) tests whether ANY path segment of `root` matches the build/cache/vendor segment list (`node_modules`, `dist`, etc.) — case-insensitive on Windows. `matches_test_fixture_prefix` (Layer 2b) tests whether the normalized `root` path STARTS WITH any entry in the test-fixture prefix list (currently `ci/fixtures/`). The prefix list is intentionally narrow: it shields the plugin's own source repo from misclassifying its CI verifier fixtures (which legitimately ship `package.json` / `Cargo.toml` / etc. for test purposes) as real subpackages. User projects that do not use `ci/fixtures/` are unaffected; projects that do use it gain the same protection. Future test-fixture conventions (e.g., `tests/fixtures/`, `__fixtures__/`) are NOT auto-included to avoid false negatives in projects where those paths host real source code — extension requires an explicit prefix-list addition or a maintainer-declared `test_fixtures` field (deferred).
 
 ## §4. Type Consistency Rules
 

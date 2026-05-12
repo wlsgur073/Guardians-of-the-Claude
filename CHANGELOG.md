@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- **`/audit` Phase 1.5 Layer 2 gains test-fixture path-prefix exclusion** — fixes the audit-of-audit pathology where this plugin auditing its own source repo treated four CI verifier fixtures (`ci/fixtures/monorepo/input/` plus three `sessionstart-orchestrator/*` fixtures that legitimately ship `package.json` or other manifest files for the smoke verifier) as real subpackages via Phase B.5 disclosure walk inclusion. Layer 2 now combines two exclusion checks: 2a (existing — segment match against `node_modules`, `dist`, `build`, etc.) and 2b (NEW — path prefix match against `ci/fixtures/`). Updated in `plugin/skills/audit/SKILL.md` Phase 1.5 + `plugin/skills/audit/references/checks/monorepo-detection.md` §3 algorithm pseudocode and Layer 2 prose. Resolves recommendation `monorepo-detection-fixture-pollution-gap` (PENDING since 2026-05-10). Maintainer-declared `test_fixtures` spec field (the more general fix option) intentionally deferred — extension requires explicit prefix-list addition or a new spec field, scope note in `monorepo-detection.md` §3 records the boundary.
+
 ## [2.18.0] - 2026-05-12
 
 ### Added

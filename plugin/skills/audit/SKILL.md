@@ -62,7 +62,7 @@ Walk the project for additional `CLAUDE.md` files that represent true subpackage
 
 **Layer 1 — Root exclusion:** Exclude the root `CLAUDE.md` and the root `.claude/CLAUDE.md` (both already counted in T1.1).
 
-**Layer 2 — Build/cache/vendor exclusion:** Exclude candidates whose path contains any segment matching: `node_modules/`, `dist/`, `build/`, `target/`, `vendor/`, `.git/`, `.next/`, `.nuxt/`, `.venv/`, `venv/`, `.cache/`, `coverage/`, `out/`, `__pycache__/`, `.pytest_cache/`.
+**Layer 2 — Build/cache/vendor + test-fixture exclusion:** Exclude candidates whose path contains any segment matching: `node_modules/`, `dist/`, `build/`, `target/`, `vendor/`, `.git/`, `.next/`, `.nuxt/`, `.venv/`, `venv/`, `.cache/`, `coverage/`, `out/`, `__pycache__/`, `.pytest_cache/`. Additionally, exclude candidates whose normalized path **starts with** `ci/fixtures/` — these directories ship manifest files (`package.json`, `Cargo.toml`, etc.) for verifier purposes; treating them as real subpackages causes audit-of-audit pathology when a project that uses `ci/fixtures/` audits its own source repo (the original case being this plugin auditing itself, where four CI fixtures legitimately ship manifest files for the smoke verifier).
 
 **Layer 3 — Package root + manifest requirement:** Determine each candidate's **package root**:
 
