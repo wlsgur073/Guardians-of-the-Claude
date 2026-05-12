@@ -48,7 +48,7 @@ A single change can ripple across the repo. When modifying any file, check downs
 
 ### Verifying Changes Locally
 
-Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetches the Claude Code settings schema from schemastore.org and degrades to required-field-only checks on network failure, so full schema validation locally requires connectivity. First-time setup: `pip install pyyaml==6.0.2 jsonschema==4.23.0 requests==2.32.3`
+Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetches the Claude Code settings schema from schemastore.org and degrades to required-field-only checks on network failure, so full schema validation locally requires connectivity. First-time setup: `pip install pyyaml==6.0.2 jsonschema==4.23.0 referencing==0.37.0 requests==2.32.3`
 
 - `python .github/scripts/check-frontmatter-parity.py` — confirms EN and i18n files have matching `version` fields
 - `python .github/scripts/check-i18n-parity.py` — confirms i18n directories mirror EN structure (stdlib only)

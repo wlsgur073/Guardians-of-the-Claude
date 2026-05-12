@@ -93,7 +93,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install jsonschema==4.23.0 requests==2.32.3
+        run: pip install jsonschema==4.23.0 referencing==0.37.0 requests==2.32.3
 
       - name: Validate JSON schemas
         run: python .github/scripts/check-json-schemas.py
