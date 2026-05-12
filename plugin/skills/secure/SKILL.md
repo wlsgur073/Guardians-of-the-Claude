@@ -76,6 +76,11 @@ Present the current security state:
 > [check or x] Deny patterns for sensitive files (.env, .pem, .key)
 > [check or x] Dedicated security rule file
 > [check or x] File protection hooks (PreToolUse)
+> [check or x] Autonomy risk policy
+>   - Wildcard allow: <N violations or "—">
+>   - Destructive scoped allow: <N violations or "—">
+>   - bypassPermissions without isolation note: <yes/no>
+>   - .mcp.json credential exposure: <N violations or "—">
 >
 > "Which items would you like to add? (pick all that apply)"
 
