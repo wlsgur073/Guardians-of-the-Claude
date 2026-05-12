@@ -5,6 +5,14 @@ Enforces the skill interface stability contract as a CI gate.
 import sys
 from pathlib import Path
 
+# Windows cp949 defense: ensure stdout/stderr are UTF-8 so non-ASCII strings
+# don't raise UnicodeEncodeError on Korean-locale Windows hosts.
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+except (AttributeError, OSError):
+    pass
+
 import yaml
 
 FORBIDDEN_KEYS = {"options", "arguments"}

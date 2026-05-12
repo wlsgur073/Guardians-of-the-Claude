@@ -14,6 +14,14 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+# Windows cp949 defense: ensure stdout/stderr are UTF-8 so non-ASCII strings
+# don't raise UnicodeEncodeError on Korean-locale Windows hosts.
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+except (AttributeError, OSError):
+    pass
+
 ROOT = Path(__file__).resolve().parent.parent.parent
 
 PAIRS: list[tuple[Path, Path]] = [

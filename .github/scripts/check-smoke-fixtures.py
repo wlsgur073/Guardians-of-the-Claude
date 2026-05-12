@@ -33,6 +33,14 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
+# Windows cp949 defense: ensure stdout/stderr are UTF-8 so non-ASCII strings
+# don't raise UnicodeEncodeError on Korean-locale Windows hosts.
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+except (AttributeError, OSError):
+    pass
+
 # Make lib.recommendation_registry importable when invoked from repo root.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lib.recommendation_registry import check_recommendations, load_registry  # noqa: E402
