@@ -1,5 +1,5 @@
 {
-  "scoring_contract_id": "audit-score-v4.1.0",
+  "scoring_contract_id": "audit-score-v4.2.0",
   "sample": {
     "name": "Exa-Networks/exabgp",
     "url": "https://github.com/Exa-Networks/exabgp",

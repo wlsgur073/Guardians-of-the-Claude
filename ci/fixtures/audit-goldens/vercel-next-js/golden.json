@@ -1,5 +1,5 @@
 {
-  "scoring_contract_id": "audit-score-v4.1.0",
+  "scoring_contract_id": "audit-score-v4.2.0",
   "sample": {
     "name": "vercel/next.js",
     "url": "https://github.com/vercel/next.js",

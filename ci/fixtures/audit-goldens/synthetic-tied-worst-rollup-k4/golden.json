@@ -1,5 +1,5 @@
 {
-  "scoring_contract_id": "audit-score-v4.1.0",
+  "scoring_contract_id": "audit-score-v4.2.0",
   "sample": {
     "name": "synthetic/tied-worst-rollup-k4",
     "url": null,
@@ -41,14 +41,34 @@
           "ecosystem": "rust",
           "manifest": "Cargo.toml",
           "field": "members",
-          "raw_value": ["crate-a", "crate-b", "crate-c", "crate-d"],
-          "resolved_roots": ["crate-a", "crate-b", "crate-c", "crate-d"],
+          "raw_value": [
+            "crate-a",
+            "crate-b",
+            "crate-c",
+            "crate-d"
+          ],
+          "resolved_roots": [
+            "crate-a",
+            "crate-b",
+            "crate-c",
+            "crate-d"
+          ],
           "resolved_roots_total": 4,
           "resolved_roots_truncated": false
         }
       ],
-      "package_roots": ["crate-a", "crate-b", "crate-c", "crate-d"],
-      "package_roots_for_scoring": ["crate-a", "crate-b", "crate-c", "crate-d"],
+      "package_roots": [
+        "crate-a",
+        "crate-b",
+        "crate-c",
+        "crate-d"
+      ],
+      "package_roots_for_scoring": [
+        "crate-a",
+        "crate-b",
+        "crate-c",
+        "crate-d"
+      ],
       "package_root_caps": {
         "display": 20,
         "scored": 50,

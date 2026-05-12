@@ -1,5 +1,5 @@
 {
-  "scoring_contract_id": "audit-score-v4.1.0",
+  "scoring_contract_id": "audit-score-v4.2.0",
   "sample": {
     "name": "synthetic/dotnet-sln-4non-id",
     "url": null,
@@ -41,14 +41,34 @@
           "ecosystem": "dotnet",
           "manifest": "Solution.sln",
           "field": "Project",
-          "raw_value": ["src/A/A.csproj", "src/B/B.csproj", "src/C/C.csproj", "src/D/D.csproj"],
-          "resolved_roots": ["src/A", "src/B", "src/C", "src/D"],
+          "raw_value": [
+            "src/A/A.csproj",
+            "src/B/B.csproj",
+            "src/C/C.csproj",
+            "src/D/D.csproj"
+          ],
+          "resolved_roots": [
+            "src/A",
+            "src/B",
+            "src/C",
+            "src/D"
+          ],
           "resolved_roots_total": 4,
           "resolved_roots_truncated": false
         }
       ],
-      "package_roots": ["src/A", "src/B", "src/C", "src/D"],
-      "package_roots_for_scoring": ["src/A", "src/B", "src/C", "src/D"],
+      "package_roots": [
+        "src/A",
+        "src/B",
+        "src/C",
+        "src/D"
+      ],
+      "package_roots_for_scoring": [
+        "src/A",
+        "src/B",
+        "src/C",
+        "src/D"
+      ],
       "package_root_caps": {
         "display": 20,
         "scored": 50,

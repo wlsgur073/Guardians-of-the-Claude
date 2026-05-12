@@ -1,5 +1,5 @@
 {
-  "scoring_contract_id": "audit-score-v4.1.0",
+  "scoring_contract_id": "audit-score-v4.2.0",
   "sample": {
     "name": "the-cafe/git-ai-commit",
     "url": "https://github.com/the-cafe/git-ai-commit",

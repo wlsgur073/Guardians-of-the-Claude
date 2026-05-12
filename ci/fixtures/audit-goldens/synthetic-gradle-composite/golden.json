@@ -1,5 +1,5 @@
 {
-  "scoring_contract_id": "audit-score-v4.1.0",
+  "scoring_contract_id": "audit-score-v4.2.0",
   "sample": {
     "name": "synthetic/gradle-composite",
     "url": null,
@@ -41,8 +41,14 @@
           "ecosystem": "gradle",
           "manifest": "settings.gradle.kts",
           "field": "include",
-          "raw_value": [":app", ":lib"],
-          "resolved_roots": ["app", "lib"],
+          "raw_value": [
+            ":app",
+            ":lib"
+          ],
+          "resolved_roots": [
+            "app",
+            "lib"
+          ],
           "resolved_roots_total": 2,
           "resolved_roots_truncated": false
         },
@@ -51,14 +57,24 @@
           "ecosystem": "gradle",
           "manifest": "settings.gradle.kts",
           "field": "includeBuild",
-          "raw_value": ["build-logic"],
-          "resolved_roots": ["build-logic"],
+          "raw_value": [
+            "build-logic"
+          ],
+          "resolved_roots": [
+            "build-logic"
+          ],
           "resolved_roots_total": 1,
           "resolved_roots_truncated": false
         }
       ],
-      "package_roots": ["app", "lib"],
-      "package_roots_for_scoring": ["app", "lib"],
+      "package_roots": [
+        "app",
+        "lib"
+      ],
+      "package_roots_for_scoring": [
+        "app",
+        "lib"
+      ],
       "package_root_caps": {
         "display": 20,
         "scored": 50,

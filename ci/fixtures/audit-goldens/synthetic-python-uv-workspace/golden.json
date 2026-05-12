@@ -1,5 +1,5 @@
 {
-  "scoring_contract_id": "audit-score-v4.1.0",
+  "scoring_contract_id": "audit-score-v4.2.0",
   "sample": {
     "name": "synthetic/python-uv-workspace",
     "url": null,
@@ -41,14 +41,38 @@
           "ecosystem": "python",
           "manifest": "pyproject.toml",
           "field": "members",
-          "raw_value": ["packages/foo", "packages/bar", "packages/baz", "packages/qux", "packages/quux"],
-          "resolved_roots": ["packages/foo", "packages/bar", "packages/baz", "packages/qux", "packages/quux"],
+          "raw_value": [
+            "packages/foo",
+            "packages/bar",
+            "packages/baz",
+            "packages/qux",
+            "packages/quux"
+          ],
+          "resolved_roots": [
+            "packages/foo",
+            "packages/bar",
+            "packages/baz",
+            "packages/qux",
+            "packages/quux"
+          ],
           "resolved_roots_total": 5,
           "resolved_roots_truncated": false
         }
       ],
-      "package_roots": ["packages/foo", "packages/bar", "packages/baz", "packages/qux", "packages/quux"],
-      "package_roots_for_scoring": ["packages/foo", "packages/bar", "packages/baz", "packages/qux", "packages/quux"],
+      "package_roots": [
+        "packages/foo",
+        "packages/bar",
+        "packages/baz",
+        "packages/qux",
+        "packages/quux"
+      ],
+      "package_roots_for_scoring": [
+        "packages/foo",
+        "packages/bar",
+        "packages/baz",
+        "packages/qux",
+        "packages/quux"
+      ],
       "package_root_caps": {
         "display": 20,
         "scored": 50,

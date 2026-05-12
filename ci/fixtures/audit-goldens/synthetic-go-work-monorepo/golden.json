@@ -1,5 +1,5 @@
 {
-  "scoring_contract_id": "audit-score-v4.1.0",
+  "scoring_contract_id": "audit-score-v4.2.0",
   "sample": {
     "name": "synthetic/go-work-monorepo",
     "url": null,
@@ -41,14 +41,26 @@
           "ecosystem": "go",
           "manifest": "go.work",
           "field": "use",
-          "raw_value": ["./pkg/api", "./pkg/client"],
-          "resolved_roots": ["pkg/api", "pkg/client"],
+          "raw_value": [
+            "./pkg/api",
+            "./pkg/client"
+          ],
+          "resolved_roots": [
+            "pkg/api",
+            "pkg/client"
+          ],
           "resolved_roots_total": 2,
           "resolved_roots_truncated": false
         }
       ],
-      "package_roots": ["pkg/api", "pkg/client"],
-      "package_roots_for_scoring": ["pkg/api", "pkg/client"],
+      "package_roots": [
+        "pkg/api",
+        "pkg/client"
+      ],
+      "package_roots_for_scoring": [
+        "pkg/api",
+        "pkg/client"
+      ],
       "package_root_caps": {
         "display": 20,
         "scored": 50,

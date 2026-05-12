@@ -1,5 +1,5 @@
 {
-  "scoring_contract_id": "audit-score-v4.1.0",
+  "scoring_contract_id": "audit-score-v4.2.0",
   "sample": {
     "name": "synthetic/rust-cargo-workspace",
     "url": null,
@@ -41,14 +41,30 @@
           "ecosystem": "rust",
           "manifest": "Cargo.toml",
           "field": "members",
-          "raw_value": ["crates/foo", "crates/bar", "crates/baz"],
-          "resolved_roots": ["crates/foo", "crates/bar", "crates/baz"],
+          "raw_value": [
+            "crates/foo",
+            "crates/bar",
+            "crates/baz"
+          ],
+          "resolved_roots": [
+            "crates/foo",
+            "crates/bar",
+            "crates/baz"
+          ],
           "resolved_roots_total": 3,
           "resolved_roots_truncated": false
         }
       ],
-      "package_roots": ["crates/foo", "crates/bar", "crates/baz"],
-      "package_roots_for_scoring": ["crates/foo", "crates/bar", "crates/baz"],
+      "package_roots": [
+        "crates/foo",
+        "crates/bar",
+        "crates/baz"
+      ],
+      "package_roots_for_scoring": [
+        "crates/foo",
+        "crates/bar",
+        "crates/baz"
+      ],
       "package_root_caps": {
         "display": 20,
         "scored": 50,
