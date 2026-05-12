@@ -129,6 +129,33 @@ Add the `PreToolUse` hook from `../../references/security-patterns.md` to `.clau
 
 Merge with existing hooks — do not overwrite. Ensure `exit 2` (not `exit 1`) for blocking and `statusMessage` is present.
 
+### 3.4 Autonomy Tightening
+
+For each user-confirmed sub-check from the scan (1.4), the fix strategy differs by mutation safety:
+
+**Auto-mutate (4a wildcard allow, 4e scoped destructive allow)**:
+
+1. Parse `.claude/settings.json` `permissions.allow[]`.
+2. For each violating entry:
+   - **4a wildcard**: replace with narrower allows OR move to `permissions.ask[]`.
+     - `Bash(*)` → `ask:["Bash(*)"]`
+     - `Bash(python*)` → if project has `pyproject.toml` or `setup.py`, narrow to `allow:["Bash(python -m pytest:*)", "Bash(python -m ruff:*)"]`; else `ask:["Bash(python*)"]`
+     - `Bash(npm run *)` → if `package.json` `scripts` detected, narrow to per-script allows (e.g., `Bash(npm run test:*)`, `Bash(npm run lint:*)`); else `ask:["Bash(npm run *)"]`
+     - `Agent(*)` → `ask:["Agent(*)"]`
+   - **4e scoped destructive**: move entry from `allow:[]` to `ask:[]` unchanged.
+3. Atomic write back. Preserve existing JSON indentation (read first character of any nested array for indent detection — default 2-space).
+4. Print unified diff to user.
+
+**Suggestion-only (4b bypassPermissions, 4d-i literal secret, 4d-ii placeholder)**:
+
+Print a suggestion block. Do NOT mutate user files.
+
+- **4b**: "`.claude/settings.json` sets `defaultMode: \"bypassPermissions\"` (line N) but CLAUDE.md has no disposable-environment note. Either remove the default mode from project-shared settings (recommended — move to `settings.local.json` so each user opts in) or add a note to CLAUDE.md explaining this is for a disposable VM/container. Threat: safety-bypass. See security-patterns.md#safety-bypass."
+- **4d-i**: "`.mcp.json` line N contains what appears to be a literal credential in `<server>.env.<key>`. Do NOT remove it via this skill — that could expose the value in git history. Recommended manual steps: (1) rotate the credential, (2) move the MCP server config to `~/.claude.json` (user-scope), (3) re-add via `${ENV_VAR}` placeholder. Threat: credential-exploration. See security-patterns.md#credential-exploration."
+- **4d-ii**: "`.mcp.json` line N uses `${VAR}` placeholder in project-scope. This is acceptable but undocumented. Recommended: add a CLAUDE.md note pointing to how teammates supply the env var (vault, dotenv pattern, OAuth flow). Threat: credential-exploration (low). See security-patterns.md#credential-exploration."
+
+Always merge — never overwrite existing `allow:[]` / `ask:[]` / `deny:[]` entries unrelated to the violation being fixed.
+
 ## Phase 4: Verify & Handoff
 
 ### 4.1 Verify Changes
@@ -151,6 +178,8 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
   For DECLINED items, increment `decline_count` per `plugin/references/lib/merge_rules.md §recommendations.json merge rules`: PENDING -> DECLINED sets `decline_count = 1`; DECLINED -> DECLINED re-record increments `decline_count++`. Monotonic — never decremented. Writes always emit schema 1.1.0; reading a 1.0.0 file performs lazy migration (inflate missing `decline_count` to 0). The repeated-decline trigger in `plugin/hooks/session-start.{sh,ps1}` reads this field after status==DECLINED filter and renders `"declined N times total"` for the rec with the highest `decline_count`.
 
   Profile merge under the state-mutation lock must update the `claude_code_configuration_state.settings_json` section (owned by `/secure`), plus `hooks_count` and `rules_count` if they changed (see `plugin/references/lib/merge_rules.md` §profile.json merge rules).
+
+  Additionally, when 3.4 mutates `.claude/settings.json`, update `profile.json claude_code_configuration_state.settings_json.deny_patterns_count` if deny entries changed, and append a `Resolved:` entry for any `/audit` T2.4 PENDING recommendations now addressed.
 
   **A1 merge rule amendments** (applied summary; mechanism in `plugin/references/lib/merge_rules.md`):
   - **Row 1 — `claude_code_configuration_state.model`**: any-skill writer; last-write-wins; written at Step 0.5 and Final Phase. Stateless mode: no-op (Phase 1 Global Invariant #6).
