@@ -15,6 +15,7 @@ This is a documentation and template repository — no application source code a
 - `docs/i18n/ja-JP/` — Japanese translations (`guides/`, `templates/`, `README.md`)
 - `docs/*.md` — GitHub community health files and project governance (CODE_OF_CONDUCT.md, CONTRIBUTING.md, SECURITY.md, PRIVACY.md, ROADMAP.md)
 - `.claude/` — This repo's own Claude Code settings
+- `.claude/.plugin-cache/<plugin-name>/local/` — plugin-managed state (`recommendations.json`, `profile.json`, `state-summary.md`, `config-changelog.md`). Read for status (`PENDING`/`RESOLVED`/`DECLINED`/`decline_count`); do NOT manually edit (plugin auto-updates on next skill invocation via `issued_by`/`resolver` matching).
 - `test/` — Skill evaluation framework (rubrics, scenarios, fixtures, scripts) and results. Not a unit test suite — used to grade skill output quality. See `test/testing-strategy.md`.
 - `ci/` — CI smoke lane: fixtures, golden snapshots, and scripts for plugin regression testing (run by `.github/workflows/smoke.yml`; shipped, unlike gitignored `test/`). Template clone users can ignore; plugin contributors who change skill output must update fixtures/goldens. See `ci/README.md`.
 - `.github/workflows/docs-check.yml` — CI with 22 jobs (link-check-internal, link-check-external, frontmatter-parity, json-schema, registry-lint, skill-stability-lint, i18n-parity, shellcheck, encoding-check, preflight-schema, scoring-formula-simulation, scoring-model-lav-linkage, changelog-parser-check, audit-goldens-check, audit-drift-aware-check, scoring-contract-consistency, detection-probe-check, qa-report-shape-check, hook-script-parity, readme-badge-sync, tag-sha-propagation, changelog-anchor-slug). Python validators live in `.github/scripts/`.
@@ -44,6 +45,7 @@ A single change can ripple across the repo. When modifying any file, check downs
 - **Deny pattern format change** → grep `Read\(.*secrets` or similar across all files to ensure consistency
 - **Root `README.md` → i18n mirrors** (ko-KR, ja-JP): sync content + language switcher, but NOT the badge row (version/license/status badges are language-neutral, EN-only by design — absence in translations is not drift)
 - **i18n frontmatter `version:` bump semantics:** bump when new content is added/translated, NOT when fixing drift to restore parity with EN (drift fixes return already-agreed content to parity — no semantic change)
+- **i18n single-mirror review findings → cross-mirror check first** — when an agent reviews ko-KR or ja-JP only and surfaces a finding, check whether the *other* mirror has the identical pattern before fixing. Single-mirror fix creates new ko-KR ↔ ja-JP divergence; either fix both or document as cross-mirror design intent (memory closure pattern)
 - **`templates/` path/structural rename** → grep `CLAUDE.md` `Repository Structure` for stale path mentions (`*.sh` lists, dir paths); CLAUDE.md is consistently missed as a cascade target
 
 ### Verifying Changes Locally
@@ -61,6 +63,8 @@ Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetc
   - 5 release-only (manual or release-flow): `check-recommendation-registry.py`, `check-skill-stability.py`, `check-qa-report-shape.py`, `check-hook-script-parity.py`, `check-tag-sha-propagation.py` (post-tag-push only)
   - `lychee` link checker is a separate non-Python tool, NOT counted in the "All 11"
 - `jsonschema.Draft202012Validator` does NOT enforce `format` keyword by default — pass `format_checker=FormatChecker()` with a custom checker registered (`.github/scripts/check-json-schemas.py:_FORMAT_CHECKER` shows the stdlib-only `datetime.fromisoformat` pattern that avoids the `jsonschema[format]` extra / `rfc3339-validator` dependency).
+- **Agent review findings about external facts** (GitHub Actions versions, package availability, transitive deps, "dead code" claims) reflect agent training cutoff and may be wrong — verify with `gh api`, `pip show`, or `grep` for module callers before propagating to commits. Agent claims about *file content this repo owns* are typically reliable; *external/version claims* are not.
+- `check-hook-script-parity.py` validates *byte-equal i18n locale mirrors* (EN ↔ ko-KR ↔ ja-JP) of hook scripts, NOT sh ↔ ps1 *behavioral* parity (output equivalence on same input). Behavioral divergence between sh and ps1 implementations escapes CI — when modifying either side, manually cross-check the sibling against the same input scenarios.
 
 **Cross-platform shell/fixture gotchas** (encountered when authoring hook scripts or extending the smoke runner):
 

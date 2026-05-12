@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **CLAUDE.md workflow rules (4 entries from v2.18.0-cycle session learnings)** — captured four reusable patterns surfaced during the multi-cycle review and release work:
+  - *Repository Structure*: `.claude/.plugin-cache/<plugin-name>/local/` reference path with read/write contract (read for status, do NOT manually edit; plugin auto-updates on next skill invocation).
+  - *Change Propagation Checklist*: i18n single-mirror agent findings require cross-mirror check before fixing — single-mirror fix creates new ko-KR ↔ ja-JP divergence; either fix both or document as cross-mirror design intent (memory closure pattern).
+  - *Verifying Changes Locally*: agent claims about external facts (GitHub Actions versions, package availability, transitive deps, "dead code" claims) reflect agent training cutoff and must be verified via `gh api` / `pip show` / `grep` for module callers before commit propagation. The v2.18.0 cycle caught two such retreat candidates.
+  - *Verifying Changes Locally*: `check-hook-script-parity.py` scope clarification — it validates *byte-equal i18n locale mirrors* (EN ↔ ko-KR ↔ ja-JP), NOT sh ↔ ps1 *behavioral* parity. The latter requires manual cross-script review when modifying either side. CLAUDE.md grew 94 → 98 lines, well under the 200-line ceiling.
+
 ### Fixed
 
 - **`/audit` Phase 1.5 Layer 2 gains test-fixture path-prefix exclusion** — fixes the audit-of-audit pathology where this plugin auditing its own source repo treated four CI verifier fixtures (`ci/fixtures/monorepo/input/` plus three `sessionstart-orchestrator/*` fixtures that legitimately ship `package.json` or other manifest files for the smoke verifier) as real subpackages via Phase B.5 disclosure walk inclusion. Layer 2 now combines two exclusion checks: 2a (existing — segment match against `node_modules`, `dist`, `build`, etc.) and 2b (NEW — path prefix match against `ci/fixtures/`). Updated in `plugin/skills/audit/SKILL.md` Phase 1.5 + `plugin/skills/audit/references/checks/monorepo-detection.md` §3 algorithm pseudocode and Layer 2 prose. Resolves recommendation `monorepo-detection-fixture-pollution-gap` (PENDING since 2026-05-10). Maintainer-declared `test_fixtures` spec field (the more general fix option) intentionally deferred — extension requires explicit prefix-list addition or a new spec field, scope note in `monorepo-detection.md` §3 records the boundary.
