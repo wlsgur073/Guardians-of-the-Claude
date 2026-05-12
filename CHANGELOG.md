@@ -236,6 +236,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   cache section ignored `__pycache__/` and `*.pyc` but not
   `.pytest_cache/`, leaving `git status` noise from local pytest
   runs against the `.github/scripts/` validators.
+- **`/audit` T2.4 Autonomy Risk Policy check** (weight 0.15) — new T2 item with 5 sub-checks:
+  - 4a wildcard allow detection in `permissions.allow[]` (`Bash(*)`, `Bash(python*)`, `Bash(npm run *)`, `Agent(*)`, `PowerShell(*)`)
+  - 4b `bypassPermissions` misuse in shared `.claude/settings.json` without CLAUDE.md disposable-environment note
+  - 4c auto mode without `autoMode.environment` — advisory-only (no scoring impact) per docs default-strict trust boundary
+  - 4d MCP credential exposure in project-scope `.mcp.json` (4d-i literal/defaulted secrets MINIMAL, 4d-ii placeholders without migration note PARTIAL)
+  - 4e scoped destructive Bash allow (`git push -f`, `rm -rf`, `curl|bash`, `gh api * DELETE`)
+  Each finding cites a Threat Catalog incident ID with anchor link to `security-patterns.md`.
+- **Threat Catalog in `plugin/references/security-patterns.md`** — new `## Threat Catalog` H2 with 4 taxonomic categories (Overeager Behavior, Honest Mistakes, Prompt Injection, Model Misalignment) and 6 named incidents with kebab-case IDs (`scope-escalation`, `credential-exploration`, `data-exfiltration`, `safety-bypass`, `agent-inferred-parameters`, `tool-output-injection`). Each incident has Scenario / Trigger / Mitigation prose + Cross-Reference Table summarizing incident → mitigation surface → catalog citation target.
+- **`/secure` autonomy scan and tightening** — new scan subsection (1.4 Autonomy Risk Policy) detects the same 4a/4b/4d/4e violations as `/audit` T2.4 (4c skipped). New fix subsection (3.4 Autonomy Tightening) auto-mutates 4a wildcards (narrow per project signals or move to `ask:[]`) and 4e scoped destructive allows (move to `ask:[]`). Provides suggestion-only output for 4b and 4d sub-checks where mutation could expose secrets or alter major permission modes.
+- **`ci/fixtures/t2-4-violations/`** — new CI fixture exercising all 5 T2.4 sub-checks with intentional violations (`bypassPermissions`, `Bash(*)`, `Agent(*)`, `rm -rf:*`, `git push --force:*`, literal `sk-` API key, `${VAR}` placeholder). Expected output marker file ships now; byte-exact golden snapshot pending real `/audit` invocation against the fixture (post-merge step).
 
 ### Changed
 
@@ -324,6 +334,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   failure-report guidance retained inline since both remain
   user-facing for any current version. ko-KR + ja-JP mirrors
   updated in lockstep.
+- **Scoring contract**: `audit-score-v4.1.0` → `audit-score-v4.2.0`. T2 weights renormalized in `plugin/references/scoring-model.md`: T2.1 0.40 → 0.35, T2.2 0.35 → 0.30, T2.3 0.25 → 0.20, T2.4 NEW 0.15 (sum 1.00 preserved). LAV/T3 Boundary Rule table gains a T2.4 ↔ L3 row to prevent double-penalty across the mechanical and LAV layers. Contract bump triggers `scoring_contract_id` banner in next `/audit` runs.
+- **`/secure` Phase 1 subsection numbering**: existing 1.4 Permission Mode / 1.5 Sandbox State / 1.6 Auto Mode Trust Environment renumbered to 1.5 / 1.6 / 1.7 to accommodate the new 1.4 Autonomy Risk Policy. The autonomy-related subsection cluster (1.4-1.7) is now ordered as: actionable risk scan first (1.4), then permission/sandbox/auto-mode descriptive state (1.5-1.7). The Phase 2 cross-reference "Phase 1.4-1.6" updated to "Phase 1.5-1.7".
+- **Cascade updates after contract bump** (sibling references aligned to v4.2.0):
+  - 15 `ci/fixtures/audit-goldens/*/golden.json` files — `scoring_contract_id` metadata stamp only (no scoring math changes; goldens compute correctly under v4.2.0)
+  - `ci/scripts/check-audit-goldens.py` canonical assertion
+  - `plugin/hooks/session-start.sh` and `.ps1` `EXPECTED_SCORE` drift comparison variable
+  - 5 audit reference-check docs `applies_to:` frontmatter (`distributed-config-bucket.md`, `monorepo-detection.md`, `per-package-rollup.md`, `per-package-scoring.md`, `sprint-contract.md`)
+- **`/audit` output format** — Detailed Findings placeholder in `output-format.md` documents the T2.4 evidence citation pattern: `T2.4 <severity> — <sub-check>: <path:line>. Threat: <id list>. See security-patterns.md#<primary id>.`
+- **Scoring formula simulation** — `ci/scripts/check-scoring-formula.py` gains a 6th sample exercising a T2.4 MINIMAL case (DS 93.7, LAV all-positive, cap-bound at 100) to verify renormalized weights produce expected outer-formula behavior.
 
 ### Removed
 
