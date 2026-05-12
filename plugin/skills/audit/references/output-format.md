@@ -43,7 +43,10 @@ Score Breakdown
   Final: min(100.0 x (1 + 1/50) + 5, cap=60) = min(107.0, 60) = 60
 
 Detailed Findings
-  [Detailed findings per item...]
+  [Detailed findings per item. For T2.4, each finding cites the
+   primary Threat Catalog incident ID from security-patterns.md:
+   "T2.4 <severity> — <sub-check>: <path:line>. Threat: <id list>.
+    See security-patterns.md#<primary id>."]
 
 LAV Findings
   [If any LAV items scored 0 or below, show findings and suggestions here]
