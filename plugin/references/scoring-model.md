@@ -134,7 +134,7 @@ LAV axes evaluate holistic accuracy that cannot be mechanically verified. When a
 | T3.1 Directory references | L1 Structure Accuracy | Wrong architecture descriptions, outdated component relationships |
 | T3.3 Command availability | L2 Command Reliability | Undocumented prerequisite steps, wrong command flags, missing workflow context |
 | T3.7 Environment variable docs | L2 Command Reliability | (same axis, different evidence surface) |
-| T2.4 Autonomy risk policy | L3 Patterns/Gotchas | LAV scope: CLAUDE.md narrative on safe autonomy; T2.4 scope: settings.json/.mcp.json config |
+| T2.4 Autonomy risk policy | L3 Patterns/Gotchas | CLAUDE.md narrative on safe autonomy (config boundaries tracked by T2.4 in settings.json/.mcp.json) |
 
 Mechanical and LAV layers are complementary, not redundant.
 

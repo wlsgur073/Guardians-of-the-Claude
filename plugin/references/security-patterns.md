@@ -189,7 +189,7 @@ The agent pursues independent goals not derivable from the user's intent. Curren
 
 (No incident entries.)
 
-### Cross-Reference Table
+### Catalog Summary
 
 | Incident ID | Primary mitigation (Claude Code surface) | Catalog citation target |
 |---|---|---|
