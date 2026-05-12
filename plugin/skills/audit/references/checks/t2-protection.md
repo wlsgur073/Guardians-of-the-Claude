@@ -154,7 +154,9 @@ Aggregate sub-checks 4a, 4b, 4d, 4e (4c is advisory only and contributes nothing
 - **PASS:** zero violations across 4a/4b/4d/4e.
 - **PARTIAL:** at least one 4a OR 4d-ii OR 4e violation, AND zero 4b OR 4d-i violations.
 - **MINIMAL:** at least one 4b OR 4d-i violation.
-- **SKIP:** `.claude/settings.json` absent (T2.1 already fails) OR settings.json has no `permissions` key AND `.mcp.json` absent.
+- **SKIP:** `.claude/settings.json` absent (T2.1 already fails) OR (`.claude/settings.json` exists with no `permissions` key AND `.mcp.json` absent).
+
+**Severity precedence**: when multiple sub-checks fire simultaneously, the highest-tier severity wins. MINIMAL overrides PARTIAL — e.g., 4a (PARTIAL-tier) + 4d-i (MINIMAL-tier) at once resolves to MINIMAL.
 
 ### Evidence format
 
