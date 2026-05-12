@@ -67,14 +67,25 @@ if [ -n "$FIVE_H" ]; then
     UBAR="${UFILL// /█}${UPAD// /░}"
     RESET_STR=""
     if [ -n "$FIVE_H_RESET" ]; then
-        NOW=$(date +%s)
-        REMAINING=$((FIVE_H_RESET - NOW))
-        if [ $REMAINING -gt 0 ]; then
-            RESET_H=$((REMAINING / 3600))
-            RESET_M=$(((REMAINING % 3600) / 60))
-            RESET_STR=" (${RESET_H}h ${RESET_M}m)"
+        # The .rate_limits.five_hour.resets_at field may arrive as either a
+        # numeric Unix epoch or an ISO-8601 string; handle both. Falls back
+        # to empty (no remaining-time display) on parse failure so a string
+        # value never reaches bash arithmetic and triggers a syntax error.
+        if [[ "$FIVE_H_RESET" =~ ^[0-9]+$ ]]; then
+            RESET_EPOCH="$FIVE_H_RESET"
         else
-            RESET_STR=" (reset)"
+            RESET_EPOCH=$(date -d "$FIVE_H_RESET" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%SZ" "$FIVE_H_RESET" +%s 2>/dev/null || echo "")
+        fi
+        if [ -n "$RESET_EPOCH" ]; then
+            NOW=$(date +%s)
+            REMAINING=$((RESET_EPOCH - NOW))
+            if [ $REMAINING -gt 0 ]; then
+                RESET_H=$((REMAINING / 3600))
+                RESET_M=$(((REMAINING % 3600) / 60))
+                RESET_STR=" (${RESET_H}h ${RESET_M}m)"
+            else
+                RESET_STR=" (reset)"
+            fi
         fi
     fi
     USAGE=" | ⚡ ${UC}${UBAR}${RESET} ${FIVE_H_INT}%${RESET_STR}"
