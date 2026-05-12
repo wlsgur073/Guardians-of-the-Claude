@@ -194,7 +194,7 @@ The agent pursues independent goals not derivable from the user's intent. Curren
 | Incident ID | Primary mitigation (Claude Code surface) | Catalog citation target |
 |---|---|---|
 | `scope-escalation` | `permissions.ask:[]` for destructive Bash verbs; PreToolUse hook | T2.4 (4a, 4e) |
-| `credential-exploration` | `permissions.deny:[]` for credential files; principle in `security.md` rule | T2.1, T2.2, T2.4 (4d) |
+| `credential-exploration` | `permissions.deny:[]` for credential files; principle in `.claude/rules/security.md` rule | T2.1, T2.2, T2.4 (4d) |
 | `data-exfiltration` | `autoMode.environment` trust boundary; `permissions.deny:[]` for external endpoints | T2.4 (4c advisory) |
 | `safety-bypass` | `permissions.deny:[]` for skip-flags; isolation note for `bypassPermissions` | T2.4 (4a, 4b, 4e) |
 | `agent-inferred-parameters` | CLAUDE.md disambiguation rule; scoped allows | T2.2 |
