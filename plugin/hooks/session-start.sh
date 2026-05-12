@@ -211,7 +211,7 @@ check_repeated_decline_family() {
     | map(select(.status == "DECLINED"))
     | map(. + {decline_count: (.decline_count // 0)})
     | map(select(.decline_count >= $M))
-    | sort_by([-(.decline_count), .last_seen])
+    | sort_by([.decline_count, .last_seen])
     | reverse
     | .[0] // null
   ' < "$RECS" 2>/dev/null || echo "null")
