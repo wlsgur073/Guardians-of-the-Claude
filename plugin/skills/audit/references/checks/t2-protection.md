@@ -176,4 +176,4 @@ Threat: scope-escalation, safety-bypass. See security-patterns.md#scope-escalati
 
 ### Conditional Suggestion
 
-If T2.4 fires PARTIAL or MINIMAL: suggest running `/guardians-of-the-claude:secure` — its Phase 3.4 fixes 4a/4e automatically and provides actionable suggestions for 4b/4d (which require manual handling due to mutation safety).
+If T2.4 fires PARTIAL or MINIMAL: suggest running `/guardians-of-the-claude:secure` — its Autonomy Tightening step fixes 4a/4e automatically and provides actionable suggestions for 4b/4d (which require manual handling due to mutation safety).
