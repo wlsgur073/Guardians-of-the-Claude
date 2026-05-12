@@ -1,8 +1,8 @@
 ---
 title: "Scoring Model"
 description: "Conservative scoring formula for /audit — LAV item-aware multiplier with cap tier {50, 60, 100}"
-version: "1.0.3"
-scoring_contract_id: "audit-score-v4.1.0"
+version: "1.1.0"
+scoring_contract_id: "audit-score-v4.2.0"
 ---
 
 # Scoring Model
@@ -34,9 +34,10 @@ Final = min(DS × (1 + LAV_nonL5 / 50) + SB, cap)
 
 | Item | Weight | Rationale |
 | ------ | -------- | ----------- |
-| Sensitive file protection | 0.40 | Prevents real damage (secrets exposure) |
-| Security rules | 0.35 | Defense-in-depth coverage |
-| Hook configuration quality | 0.25 | Operational correctness |
+| Sensitive file protection | 0.35 | Prevents real damage (secrets exposure) |
+| Security rules | 0.30 | Defense-in-depth coverage |
+| Hook configuration quality | 0.20 | Operational correctness |
+| Autonomy risk policy | 0.15 | Permission posture for autonomous execution |
 
 #### T2.2 SKIP Condition
 
@@ -133,6 +134,7 @@ LAV axes evaluate holistic accuracy that cannot be mechanically verified. When a
 | T3.1 Directory references | L1 Structure Accuracy | Wrong architecture descriptions, outdated component relationships |
 | T3.3 Command availability | L2 Command Reliability | Undocumented prerequisite steps, wrong command flags, missing workflow context |
 | T3.7 Environment variable docs | L2 Command Reliability | (same axis, different evidence surface) |
+| T2.4 Autonomy risk policy | L3 Patterns/Gotchas | LAV scope: CLAUDE.md narrative on safe autonomy; T2.4 scope: settings.json/.mcp.json config |
 
 Mechanical and LAV layers are complementary, not redundant.
 
