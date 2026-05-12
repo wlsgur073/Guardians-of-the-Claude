@@ -6,9 +6,10 @@ These checks verify that the project is safe from common mistakes. (60% of Detai
 
 | Item | Weight | Rationale |
 | ------ | -------- | ----------- |
-| T2.1 Sensitive file protection | 0.40 | Prevents real damage (secrets exposure) |
-| T2.2 Security rules | 0.35 | Defense-in-depth coverage |
-| T2.3 Hook configuration quality | 0.25 | Operational correctness |
+| T2.1 Sensitive file protection | 0.35 | Prevents real damage (secrets exposure) |
+| T2.2 Security rules | 0.30 | Defense-in-depth coverage |
+| T2.3 Hook configuration quality | 0.20 | Operational correctness |
+| T2.4 Autonomy risk policy | 0.15 | Permission posture for autonomous execution |
 
 ## T2.1 Sensitive File Protection
 
@@ -78,3 +79,99 @@ Scoring:
 ### Conditional Suggestion
 
 If no hooks configured and project has a linter config (`.eslintrc.*`, `eslint.config.*`, `.prettierrc`, `ruff.toml`, etc.) → suggest: "Consider adding a PostToolUse lint hook to catch formatting issues early."
+
+## T2.4 Autonomy Risk Policy
+
+Verifies the project's Claude Code permission policy is consistent with the autonomy-infrastructure framing in Anthropic's Auto Mode and Managed Agents engineering articles. Detects 5 sub-checks across `.claude/settings.json` (project + local) and `.mcp.json` (project-scope only — user-scope `~/.claude.json` is per-user and out of audit scope).
+
+**Read sources** (in order, first match wins per file):
+1. `.claude/settings.json` (project-shared, version-controlled)
+2. `.claude/settings.local.json` (project-local, gitignored)
+3. `.mcp.json` (project-scope)
+
+Each violation records: `(sub-check ID, evidence path:line, catalog incident ID list)`.
+
+### Sub-check 4a — Wildcard allow
+
+Detect entries in `permissions.allow[]` matching any of:
+- `Bash(*)`
+- `Bash(python*)`, `Bash(node*)`, `Bash(ruby*)`, `Bash(perl*)`, `Bash(deno*)`, `Bash(bun*)` (and other wildcarded interpreters)
+- `Bash(npm run *)`, `Bash(pnpm run *)`, `Bash(yarn run *)` (package manager run commands)
+- `Agent(*)` or `Agent(<any-name>*)` patterns
+- `PowerShell(*)` (when PowerShell tool enabled)
+
+These rules grant arbitrary code execution. Note that auto mode automatically drops these rules at runtime per docs `/en/permission-modes`; the audit fires regardless because users frequently operate in default/acceptEdits modes where these allows are live.
+
+**Citations:** `scope-escalation`, `safety-bypass`.
+
+### Sub-check 4b — bypassPermissions misuse
+
+Detect when `permissions.defaultMode == "bypassPermissions"` AND `.claude/settings.json` is the source (project-shared, version-controlled), AND CLAUDE.md does NOT contain any of: "disposable", "VM only", "VM-only", "container only", "container-only", "isolated environment", "sandbox only".
+
+Local-scope `settings.local.json` is exempt — local sessions are user-chosen risk.
+
+**Citations:** `safety-bypass`.
+
+### Sub-check 4c — autoMode environment (advisory only)
+
+When `permissions.defaultMode == "auto"` AND `autoMode.environment` is not defined: emit advisory in suggestions section only, **DO NOT** score against T2.4. Rationale: per Claude Code docs `/en/permission-modes`, omitting `autoMode.environment` yields the strictest default trust boundary (working directory + repo remotes only). Penalizing the strict default is incorrect.
+
+Advisory wording: "auto mode is active without a custom `autoMode.environment`. This is the strict default. If routine actions are blocked frequently, see https://code.claude.com/docs/en/auto-mode-config for extending trusted infrastructure."
+
+**Citations:** `data-exfiltration`, `credential-exploration` (advisory context only).
+
+### Sub-check 4d — MCP credential exposure
+
+Read `.mcp.json` at project root. For each `mcpServers[*].env` entry, classify:
+
+- **4d-i (MINIMAL):** Value is a literal secret-looking string OR a defaulted secret `${VAR:-actual-secret-value}` where the default contains a token pattern (`sk-`, `ghp_`, `xox[bp]-`, base64 string ≥40 chars, or any string ≥20 chars with mixed case + digits).
+- **4d-ii (PARTIAL):** Value is a `${VAR}` placeholder (no default) in a project-scope `.mcp.json` AND CLAUDE.md does not contain a phrase pointing to user-scope migration or vault pattern (search for: "user-scope", "~/.claude.json", "vault", "OAuth", "credential rotation").
+- **SKIP:** `.mcp.json` absent, or all `env` entries are placeholders AND a migration note exists.
+
+User-scope `~/.claude.json` is out of audit scope — that file is per-user and not in the audited project tree.
+
+**Citations:** `credential-exploration`.
+
+### Sub-check 4e — Scoped destructive Bash allow
+
+Detect entries in `permissions.allow[]` matching any of (regex against entry string after `Bash(` prefix and before `:*)` or `)` suffix):
+
+- `git push -f`, `git push --force`, `git push --force-with-lease`
+- `git push --delete`, `git branch -D`
+- `rm -rf`, `rm -f`
+- `curl * | bash`, `curl * | sh`, `wget * | bash`, `wget * | sh`
+- `gh api * --method DELETE`, `gh api * -X DELETE`
+- Production deploy verbs: `aws deploy *`, `kubectl delete *`, `helm uninstall *` (project-detected)
+
+These are narrower than 4a wildcards but match the verbs the auto-mode classifier blocks by default. Survival in default mode allow is the threat.
+
+**Citations:** `scope-escalation`, `data-exfiltration`, `safety-bypass`.
+
+### Scoring
+
+Aggregate sub-checks 4a, 4b, 4d, 4e (4c is advisory only and contributes nothing to score):
+
+- **PASS:** zero violations across 4a/4b/4d/4e.
+- **PARTIAL:** at least one 4a OR 4d-ii OR 4e violation, AND zero 4b OR 4d-i violations.
+- **MINIMAL:** at least one 4b OR 4d-i violation.
+- **SKIP:** `.claude/settings.json` absent (T2.1 already fails) OR settings.json has no `permissions` key AND `.mcp.json` absent.
+
+### Evidence format
+
+Each finding renders in qa-report Section 2 evidence column and `/audit` Detailed Findings as:
+
+```
+T2.4 <severity> — <sub-check>: <evidence path:line>.
+Threat: <catalog ID(s)>. See security-patterns.md#<primary catalog ID>.
+```
+
+Example:
+
+```
+T2.4 PARTIAL — 4a: .claude/settings.json:14 contains Bash(*).
+Threat: scope-escalation, safety-bypass. See security-patterns.md#scope-escalation.
+```
+
+### Conditional Suggestion
+
+If T2.4 fires PARTIAL or MINIMAL: suggest running `/guardians-of-the-claude:secure` — its Phase 3.4 fixes 4a/4e automatically and provides actionable suggestions for 4b/4d (which require manual handling due to mutation safety).
