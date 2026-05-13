@@ -8,14 +8,14 @@ version: 1.0.0
 
 Skill `description` fields are pre-loaded into the system prompt at session start. Claude reads them to decide whether to trigger the skill. Poorly written descriptions mean skills never fire when relevant — well-tuned ones beat raw functionality. Apply these principles when authoring or reviewing any skill, tool, or hook description.
 
-## 4 principles
+## Principles
 
 ### 1. Domain expert framing
 
 Write as if onboarding a new team member: surface specialized query formats, niche terminology, and the relationships between resources. Avoid generic phrasing.
 
 - Avoid: `"Manages user data."`
-- Prefer: `"Searches active customer accounts by email, phone, or order ID. Returns the canonical CRM record; surface deactivated accounts separately via the `include_inactive` flag."`
+- Prefer: `"Searches active customer accounts by email, phone, or order ID. Returns the canonical CRM record; surface deactivated accounts separately via the \`include_inactive\` flag."`
 
 ### 2. Trigger phrase pattern
 
@@ -54,7 +54,7 @@ Description quality is rarely right on the first draft. Use evaluation-driven it
 3. Propose description refinements based on observed failure modes.
 4. Re-run a small eval set; measure trigger rate and parameter-error rate.
 
-Anthropic reports gains of ~40% in completion time on tool-using benchmarks after such refinement cycles.
+Refinement cycles regularly improve trigger accuracy and reduce parameter errors over time.
 
 ## Anti-patterns
 
