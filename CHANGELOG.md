@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **CLAUDE.md workflow rules (2 entries from Phase-1-citation cleanup session)** — captured two reusable patterns surfaced during the v2.12.0-era dangling-citation sweep (commit `7fbe59b`):
+  - *Verifying Changes Locally*: self-generated end-of-turn "next-task" speculation needs the same grep verification as agent claims — pattern-matching commit-log names (e.g., `T5 Task` / `DEC-N` in `git log -S`) without grepping shipped docs creates phantom TODOs. Same standard regardless of trigger source (subagent vs. own pattern recognition).
+  - *Plugin Development Rules*: no inline citations to internal-planning IDs in shipped docs — `plugin/references/` and `plugin/skills/SKILL.md` must not cite IDs whose definitions live only in gitignored `docs/superpowers/plans/` (e.g., `Phase N Global Invariant #M`). Restate the behavioral rule in-place. CLAUDE.md grew 101 → 103 lines, well under the 200-line ceiling.
+
 - **CLAUDE.md workflow rules (4 entries from v2.18.0-cycle session learnings)** — captured four reusable patterns surfaced during the multi-cycle review and release work:
   - *Repository Structure*: `.claude/.plugin-cache/<plugin-name>/local/` reference path with read/write contract (read for status, do NOT manually edit; plugin auto-updates on next skill invocation).
   - *Change Propagation Checklist*: i18n single-mirror agent findings require cross-mirror check before fixing — single-mirror fix creates new ko-KR ↔ ja-JP divergence; either fix both or document as cross-mirror design intent (memory closure pattern).
