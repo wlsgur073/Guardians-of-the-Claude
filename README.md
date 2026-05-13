@@ -14,7 +14,7 @@
   <b>English</b> | <a href="docs/i18n/ko-KR/README.md">한국어</a> | <a href="docs/i18n/ja-JP/README.md">日本語</a>
 </p>
 
-A meta-system for Claude Code configuration. Start with a 2-minute guided setup, then grow into audit, security hardening, and optimization workflows as your project evolves. Same tool, progressive depth.
+A meta-system for Claude Code configuration. Start with a 2-minute guided setup, then grow into audit, security hardening, and optimization workflows as your project evolves. Same tool, continuous reinforcement.
 
 **For beginners:** 2-minute setup — Claude asks a few questions and generates all configuration files for you.
 
@@ -25,7 +25,7 @@ A meta-system for Claude Code configuration. Start with a 2-minute guided setup,
 1. **Verify, don't trust** — Include test, lint, and build commands so Claude checks its own work. This is the single highest-leverage configuration you can make.
 2. **Less is more** — Shorter instructions produce better adherence. Each guide stays short enough to read in one sitting.
 3. **Specific over vague** — `npm test` not "make sure it works." Every command must be copy-pasteable.
-4. **Progressive depth** — Day 1 is a 2-minute setup. Day 30 adds audit and hardening. Day 100 unlocks cross-skill memory and automated drift detection. The tool grows with you — you never pay for complexity you don't need.
+4. **Continuous reinforcement** — Day 1 is a 2-minute setup. Day 7 adds audit and hardening. Day 14 unlocks cross-skill memory and automated drift detection. The tool grows with you — you never pay for complexity you don't need.
 
 ## Day 1 — 2-Minute Quickstart
 
@@ -78,9 +78,9 @@ A meta-system for Claude Code configuration. Start with a 2-minute guided setup,
 > CLAUDE.md. Then run `/guardians-of-the-claude:create` choosing "Existing project"
 > to fill gaps `/init` misses.
 
-**You can stop here.** The configuration works on its own. The Day 30 and Day 100+ sections below describe what happens next if you want more.
+**You can stop here.** The configuration works on its own. The Day 7 and Day 14+ sections below describe what happens next if you want more.
 
-## Day 30 — Audit, Harden, Optimize
+## Day 7 — Audit, Harden, Optimize
 
 After your project has real code and real usage, three more skills help you maintain configuration health:
 
@@ -92,7 +92,7 @@ After your project has real code and real usage, three more skills help you main
 
 **Typical flow:** `/create` → (weeks of development) → `/audit` → `/secure` or `/optimize` → `/audit` to re-verify.
 
-## Day 100+ — Meta-System Engagement
+## Day 14+ — Meta-System Engagement
 
 After multiple skill runs, the plugin activates its **meta-system layer** — persistent learning that adapts to your project over time:
 

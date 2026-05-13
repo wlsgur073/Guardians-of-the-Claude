@@ -21,8 +21,8 @@ over time.
 The long-term direction of this project is to evolve from "templates and
 guides" into a comprehensive **meta-system** for Claude Code configuration:
 
-- **Progressive disclosure** — Day 1 users experience a 2-minute setup; Day 30
-  users discover audit, security hardening, and optimization; Day 100 users
+- **Progressive disclosure** — Day 1 users experience a 2-minute setup; Day 7
+  users discover audit, security hardening, and optimization; Day 14 users
   rely on cross-skill learning and automated drift detection
 - **Learning continuity** — Persistent project profile, decision changelog,
   and cross-skill memory let the system remember context across sessions and
