@@ -1,7 +1,7 @@
 ---
 title: "効果的な使い方のパターン"
 description: "Claude Code を効果的に使うために初日から知っておきたいパターン"
-version: 1.2.0
+version: 1.2.1
 ---
 
 # 効果的な使い方のパターン
@@ -43,6 +43,8 @@ npm run build        # TypeScript のコンパイルを検証
 4. **コミット** -- 変更をレビューしてコミットする
 
 **Plan Mode:** `Shift+Tab` を 2 回押すと Plan Mode に入ります。Claude は読み取り専用のツールだけを使って探索し、承認用の実装計画を作成します。計画をレビューしてから Normal Mode に戻して実行してください。
+
+信頼できるエージェントフレームワークにおける Plan Mode の戦略的意味については、[信頼できるエージェントガイド § Plan Mode as Strategy-Level Oversight](trustworthy-agents-guide.md#plan-mode-as-strategy-level-oversight) を参照してください。
 
 **自明なタスクでは計画を省略してください** -- タイポ修正、ログ行の追加、単純なリネームなど。小さな変更には計画のオーバーヘッドは見合いません。
 

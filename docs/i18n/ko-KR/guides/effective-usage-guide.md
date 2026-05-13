@@ -1,7 +1,7 @@
 ---
 title: "효과적인 사용 패턴"
 description: "Claude Code를 효과적으로 사용하기 위한 필수 패턴"
-version: 1.2.0
+version: 1.2.1
 ---
 
 # 효과적인 사용 패턴
@@ -43,6 +43,8 @@ npm run build        # verify TypeScript compiles
 4. **커밋** -- 변경 사항을 검토하고 커밋합니다
 
 **Plan Mode:** `Shift+Tab`을 두 번 눌러 Plan Mode에 진입합니다. Claude는 읽기 전용 도구를 사용하여 탐색하고 승인을 위한 구현 계획을 만듭니다. 계획을 검토한 후 Normal Mode로 돌아가 실행합니다.
+
+신뢰할 수 있는 에이전트 프레임워크에서 Plan Mode가 갖는 전략적 의미는 [신뢰할 수 있는 에이전트 가이드 § Plan Mode as Strategy-Level Oversight](trustworthy-agents-guide.md#plan-mode-as-strategy-level-oversight)를 참조하세요.
 
 **간단한 작업은 계획을 건너뛰세요** -- 오타 수정, 로그 라인 추가, 단순 이름 변경 등. 작은 변경에는 계획이 오히려 부담이 됩니다.
 

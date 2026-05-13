@@ -1,7 +1,7 @@
 ---
 title: "Effective Usage Patterns"
 description: "Essential day-one patterns for using Claude Code effectively"
-version: 1.2.0
+version: 1.2.1
 ---
 
 # Effective Usage Patterns
@@ -43,6 +43,8 @@ For non-trivial tasks, follow this cycle:
 4. **Commit** -- Review changes and commit
 
 **Plan Mode:** Press `Shift+Tab` twice to enter Plan Mode. Claude uses read-only tools to explore and creates an implementation plan for your approval. Review the plan, then switch back to Normal Mode for execution.
+
+For the strategic significance of Plan Mode in the broader trustworthy-agents framework, see the [Trustworthy Agents Guide § Plan Mode as Strategy-Level Oversight](trustworthy-agents-guide.md#plan-mode-as-strategy-level-oversight).
 
 **Skip planning for trivial tasks** -- typo fixes, log line additions, simple renames. Planning adds overhead that is not worth it for small changes.
 

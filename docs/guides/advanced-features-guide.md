@@ -1,7 +1,7 @@
 ---
 title: "Advanced Features"
 description: "Hooks, agents, and skills -- extending Claude Code beyond basic configuration"
-version: 1.3.0
+version: 1.3.1
 ---
 
 # Advanced Features
@@ -202,3 +202,4 @@ The `guardians-of-the-claude` plugin demonstrates a skill-per-role workflow with
 - [Settings Guide](settings-guide.md) -- Permissions and other settings
 - [MCP Integration Guide](mcp-guide.md) -- Connecting to external tools via MCP
 - [Rules Guide](rules-guide.md) -- Modular instruction files
+- [Trustworthy Agents Guide](trustworthy-agents-guide.md) -- Five-principle framework for evaluating agent configuration

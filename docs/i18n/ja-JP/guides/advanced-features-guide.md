@@ -1,7 +1,7 @@
 ---
 title: "高度な機能"
 description: "Hooks、agents、skills -- 基本的な構成を超えて Claude Code を拡張する"
-version: 1.3.0
+version: 1.3.1
 ---
 
 # 高度な機能
@@ -202,3 +202,4 @@ Run build and tests to confirm everything works.
 - [Settings ガイド](settings-guide.md) -- 権限などの設定
 - [MCP Integration ガイド](mcp-guide.md) -- MCP を介した外部ツールとの接続
 - [Rules ガイド](rules-guide.md) -- モジュール化された指示ファイル
+- [信頼できるエージェントガイド](trustworthy-agents-guide.md) -- エージェント設定を評価するための5原則フレームワーク

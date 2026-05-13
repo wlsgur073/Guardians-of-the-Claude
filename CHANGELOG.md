@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - *Verifying Changes Locally*: agent claims about external facts (GitHub Actions versions, package availability, transitive deps, "dead code" claims) reflect agent training cutoff and must be verified via `gh api` / `pip show` / `grep` for module callers before commit propagation. The v2.18.0 cycle caught two such retreat candidates.
   - *Verifying Changes Locally*: `check-hook-script-parity.py` scope clarification — it validates *byte-equal i18n locale mirrors* (EN ↔ ko-KR ↔ ja-JP), NOT sh ↔ ps1 *behavioral* parity. The latter requires manual cross-script review when modifying either side. CLAUDE.md grew 94 → 98 lines, well under the 200-line ceiling.
 
+- **Trustworthy Agents framework guide** (`docs/guides/trustworthy-agents-guide.md` + ko-KR + ja-JP mirrors) mapping Anthropic's five-principle, four-architectural-layer framework onto concrete Claude Code configuration surfaces. Complements (does not duplicate) the existing Threat Catalog in `plugin/references/security-patterns.md`. Cross-linked from `getting-started.md`, `effective-usage-guide.md` (Plan Mode strategy framing), and `advanced-features-guide.md` Further Reading. Trigger: Anthropic Research "Trustworthy Agents in Practice" (2026-04-09) — normative guidance per `docs/ROADMAP.md:83` trigger #2.
+
 ### Changed
 
 - **Philosophy #4 wording renamed across all README mirrors and the Day-based progression frame compressed.** Reflects that AI tooling improves continuously rather than reaching a static depth, and brings the Day-based adoption frame in line with modern AI tool adoption cadence (weekly/bi-weekly rather than monthly/quarterly).
