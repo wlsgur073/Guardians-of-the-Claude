@@ -179,6 +179,8 @@ Run build and tests to confirm everything works.
 
 **評価駆動の反復:** まず例として呼び出しと期待される出力を書き、その評価が通るまで SKILL.md を反復改善します。各パスの後に、成功したアプローチと典型的な失敗を Claude がスキルテキストに反映するようにしてください。
 
+**Description の品質が重要です:** トリガーフレーズ、ドメイン専門家の観点による表現、デュアルフォーマット応答、実行可能なエラーメッセージは、Claude が適切なタイミングでスキルをトリガーするかどうかに大きく影響します。全体の原則については [`plugin/references/tool-description-quality.md`](../../plugin/references/tool-description-quality.md) を参照してください。
+
 **セキュリティ:** スキルは実行可能な指示です — 信頼できるソースからのみインストールし、見慣れない SKILL.md は呼び出す前にレビューしてください。スクリプトを実行する前にレビューするのと同じように扱ってください。
 
 > **注意:** レガシーの `commands/` ディレクトリは非推奨です。すべてのスキルタイプに `skills/<name>/SKILL.md` を使ってください。

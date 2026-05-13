@@ -179,6 +179,8 @@ Skills load context in three levels — skill **metadata** (first, for trigger d
 
 **Evaluation-driven iteration:** Start by writing example invocations and expected outputs, then iterate the SKILL.md until those evaluations pass. Have Claude capture successful approaches and common mistakes back into the skill text after each pass.
 
+**Description quality matters:** trigger phrases, domain expert framing, dual-format responses, and actionable error messages have outsized impact on whether Claude triggers the skill at the right time. See [`plugin/references/tool-description-quality.md`](../../plugin/references/tool-description-quality.md) for the full principle set.
+
 **Security:** Skills are executable instructions — install only from trusted sources, and audit unfamiliar SKILL.md files before invoking. Review them the way you'd review a script before running it.
 
 > **Note:** The legacy `commands/` directory is deprecated. Use `skills/<name>/SKILL.md` for all skill types.

@@ -32,6 +32,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - `claude-md-guide.md`: mid-session update patterns — `#` prompt shortcut for appending learnings, and custom compaction directives embedded in CLAUDE.md that survive auto-compaction.
 
+- `plugin/references/tool-description-quality.md` (NEW): principles for writing skill and tool descriptions — domain expert framing, trigger phrase patterns, dual-format responses, actionable error messages, evaluation-driven iteration.
+
+- `/audit` advisory check: skill `description` quality — non-scoring, surfaces in Phase 4 "All Suggestions" output. Scoring contract `audit-score-v4.2.0` is unchanged.
+
+- `advanced-features-guide.md`: cross-link to the new reference (patch bump 1.3.0 → 1.3.1).
+
 ### Changed
 
 - **Philosophy #4 wording renamed across all README mirrors and the Day-based progression frame compressed.** Reflects that AI tooling improves continuously rather than reaching a static depth, and brings the Day-based adoption frame in line with modern AI tool adoption cadence (weekly/bi-weekly rather than monthly/quarterly).
