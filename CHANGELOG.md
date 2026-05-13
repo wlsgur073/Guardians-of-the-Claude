@@ -26,6 +26,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - `docs/ROADMAP.md:24-26`: "Progressive disclosure" North Star axis description updated to Day 7 / Day 14 references. The **axis name** `Progressive disclosure` is preserved — it remains one of the 4 North Star axes.
 - **Intentional EN ↔ ko-KR / ja-JP nuance divergence (documented, not drift).** EN reads `Continuous reinforcement` (emphasis on ongoing repetition), while ko-KR reads `점진적 강화` and ja-JP reads `段階的な強化` (both emphasis on gradual growth). This was the agreed framing. The `check-i18n-parity.py` validator checks file-structure parity, not semantic synonymity, so this nuance gap is invisible to CI — recorded here so future i18n review does not "fix" it.
 - **Rationale.** "AI tooling develops daily, learning continuously, Day 100 is too long" — user-stated framing rationale, 2026-05-13. Calendar anchors `Day 7` (one week, natural weekly anchor) and `Day 14+` (two-week milestone with `+` preserving "beyond" semantics from the old `Day 100+`).
+- **Day-frame language precision adjustment (follow-up to the rename above).** Replaced misleading verbs in user-facing copy that implied threshold-based feature unlock — the plugin has no `days_since_install` field and no `if day_N then enable_X` gates; all skills (`/create`, `/audit`, `/secure`, `/optimize`) are available from the first run. The Day framing communicates *typical user discovery cadence*, not *feature unlock schedule*. Audit confirmed zero references to `Day N` in `plugin/` (skills + references + hooks); `Rule 3 — Stagnation Detection` triggers on changelog entry counts (3+ consecutive), not elapsed days.
+  - `README.md:28`: `Day 14 unlocks cross-skill memory and automated drift detection.` → `Day 14 is when cross-skill memory and automated drift detection come into their own.`
+  - `README.md:97`: `After multiple skill runs, the plugin activates its meta-system layer` → `Over multiple skill runs, the plugin's meta-system layer fills out`
+  - `docs/i18n/ko-KR/README.md:20`: `… 활성화됩니다` → `… 본격적으로 진가를 발휘합니다`
+  - `docs/i18n/ko-KR/README.md:87` heading: `## Day 14+ — 메타 시스템 활성화` → `## Day 14+ — 메타 시스템 활용` (also fixes pre-existing translation drift — EN reads `Meta-System Engagement`, JA reads `エンゲージメント`, but KO read `활성화` = "activation"; "활용" = "utilization" matches the engagement nuance)
+  - `docs/i18n/ko-KR/README.md:89`: `여러 번 스킬을 실행하면, 플러그인은 메타 시스템 레이어를 활성화합니다` → `스킬을 거듭 실행하면서, 플러그인의 메타 시스템 레이어가 충실해집니다`
+  - `docs/i18n/ja-JP/README.md:20`: `… 有効化されます` → `… 本領を発揮します`
+  - `docs/i18n/ja-JP/README.md:89`: `複数のスキルを実行すると、プラグインは … を活性化します` → `スキルを繰り返し実行する中で、プラグインの … が充実していきます`
+  - `docs/ROADMAP.md:24-25` left unchanged — "Day 14 users rely on…" is descriptive of user habit (depend on / count on), not a feature-gate claim.
 
 ### Fixed
 

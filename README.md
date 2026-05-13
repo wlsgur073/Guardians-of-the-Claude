@@ -25,7 +25,7 @@ A meta-system for Claude Code configuration. Start with a 2-minute guided setup,
 1. **Verify, don't trust** — Include test, lint, and build commands so Claude checks its own work. This is the single highest-leverage configuration you can make.
 2. **Less is more** — Shorter instructions produce better adherence. Each guide stays short enough to read in one sitting.
 3. **Specific over vague** — `npm test` not "make sure it works." Every command must be copy-pasteable.
-4. **Continuous reinforcement** — Day 1 is a 2-minute setup. Day 7 adds audit and hardening. Day 14 unlocks cross-skill memory and automated drift detection. The tool grows with you — you never pay for complexity you don't need.
+4. **Continuous reinforcement** — Day 1 is a 2-minute setup. Day 7 adds audit and hardening. Day 14 is when cross-skill memory and automated drift detection come into their own. The tool grows with you — you never pay for complexity you don't need.
 
 ## Day 1 — 2-Minute Quickstart
 
@@ -94,7 +94,7 @@ After your project has real code and real usage, three more skills help you main
 
 ## Day 14+ — Meta-System Engagement
 
-After multiple skill runs, the plugin activates its **meta-system layer** — persistent learning that adapts to your project over time:
+Over multiple skill runs, the plugin's **meta-system layer** fills out — persistent learning that adapts to your project over time:
 
 - **Project profile** — Auto-detected tech stack, structure, and configuration state (`profile.json`, with `state-summary.md` as the human-readable view)
 - **Decision journal** — Every skill run appends to a compacted changelog so context is preserved across sessions (`config-changelog.md`)
