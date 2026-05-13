@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - `effective-usage-guide.md`: user-level session commands — `/btw` (side questions without context growth), `/rename` (session labels for `--resume`), `Ctrl+G` (plan-mode editor open), partial compaction via `Esc + Esc → Summarize from here`. Common Failure Patterns section compressed from 5 sub-headings to a single table for readability.
 
+- `claude-md-guide.md`: mid-session update patterns — `#` prompt shortcut for appending learnings, and custom compaction directives embedded in CLAUDE.md that survive auto-compaction.
+
 ### Changed
 
 - **Philosophy #4 wording renamed across all README mirrors and the Day-based progression frame compressed.** Reflects that AI tooling improves continuously rather than reaching a static depth, and brings the Day-based adoption frame in line with modern AI tool adoption cadence (weekly/bi-weekly rather than monthly/quarterly).

@@ -1,7 +1,7 @@
 ---
 title: "Writing Effective CLAUDE.md Files"
 description: "How to write, organize, and maintain CLAUDE.md files for Claude Code"
-version: 1.2.0
+version: 1.3.0
 ---
 
 # Writing Effective CLAUDE.md Files
@@ -102,6 +102,13 @@ When a rule is critical, add emphasis to make it stand out:
 - "YOU MUST run the test suite before committing"
 
 Reserve emphasis for rules that truly matter. If everything is marked IMPORTANT, nothing is.
+
+## Updating Mid-Session
+
+Two mechanisms keep CLAUDE.md responsive to what you learn during a session:
+
+- **`#` prompt shortcut** — When you discover a rule mid-session (e.g., "always run `npm run typecheck` after edits"), prefix the prompt with `#` and Claude offers to append the learning to CLAUDE.md. Faster than editing the file manually.
+- **Custom compaction directives** — Embed instructions inside CLAUDE.md that survive auto-compaction. Example: `"When compacting, always preserve the full list of modified files and any test commands."` Because the directive lives in CLAUDE.md, it reloads every session and applies whenever compaction triggers.
 
 ## Common Mistakes
 
