@@ -8,7 +8,7 @@ version: 1.0.0
 
 코딩 작업이 충분히 열린 형태여서 몇 단계가 걸릴지 예측할 수 없을 때, 단일 에이전트는 하나의 컨텍스트 창에서 어려움을 겪습니다. 멀티 에이전트 구성 — 오케스트레이터 하나와 여러 워커 — 은 이런 유형의 작업을 더 잘 처리하지만, 비용이 따릅니다.
 
-이 가이드는 Anthropic과 다른 팀들이 여러 Claude 인스턴스를 디스패치할 때 효과적으로 찾아낸 패턴을 다룹니다. *단일 에이전트* 설정(Scope, Rules, Constraints, Verification)은 [고급 기능 가이드 — Agents](advanced-features-guide.md#agents)를 참고하세요. 더 넓은 워크플로우 패턴(Writer/Reviewer, fan-out, worktrees)은 [워크플로우 패턴 가이드](workflow-patterns-guide.md)를 참고하세요.
+이 가이드는 여러 Claude 인스턴스를 디스패치할 때 Anthropic과 다른 팀들이 효과적임을 확인한 패턴을 다룹니다. *단일 에이전트* 설정(Scope, Rules, Constraints, Verification)은 [고급 기능 가이드 — Agents](advanced-features-guide.md#agents)를 참고하세요. 더 넓은 워크플로우 패턴(Writer/Reviewer, fan-out, worktrees)은 [워크플로우 패턴 가이드](workflow-patterns-guide.md)를 참고하세요.
 
 ## 멀티 에이전트를 선택하는 경우
 
@@ -78,7 +78,7 @@ Worker B — ...
 2. 드릴다운하기 전에 전체 범위를 평가합니다.
 3. 그런 다음에만 워커들을 특정 방향에 할당합니다.
 
-잘못된 브랜치를 선택했다면, 먼저 깊게 들어가는 것은 호출을 낭비합니다.
+잘못된 브랜치를 먼저 깊이 파고들면 호출이 낭비됩니다.
 
 ## 병렬 디스패치 입문
 
