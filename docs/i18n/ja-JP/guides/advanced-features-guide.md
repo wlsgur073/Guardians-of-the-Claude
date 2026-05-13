@@ -1,7 +1,7 @@
 ---
 title: "高度な機能"
 description: "Hooks、agents、skills -- 基本的な構成を超えて Claude Code を拡張する"
-version: 1.3.1
+version: 1.3.2
 ---
 
 # 高度な機能
@@ -123,6 +123,8 @@ color: "green"
 **読み取り専用エージェント:** `tools` から Edit と Write を取り除けば、解析専用のエージェントになります。セキュリティレビュー、アーキテクチャ分析、コード探索に有用です。
 
 **エージェントパイプライン:** 多段階のワークフローではエージェントを連鎖させましょう: `backend-developer`（実装）→ `security-reviewer`（レビュー）→ `test-writer`（テスト）。
+
+マルチエージェントディスパッチパターン（オーケストレーター-ワーカー、サブエージェントコンテキスト予算、努力スケーリング）については、[マルチエージェントパターンガイド](multi-agent-patterns-guide.md) を参照してください。
 
 ## Skills
 

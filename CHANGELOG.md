@@ -38,6 +38,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - `advanced-features-guide.md`: cross-link to the new reference (patch bump 1.3.0 → 1.3.1).
 
+- New guide: `docs/guides/multi-agent-patterns-guide.md` — Orchestrator-Worker pattern (4-axis worker spec — objective, output format, tool guidance, boundaries), effort scaling rules, sub-agent context budget (1–2k token summaries), breadth-first search strategy, parallel dispatch primer. ko-KR and ja-JP mirrors included; frontmatter version 1.0.0.
+
+- Cross-link added to `advanced-features-guide.md` Agents section (patch bump 1.3.1 → 1.3.2).
+
 ### Changed
 
 - **Philosophy #4 wording renamed across all README mirrors and the Day-based progression frame compressed.** Reflects that AI tooling improves continuously rather than reaching a static depth, and brings the Day-based adoption frame in line with modern AI tool adoption cadence (weekly/bi-weekly rather than monthly/quarterly).

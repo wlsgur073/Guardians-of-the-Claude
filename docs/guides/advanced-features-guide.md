@@ -1,7 +1,7 @@
 ---
 title: "Advanced Features"
 description: "Hooks, agents, and skills -- extending Claude Code beyond basic configuration"
-version: 1.3.1
+version: 1.3.2
 ---
 
 # Advanced Features
@@ -123,6 +123,8 @@ Use `"inherit"` to match the parent session's model. Put the reasoning in a YAML
 **Read-only agents:** Remove Edit and Write from `tools` to create analysis-only agents. Useful for security review, architecture analysis, and code exploration.
 
 **Agent pipeline:** Chain agents for multi-stage workflows: `backend-developer` (implement) → `security-reviewer` (review) → `test-writer` (test).
+
+For multi-agent dispatch patterns (Orchestrator-Worker, sub-agent context budgeting, effort scaling), see [Multi-Agent Patterns Guide](multi-agent-patterns-guide.md).
 
 ## Skills
 

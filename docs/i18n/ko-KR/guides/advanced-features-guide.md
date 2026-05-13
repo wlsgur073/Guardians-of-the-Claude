@@ -1,7 +1,7 @@
 ---
 title: "고급 기능"
 description: "Hooks, agents, skills — 기본 설정을 넘어 Claude Code를 확장하는 방법"
-version: 1.3.1
+version: 1.3.2
 ---
 
 # 고급 기능
@@ -123,6 +123,8 @@ Only modify files under `src/api/`, `src/services/`, `src/repos/`, and `tests/`.
 **읽기 전용 agent:** `tools`에서 Edit과 Write를 제거하여 분석 전용 agent를 만들 수 있습니다. 보안 리뷰, 아키텍처 분석, 코드 탐색에 유용합니다.
 
 **agent 파이프라인:** 다단계 워크플로우를 위해 agent를 연결하세요: `backend-developer` (구현) → `security-reviewer` (리뷰) → `test-writer` (테스트).
+
+멀티 에이전트 디스패치 패턴(Orchestrator-Worker, 서브 에이전트 컨텍스트 예산, 노력 스케일링)은 [멀티 에이전트 패턴 가이드](multi-agent-patterns-guide.md)를 참고하세요.
 
 ## Skills
 
