@@ -19,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - **Trustworthy Agents framework guide** (`docs/guides/trustworthy-agents-guide.md` + ko-KR + ja-JP mirrors) mapping Anthropic's five-principle, four-architectural-layer framework onto concrete Claude Code configuration surfaces. Complements (does not duplicate) the existing Threat Catalog in `plugin/references/security-patterns.md`. Cross-linked from `getting-started.md`, `effective-usage-guide.md` (Plan Mode strategy framing), and `advanced-features-guide.md` Further Reading. Trigger: Anthropic Research "Trustworthy Agents in Practice" (2026-04-09) — normative guidance per `docs/ROADMAP.md:83` trigger #2.
 
+- **CLAUDE.md workflow rules (3 entries from trustworthy-agents-guide session learnings)** — captured three reusable i18n-specific patterns surfaced while writing a new top-level guide and its ko-KR + ja-JP mirrors:
+  - *Change Propagation Checklist*: new i18n guide atomic-commit rule — adding a new guide (vs. editing an existing one) requires committing all 3 language files (EN + ko-KR + ja-JP) in the SAME commit; staging EN alone causes `check-i18n-parity.py` (structural mirror check) to fail. Existing-guide edits don't have this constraint.
+  - *Change Propagation Checklist*: i18n guide relative-path depth — files at `docs/i18n/<locale>/guides/` are 2 directories deeper than `docs/guides/`, so relative links to `plugin/...` need `../../../../` (4 up), not `../../` (2 up). Copying paths verbatim from EN silently breaks i18n cross-links; only `lychee` catches it locally.
+  - *Change Propagation Checklist*: cross-language anchor consistency — when a guide deep-links into another guide's heading via `file.md#anchor`, keep the target heading in English across all 3 language versions so the same anchor ID resolves uniformly; translate section bodies, not cross-referenced heading text. CLAUDE.md grew 98 → 101 lines, well under the 200-line ceiling.
+
 ### Changed
 
 - **Philosophy #4 wording renamed across all README mirrors and the Day-based progression frame compressed.** Reflects that AI tooling improves continuously rather than reaching a static depth, and brings the Day-based adoption frame in line with modern AI tool adoption cadence (weekly/bi-weekly rather than monthly/quarterly).
