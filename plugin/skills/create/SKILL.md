@@ -124,7 +124,7 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
   Never write `monorepo_detection` itself — `/audit` is exclusive owner.
 
   **A1 merge rule amendments** (applied summary; mechanism in `plugin/references/lib/merge_rules.md`):
-  - **Row 1 — `claude_code_configuration_state.model`**: any-skill writer; last-write-wins; written at Step 0.5 and Final Phase. Stateless mode: no-op (Phase 1 Global Invariant #6).
+  - **Row 1 — `claude_code_configuration_state.model`**: any-skill writer; last-write-wins; written at Step 0.5 and Final Phase. Stateless mode: no-op.
   - **Row 3 — `config-changelog.md` entry `- Model:` bullet**: `/create` delta-emits per the shared hybrid writer policy. See `plugin/references/learning-system.md § Model Bullet Emission` for full mechanics; this skill emits only when the resolved model differs from the immediately previous entry's bullet value.
 
 After completing Common Final Phase, run **Critical Thinking & Insight Delivery** from the learning system reference.

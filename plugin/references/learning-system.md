@@ -1,7 +1,7 @@
 ---
 title: Learning System
 description: Shared state management reference for /create, /audit, /secure, /optimize
-version: 2.3.5
+version: 2.3.6
 ---
 
 # Learning System
@@ -46,7 +46,7 @@ Every transition below is explicit. Implicit behavior is forbidden.
    - If parse succeeds → write canonical file via atomic write (see `plugin/references/lib/state_io.md` §atomic-write); preserve other valid canonicals untouched.
    - If parse fails OR no legacy source available → initialize empty: `profile.json = {schema_version, metadata}` only; `recommendations.json = {schema_version, metadata, recommendations: []}`. Atomic write (same spec).
    - Move ANY corrupt canonical to backup (phase 5) before overwriting (data preservation).
-   - **Model field write path**: when emitting `profile.json` here, include `claude_code_configuration_state.model = <resolver output>` as a non-null string per the schema. This Step 0.5 write path applies to every skill's emission — migration, fresh bootstrap, post-validation re-write — with no new sub-phase and no `/audit`-specific branching. Stateless mode inherits Phase 1 Global Invariant #6 no-op.
+   - **Model field write path**: when emitting `profile.json` here, include `claude_code_configuration_state.model = <resolver output>` as a non-null string per the schema. This Step 0.5 write path applies to every skill's emission — migration, fresh bootstrap, post-validation re-write — with no new sub-phase and no `/audit`-specific branching. In stateless mode, this write is a no-op.
 
 5. **Quarantine ALL examined legacy inputs** (success AND failure):
    - Backup path: `local/legacy-backup/{ISO-8601-UTC, e.g., 2026-04-14T13-42-09Z}/`.
@@ -193,7 +193,7 @@ The `- Model:` bullet captures the resolved Claude model ID at the top of each c
 
 placed immediately before `- Detected:`. When `emit_bullet == False`, the bullet is **omitted entirely** — the literal `- Model: (none)` is forbidden (parser defense in `check-smoke-fixtures.py:870-873`).
 
-**Stateless mode** — when `local/` is unwritable (Phase 1 Global Invariant #6), no changelog write occurs and no model bullet is emitted by any skill.
+**Stateless mode** — when `local/` is unwritable, no changelog write occurs and no model bullet is emitted by any skill.
 
 ---
 
@@ -240,7 +240,7 @@ For each bucket being rolled into Compacted History at this compaction pass, emi
 
 Algorithm (per bucket):
 
-a. **Group `bucket_entries` by `skill`** — up to 4 skills per Phase 1 Environmental Assumption: `/audit`, `/create`, `/secure`, `/optimize`. A skill absent from the bucket has no anchor emitted for this bucket.
+a. **Group `bucket_entries` by `skill`** — up to 4 skills (`/audit`, `/create`, `/secure`, `/optimize`). A skill absent from the bucket has no anchor emitted for this bucket.
 
 b. **Sort each skill's entries by `date` descending** (most-recent first).
 
@@ -252,13 +252,13 @@ e. **Compute `last_capability_fingerprint`** = `normalize_model_id(last_model)` 
 
 f. **Emit anchor dict** `{"skill": skill, "last_entry_date": last_entry_date, "last_model": last_model, "last_capability_fingerprint": last_capability_fingerprint}` into the bucket's Compacted History metadata. Anchor key order matches the canonical anchor shape.
 
-**Cardinality**: at most one anchor per skill per bucket; up to 4 anchors per bucket maximum. A 5th skill is BREAKING per Phase 1 four-skill environmental assumption.
+**Cardinality**: at most one anchor per skill per bucket; up to 4 anchors per bucket maximum. A 5th skill is BREAKING — the algorithm assumes exactly the 4 skills enumerated above.
 
 **Bucket-local sourcing**: the algorithm scans only entries within the current bucket. It does not look back to prior buckets or to Recent Activity to recover a missing `last_model` for this skill. If a bucket's `/audit` anchor ends up with `last_model = null`, that anchor carries null forward to reader-time baseline derivation — the consumer-side contract (see **Interactions** below) handles this case without skip-and-continue.
 
 **Fingerprint write-time semantics**: `last_capability_fingerprint` is a write-time informational snapshot. The drift advisory state machine re-normalizes `last_model` at *read* time for `baseline_fp` derivation; the stored fingerprint is not authoritative for drift evaluation (baseline-anchor-authority resolution). Stale stored values are tolerated and not rewritten on read.
 
-**Stateless mode**: Step 3b is skipped transitively when Phase 1 Global Invariant #6 skips the changelog write (`local/` unwritable). Stateless mode does not enumerate Step 3b separately — no Step 3b-specific stateless logic is required.
+**Stateless mode**: Step 3b is skipped transitively because the changelog write is skipped (`local/` unwritable). Stateless mode does not enumerate Step 3b separately — no Step 3b-specific stateless logic is required.
 
 **Lock integration**: Step 3b executes within Final Phase Step 3 (merge deltas) per the lock insertion map — anchors are part of the in-memory merged changelog; persistence occurs at Final Phase Step 5 (atomic write of the full changelog file). No separate lock acquisition — Step 3b rides the existing Final Phase state-mutation lock.
 

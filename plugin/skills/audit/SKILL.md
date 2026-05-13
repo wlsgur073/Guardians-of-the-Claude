@@ -184,7 +184,7 @@ Read `references/qa-report-template.md` for the full template skeleton (5-sectio
 2. **Section 1-4 render** (always): emit Score Summary + LAV Item Rationale (with counterfactual column from LAV-time generation, see `references/checks/lav.md` Counterfactual Generation section) + Bucket Rationale + Recommendations Linkage (3-state branch by `local/recommendations.json` state).
 3. **Section 5 conditional render**: if sprint-contract parse reached B4 (valid) or B2 (frontmatter advisory), emit Sprint Contract Coverage with In Scope ↔ LAV mapping (P4 alignment rule). Otherwise omit.
 4. **Negative-transparency filter** (S5): apply forbidden-token filter to generator-authored regions only. User-quoted content (CLAUDE.md evidence, sprint contract labels/bodies, and file paths, command strings, and identifiers extracted from the audited project) passes through verbatim.
-5. **Write target**: `local/qa-report.md`. If `local/` is unwritable (same check that triggers stateless mode per Phase 1 Global Invariant #6) or stateless mode is active, render to terminal output instead of writing — no silent skip.
+5. **Write target**: `local/qa-report.md`. If `local/` is unwritable (the same check that triggers stateless mode) or stateless mode is active, render to terminal output instead of writing — no silent skip.
 
 **Invocation-agnostic**: this phase MUST NOT branch on invocation context (subagent / reviewer / direct user / hook-triggered). The same write/terminal rule applies in every context.
 
@@ -205,15 +205,15 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
   Profile merge under the state-mutation lock: `/audit` is the authoritative full refresh (Layer 3 of stale prevention). Always regenerate all `/audit`-owned sections — `runtime_and_language`, `framework_and_libraries`, `package_management`, `testing`, `build_and_dev`, `project_structure`, `monorepo_detection`, and `claude_code_configuration_state.claude_md` — from detected state, regardless of whether changes were detected. When `monorepo_detection.detected` flips from `true` to `false` or `null`, full-replace regeneration must clear stale `claude_md.subpackages` and reset `claude_md.subpackage_coverage` counters per `merge_rules.md` full-replace semantics. Other sections (e.g., `claude_code_configuration_state.settings_json` owned by `/secure`) must be preserved from the re-read `current_profile` (see `plugin/references/lib/merge_rules.md` §profile.json merge rules).
 
   **A1 merge rule amendments** (applied summary; mechanism in `plugin/references/lib/merge_rules.md`):
-  - **Row 1 — `claude_code_configuration_state.model`**: any-skill writer; last-write-wins; written at Step 0.5 and Final Phase. Stateless mode: no-op (Phase 1 Global Invariant #6).
+  - **Row 1 — `claude_code_configuration_state.model`**: any-skill writer; last-write-wins; written at Step 0.5 and Final Phase. Stateless mode: no-op.
   - **Row 2 — `claude_code_configuration_state.scoring_model_ack`**: `/audit` exclusive writer; full-object replacement; Final Phase only. Stateless mode: no-op.
   - **Row 3 — `config-changelog.md` entry `- Model:` bullet**: `/audit` always-emits per the shared hybrid writer policy. See `plugin/references/learning-system.md § Model Bullet Emission` for full mechanics; this skill's branch is the always-emit terminator (Phase 1 baseline already re-reads `current_changelog`, and `/audit` does not branch on the re-read value).
 
-- **Stateless guard (Phase 5 top-level branch)**: if `local/` is unwritable (Phase 1 Global Invariant #6):
+- **Stateless guard (Phase 5 top-level branch)**: if `local/` is unwritable:
   - SKIP Step 2 `scoring_model_ack` re-read.
   - SKIP Step 3 ack delta computation + scoring-model-change banner trigger (persistence-backed banner fully skipped to avoid double-warning after stateless degradation notice).
   - RETAIN drift advisory derivation — current-state transient, no file write.
-  - Proceed to Phase 1 Global Invariant #6 degradation warning; no JSON state writes, no changelog write.
+  - Proceed to print the stateless-mode warning; no JSON state writes, no changelog write.
 
   Non-stateless path continues below.
 
