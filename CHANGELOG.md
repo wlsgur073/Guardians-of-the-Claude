@@ -7,6 +7,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.19.1] - 2026-05-14
+
+### Fixed
+
+- **Fan-out section claimed "in parallel" but bash loop was sequential** in `docs/guides/workflow-patterns-guide.md` (EN + ko-KR + ja-JP, frontmatter `1.0.1` → `1.0.2`). Reworded to "distribute work across many invocations" and added a bounded-parallel example (`xargs -P 4` and PowerShell `ForEach-Object -Parallel ... -ThrottleLimit 4`) alongside the sequential loop. Also aligned the `--allowedTools` value to upstream form `"Bash(git commit *)"` (no colon).
+
+- **Effort-scaling table over-extrapolated Anthropic source numbers** in `docs/guides/multi-agent-patterns-guide.md` (EN + ko-KR + ja-JP, frontmatter `1.0.1` → `1.0.2`). Previous values `Medium analysis 2–4 / 10–30` and `Complex research 10+ / 30+ per worker` were not in the source. Aligned with the [multi-agent research system writeup](https://www.anthropic.com/engineering/multi-agent-research-system): `Direct comparison 2–4 / 10–15`, `Complex research 10+ / per-worker count not pinned by source`. Added footnote citing the article's "3–5 subagents per parallel batch" figure.
+
+- **`/audit` Phase 3 gate omitted `.claude/skills/`** in `plugin/skills/audit/SKILL.md:120`. A documentation-only project with only `.claude/skills/` would skip loading `t3-optimization.md` and therefore skip the v2.19.0 Skill Description Quality advisory. Added `.claude/skills/` to the non-skip condition, restoring the applicability documented in CHANGELOG v2.19.0.
+
+- **i18n cross-language anchor mismatch** between `multi-agent-patterns-guide.md` and `workflow-patterns-guide.md`. ko-KR and ja-JP workflow-patterns mirrors had translated the `## Fan-out for batch tasks` heading (`## 배치 작업을 위한 Fan-out`, `## バッチタスクの Fan-out`), breaking the `#fan-out-for-batch-tasks` slug that the multi-agent guide linked to. Restored the heading to English in both locale mirrors per CLAUDE.md cross-language anchor consistency rule.
+
+- **Unsourced `$100+` dollar estimate** in the fan-out warning of `docs/guides/workflow-patterns-guide.md` (EN + ko-KR + ja-JP). The figure was a local extrapolation; Anthropic's [best-practices article](https://code.claude.com/docs/en/best-practices) does not give a dollar estimate for fan-out runs. Replaced with a qualitative warning advising readers to estimate using their model's per-token pricing.
+
+- **`ワークロードスケーリング` residue in ja-JP `multi-agent-patterns-guide.md` frontmatter `description`.** The v2.19.0 polish pass updated the body heading to `努力スケーリング` but left the frontmatter line unchanged. Corrected.
+
+- **Skill-description-quality regex rendered ambiguously** in the `Trigger phrase present` row of `plugin/skills/audit/references/checks/t3-optimization.md:141`. The form `Use when\|When to use\|...` reads as escaped literal pipes inside a markdown table cell rather than regex alternation. Converted to an explicit "matches any of" enumeration listing the four trigger phrases without regex syntax.
+
+- **CHANGELOG v2.19.0 line 41 + 45** stated the new T4/T5 guides shipped at `frontmatter version 1.0.0`, but the same release's polish pass patch-bumped them to `1.0.1`. Updated the entries to reflect the final shipped value.
+
 ## [2.19.0] - 2026-05-14
 
 ### Added
@@ -38,11 +58,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - `advanced-features-guide.md`: cross-link to the new reference (patch bump 1.3.0 → 1.3.1).
 
-- New guide: `docs/guides/multi-agent-patterns-guide.md` — Orchestrator-Worker pattern (4-axis worker spec — objective, output format, tool guidance, boundaries), effort scaling rules, sub-agent context budget (1–2k token summaries), breadth-first search strategy, parallel dispatch primer. ko-KR and ja-JP mirrors included; frontmatter version 1.0.0.
+- New guide: `docs/guides/multi-agent-patterns-guide.md` — Orchestrator-Worker pattern (4-axis worker spec — objective, output format, tool guidance, boundaries), effort scaling rules, sub-agent context budget (1–2k token summaries), breadth-first search strategy, parallel dispatch primer. ko-KR and ja-JP mirrors included; frontmatter version 1.0.1 (introduced at 1.0.0, patch-bumped to 1.0.1 during the same release polish pass).
 
 - Cross-link added to `advanced-features-guide.md` Agents section (patch bump 1.3.1 → 1.3.2).
 
-- New guide: `docs/guides/workflow-patterns-guide.md` — interview-first specification (`AskUserQuestion`), Writer/Reviewer multi-session, test-first multi-Claude, fan-out for batch tasks (with explicit cost and safety warnings — dry-run, `--allowedTools`, auto-mode fallback), worktrees and parallel sessions. ko-KR and ja-JP mirrors included; frontmatter version 1.0.0.
+- New guide: `docs/guides/workflow-patterns-guide.md` — interview-first specification (`AskUserQuestion`), Writer/Reviewer multi-session, test-first multi-Claude, fan-out for batch tasks (with explicit cost and safety warnings — dry-run, `--allowedTools`, auto-mode fallback), worktrees and parallel sessions. ko-KR and ja-JP mirrors included; frontmatter version 1.0.1 (introduced at 1.0.0, patch-bumped to 1.0.1 during the same release polish pass).
 
 - Cross-links added to `getting-started.md` "What's Next" for the new workflow-patterns + multi-agent-patterns guides; combined patch bump 1.2.6 → 1.2.7.
 

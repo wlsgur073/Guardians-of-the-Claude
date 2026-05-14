@@ -117,7 +117,7 @@ Otherwise, read `references/checks/t2-protection.md` and execute all T2 checks. 
 
 ## Phase 3: Optimization Checks (T3)
 
-If this is a documentation-only project with no `.claude/rules/`, no `.claude/agents/`, and no `.mcp.json`, you may skip loading `references/checks/t3-optimization.md` — score all T3 items as SKIP.
+If this is a documentation-only project with no `.claude/rules/`, no `.claude/agents/`, no `.claude/skills/`, and no `.mcp.json`, you may skip loading `references/checks/t3-optimization.md` — score all T3 items as SKIP.
 
 Otherwise, read `references/checks/t3-optimization.md` and execute all T3 checks. Score each item using the 4-level scale. Items that are not applicable to this project should be marked SKIP. Note any conditional suggestions.
 

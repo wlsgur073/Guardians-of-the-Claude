@@ -1,7 +1,7 @@
 ---
 title: "Multi-Agent Patterns"
 description: "Orchestrator-Worker, effort scaling, sub-agent context budget, breadth-first search, parallel dispatch — for Claude Code subagent workflows"
-version: 1.0.1
+version: 1.0.2
 ---
 
 # Multi-Agent Patterns
@@ -55,8 +55,10 @@ Embed these rules into the orchestrator's system prompt so the lead does not ove
 | Task complexity | Worker count | Tool calls per worker |
 |---|---|---|
 | Simple fact-finding | 1 | 3–10 |
-| Medium analysis | 2–4 | 10–30 |
-| Complex research | 10+ | 30+ (with divided responsibilities) |
+| Direct comparison | 2–4 | 10–15 |
+| Complex research | 10+ | Divide responsibilities; per-worker count varies by sub-task* |
+
+\* Anthropic's [multi-agent research system writeup](https://www.anthropic.com/engineering/multi-agent-research-system) does not pin a per-worker tool-call count for the complex tier; the same article notes that typical parallel batches dispatch **3–5 subagents at a time**, even when total worker count is higher.
 
 A common failure mode is the lead spawning 10 workers for a question that one Grep would answer. Calibrate before dispatching.
 

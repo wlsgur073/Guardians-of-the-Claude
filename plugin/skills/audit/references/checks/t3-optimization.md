@@ -138,7 +138,7 @@ For each skill SKILL.md found, evaluate the `description` field:
 | Check | Heuristic | Suggestion if failing |
 |---|---|---|
 | Length | 1–3 sentences | Too short (< 1 sentence): "Add a when-to-use phrasing to the description." Too long (> 3 sentences): "Trim to the trigger condition; move detail into the SKILL.md body." |
-| Trigger phrase present | Regex (case-insensitive): `Use when\|When to use\|When \w+ fails\|Apply during` | Absent: "Add an explicit trigger phrase so Claude can match user intent. See `plugin/references/tool-description-quality.md`." |
+| Trigger phrase present | Description matches any of `Use when`, `When to use`, `When \w+ fails`, or `Apply during` (case-insensitive) | Absent: "Add an explicit trigger phrase so Claude can match user intent. See `plugin/references/tool-description-quality.md`." |
 | Domain-specific framing | Heuristic: description references at least one domain noun or specific data type (not only generic verbs like `Manages`, `Handles`, `Processes`) | Generic-only: "Consider domain expert framing — surface specialized query formats, niche terminology, or resource relationships. See `plugin/references/tool-description-quality.md`." |
 
 **Routing:** results are added to Phase 4 "All Suggestions" output only. They do NOT enter the score calculation, do NOT change item weights, and do NOT change `scoring_contract_id`.

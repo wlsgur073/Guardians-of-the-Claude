@@ -1,7 +1,7 @@
 ---
 title: "Workflow Patterns"
 description: "Interview-first specs, Writer/Reviewer, test-first multi-Claude, fan-out (with cost/safety warnings), worktrees and parallel sessions"
-version: 1.0.1
+version: 1.0.2
 ---
 
 # Workflow Patterns
@@ -54,13 +54,13 @@ Forces acceptance criteria to crystallize before implementation. Works inside on
 
 ## Fan-out for batch tasks
 
-For large migrations or analyses, run many `claude -p` invocations in parallel.
+For large migrations or analyses, distribute work across many `claude -p` invocations. The bash loop below dispatches them sequentially; add `xargs -P` or `ForEach-Object -Parallel` if you want bounded concurrency.
 
 > **⚠️ Cost and safety warning**
 >
-> - `claude -p` in a loop incurs token cost per invocation. A 2,000-file migration may run for hours and cost $100+.
+> - `claude -p` in a loop incurs token cost per invocation. A multi-thousand-file migration can run for hours and accumulate substantial cost — always estimate with your model's per-token pricing before scaling.
 > - Always dry-run on 2–3 files first; verify outputs before scaling.
-> - Use `--allowedTools` to scope permissions for unattended runs: `claude -p "..." --allowedTools "Edit,Bash(git commit:*)"`
+> - Use `--allowedTools` to scope permissions for unattended runs: `claude -p "..." --allowedTools "Edit,Bash(git commit *)"`
 > - Auto mode aborts after repeated classifier denials in `-p` runs — there is no human to fall back to. See [Claude Code auto mode](https://www.anthropic.com/engineering/claude-code-auto-mode) for thresholds.
 
 Pattern:
@@ -69,16 +69,26 @@ Pattern:
 2. **Loop**:
 
    ```bash
+   # Sequential (one at a time)
    for file in $(cat files.txt); do
      claude -p "Migrate $file from React to Vue. Return OK or FAIL." \
-       --allowedTools "Edit,Bash(git commit:*)"
+       --allowedTools "Edit,Bash(git commit *)"
    done
+
+   # Bounded parallel (4 workers at a time)
+   cat files.txt | xargs -I {} -P 4 \
+     claude -p "Migrate {} from React to Vue. Return OK or FAIL." \
+       --allowedTools "Edit,Bash(git commit *)"
    ```
 
-**PowerShell equivalent (Windows):**
+**PowerShell equivalents (Windows):**
 
 ```powershell
-Get-Content files.txt | ForEach-Object { claude -p "Migrate $_ from React to Vue. Return OK or FAIL." --allowedTools "Edit,Bash(git commit:*)" }
+# Sequential
+Get-Content files.txt | ForEach-Object { claude -p "Migrate $_ from React to Vue. Return OK or FAIL." --allowedTools "Edit,Bash(git commit *)" }
+
+# Bounded parallel (4 workers; requires PowerShell 7+)
+Get-Content files.txt | ForEach-Object -Parallel { claude -p "Migrate $_ from React to Vue. Return OK or FAIL." --allowedTools "Edit,Bash(git commit *)" } -ThrottleLimit 4
 ```
 
 3. **Refine on first 2–3, then scale**: catch broken prompts early; only run on the full set after you have seen the output shape.

@@ -1,7 +1,7 @@
 ---
 title: "워크플로우 패턴"
 description: "인터뷰 우선 명세, Writer/Reviewer, 테스트 우선 멀티 Claude, fan-out (비용/안전 경고 포함), worktrees 및 병렬 세션"
-version: 1.0.1
+version: 1.0.2
 ---
 
 # 워크플로우 패턴
@@ -52,15 +52,15 @@ Reviewer는 신선한 컨텍스트에서 세션 A가 방금 작성한 코드에 
 
 구현 전에 수용 기준을 명확하게 합니다. 하나의 세션 안에서도 동작합니다 (테스트 작성, `/clear`, 구현), 하지만 별도의 세션은 더 깔끔한 컨텍스트를 제공합니다.
 
-## 배치 작업을 위한 Fan-out
+## Fan-out for batch tasks
 
-대규모 마이그레이션이나 분석을 위해 여러 `claude -p` 호출을 병렬로 실행합니다.
+대규모 마이그레이션이나 분석에서는 작업을 여러 `claude -p` 호출에 분산시킵니다. 아래 bash 루프는 호출을 *순차적으로* 디스패치합니다; 동시성을 제한해서 병렬화하려면 `xargs -P` 또는 `ForEach-Object -Parallel`을 사용하세요.
 
 > **⚠️ 비용 및 안전 경고**
 >
-> - 루프에서 `claude -p`는 호출당 토큰 비용이 발생합니다. 2,000개 파일 마이그레이션은 몇 시간이 걸리고 $100 이상의 비용이 들 수 있습니다.
+> - 루프에서 `claude -p`는 호출당 토큰 비용이 발생합니다. 수천 개 파일의 마이그레이션은 몇 시간 걸리며 상당한 비용이 누적될 수 있습니다 — 확장 전에 항상 모델의 토큰당 가격으로 비용을 추정하세요.
 > - 항상 2–3개 파일에 먼저 드라이런하고, 확장하기 전에 출력을 검증하세요.
-> - 무인 실행을 위해 `--allowedTools`로 권한을 범위 지정하세요: `claude -p "..." --allowedTools "Edit,Bash(git commit:*)"`
+> - 무인 실행을 위해 `--allowedTools`로 권한을 범위 지정하세요: `claude -p "..." --allowedTools "Edit,Bash(git commit *)"`
 > - Auto 모드는 `-p` 실행에서 반복적인 분류기 거부 후 중단됩니다 — 대신할 사람이 없습니다. 임계값은 [Claude Code auto mode](https://www.anthropic.com/engineering/claude-code-auto-mode)를 참고하세요.
 
 패턴:
@@ -69,16 +69,26 @@ Reviewer는 신선한 컨텍스트에서 세션 A가 방금 작성한 코드에 
 2. **루프**:
 
    ```bash
+   # 순차 (한 번에 하나)
    for file in $(cat files.txt); do
      claude -p "Migrate $file from React to Vue. Return OK or FAIL." \
-       --allowedTools "Edit,Bash(git commit:*)"
+       --allowedTools "Edit,Bash(git commit *)"
    done
+
+   # 제한된 병렬 (동시 워커 4개)
+   cat files.txt | xargs -I {} -P 4 \
+     claude -p "Migrate {} from React to Vue. Return OK or FAIL." \
+       --allowedTools "Edit,Bash(git commit *)"
    ```
 
 **Windows PowerShell 동등 예시:**
 
 ```powershell
-Get-Content files.txt | ForEach-Object { claude -p "Migrate $_ from React to Vue. Return OK or FAIL." --allowedTools "Edit,Bash(git commit:*)" }
+# 순차
+Get-Content files.txt | ForEach-Object { claude -p "Migrate $_ from React to Vue. Return OK or FAIL." --allowedTools "Edit,Bash(git commit *)" }
+
+# 제한된 병렬 (워커 4개; PowerShell 7+ 필요)
+Get-Content files.txt | ForEach-Object -Parallel { claude -p "Migrate $_ from React to Vue. Return OK or FAIL." --allowedTools "Edit,Bash(git commit *)" } -ThrottleLimit 4
 ```
 
 3. **처음 2–3개로 정제 후 확장**: 초반에 잘못된 프롬프트를 잡아내고; 출력 형태를 확인한 후에만 전체 세트에 실행하세요.
