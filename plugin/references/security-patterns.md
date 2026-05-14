@@ -64,7 +64,7 @@ Add to `.claude/settings.json` under `hooks.PreToolUse`:
   "hooks": [
     {
       "type": "command",
-      "command": "echo \"$CLAUDE_FILE_PATH\" | grep -qE '\\.(env|pem|key)' && echo 'BLOCK: Protected file' && exit 2 || exit 0",
+      "command": "jq -r '.tool_input.file_path // empty' | grep -qE '\\.(env|pem|key)$' && { echo 'BLOCK: Protected file'; exit 2; } || exit 0",
       "statusMessage": "Checking for protected files"
     }
   ]

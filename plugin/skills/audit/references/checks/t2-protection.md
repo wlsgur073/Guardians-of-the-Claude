@@ -138,9 +138,12 @@ Detect entries in `permissions.allow[]` matching any of (regex against entry str
 
 - `git push -f`, `git push --force`, `git push --force-with-lease`
 - `git push --delete`, `git branch -D`
+- `git commit --no-verify`, `git push --no-verify`, `git rebase --skip` (safety-bypass: skip pre-commit hooks / sign-off / rebase conflict review)
 - `rm -rf`, `rm -f`
 - `curl * | bash`, `curl * | sh`, `wget * | bash`, `wget * | sh`
+- `curl * https://*`, `wget * https://*` (data-exfiltration: outbound writes to non-allowlist hosts when not scoped by `autoMode.environment`)
 - `gh api * --method DELETE`, `gh api * -X DELETE`
+- `gh gist create`, `gh gist edit` (data-exfiltration: public/anyone-with-link gist publishing of project content)
 - Production deploy verbs: `aws deploy *`, `kubectl delete *`, `helm uninstall *` (project-detected)
 
 These are narrower than 4a wildcards but match the verbs the auto-mode classifier blocks by default. Survival in default mode allow is the threat.

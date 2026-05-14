@@ -1,7 +1,7 @@
 ---
 title: "Trustworthy Agents"
 description: "Five-principle, four-layer framework for evaluating Claude Code agent configuration"
-version: 1.0.0
+version: 1.0.1
 ---
 
 # Trustworthy Agents
@@ -39,7 +39,7 @@ The agent must not enable credential exposure, exfiltration, scope escalation, o
 
 - `permissions.deny:[]` for secret files (`.env`, `*.pem`, `*.key`, `secrets/`)
 - `.claude/rules/security.md` for project-specific guarantees (auth, validation, secrets handling)
-- `PreToolUse` hook protecting sensitive files via `$CLAUDE_FILE_PATH` matching
+- `PreToolUse` hook protecting sensitive files by parsing stdin JSON with `jq -r '.tool_input.file_path'` (Claude Code does NOT expose a `$CLAUDE_FILE_PATH` env var; hooks receive event JSON on stdin)
 - Run `/guardians-of-the-claude:secure` to apply these automatically
 
 ### Transparency

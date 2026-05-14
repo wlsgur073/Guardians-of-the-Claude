@@ -325,7 +325,7 @@ placeholders were used.)
       "hooks": [
         {
           "type": "command",
-          "command": "[detected-linter-command] --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+          "command": "FILE=$(jq -r '.tool_input.file_path // empty'); [ -n \"$FILE\" ] && [detected-linter-command] --fix \"$FILE\" 2>/dev/null || true",
           "timeout": 15,
           "statusMessage": "Auto-linting edited file"
         }
@@ -346,7 +346,7 @@ Replace `[detected-linter-command]` with the actual linter (e.g., `npx eslint`, 
     "hooks": [
       {
         "type": "command",
-        "command": "echo \"$CLAUDE_FILE_PATH\" | grep -qE '\\.(env|pem|key)' && echo 'BLOCK: Protected file' && exit 2 || exit 0",
+        "command": "jq -r '.tool_input.file_path // empty' | grep -qE '\\.(env|pem|key)$' && { echo 'BLOCK: Protected file'; exit 2; } || exit 0",
         "timeout": 5,
         "statusMessage": "Checking for protected files"
       }

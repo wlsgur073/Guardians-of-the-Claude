@@ -1,7 +1,7 @@
 ---
 title: "高度な機能"
 description: "Hooks、agents、skills -- 基本的な構成を超えて Claude Code を拡張する"
-version: 1.3.2
+version: 1.3.3
 ---
 
 # 高度な機能
@@ -23,7 +23,7 @@ version: 1.3.2
         "hooks": [
           {
             "type": "command",
-            "command": "echo \"$CLAUDE_FILE_PATH\" | grep -qE '(package-lock\\.json|\\.env|migrations/)' && echo 'Protected file' && exit 2 || exit 0",
+            "command": "jq -r '.tool_input.file_path // empty' | grep -qE '(package-lock\\.json|\\.env|migrations/)' && { echo 'Protected file'; exit 2; } || exit 0",
             "timeout": 5,
             "statusMessage": "Checking for protected files"
           }
@@ -36,7 +36,7 @@ version: 1.3.2
         "hooks": [
           {
             "type": "command",
-            "command": "npx eslint --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+            "command": "FILE=$(jq -r '.tool_input.file_path // empty'); [ -n \"$FILE\" ] && npx eslint --fix \"$FILE\" 2>/dev/null || true",
             "timeout": 15,
             "statusMessage": "Auto-linting edited file"
           }
@@ -50,7 +50,7 @@ version: 1.3.2
 主要な概念:
 
 - **`matcher`** -- パイプ区切りのツール名または正規表現（例: `"Edit|Write"`、`"mcp__.*"`）
-- **`$CLAUDE_FILE_PATH`** / **`$CLAUDE_PROJECT_DIR`** -- 注入されるパス変数
+- **Hook 入力 (stdin)** -- フックは stdin でイベント JSON を受け取ります（例: `{"tool_input": {"file_path": "..."}}`）; `jq -r '.tool_input.file_path // empty'` でパースしてください。パス関連の環境変数は **`$CLAUDE_PROJECT_DIR`**（プロジェクトルート）のみで — ファイルパスは環境変数として公開され*ません*
 - **`statusMessage`** -- フック実行中に UI に表示されるテキスト
 - **`PreToolUse` + `exit 2`** は操作をブロックして理由を Claude に伝えます -- `.env` やマイグレーションディレクトリのような機密ファイルの保護に使ってください
 - **`PostToolUse` + `|| true`** は操作の完了後に実行されます -- 自動 lint やフォーマットに使ってください

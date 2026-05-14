@@ -1,7 +1,7 @@
 ---
 title: "신뢰할 수 있는 에이전트"
 description: "Claude Code 에이전트 구성을 평가하기 위한 다섯 가지 원칙과 네 가지 계층 프레임워크"
-version: 1.0.0
+version: 1.0.1
 ---
 
 # 신뢰할 수 있는 에이전트
@@ -39,7 +39,7 @@ version: 1.0.0
 
 - 비밀 파일(`.env`, `*.pem`, `*.key`, `secrets/`)에 대한 `permissions.deny:[]`
 - 프로젝트별 보장(인증, 검증, 비밀 처리)을 위한 `.claude/rules/security.md`
-- `$CLAUDE_FILE_PATH` 매칭으로 민감한 파일을 보호하는 `PreToolUse` 훅
+- stdin JSON을 `jq -r '.tool_input.file_path'`로 파싱하여 민감한 파일을 보호하는 `PreToolUse` 훅 (Claude Code는 `$CLAUDE_FILE_PATH` 환경변수를 노출하지 *않으며* — 훅은 이벤트 JSON을 stdin으로 받습니다)
 - 이러한 항목을 자동으로 적용하려면 `/guardians-of-the-claude:secure`를 실행하세요
 
 ### 투명성

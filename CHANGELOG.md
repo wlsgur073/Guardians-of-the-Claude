@@ -7,6 +7,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.19.3] - 2026-05-14
+
+### Fixed
+
+- **`$CLAUDE_FILE_PATH` hook environment variable does not exist in Claude Code** — affected file-protection and auto-lint hook templates in `plugin/references/security-patterns.md`, `templates/advanced/.claude/settings.json` (EN + ko-KR + ja-JP), `plugin/skills/create/templates/advanced.md`, `docs/guides/advanced-features-guide.md` (EN + ko-KR + ja-JP, frontmatter `1.3.2` → `1.3.3`), and `docs/guides/trustworthy-agents-guide.md` (EN + ko-KR + ja-JP, frontmatter `1.0.0` → `1.0.1`). Per Anthropic hook docs (https://code.claude.com/docs/en/hooks), hooks receive event payload via stdin JSON, not env vars; the only path-related env var is `$CLAUDE_PROJECT_DIR`. All hook command strings switched to `jq -r '.tool_input.file_path // empty'` stdin parsing. Security impact: prior file-protection hooks installed by `/secure` always received an empty path and never blocked — false security guarantee.
+
+- **SessionStart hook read stale jq paths in `plugin/hooks/session-start.{sh,ps1}`** — script line 128 (`.sh`) / 149 (`.ps1`) read `.project_structure.monorepo_detection.detected`, but `plugin/references/schemas/profile.schema.v1.2.0.json:124` declares `monorepo_detection` at top level (not nested under `project_structure`). Script line 145 (`.sh`) / 163-165 (`.ps1`) read `.scoring_model_ack.contract_id`, but the schema (line 152) declares the field as `version`. Fixed both paths in both shell variants. Without this fix, ecosystem-change notices could fire spuriously and scoring-contract bump notices never fired.
+
+- **`CURRENT_SCORING_CONTRACT_ID` runtime constant referenced by `plugin/skills/audit/SKILL.md` Install Integrity Pre-Check did not exist** anywhere in the shipped repo (repo-wide grep returned the citation itself at SKILL.md:19 as the only match). Rewrote the pre-check to compare `scoring-model.md` frontmatter `scoring_contract_id` against the expected canonical value `audit-score-v4.2.0` — both shipped artifacts, both fetchable.
+
+- **`audit/SKILL.md:162` Phase 4 DS formula was abbreviated**, omitting the all-SKIP branches that `plugin/references/scoring-model.md:84-86` defines (`If T2 all SKIP: DS = T3 × 100`, `If T3 all SKIP: DS = T2 × 100`, both all SKIP: `DS = 0`). Inlined the 3 branch rules so the SKILL.md formula matches the master scoring model.
+
+- **T2.4 destructive-allow detection in `t2-protection.md:135-146` missed catalog-cited threat verbs** that `security-patterns.md` cites as `safety-bypass` and `data-exfiltration`. Added `git commit --no-verify` / `git push --no-verify` / `git rebase --skip` (safety-bypass), `curl * https://*` / `wget * https://*` (data-exfiltration when unscoped by `autoMode.environment`), and `gh gist create` / `gh gist edit` (data-exfiltration via public gists).
+
+- **`docs-check.yml` workflow trigger excluded tag pushes** — the `on.push` clause filtered only branches (`branches: [main, 'v*']`), so tag pushes (e.g., `v2.19.x`) did not invoke any docs-check job, including `tag-sha-propagation`. Added `tags: ['v*']` to the push trigger so `check-tag-sha-propagation.py` runs in CI on tag push (the script already handles non-tag context via soft-skip per line 388-398).
+
 ## [2.19.2] - 2026-05-14
 
 ### Fixed

@@ -1,7 +1,7 @@
 ---
 title: "Advanced Features"
 description: "Hooks, agents, and skills -- extending Claude Code beyond basic configuration"
-version: 1.3.2
+version: 1.3.3
 ---
 
 # Advanced Features
@@ -23,7 +23,7 @@ Hooks are shell commands that run automatically before or after Claude uses a to
         "hooks": [
           {
             "type": "command",
-            "command": "echo \"$CLAUDE_FILE_PATH\" | grep -qE '(package-lock\\.json|\\.env|migrations/)' && echo 'Protected file' && exit 2 || exit 0",
+            "command": "jq -r '.tool_input.file_path // empty' | grep -qE '(package-lock\\.json|\\.env|migrations/)' && { echo 'Protected file'; exit 2; } || exit 0",
             "timeout": 5,
             "statusMessage": "Checking for protected files"
           }
@@ -36,7 +36,7 @@ Hooks are shell commands that run automatically before or after Claude uses a to
         "hooks": [
           {
             "type": "command",
-            "command": "npx eslint --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+            "command": "FILE=$(jq -r '.tool_input.file_path // empty'); [ -n \"$FILE\" ] && npx eslint --fix \"$FILE\" 2>/dev/null || true",
             "timeout": 15,
             "statusMessage": "Auto-linting edited file"
           }
@@ -50,7 +50,7 @@ Hooks are shell commands that run automatically before or after Claude uses a to
 Key concepts:
 
 - **`matcher`** -- pipe-separated tool names or regex (e.g., `"Edit|Write"`, `"mcp__.*"`)
-- **`$CLAUDE_FILE_PATH`** / **`$CLAUDE_PROJECT_DIR`** -- injected path variables
+- **Hook input via stdin** -- hooks receive event JSON on stdin (e.g., `{"tool_input": {"file_path": "..."}}`); parse with `jq -r '.tool_input.file_path // empty'`. The only path-related env var is **`$CLAUDE_PROJECT_DIR`** (project root) — file paths are NOT exposed as env vars
 - **`statusMessage`** -- text shown in the UI while the hook runs
 - **`PreToolUse` + `exit 2`** blocks the action and tells Claude why -- use for protecting sensitive files like `.env` or migration directories
 - **`PostToolUse` + `|| true`** runs after the action completes -- use for auto-linting or formatting
