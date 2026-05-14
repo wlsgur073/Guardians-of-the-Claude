@@ -42,6 +42,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Cross-link added to `advanced-features-guide.md` Agents section (patch bump 1.3.1 → 1.3.2).
 
+- New guide: `docs/guides/workflow-patterns-guide.md` — interview-first specification (`AskUserQuestion`), Writer/Reviewer multi-session, test-first multi-Claude, fan-out for batch tasks (with explicit cost and safety warnings — dry-run, `--allowedTools`, auto-mode fallback), worktrees and parallel sessions. ko-KR and ja-JP mirrors included; frontmatter version 1.0.0.
+
+- Cross-links added to `getting-started.md` "What's Next" for the new workflow-patterns + multi-agent-patterns guides; combined patch bump 1.2.6 → 1.2.7.
+
 ### Changed
 
 - **Philosophy #4 wording renamed across all README mirrors and the Day-based progression frame compressed.** Reflects that AI tooling improves continuously rather than reaching a static depth, and brings the Day-based adoption frame in line with modern AI tool adoption cadence (weekly/bi-weekly rather than monthly/quarterly).

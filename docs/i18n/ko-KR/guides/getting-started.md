@@ -1,7 +1,7 @@
 ---
 title: "시작하기"
 description: "프로젝트에 Claude Code 설정을 구성하는 단계별 가이드"
-version: 1.2.6
+version: 1.2.7
 ---
 
 # 시작하기
@@ -123,6 +123,8 @@ Rules를 사용하면 좋은 경우:
 - [Rules 가이드](rules-guide.md) -- 지침을 모듈화된 rule 파일로 구성하기
 - [Settings 가이드](settings-guide.md) -- settings.json의 모든 설정 옵션
 - [신뢰할 수 있는 에이전트 가이드](trustworthy-agents-guide.md) -- 에이전트 구성 평가를 위한 다섯 가지 원칙 프레임워크
+- [멀티 에이전트 패턴 가이드](multi-agent-patterns-guide.md) -- Orchestrator-Worker, 서브 에이전트 예산, 병렬 디스패치
+- [워크플로우 패턴 가이드](workflow-patterns-guide.md) -- 인터뷰 우선 명세, Writer/Reviewer, fan-out, worktrees
 - [디렉토리 구조 가이드](directory-structure-guide.md) -- .claude/ 생태계 이해하기
 - [효과적인 사용 가이드](effective-usage-guide.md) -- 첫날부터 적용할 사용 패턴과 피해야 할 안티패턴
 - [고급 기능 가이드](advanced-features-guide.md) -- 팀을 위한 hooks, agents, skills
