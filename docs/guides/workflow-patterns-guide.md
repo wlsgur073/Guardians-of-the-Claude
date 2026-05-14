@@ -1,7 +1,7 @@
 ---
 title: "Workflow Patterns"
 description: "Interview-first specs, Writer/Reviewer, test-first multi-Claude, fan-out (with cost/safety warnings), worktrees and parallel sessions"
-version: 1.0.0
+version: 1.0.1
 ---
 
 # Workflow Patterns
@@ -65,7 +65,7 @@ For large migrations or analyses, run many `claude -p` invocations in parallel.
 
 Pattern:
 
-1. **Generate the task list**: `Have Claude list all 2,000 Python files that need migrating to file: files.txt`.
+1. **Generate the task list**: `Have Claude list all 2,000 Python files that need migrating and write them to files.txt`.
 2. **Loop**:
 
    ```bash
@@ -74,6 +74,12 @@ Pattern:
        --allowedTools "Edit,Bash(git commit:*)"
    done
    ```
+
+**PowerShell equivalent (Windows):**
+
+```powershell
+Get-Content files.txt | ForEach-Object { claude -p "Migrate $_ from React to Vue. Return OK or FAIL." --allowedTools "Edit,Bash(git commit:*)" }
+```
 
 3. **Refine on first 2–3, then scale**: catch broken prompts early; only run on the full set after you have seen the output shape.
 
@@ -88,6 +94,15 @@ git worktree add ../feature-x feature-x
 cd ../feature-x
 claude  # this session works on feature-x branch only; main worktree is untouched
 ```
+
+When done with a worktree, remove it cleanly:
+
+```bash
+git worktree remove ../feature-x
+git worktree list  # confirm it's gone
+```
+
+Stale worktree registrations accumulate if you only delete the directory without `git worktree remove`. Run `git worktree prune` to clean up orphaned entries.
 
 | Option | Best for |
 |---|---|

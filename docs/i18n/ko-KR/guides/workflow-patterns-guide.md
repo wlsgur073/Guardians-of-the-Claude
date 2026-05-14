@@ -1,7 +1,7 @@
 ---
 title: "워크플로우 패턴"
 description: "인터뷰 우선 명세, Writer/Reviewer, 테스트 우선 멀티 Claude, fan-out (비용/안전 경고 포함), worktrees 및 병렬 세션"
-version: 1.0.0
+version: 1.0.1
 ---
 
 # 워크플로우 패턴
@@ -65,7 +65,7 @@ Reviewer는 신선한 컨텍스트에서 세션 A가 방금 작성한 코드에 
 
 패턴:
 
-1. **작업 목록 생성**: `Have Claude list all 2,000 Python files that need migrating to file: files.txt`.
+1. **작업 목록 생성**: `Have Claude list all 2,000 Python files that need migrating and write them to files.txt`.
 2. **루프**:
 
    ```bash
@@ -74,6 +74,12 @@ Reviewer는 신선한 컨텍스트에서 세션 A가 방금 작성한 코드에 
        --allowedTools "Edit,Bash(git commit:*)"
    done
    ```
+
+**Windows PowerShell 동등 예시:**
+
+```powershell
+Get-Content files.txt | ForEach-Object { claude -p "Migrate $_ from React to Vue. Return OK or FAIL." --allowedTools "Edit,Bash(git commit:*)" }
+```
 
 3. **처음 2–3개로 정제 후 확장**: 초반에 잘못된 프롬프트를 잡아내고; 출력 형태를 확인한 후에만 전체 세트에 실행하세요.
 
@@ -88,6 +94,15 @@ git worktree add ../feature-x feature-x
 cd ../feature-x
 claude  # this session works on feature-x branch only; main worktree is untouched
 ```
+
+worktree 사용이 끝나면 깔끔하게 제거하세요:
+
+```bash
+git worktree remove ../feature-x
+git worktree list  # 제거 확인
+```
+
+`git worktree remove` 없이 디렉토리만 삭제하면 오래된 worktree 등록 항목이 쌓입니다. 고아 항목을 정리하려면 `git worktree prune`을 실행하세요.
 
 | 옵션 | 최적 사용 사례 |
 |---|---|

@@ -1,7 +1,7 @@
 ---
 title: "Skill & Tool Description Quality"
 description: "Domain expert framing, dual-format responses, error message design, evaluation-driven iteration"
-version: 1.0.0
+version: 1.0.1
 ---
 
 # Skill & Tool Description Quality
@@ -28,6 +28,8 @@ Include an explicit phrasing of when to use the skill so Claude can match user i
 Skills without a trigger phrase often miss activation even when relevant.
 
 ### 3. Dual-format responses (for tools that return data)
+
+*Scope note: this principle applies to tool/MCP schema design where tools return structured data. Skill `description` field design (Principles 1, 2, 4) is the primary topic of this document; principle 3 is included for completeness when authoring underlying tools.*
 
 Support a `response_format` enum with at least two modes:
 
@@ -61,8 +63,8 @@ Refinement cycles regularly improve trigger accuracy and reduce parameter errors
 - Wrapping every API endpoint mechanically into a separate tool — consolidate workflows instead (e.g., one `schedule_event` instead of three separate `check_availability` / `create_event` / `send_invite`).
 - Generic parameter names — `user` should be `user_id` or `user_email`.
 - Cryptic IDs as parameters — resolve to semantic names where possible (e.g., `project_name` rather than `proj_alphanum`).
-- Sparse documentation that assumes fields are self-explanatory.
-- Treating tool/skill design as one-shot — descriptions evolve as Claude's usage patterns surface gaps.
+- Sparse documentation that assumes fields are self-explanatory — e.g., a `status` field with no enum of valid values, leaving the agent to guess.
+- Treating tool/skill design as one-shot — descriptions evolve as Claude's usage patterns surface gaps; revisit after every 20–50 production invocations.
 
 ## References
 

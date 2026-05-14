@@ -34,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - `plugin/references/tool-description-quality.md` (NEW): principles for writing skill and tool descriptions — domain expert framing, trigger phrase patterns, dual-format responses, actionable error messages, evaluation-driven iteration.
 
-- `/audit` advisory check: skill `description` quality — non-scoring, surfaces in Phase 4 "All Suggestions" output. Scoring contract `audit-score-v4.2.0` is unchanged.
+- `/audit` advisory check: skill `description` quality — non-scoring, surfaces in Phase 4 "All Suggestions" output. Runs only when `.claude/skills/` exists in the audited project. Scoring contract `audit-score-v4.2.0` is unchanged.
 
 - `advanced-features-guide.md`: cross-link to the new reference (patch bump 1.3.0 → 1.3.1).
 
@@ -64,6 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - `docs/i18n/ja-JP/README.md:20`: `… 有効化されます` → `… 本領を発揮します`
   - `docs/i18n/ja-JP/README.md:89`: `複数のスキルを実行すると、プラグインは … を活性化します` → `スキルを繰り返し実行する中で、プラグインの … が充実していきます`
   - `docs/ROADMAP.md:24-25` left unchanged — "Day 14 users rely on…" is descriptive of user habit (depend on / count on), not a feature-gate claim.
+- **Polish pass on Anthropic Engineering 2026 patterns documentation** — reconciled `#` shortcut wording across `effective-usage-guide.md` and `claude-md-guide.md`; added Principle 3 scope note and parallel-structure examples to `tool-description-quality.md`; clarified `/audit` advisory check applicability; switched `multi-agent-patterns-guide.md` effort scaling 3rd-row column to numeric metric; corrected ja-JP "ワークロードスケーリング" translation; added PowerShell equivalent and `git worktree` cleanup guidance to `workflow-patterns-guide.md`. Patch bumps across affected guides.
 
 ### Fixed
 

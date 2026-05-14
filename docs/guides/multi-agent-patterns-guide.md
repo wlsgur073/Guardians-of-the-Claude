@@ -1,7 +1,7 @@
 ---
 title: "Multi-Agent Patterns"
 description: "Orchestrator-Worker, effort scaling, sub-agent context budget, breadth-first search, parallel dispatch — for Claude Code subagent workflows"
-version: 1.0.0
+version: 1.0.1
 ---
 
 # Multi-Agent Patterns
@@ -56,7 +56,7 @@ Embed these rules into the orchestrator's system prompt so the lead does not ove
 |---|---|---|
 | Simple fact-finding | 1 | 3–10 |
 | Medium analysis | 2–4 | 10–30 |
-| Complex research | 10+ | with divided responsibilities |
+| Complex research | 10+ | 30+ (with divided responsibilities) |
 
 A common failure mode is the lead spawning 10 workers for a question that one Grep would answer. Calibrate before dispatching.
 
