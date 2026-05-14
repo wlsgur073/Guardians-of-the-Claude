@@ -7,6 +7,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **CLAUDE.md workflow rules (2 entries)** — captured two non-obvious repo facts:
+  - *Verifying Changes Locally*: `.github/scripts/check-smoke-fixtures.py:2923` hardcodes the `sessionstart_fixtures = [...]` array (no glob over `ci/fixtures/sessionstart-orchestrator/`). Adding a new fixture requires BOTH directory creation AND adding `<name>` to the array. Skill-flow lane at `:2908` (`migration` / `beginner-path` / `warm-start` / `monorepo`) is a separate hardcoded list with the same property.
+  - *Cross-platform shell/fixture gotchas*: bash heredoc `<<EOF` expansion is single-pass — `$VAR` / `$(cmd)` / backticks in the LITERAL heredoc body are processed, but values substituted from variables are inserted as literal text. So `<<EOF` with `$GIT_STATUS` whose value contains `$(rm -rf /)` does NOT execute the command. Counters the common shell-semantics confusion that frames heredoc-substitution-via-variable-VALUES as a command-injection risk. CLAUDE.md grew 104 → 106 lines, well under the 200-line ceiling.
+
 ## [2.19.4] - 2026-05-15
 
 ### Fixed
