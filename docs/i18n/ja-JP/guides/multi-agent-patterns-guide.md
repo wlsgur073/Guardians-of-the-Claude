@@ -1,7 +1,7 @@
 ---
 title: "マルチエージェントパターン"
 description: "オーケストレーター-ワーカー、努力スケーリング、サブエージェントコンテキスト予算、幅優先探索、並列ディスパッチ — Claude Code サブエージェントワークフロー向け"
-version: 1.0.2
+version: 1.0.3
 ---
 
 # マルチエージェントパターン
@@ -58,7 +58,7 @@ Worker B — ...
 | 直接比較 | 2–4 | 10–15 |
 | 複雑なリサーチ | 10+ | 役割を分担; ワーカーあたりの呼び出し数はサブタスクにより変動* |
 
-\* Anthropic の[マルチエージェントリサーチシステム解説](https://www.anthropic.com/engineering/multi-agent-research-system)は、複雑なリサーチ段階のワーカーあたりのツール呼び出し数を固定していません; 同じ記事では、総ワーカー数がより多い場合でも、**典型的な並列バッチは一度に 3–5 個のサブエージェント**をディスパッチすると述べています。
+\* Anthropic の[マルチエージェントリサーチシステム解説](https://www.anthropic.com/engineering/multi-agent-research-system)は、複雑なリサーチ段階のワーカーあたりのツール呼び出し数を固定していません。同じ記事では、リードエージェントが「順次ではなく **3–5 個のサブエージェントを並列で spin up**」すると述べています。
 
 よくある失敗パターンは、1回の Grep で答えられる質問に対してリードが 10 個のワーカーをスポーンすることです。ディスパッチ前に調整してください。
 
@@ -84,7 +84,7 @@ Worker B — ...
 
 ## 並列ディスパッチ入門
 
-ローカルの並列ディスパッチ（Bash ループで多くの `claude -p` 呼び出しを実行する、または `git worktree` でセッションを分離する）については、[ワークフローパターン — バッチタスクの Fan-out](workflow-patterns-guide.md#fan-out-for-batch-tasks) を参照してください。そのガイドにはコストと安全に関する警告が含まれています; それを読まずに fan-out を実行しないでください。
+`claude -p` ループによるローカル並列ディスパッチについては、[ワークフローパターン — Fan-out for batch tasks](workflow-patterns-guide.md#fan-out-for-batch-tasks) を参照してください — コストと安全に関する警告が含まれており、これを読まずに fan-out を実行しないでください。`git worktree` によるセッション分離は別の並列化メカニズムであり、[ワークフローパターン — Worktrees and parallel sessions](workflow-patterns-guide.md#worktrees-and-parallel-sessions) を参照してください。
 
 Claude Code の `Agent` ツールによる*組み込み*のサブエージェントディスパッチの場合、上記のオーケストレーター-ワーカーパターンが直接対応します — 親セッションがリードであり、各 `Agent` 呼び出しがワーカーです。
 

@@ -1,7 +1,7 @@
 ---
 title: "효과적인 사용 패턴"
 description: "Claude Code를 효과적으로 사용하기 위한 필수 패턴"
-version: 1.3.1
+version: 1.3.2
 ---
 
 # 효과적인 사용 패턴
@@ -57,7 +57,7 @@ npm run build        # verify TypeScript compiles
 | `/rewind` | 더블 `Esc`와 동일 -- 되감기 메뉴를 엽니다 |
 | `/clear` | 관련 없는 작업 사이에 컨텍스트를 초기화합니다. **자주 사용하세요.** |
 | `/compact` | 대화를 요약하여 컨텍스트를 확보합니다. 초점 추가 가능: `/compact focus on the API changes` |
-| `#` | 프롬프트 앞에 `#`를 붙이면 Claude가 해당 학습 내용을 CLAUDE.md에 추가할 것을 제안합니다 (작성 전 사용자가 확인). |
+| `/memory` | 메모리 파일(CLAUDE.md, CLAUDE.local.md, rules, auto memory)을 탐색하고 편집합니다. 세션 중에 학습을 추가하려면 Claude에게 직접 요청하세요: `이걸 CLAUDE.md에 추가해줘` 또는 `이걸 기억해줘`. |
 | `/context` | 컨텍스트 윈도우에서 무엇이 공간을 차지하는지 확인합니다. 컨텍스트가 가득 찰 때 진단에 사용합니다. |
 | `--continue` | 가장 최근 대화를 이어서 진행합니다 (실행 플래그) |
 | `--resume` | 최근 대화 목록에서 선택하여 이어갑니다 (실행 플래그) |

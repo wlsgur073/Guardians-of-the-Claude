@@ -7,6 +7,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.19.2] - 2026-05-14
+
+### Fixed
+
+- **`#` prompt-shortcut claim was unfounded** in `docs/guides/effective-usage-guide.md` (Session Management Essentials row) and `docs/guides/claude-md-guide.md` "Updating Mid-Session" section (EN + ko-KR + ja-JP, both files bumped `1.3.1` → `1.3.2`). Anthropic's [memory docs](https://code.claude.com/docs/en/memory) document `/memory`, direct prompts ("add this to CLAUDE.md", "remember this"), and `/init` as the official mechanisms; no `#` prefix shortcut is documented. Replaced the row/bullet with the official mechanism and a link to the memory docs.
+
+- **`plugin/references/tool-description-quality.md` dual-format token-count table over-extrapolated Anthropic source** (frontmatter `1.0.1` → `1.0.2`). The `50–80` / `150–250` token bands were local heuristics presented as if specified by Anthropic; the [writing-tools-for-agents](https://www.anthropic.com/engineering/writing-tools-for-agents) article only specifies the dual-mode contract, not numeric token counts. Removed the column and added an explicit note that token counts should be tuned per tool. Also relaxed the `~20–50 sessions/invocations` cadence references to "tune to your evaluation signal" — Anthropic does not prescribe this cadence either.
+
+- **`CLAUDE.md:64` "All 11 Python validators must pass GREEN before tag/push" self-contradiction** with lines 66 / 91 noting `check-tag-sha-propagation.py` runs post-tag-push. Reworded to "10 pre-push + 1 post-push": 10 validators must pass before `git push --follow-tags`; the 11th runs after the tag push because it compares the local annotated tag SHA against `refs/tags/v<tag>` on origin.
+
+- **`docs/guides/multi-agent-patterns-guide.md` Parallel Dispatch primer link covered fan-out only** but the same sentence mentioned `git worktree` session isolation — the `#fan-out-for-batch-tasks` slug does not cover the separate Worktrees section. Split the cross-reference into two anchors (`#fan-out-for-batch-tasks` for `claude -p` loops, `#worktrees-and-parallel-sessions` for worktree isolation). EN + ko-KR + ja-JP, frontmatter `1.0.2` → `1.0.3`.
+
+- **`docs/i18n/{ko-KR,ja-JP}/guides/workflow-patterns-guide.md` Worktrees heading was translated**, breaking the `#worktrees-and-parallel-sessions` slug that the multi-agent guide now links to. Restored heading to English `## Worktrees and parallel sessions` per CLAUDE.md cross-language anchor consistency rule. Drift fix — frontmatter version unchanged per CLAUDE.md i18n bump-semantics rule.
+
+- **`docs/guides/trustworthy-agents-guide.md` 182-line length is now a named exception** in CLAUDE.md:28. The previous "guides should stay under ~130 lines, advanced-features under ~210" rule did not cover the v2.19.0 trustworthy-agents-guide. Updated CLAUDE.md to list `trustworthy-agents-guide.md` (under ~185 — 5 principles × 4 layers + self-audit checklist + cross-references) alongside `advanced-features-guide.md` as a named exception.
+
+- **`docs/guides/multi-agent-patterns-guide.md` footnote paraphrase tightened** to verbatim quote of the Anthropic source (EN + ko-KR + ja-JP). Removed the "even when total worker count is higher" gloss; the article's exact phrasing — "spins up 3–5 subagents in parallel rather than serially" — is now quoted directly.
+
 ## [2.19.1] - 2026-05-14
 
 ### Fixed

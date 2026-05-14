@@ -1,7 +1,7 @@
 ---
 title: "멀티 에이전트 패턴"
 description: "Orchestrator-Worker, 노력 스케일링, 서브 에이전트 컨텍스트 예산, 너비 우선 탐색, 병렬 디스패치 — Claude Code 서브에이전트 워크플로우를 위한 안내"
-version: 1.0.2
+version: 1.0.3
 ---
 
 # 멀티 에이전트 패턴
@@ -58,7 +58,7 @@ Worker B — ...
 | 직접 비교 | 2–4 | 10–15 |
 | 복잡한 리서치 | 10+ | 책임을 분담; 워커당 호출 수는 하위 작업에 따라 가변* |
 
-\* Anthropic의 [멀티 에이전트 리서치 시스템 글](https://www.anthropic.com/engineering/multi-agent-research-system)은 복잡한 리서치 단계의 워커당 도구 호출 수를 고정하지 않습니다; 같은 글에서, 총 워커 수가 더 많은 경우에도 **일반적인 병렬 배치는 한 번에 3–5개의 서브에이전트**를 디스패치한다고 명시합니다.
+\* Anthropic의 [멀티 에이전트 리서치 시스템 글](https://www.anthropic.com/engineering/multi-agent-research-system)은 복잡한 리서치 단계의 워커당 도구 호출 수를 고정하지 않습니다. 같은 글에서 리드 에이전트는 "순차가 아닌 **3–5개의 서브에이전트를 병렬로 spin up**"한다고 명시합니다.
 
 흔한 실패 패턴은 리드가 하나의 Grep으로 답할 수 있는 질문에 10개의 워커를 생성하는 것입니다. 디스패치 전에 조율하세요.
 
@@ -84,7 +84,7 @@ Worker B — ...
 
 ## 병렬 디스패치 입문
 
-로컬 병렬 디스패치(Bash 루프에서 여러 `claude -p` 호출, 또는 `git worktree`로 세션 격리)에 대해서는 [워크플로우 패턴 — 배치 작업을 위한 Fan-out](workflow-patterns-guide.md#fan-out-for-batch-tasks)을 참고하세요. 해당 가이드에는 비용 및 안전 경고가 포함되어 있습니다; 이를 읽지 않고 fan-out을 실행하지 마세요.
+`claude -p` 루프를 통한 로컬 병렬 디스패치는 [워크플로우 패턴 — Fan-out for batch tasks](workflow-patterns-guide.md#fan-out-for-batch-tasks)를 참고하세요 — 비용 및 안전 경고가 포함되어 있으며, 이를 읽지 않고 fan-out을 실행하지 마세요. `git worktree`를 통한 세션 격리는 별도의 병렬화 메커니즘으로, [워크플로우 패턴 — Worktrees and parallel sessions](workflow-patterns-guide.md#worktrees-and-parallel-sessions)를 참고하세요.
 
 Claude Code의 `Agent` 도구를 통한 *내장* 서브에이전트 디스패치의 경우, 위의 오케스트레이터-워커 패턴이 그대로 적용됩니다 — 부모 세션이 리드이고, 각 `Agent` 호출이 워커입니다.
 

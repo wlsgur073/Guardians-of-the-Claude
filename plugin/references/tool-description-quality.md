@@ -1,7 +1,7 @@
 ---
 title: "Skill & Tool Description Quality"
 description: "Domain expert framing, dual-format responses, error message design, evaluation-driven iteration"
-version: 1.0.1
+version: 1.0.2
 ---
 
 # Skill & Tool Description Quality
@@ -33,12 +33,12 @@ Skills without a trigger phrase often miss activation even when relevant.
 
 Support a `response_format` enum with at least two modes:
 
-| Mode | Typical token count | Use case |
-|---|---|---|
-| `"concise"` | 50–80 | Quick lookup / chained tool calls |
-| `"detailed"` | 150–250 | Full record / human-readable output |
+| Mode | Use case |
+|---|---|
+| `"concise"` | Quick lookup / chained tool calls — return only the minimum fields the caller needs |
+| `"detailed"` | Full record / human-readable output |
 
-This saves context when many tools chain together.
+This saves context when many tools chain together. Anthropic's [writing-tools-for-agents](https://www.anthropic.com/engineering/writing-tools-for-agents) article specifies the *dual-mode contract*; specific token counts are not prescribed — tune each tool to the caller's typical pipeline.
 
 ### 4. Meaningful error messages
 
@@ -51,12 +51,12 @@ Replace opaque traceback dumps with actionable improvements. The agent needs to 
 
 Description quality is rarely right on the first draft. Use evaluation-driven iteration:
 
-1. Concatenate transcripts of recent skill invocations (~20–50 sessions).
+1. Concatenate transcripts of recent skill invocations.
 2. Have Claude analyze where the skill should have triggered but did not, or triggered when it should not have.
 3. Propose description refinements based on observed failure modes.
 4. Re-run a small eval set; measure trigger rate and parameter-error rate.
 
-Refinement cycles regularly improve trigger accuracy and reduce parameter errors over time.
+Refinement cycles regularly improve trigger accuracy and reduce parameter errors over time. The cadence (how many invocations to gather before each refinement pass) depends on your invocation volume — tune to your eval signal.
 
 ## Anti-patterns
 
@@ -64,7 +64,7 @@ Refinement cycles regularly improve trigger accuracy and reduce parameter errors
 - Generic parameter names — `user` should be `user_id` or `user_email`.
 - Cryptic IDs as parameters — resolve to semantic names where possible (e.g., `project_name` rather than `proj_alphanum`).
 - Sparse documentation that assumes fields are self-explanatory — e.g., a `status` field with no enum of valid values, leaving the agent to guess.
-- Treating tool/skill design as one-shot — descriptions evolve as Claude's usage patterns surface gaps; revisit after every 20–50 production invocations.
+- Treating tool/skill design as one-shot — descriptions evolve as Claude's usage patterns surface gaps; revisit periodically based on your evaluation signal.
 
 ## References
 

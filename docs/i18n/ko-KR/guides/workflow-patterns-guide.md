@@ -95,7 +95,7 @@ Get-Content files.txt | ForEach-Object -Parallel { claude -p "Migrate $_ from Re
 
 JSON 구조화된 출력 (스크립트에서 파싱)을 위해 `--output-format json`을 추가하세요. 스트리밍을 위해서는 `--output-format stream-json`을 사용하세요.
 
-## Worktrees와 병렬 세션
+## Worktrees and parallel sessions
 
 진정으로 격리된 병렬 작업이 필요할 때 (예: 위험한 리팩토링을 실험하면서 메인 라인 작업을 계속할 때), `git worktree`를 사용하세요:
 

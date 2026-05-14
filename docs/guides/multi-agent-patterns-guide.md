@@ -1,7 +1,7 @@
 ---
 title: "Multi-Agent Patterns"
 description: "Orchestrator-Worker, effort scaling, sub-agent context budget, breadth-first search, parallel dispatch — for Claude Code subagent workflows"
-version: 1.0.2
+version: 1.0.3
 ---
 
 # Multi-Agent Patterns
@@ -58,7 +58,7 @@ Embed these rules into the orchestrator's system prompt so the lead does not ove
 | Direct comparison | 2–4 | 10–15 |
 | Complex research | 10+ | Divide responsibilities; per-worker count varies by sub-task* |
 
-\* Anthropic's [multi-agent research system writeup](https://www.anthropic.com/engineering/multi-agent-research-system) does not pin a per-worker tool-call count for the complex tier; the same article notes that typical parallel batches dispatch **3–5 subagents at a time**, even when total worker count is higher.
+\* Anthropic's [multi-agent research system writeup](https://www.anthropic.com/engineering/multi-agent-research-system) does not pin a per-worker tool-call count for the complex tier. The same article notes that the lead agent "spins up **3–5 subagents in parallel** rather than serially".
 
 A common failure mode is the lead spawning 10 workers for a question that one Grep would answer. Calibrate before dispatching.
 
@@ -84,7 +84,7 @@ Going deep first wastes calls if you picked the wrong branch.
 
 ## Parallel dispatch primer
 
-For local parallel dispatch (running many `claude -p` invocations in a Bash loop, or using `git worktree` to isolate sessions), see [Workflow Patterns — Fan-out for batch tasks](workflow-patterns-guide.md#fan-out-for-batch-tasks). That guide includes the cost and safety warnings; do not run a fan-out without reading them.
+For local parallel dispatch via `claude -p` loops, see [Workflow Patterns — Fan-out for batch tasks](workflow-patterns-guide.md#fan-out-for-batch-tasks) — includes cost and safety warnings; do not run a fan-out without reading them. For `git worktree` session isolation as a separate parallelism mechanism, see [Workflow Patterns — Worktrees and parallel sessions](workflow-patterns-guide.md#worktrees-and-parallel-sessions).
 
 For Claude Code's *built-in* subagent dispatch via the `Agent` tool, the orchestrator-worker pattern above maps directly — the parent session is the lead, each `Agent` invocation is a worker.
 

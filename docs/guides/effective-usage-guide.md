@@ -1,7 +1,7 @@
 ---
 title: "Effective Usage Patterns"
 description: "Essential day-one patterns for using Claude Code effectively"
-version: 1.3.1
+version: 1.3.2
 ---
 
 # Effective Usage Patterns
@@ -57,7 +57,7 @@ For the strategic significance of Plan Mode in the broader trustworthy-agents fr
 | `/rewind` | Same as double-Esc -- open the rewind menu |
 | `/clear` | Reset context between unrelated tasks. **Use frequently.** |
 | `/compact` | Summarize conversation to free context. Add focus: `/compact focus on the API changes` |
-| `#` | Prefix a prompt with `#` and Claude proposes adding the learning to CLAUDE.md (you confirm before it writes). |
+| `/memory` | Browse and edit memory files (CLAUDE.md, CLAUDE.local.md, rules, auto memory). To add a learning mid-session, ask Claude directly: `add this to CLAUDE.md` or `remember this`. |
 | `/context` | See what is using space in your context window. Use to diagnose when context is getting full. |
 | `--continue` | Resume your most recent conversation (launch flag) |
 | `--resume` | Choose from recent conversations to resume (launch flag) |
