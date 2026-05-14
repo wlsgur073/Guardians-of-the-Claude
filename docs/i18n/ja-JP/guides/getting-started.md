@@ -12,7 +12,7 @@ version: 1.2.7
 
 - Claude Code がインストール済みで動作していること（`claude --version` で確認）
 - 設定したいプロジェクトがあること
-- **Windows をお使いの場合**: プラグインの SessionStart フックは bash スクリプトと PowerShell スクリプト（`plugin/hooks/session-start.ps1`）の両方を同梱しており、advanced テンプレートの `validate-prompt` フックも同様に `.ps1` 版（`templates/advanced/hooks/validate-prompt.ps1`）を `.sh` 版と並べて同梱しています。PowerShell 5.1+（Windows 10+ に標準搭載）または Git Bash/WSL のいずれかがあれば両レイヤーとも動作するため、追加のシェル設定は不要です
+- **Windows をお使いの場合**: プラグインの SessionStart フックと advanced テンプレートのセッションライフサイクルフック（`validate-prompt`、`pre-compact`、`subagent-stop`、`stop`）は `.sh` と `.ps1` の両方のスクリプトを同梱しているため、PowerShell 5.1+（Windows 10+ に標準搭載）、Git Bash、WSL のいずれでもそれらのレイヤーは動作します。advanced テンプレートの `.claude/settings.json` 内インライン `PreToolUse` / `PostToolUse` の例は依然として POSIX シェル構文を使用します — そのまま使う場合は Git Bash をインストール、PowerShell のみの環境では PowerShell に変換するか削除してください
 
 ## Step 1: セットアップ方法を選ぶ
 

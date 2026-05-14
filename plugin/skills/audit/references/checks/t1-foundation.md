@@ -1,6 +1,6 @@
 # T1 — Foundation Checks
 
-These checks form the **Foundation Gate** — they determine what percentage of the Detail Score (Protection + Optimization) applies to the final score. A missing foundation item suppresses the entire score.
+These checks form the **Foundation Gate** — they trigger early halt when CLAUDE.md is missing (T1.1), gate **Synergy Bonus** eligibility for the test+build pair (T1.2 + T1.3), and feed the **Quality Gate** display label (T1.1 + T1.2). Detail Score is computed from T2 + T3 only — Foundation items do not multiply DS (see `plugin/references/scoring-model.md` — the FG-as-multiplier formula was retired in v2.12.0 in favor of the LAV item-aware multiplier).
 
 ## Weights
 

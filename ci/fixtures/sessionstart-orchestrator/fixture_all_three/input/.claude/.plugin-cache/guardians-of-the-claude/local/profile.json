@@ -2,6 +2,6 @@
   "schema_version": "1.0.0",
   "claude_code_configuration_state": {
     "model": "claude-opus-4-7",
-    "scoring_model_ack": {"contract_id": "audit-score-v4.2.0"}
+    "scoring_model_ack": {"version": "audit-score-v4.2.0", "seen_count": 0}
   }
 }

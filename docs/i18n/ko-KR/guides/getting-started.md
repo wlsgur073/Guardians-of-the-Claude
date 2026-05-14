@@ -12,7 +12,7 @@ version: 1.2.7
 
 - Claude Code가 설치되어 있고 정상 동작하는 상태 (`claude --version`으로 확인)
 - 설정을 적용할 프로젝트
-- **Windows 사용자**: 플러그인 SessionStart 훅은 bash 스크립트와 PowerShell 스크립트(`plugin/hooks/session-start.ps1`)를 함께 제공하고, advanced 템플릿의 `validate-prompt` 훅도 동일하게 `.ps1` 동반 스크립트(`templates/advanced/hooks/validate-prompt.ps1`)를 함께 제공합니다. PowerShell 5.1+ (Windows 10+ 기본 탑재) 또는 Git Bash/WSL 중 어느 쪽이든 양쪽 레이어가 모두 동작합니다 — 추가 쉘 설정 불필요
+- **Windows 사용자**: 플러그인 SessionStart 훅과 advanced 템플릿의 세션 라이프사이클 훅(`validate-prompt`, `pre-compact`, `subagent-stop`, `stop`)은 `.sh`와 `.ps1` 스크립트를 모두 제공하므로, PowerShell 5.1+ (Windows 10+ 기본 탑재) / Git Bash / WSL 어느 쪽이든 그 레이어들이 동작합니다. advanced 템플릿의 `.claude/settings.json` 내 인라인 `PreToolUse` / `PostToolUse` 예제는 여전히 POSIX 쉘 문법을 사용합니다 — 그대로 쓰려면 Git Bash 설치, PowerShell-only 환경이면 PowerShell로 변환하거나 제거하세요
 
 ## Step 1: 설정 방법 선택
 

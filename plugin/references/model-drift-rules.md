@@ -143,7 +143,7 @@ Matching policy: longest-match when multiple rules overlap (per the matching-pol
 | `claude-sonnet-4-6*` | `sonnet-4.6-anthropic` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `observed` |
 | `anthropic.claude-sonnet-4-6*` | `sonnet-4.6-bedrock` | `sonnet` | `200k` | `extended_any` | `compaction_capable` | `observed` |
 | `claude-sonnet-4-5@*` | `sonnet-4.5-vertex` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `observed` |
-| `claude-sonnet-4-5*` | `sonnet-4.5-anthropic` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `observed` |
+| `claude-sonnet-4-5*` | `sonnet-4.5-anthropic` | `sonnet` | `200k` | `extended_any` | `compaction_capable` | `observed` |
 | `anthropic.claude-sonnet-4-5*` | `sonnet-4.5-bedrock` | `sonnet` | `200k` | `extended_any` | `compaction_capable` | `observed` |
 | `claude-haiku-4-5@*` | `haiku-4.5-vertex` | `haiku` | `200k` | `extended_any` | `compaction_capable` | `observed` |
 | `claude-haiku-4-5*` | `haiku-4.5-anthropic` | `haiku` | `200k` | `extended_any` | `compaction_capable` | `observed` |
@@ -154,7 +154,7 @@ Matching policy: longest-match when multiple rules overlap (per the matching-pol
 - Bedrock rows (`anthropic.claude-*`) MUST be matched before Anthropic-direct rows (`claude-*`) to prevent the shorter Anthropic pattern from matching a Bedrock prefix. Longest-match ordering in the runner handles this automatically.
 - Vertex rows (`claude-*@*`) MUST be matched before Anthropic-direct rows (`claude-*`) since the `@` suffix distinguishes them. Longest-match ordering handles this.
 - All three `claude-opus-4-6` variants (Anthropic direct, Bedrock, Vertex) normalize to `1M` context as of 2026-04-20. Prior table revisions modeled Bedrock as `200k`; Bedrock has since upgraded Opus 4.6 to 1M per the AWS model card, and the table is aligned to current provider reality.
-- **Sonnet 4.5 transitional state (as of 2026-04-20)**: Anthropic-direct (`claude-sonnet-4-5*`) and Vertex (`claude-sonnet-4-5@*`) currently serve Sonnet 4.5 at `1M` context via beta/preview; Anthropic's 1M beta retires April 30, 2026 per public release notes. Post-retirement, the Anthropic-direct row will drop to `200k` (alongside Bedrock, which is `200k` from launch). A patch release aligned to the retirement date will update the Anthropic (and possibly Vertex) rows. As of 2026-04-20 all three Sonnet 4.5 rows are `observed`; evidence: AWS Claude Sonnet 4.5 model card (Bedrock), Vertex Claude Sonnet 4.5 model card (Vertex GA), Anthropic release notes (1M beta retirement).
+- **Sonnet 4.5 post-retirement (as of 2026-04-30)**: Anthropic-direct (`claude-sonnet-4-5*`) is now `200k` — the `context-1m-2025-08-07` beta retired on April 30, 2026 per Anthropic release notes; requests exceeding 200k now return an error. Bedrock (`anthropic.claude-sonnet-4-5*`) was `200k` from launch. Vertex (`claude-sonnet-4-5@*`) remains `1M observed` — Vertex sets its own retirement schedule independently and 1M is preserved per the Vertex Sonnet 4.5 model card. For 1M context on Anthropic-direct, migrate to Sonnet 4.6 or Opus 4.6 (both 1M GA at standard pricing, no beta header). Evidence: AWS Claude Sonnet 4.5 model card (Bedrock), Vertex Claude Sonnet 4.5 model card (Vertex GA), Anthropic release notes 2026-04-30 (1M beta retirement).
 
 ## Evidence Status Labels
 
