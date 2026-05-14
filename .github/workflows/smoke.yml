@@ -7,6 +7,14 @@ on:
       - 'templates/**'
       - 'plugin/hooks/**'
       - 'plugin/references/learning-system.md'
+      - 'plugin/references/phase-0.md'
+      - 'plugin/references/final-phase.md'
+      - 'plugin/references/learning-rules.md'
+      - 'plugin/references/compaction.md'
+      - 'plugin/references/drift-state.md'
+      - 'plugin/references/critical-thinking.md'
+      - 'plugin/references/schema-policy.md'
+      - 'plugin/references/state-rendering.md'
       - 'ci/**'
       - '.github/scripts/check-smoke-fixtures.py'
       - '.github/workflows/smoke.yml'
@@ -56,7 +64,7 @@ jobs:
           changed=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
           skill_changed=0
           verifier_changed=0
-          if echo "$changed" | grep -qE '^(plugin/skills/|plugin/references/(learning-system\.md$|lib/))'; then
+          if echo "$changed" | grep -qE '^(plugin/skills/|plugin/references/(learning-system\.md$|phase-0\.md$|final-phase\.md$|learning-rules\.md$|compaction\.md$|drift-state\.md$|critical-thinking\.md$|schema-policy\.md$|state-rendering\.md$|lib/))'; then
             skill_changed=1
           fi
           if echo "$changed" | grep -qE '^(\.github/scripts/check-smoke-fixtures\.py|ci/fixtures/|ci/golden/)'; then

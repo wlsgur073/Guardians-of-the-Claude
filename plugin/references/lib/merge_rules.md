@@ -95,6 +95,6 @@ Use whole-file read-modify-write under the state-mutation lock. Read the entire 
 
 **Same-day update semantics**: if an entry for this skill already exists in today's Recent Activity section, update that entry in place (append new actions to its body). Otherwise append a new entry to the Recent Activity tail.
 
-**Compaction**: apply the Compaction rule (per `§config-changelog Format` in `learning-system.md`) after the update if Recent Activity exceeds its cap.
+**Compaction**: apply the Compaction rule (per `§config-changelog Format` in `state-rendering.md`) after the update if Recent Activity exceeds its cap.
 
 **Rationale**: the changelog requires same-day in-place updates, which pure append cannot express. Reading and rewriting the whole file under the lock is correct and not a performance concern given the bounded log size (compaction enforces the cap).

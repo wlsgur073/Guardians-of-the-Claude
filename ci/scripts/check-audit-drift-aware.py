@@ -3,7 +3,7 @@
 
 Covers 6 assertions:
   A1 drift advisory state machine simulation (5 fixtures)
-  A2 .model field in Step 0.5 profile.json write set (learning-system.md)
+  A2 .model field in Step 0.5 profile.json write set (phase-0.md)
   A3 install-integrity pre-Phase-0 substep in /audit SKILL.md
   A4 Final Phase triggers (model write + scoring-model-change banner + drift advisory)
   A5 output-format.md drift block position (between Score and ★ Most impactful)
@@ -108,17 +108,17 @@ def check_a1_state_machine() -> list[str]:
 def check_a2_write_point_1() -> list[str]:
     """Verify .model field is part of the Step 0.5 profile.json write set."""
     failures = []
-    learning_md = (
-        REPO_ROOT / "plugin" / "references" / "learning-system.md"
+    phase_0_md = (
+        REPO_ROOT / "plugin" / "references" / "phase-0.md"
     ).read_text(encoding="utf-8")
 
     step_05_match = re.search(
         r"\*\*Step 0\.5 — Migration & Stale Check\*\*.*?(?=\n## |\n---)",
-        learning_md,
+        phase_0_md,
         flags=re.DOTALL,
     )
     if not step_05_match:
-        failures.append("A2: Step 0.5 section not found in learning-system.md")
+        failures.append("A2: Step 0.5 section not found in phase-0.md")
         return failures
 
     step_05 = step_05_match.group(0)
