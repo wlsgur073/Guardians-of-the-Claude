@@ -83,6 +83,10 @@ Migration parser MUST support the current minor AND the previous minor (N-1). A 
 
 **All timestamps MUST be ISO-8601 UTC** across `profile.json`, `recommendations.json`, `recommendation-registry.json`, and `state-summary.md` (header `Generated at`).
 
+The choice of **JSON canonical + Markdown derived** dual-format is endorsed by Anthropic's own engineering guidance: "the model is less likely to inappropriately change or overwrite JSON files compared to Markdown files" ([Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)).
+
+JSON files carry the canonical state machine; markdown views (`state-summary.md`, `config-changelog.md`) carry human-readable projections.
+
 ---
 
 ## Recommendation ID Registry

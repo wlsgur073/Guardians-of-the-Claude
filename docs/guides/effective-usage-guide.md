@@ -1,7 +1,7 @@
 ---
 title: "Effective Usage Patterns"
 description: "Essential day-one patterns for using Claude Code effectively"
-version: 1.2.1
+version: 1.3.0
 ---
 
 # Effective Usage Patterns
@@ -130,3 +130,16 @@ Asking Claude to "investigate the codebase" without scope. It reads dozens of fi
 - [CLAUDE.md Guide](claude-md-guide.md) -- Writing effective instructions
 - [Settings Guide](settings-guide.md) -- Configuring permissions to reduce prompts
 - [Getting Started](getting-started.md) -- Full setup walkthrough
+
+## Understanding Plugin Learning State
+
+The `guardians-of-the-claude` plugin maintains state similar to how a frontend build process produces optimized output:
+
+| Build process step | Plugin equivalent |
+|---|---|
+| Transpiling (modern → compatible syntax) | Schema migration (v1.0.0 → v1.2.0) |
+| Bundling (many files → one bundle) | `state-summary.md` renderer |
+| Tree shaking (remove unused code) | Compaction (>30 days → quarter rollup) |
+| Production optimization (minify) | Token budget enforcement |
+
+The key difference: build is *one-shot at deploy*; plugin learning is *incremental at every invocation*. A more precise architectural model is **event sourcing** — see `plugin/references/learning-system.md` for internals.

@@ -1,7 +1,7 @@
 ---
 title: "효과적인 사용 패턴"
 description: "Claude Code를 효과적으로 사용하기 위한 필수 패턴"
-version: 1.2.1
+version: 1.3.0
 ---
 
 # 효과적인 사용 패턴
@@ -132,3 +132,16 @@ from src/api/middleware.ts. Follow the pattern in src/api/users.ts.
 - [CLAUDE.md 가이드](claude-md-guide.md) -- 효과적인 지침 작성법
 - [설정 가이드](settings-guide.md) -- 프롬프트를 줄이기 위한 권한 설정
 - [시작하기](getting-started.md) -- 전체 설정 안내
+
+## 플러그인 학습 상태 이해하기
+
+`guardians-of-the-claude` 플러그인은 프론트엔드 빌드 프로세스가 최적화된 결과물을 생성하는 방식과 비슷하게 상태를 관리합니다:
+
+| 빌드 프로세스 단계 | 플러그인의 대응 |
+|---|---|
+| Transpiling (최신 → 호환 가능 문법) | 스키마 마이그레이션 (v1.0.0 → v1.2.0) |
+| Bundling (여러 파일 → 단일 번들) | `state-summary.md` 렌더러 |
+| Tree shaking (사용되지 않는 코드 제거) | 압축 (>30일 → 분기별 롤업) |
+| Production optimization (minify) | 토큰 예산 적용 |
+
+핵심 차이는 시점에 있습니다: 빌드는 *배포 시점에 한 번*만 일어나지만, 플러그인 학습은 *매 invocation마다 점진적으로* 일어납니다. 더 정확한 아키텍처 모델은 **event sourcing**이며, 내부 동작은 `plugin/references/learning-system.md`를 참고하세요.

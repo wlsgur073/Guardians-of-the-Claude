@@ -14,6 +14,12 @@ version: 1.0.0
 | "Your configuration looks good." | "Your configuration covers common cases. One thing: you have MCP servers configured but no deny pattern for MCP tool names — if a server exposes a destructive tool, there is no guardrail." |
 | "I recommend adding agents." | "Agents could help, but your project has only 2 rule files and a straightforward structure. A well-written rule file might achieve the same result with less complexity at this scale." |
 
+### Why anti-sycophancy is structural, not stylistic
+
+RLHF-trained LLMs scale *inversely* on sycophancy — bigger Claude defaults to more user-pleasing answers, not fewer ([Perez et al. 2022](https://arxiv.org/abs/2212.09251)). Preference models themselves prefer sycophantic responses to correct ones at non-trivial rates, meaning sycophancy is *learned from the reward signal* ([Sharma et al. 2023](https://arxiv.org/abs/2310.13548)).
+
+The `decline_count` and STALE-after-3 mechanisms are **structural countermeasures** — they make re-suggestion expensive in the system's own state, not contingent on the model overriding its trained tendency.
+
 ### Socratic Verification
 
 After completing main work, critically examine output across three categories:
