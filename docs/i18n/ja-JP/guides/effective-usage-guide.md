@@ -1,7 +1,7 @@
 ---
 title: "効果的な使い方のパターン"
 description: "Claude Code を効果的に使うために初日から知っておきたいパターン"
-version: 1.3.2
+version: 1.4.0
 ---
 
 # 効果的な使い方のパターン
@@ -115,3 +115,16 @@ src/api/users.ts のパターンに従ってください。
 - [CLAUDE.md ガイド](claude-md-guide.md) -- 効果的な指示の書き方
 - [Settings ガイド](settings-guide.md) -- 権限を構成してプロンプトを減らす
 - [はじめに](getting-started.md) -- セットアップ全体のウォークスルー
+
+## プラグインの学習状態を理解する
+
+`guardians-of-the-claude` プラグインは、フロントエンドのビルドプロセスが最適化された成果物を生成するのと似た方法で状態を管理します：
+
+| ビルドプロセスの段階 | プラグインの対応物 |
+|---|---|
+| Transpiling（最新 → 互換可能構文） | スキーママイグレーション (v1.0.0 → v1.2.0) |
+| Bundling（多数のファイル → 単一バンドル） | `state-summary.md` レンダラ |
+| Tree shaking（未使用コードの削除） | コンパクション（>30日 → 四半期ロールアップ） |
+| Production optimization (minify) | トークン予算の適用 |
+
+重要な違いは時点です: ビルドは *デプロイ時に一度* だけ起こりますが、プラグインの学習は *呼び出しごとに段階的に* 進みます。より正確なアーキテクチャモデルは **event sourcing** であり、内部の実装は `plugin/references/learning-system.md` を参照してください。

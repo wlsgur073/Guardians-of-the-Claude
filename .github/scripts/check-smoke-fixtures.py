@@ -375,7 +375,7 @@ def _parse_compacted_history_anchors(body: str) -> list[dict]:
     sibling 'last_entry_date:', 'last_model:', 'last_capability_fingerprint:'
     lines are consumed as anchor fields.
 
-    Per the coordination note: learning-system.md does not yet specify
+    Per the coordination note: compaction.md does not yet specify
     the rendered anchor syntax, so minimal pattern-match is used.
 
     Returns list of dicts with keys: skill, last_entry_date, last_model,
@@ -717,7 +717,7 @@ def parse_latest_md(text: str, skill: str, pinned_utc: str, registry_by_key: dic
 
 
 # ---------------------------------------------------------------------------
-# Drift State Derivation (see learning-system.md, section "Drift Advisory Derivation")
+# Drift State Derivation (see drift-state.md, section "Drift Advisory Derivation")
 # ---------------------------------------------------------------------------
 
 
@@ -1093,12 +1093,12 @@ def _test_t6_fixtures() -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-# Rendering (learning-system.md §State Rendering)
+# Rendering (state-rendering.md §State Rendering)
 # ---------------------------------------------------------------------------
 
 
 def render_state_summary(profile: dict, recs: dict, changelog_text: str | None, ctx: RunContext) -> str:
-    """Produce state-summary.md content per learning-system.md layout."""
+    """Produce state-summary.md content per state-rendering.md layout."""
     header = (
         "<!-- ─────────────────────────────────────────────\n"
         " Generated from JSON state — DO NOT EDIT.\n"
@@ -1118,7 +1118,7 @@ def render_state_summary(profile: dict, recs: dict, changelog_text: str | None, 
     ps = profile.get("project_structure") or {}
     ccs = profile.get("claude_code_configuration_state") or {}
 
-    # Drift advisory derivation (shared per learning-system.md, section
+    # Drift advisory derivation (shared per drift-state.md, section
     # "Drift Advisory Derivation"). Silent when state is match,
     # missing_baseline, or normalization_null.
     rules = _get_normalization_rules()
@@ -1313,7 +1313,7 @@ def _parse_changelog_entries(text: str) -> dict:
 def _entry_summary_line(entry: dict) -> str:
     """Produce the one-liner under `### /skill — date`.
 
-    Per learning-system.md §State Rendering: "One-line summary from the
+    Per state-rendering.md §State Rendering: "One-line summary from the
     entry's Applied or Detected field" — goldens consistently use Applied
     verbatim (including `(none)` when nothing was applied), so we return
     Applied whenever it is populated. Detected is a secondary fallback for
