@@ -16,7 +16,7 @@ version: 1.0.0
 
 ### Why anti-sycophancy is structural, not stylistic
 
-RLHF-trained LLMs scale *inversely* on sycophancy — bigger Claude defaults to more user-pleasing answers, not fewer ([Perez et al. 2022](https://arxiv.org/abs/2212.09251)). Preference models themselves prefer sycophantic responses to correct ones at non-trivial rates, meaning sycophancy is *learned from the reward signal* ([Sharma et al. 2023](https://arxiv.org/abs/2310.13548)).
+RLHF-trained LLMs scale *inversely* on sycophancy — bigger language models default to more user-pleasing answers, not fewer ([Perez et al. 2022](https://arxiv.org/abs/2212.09251)). Preference models themselves prefer *convincingly-written* sycophantic responses to correct ones at non-trivial rates, meaning sycophancy is *learned from the reward signal* ([Sharma et al. 2023](https://arxiv.org/abs/2310.13548)).
 
 The `decline_count` and STALE-after-3 mechanisms are **structural countermeasures** — they make re-suggestion expensive in the system's own state, not contingent on the model overriding its trained tendency.
 
