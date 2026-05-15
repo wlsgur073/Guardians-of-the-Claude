@@ -11,19 +11,19 @@ Follow these phases in order. Each phase references a check file — read it and
 
 ## Install Integrity Pre-Check
 
-Before Phase 0 (below) and before any state mutation or lock acquisition, verify the runtime scoring-contract constant matches the canonical declaration in `plugin/references/scoring-model.md` frontmatter. Mismatch is a **broken-install error** (install-integrity check, `/audit`-scoped), not a warning.
+Before Phase 0 (below) and before any state mutation or lock acquisition, verify that `plugin/references/scoring-model.md` frontmatter declares the expected `scoring_contract_id`. Mismatch indicates a corrupted or stale plugin install.
 
 **Steps:**
 
 1. Load `plugin/references/scoring-model.md` frontmatter and extract `scoring_contract_id`.
-2. Read the hardcoded `CURRENT_SCORING_CONTRACT_ID` constant from runtime code.
+2. Compare with the expected canonical value `audit-score-v4.2.0` (the contract `/audit` was authored against).
 3. If the two values differ, **abort the run immediately** with a fatal diagnostic:
 
    ```
    BROKEN INSTALL: scoring_contract_id mismatch
-     frontmatter: <value-from-md>
-     runtime:     <value-from-constant>
-   Resolution: reinstall the plugin or sync the runtime constant to match frontmatter.
+     scoring-model.md: <value-from-frontmatter>
+     expected:         audit-score-v4.2.0
+   Resolution: reinstall the plugin to restore the bundled scoring-model.md.
    ```
 
 4. Do NOT proceed to Phase 0; do NOT acquire the state-mutation lock. This check is read-only (no state side effects), so stateless mode runs it identically.
@@ -117,7 +117,7 @@ Otherwise, read `references/checks/t2-protection.md` and execute all T2 checks. 
 
 ## Phase 3: Optimization Checks (T3)
 
-If this is a documentation-only project with no `.claude/rules/`, no `.claude/agents/`, and no `.mcp.json`, you may skip loading `references/checks/t3-optimization.md` — score all T3 items as SKIP.
+If this is a documentation-only project with no `.claude/rules/`, no `.claude/agents/`, no `.claude/skills/`, and no `.mcp.json`, you may skip loading `references/checks/t3-optimization.md` — score all T3 items as SKIP.
 
 Otherwise, read `references/checks/t3-optimization.md` and execute all T3 checks. Score each item using the 4-level scale. Items that are not applicable to this project should be marked SKIP. Note any conditional suggestions.
 
@@ -159,7 +159,11 @@ Apply the scoring model in this order:
 
 1. **Score each item** using the 4-level scale (PASS=1.0, PARTIAL=0.6, MINIMAL=0.3, FAIL=0.0, SKIP=excluded)
 2. **Calculate T1 Score** — `T1_Score = weighted average of non-SKIP T1 items` (used for Maturity Level Level 1 condition)
-3. **Calculate Detail Score** — `DS = (T2_weighted × 0.60 + T3_weighted × 0.40) × 100`
+3. **Calculate Detail Score** — apply formula from `references/scoring-model.md` § Formula:
+   - Default: `DS = (T2_weighted × 0.60 + T3_weighted × 0.40) × 100`
+   - If all T2 items SKIP: `DS = T3_weighted × 100`
+   - If all T3 items SKIP: `DS = T2_weighted × 100`
+   - If both T2 and T3 all SKIP: `DS = 0`
 4. **Calculate Synergy Bonus** — check qualifying pairs
 5. **Calculate LAV components** — L1, L2, L3, L4, L5, L6 individually from Phase 3.5 (LLM Accuracy Verification components — definitions in `references/checks/lav.md`)
 6. **Calculate cap tier** — `cap = 60` if L5 = −3 AND no other negative-minimum Li at its minimum; `cap = 50` if L5 = −3 AND at least one other Li at its negative minimum (L1 = −3, L2 = −2, or L4 = −1); `cap = 100` otherwise

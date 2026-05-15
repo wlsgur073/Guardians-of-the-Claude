@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-2.18.0-brightgreen.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Version-2.19.4-brightgreen.svg" alt="Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg" alt="Claude Code Plugin">
   <img src="https://img.shields.io/badge/Skills-4_Commands-orange.svg" alt="4 Skills">
@@ -204,7 +204,7 @@ Claude Code automatically detects `~/.claude/statusline.sh` — no additional co
 
 > **Prerequisites:**
 > - [jq](https://jqlang.org) must be installed (`brew install jq` / `apt install jq` / `choco install jq`)
-> - A Bash-compatible shell to run `statusline.sh`. On **Windows**, use **Git Bash** or **WSL**. (Plugin hooks and the advanced-template hooks ship both `.sh` and `.ps1` variants, so PowerShell-only Windows works for everything except the statusline itself.)
+> - A Bash-compatible shell to run `statusline.sh`. On **Windows**, use **Git Bash** or **WSL**. (The plugin's SessionStart hook and the advanced-template session-lifecycle hooks — `validate-prompt`, `pre-compact`, `subagent-stop`, `stop` — ship both `.sh` and `.ps1` variants. The advanced template's inline `PreToolUse` / `PostToolUse` examples in `.claude/settings.json` use POSIX shell syntax (`jq | grep -E`, `[ -n "$VAR" ]`), so Git Bash remains required for those two — convert to PowerShell or remove them if running PowerShell-only.)
 
 ## Contributing
 

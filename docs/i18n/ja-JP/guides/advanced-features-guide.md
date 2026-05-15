@@ -1,7 +1,7 @@
 ---
 title: "高度な機能"
 description: "Hooks、agents、skills -- 基本的な構成を超えて Claude Code を拡張する"
-version: 1.3.1
+version: 1.3.3
 ---
 
 # 高度な機能
@@ -23,7 +23,7 @@ version: 1.3.1
         "hooks": [
           {
             "type": "command",
-            "command": "echo \"$CLAUDE_FILE_PATH\" | grep -qE '(package-lock\\.json|\\.env|migrations/)' && echo 'Protected file' && exit 2 || exit 0",
+            "command": "jq -r '.tool_input.file_path // empty' | grep -qE '(package-lock\\.json|\\.env|migrations/)' && { echo 'Protected file'; exit 2; } || exit 0",
             "timeout": 5,
             "statusMessage": "Checking for protected files"
           }
@@ -36,7 +36,7 @@ version: 1.3.1
         "hooks": [
           {
             "type": "command",
-            "command": "npx eslint --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+            "command": "FILE=$(jq -r '.tool_input.file_path // empty'); [ -n \"$FILE\" ] && npx eslint --fix \"$FILE\" 2>/dev/null || true",
             "timeout": 15,
             "statusMessage": "Auto-linting edited file"
           }
@@ -50,7 +50,7 @@ version: 1.3.1
 主要な概念:
 
 - **`matcher`** -- パイプ区切りのツール名または正規表現（例: `"Edit|Write"`、`"mcp__.*"`）
-- **`$CLAUDE_FILE_PATH`** / **`$CLAUDE_PROJECT_DIR`** -- 注入されるパス変数
+- **Hook 入力 (stdin)** -- フックは stdin でイベント JSON を受け取ります（例: `{"tool_input": {"file_path": "..."}}`）; `jq -r '.tool_input.file_path // empty'` でパースしてください。パス関連の環境変数は **`$CLAUDE_PROJECT_DIR`**（プロジェクトルート）のみで — ファイルパスは環境変数として公開され*ません*
 - **`statusMessage`** -- フック実行中に UI に表示されるテキスト
 - **`PreToolUse` + `exit 2`** は操作をブロックして理由を Claude に伝えます -- `.env` やマイグレーションディレクトリのような機密ファイルの保護に使ってください
 - **`PostToolUse` + `|| true`** は操作の完了後に実行されます -- 自動 lint やフォーマットに使ってください
@@ -124,6 +124,8 @@ color: "green"
 
 **エージェントパイプライン:** 多段階のワークフローではエージェントを連鎖させましょう: `backend-developer`（実装）→ `security-reviewer`（レビュー）→ `test-writer`（テスト）。
 
+マルチエージェントディスパッチパターン（オーケストレーター-ワーカー、サブエージェントコンテキスト予算、努力スケーリング）については、[マルチエージェントパターンガイド](multi-agent-patterns-guide.md) を参照してください。
+
 ## Skills
 
 スキルは `.claude/skills/` に置く再利用可能な複数ステップのワークフローです。それぞれがスラッシュコマンドとなり、機能のスキャフォールドやコンポーネント追加などの繰り返し作業を自動化します。
@@ -178,6 +180,8 @@ Run build and tests to confirm everything works.
 **フォールバックパターン:** スキルが任意のツール（MCP サーバー、CI システム）に依存する場合、2 つの経路を用意してください: パス A はツールが利用できる場合に使い、パス B はツールがない場合の手動代替手段です。
 
 **評価駆動の反復:** まず例として呼び出しと期待される出力を書き、その評価が通るまで SKILL.md を反復改善します。各パスの後に、成功したアプローチと典型的な失敗を Claude がスキルテキストに反映するようにしてください。
+
+**Description の品質が重要です:** トリガーフレーズ、ドメイン専門家の観点による表現、デュアルフォーマット応答、実行可能なエラーメッセージは、Claude が適切なタイミングでスキルをトリガーするかどうかに大きく影響します。全体の原則については [`plugin/references/tool-description-quality.md`](../../../../plugin/references/tool-description-quality.md) を参照してください。
 
 **セキュリティ:** スキルは実行可能な指示です — 信頼できるソースからのみインストールし、見慣れない SKILL.md は呼び出す前にレビューしてください。スクリプトを実行する前にレビューするのと同じように扱ってください。
 

@@ -125,7 +125,7 @@ check_drift_family() {
 
   # Reason 3: ecosystem_change — workspace declaration file present but profile records single_project.
   local PROFILE_MONOREPO_DETECTED
-  PROFILE_MONOREPO_DETECTED=$(jq -r '.project_structure.monorepo_detection.detected // false' < "$PROFILE" 2>/dev/null || echo "false")
+  PROFILE_MONOREPO_DETECTED=$(jq -r '.monorepo_detection.detected // false' < "$PROFILE" 2>/dev/null || echo "false")
   local has_workspace_file="false"
   for wf in pnpm-workspace.yaml lerna.json nx.json turbo.json rush.json; do
     if [ -f "$wf" ]; then has_workspace_file="true"; break; fi
@@ -142,7 +142,7 @@ check_drift_family() {
   # Reason 4: scoring_contract_bump — profile.scoring_model_ack differs from plugin's current.
   # Plugin's current scoring contract ID is audit-score-v4.2.0.
   local PROFILE_SCORE_ACK
-  PROFILE_SCORE_ACK=$(jq -r '.claude_code_configuration_state.scoring_model_ack.contract_id // ""' < "$PROFILE" 2>/dev/null || echo "")
+  PROFILE_SCORE_ACK=$(jq -r '.claude_code_configuration_state.scoring_model_ack.version // ""' < "$PROFILE" 2>/dev/null || echo "")
   local EXPECTED_SCORE="audit-score-v4.2.0"
   if [ -n "$PROFILE_SCORE_ACK" ] && [ "$PROFILE_SCORE_ACK" != "$EXPECTED_SCORE" ]; then
     if [ -z "$primary" ]; then

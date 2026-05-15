@@ -1,7 +1,7 @@
 ---
 title: "信頼できるエージェント"
 description: "Claude Code エージェント設定を評価するための5原則4層フレームワーク"
-version: 1.0.0
+version: 1.0.1
 ---
 
 # 信頼できるエージェント
@@ -39,7 +39,7 @@ version: 1.0.0
 
 - 秘密ファイル (`.env`、`*.pem`、`*.key`、`secrets/`) に対する `permissions.deny:[]`
 - プロジェクト固有の保証 (認証、検証、秘密の取り扱い) のための `.claude/rules/security.md`
-- `$CLAUDE_FILE_PATH` マッチングで機密ファイルを保護する `PreToolUse` フック
+- stdin JSON を `jq -r '.tool_input.file_path'` でパースして機密ファイルを保護する `PreToolUse` フック（Claude Code は `$CLAUDE_FILE_PATH` 環境変数を公開し*ません* — フックはイベント JSON を stdin で受け取ります）
 - これらを自動的に適用するには `/guardians-of-the-claude:secure` を実行
 
 ### 透明性

@@ -11,6 +11,94 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **CLAUDE.md workflow rules (2 entries)** — captured two non-obvious repo facts:
+  - *Verifying Changes Locally*: `.github/scripts/check-smoke-fixtures.py:2923` hardcodes the `sessionstart_fixtures = [...]` array (no glob over `ci/fixtures/sessionstart-orchestrator/`). Adding a new fixture requires BOTH directory creation AND adding `<name>` to the array. Skill-flow lane at `:2908` (`migration` / `beginner-path` / `warm-start` / `monorepo`) is a separate hardcoded list with the same property.
+  - *Cross-platform shell/fixture gotchas*: bash heredoc `<<EOF` expansion is single-pass — `$VAR` / `$(cmd)` / backticks in the LITERAL heredoc body are processed, but values substituted from variables are inserted as literal text. So `<<EOF` with `$GIT_STATUS` whose value contains `$(rm -rf /)` does NOT execute the command. Counters the common shell-semantics confusion that frames heredoc-substitution-via-variable-VALUES as a command-injection risk. CLAUDE.md grew 104 → 106 lines, well under the 200-line ceiling.
+
+- **Architecture Overview** in `plugin/references/learning-system.md` reframes the system as event sourcing (Martin Fowler pattern), with concept-to-file mapping table. Also disambiguates strengths along *deterministic state machine axis* (schema versioning, provenance, recovery, concurrency safety) vs *agentic memory axis* (semantic retrieval, dynamic linking, adaptive activation).
+
+- **Anti-sycophancy academic citations** in `plugin/references/critical-thinking.md`: Perez et al. 2022 (inverse scaling for sycophancy) + Sharma et al. 2023 (preference models prefer sycophancy). Frames `decline_count` and STALE-after-3 as structural countermeasures against learned reward-hacking, not stylistic choices.
+
+- **Anthropic JSON-vs-Markdown citation** in `plugin/references/schema-policy.md`: Anthropic's "Effective Harnesses" guidance endorses JSON canonical + Markdown derived dual-format pattern.
+
+- **Build process metaphor section** in `docs/guides/effective-usage-guide.md` (and ko-KR + ja-JP mirrors): user-facing analogy mapping transpiling/bundling/tree shaking/optimization to schema migration/state-summary renderer/compaction/token budget. Frontmatter version bumped 1.3.2 → 1.4.0 in all 3 i18n files atomically.
+
+### Changed
+
+- **`plugin/references/learning-system.md` decomposed into 8 single-responsibility subfiles + slim orchestrator** (mechanical only, zero behavior change). New subfiles in `plugin/references/`: `phase-0.md`, `final-phase.md`, `learning-rules.md`, `compaction.md`, `drift-state.md`, `critical-thinking.md`, `schema-policy.md`, `state-rendering.md`. Orchestrator preserves all 16 H2 anchor stubs (Option D format: file-level link + prose section name) so 4 SKILL.md anchor references (`§ Common Phase 0`, `§ Common Final Phase`, `§ Model Bullet Emission`, `§ Drift Advisory Derivation`) and CI script comments continue to resolve. Orchestrator frontmatter version bumped `2.3.6` → `3.0.0` (file-local independent semver, distinct from plugin SemVer). `.github/workflows/smoke.yml` trigger path filter and tripwire regex extended to include all 8 new subfiles — without this update, smoke verifier would silently skip subfile-only changes. `ci/scripts/check-audit-drift-aware.py` Step 0.5 read-target updated from `learning-system.md` to `phase-0.md` (real code dependency, not just comment). `.github/scripts/check-smoke-fixtures.py` 6 comment references updated to point at new subfile homes. `plugin/references/lib/merge_rules.md` cross-reference updated. Mechanical correctness machine-verified by one-shot `.github/scripts/verify-pr1-split.py` (fence-aware section split + whitespace-normalized byte-equivalence comparison vs original `main:plugin/references/learning-system.md`); verifier may be removed in a follow-up cleanup PR.
+
+## [2.19.4] - 2026-05-15
+
+### Fixed
+
+- **`plugin/skills/audit/references/checks/t1-foundation.md:3` intro contradicted the live scoring formula.** The intro claimed T1 "determine[s] what percentage of the Detail Score applies" and "a missing foundation item suppresses the entire score," but `plugin/references/scoring-model.md:78-86,113` computes DS from T2 + T3 only (`DS = (T2_Score × 0.60 + T3_Score × 0.40) × 100`) and explicitly notes "FG is no longer a multiplier on DS" — the v2.12.0 LAV item-aware multiplier replaced the Foundation-Gated formula. Rewrote the intro to describe T1's actual roles: early-halt trigger when CLAUDE.md is missing (T1.1), Synergy Bonus eligibility gating for the test+build pair (T1.2 + T1.3), and Quality Gate display label (T1.1 + T1.2).
+
+- **Sonnet 4.5 1M context window beta (`context-1m-2025-08-07`) retired April 30, 2026** per [Anthropic release notes](https://platform.claude.com/docs/en/release-notes/api). `plugin/references/model-drift-rules.md` Anthropic-direct row `claude-sonnet-4-5*` updated from `1M` to `200k`; Bedrock row was `200k` from launch (unchanged); Vertex row `claude-sonnet-4-5@*` retained at `1M observed` per Vertex's independent retirement schedule. Updated the table note from transitional-state phrasing to post-retirement status; for 1M context on Anthropic-direct, migrate to Sonnet 4.6 or Opus 4.6 (both 1M GA at standard pricing, no beta header required).
+
+- **13 SessionStart smoke fixtures used legacy `scoring_model_ack.contract_id` shape** that no longer matched the hook code path or the v1.2.0 profile schema. `plugin/hooks/session-start.{sh,ps1}` reads `.claude_code_configuration_state.scoring_model_ack.version` and `plugin/references/schemas/profile.schema.v1.2.0.json:149-160` declares the field as `version` plus required `seen_count`. Migrated all 13 fixture `profile.json` files under `ci/fixtures/sessionstart-orchestrator/*/input/.claude/.plugin-cache/guardians-of-the-claude/local/` to `{"version": "audit-score-v4.2.0", "seen_count": 0}`. Smoke output stays byte-equal (the `scoring_contract_bump` drift branch was already skipped because the legacy shape yielded an empty `version` field, and the migrated shape's value matches the expected contract). Follow-up: an explicit fixture exercising the `scoring_contract_bump` path (older contract version) remains unaddressed and is a candidate for v2.19.5.
+
+- **README and Getting Started overclaimed Windows PowerShell support.** `README.md:207` stated "Plugin hooks and the advanced-template hooks ship both `.sh` and `.ps1` variants, so PowerShell-only Windows works for everything except the statusline itself," and `docs/guides/getting-started.md:15` stated "PowerShell 5.1+ or Git Bash/WSL works end-to-end — no extra shell setup needed." But the advanced template's inline `PreToolUse` / `PostToolUse` example hooks in `templates/advanced/.claude/settings.json:40,53` use POSIX shell syntax (`jq | grep -E`, `FILE=$(...)`, `[ -n "$FILE" ]`) with no PowerShell variant. Narrowed both claims to name the actually-paired hooks (SessionStart + the four session-lifecycle hooks `validate-prompt`, `pre-compact`, `subagent-stop`, `stop`) and explicitly flag the two inline POSIX examples that PowerShell-only Windows users must convert or remove. Updated EN + ko-KR + ja-JP mirrors of both files (6 files total).
+
+- **`templates/advanced/hooks/subagent-stop.sh:41` bypassed the file's own JSON-escape helper.** The line `LINE+="\"cwd\":\"$PWD_VAL\""` interpolated `$PWD_VAL` directly into a JSON string, while every other field in the same JSONL object routed through the `emit_field` helper at lines 25-33 (which escapes backslashes and embedded double quotes). On Git Bash Windows or any invocation where `pwd` returns a path containing `\` or `"`, the resulting JSONL line was malformed. Fixed by routing `$PWD_VAL` through `emit_field cwd "$PWD_VAL"` like the other fields. EN + ko-KR + ja-JP mirrors (3 files, byte-equal preserved).
+
+## [2.19.3] - 2026-05-14
+
+### Fixed
+
+- **`$CLAUDE_FILE_PATH` hook environment variable does not exist in Claude Code** — affected file-protection and auto-lint hook templates in `plugin/references/security-patterns.md`, `templates/advanced/.claude/settings.json` (EN + ko-KR + ja-JP), `plugin/skills/create/templates/advanced.md`, `docs/guides/advanced-features-guide.md` (EN + ko-KR + ja-JP, frontmatter `1.3.2` → `1.3.3`), and `docs/guides/trustworthy-agents-guide.md` (EN + ko-KR + ja-JP, frontmatter `1.0.0` → `1.0.1`). Per Anthropic hook docs (https://code.claude.com/docs/en/hooks), hooks receive event payload via stdin JSON, not env vars; the only path-related env var is `$CLAUDE_PROJECT_DIR`. All hook command strings switched to `jq -r '.tool_input.file_path // empty'` stdin parsing. Security impact: prior file-protection hooks installed by `/secure` always received an empty path and never blocked — false security guarantee.
+
+- **SessionStart hook read stale jq paths in `plugin/hooks/session-start.{sh,ps1}`** — script line 128 (`.sh`) / 149 (`.ps1`) read `.project_structure.monorepo_detection.detected`, but `plugin/references/schemas/profile.schema.v1.2.0.json:124` declares `monorepo_detection` at top level (not nested under `project_structure`). Script line 145 (`.sh`) / 163-165 (`.ps1`) read `.scoring_model_ack.contract_id`, but the schema (line 152) declares the field as `version`. Fixed both paths in both shell variants. Without this fix, ecosystem-change notices could fire spuriously and scoring-contract bump notices never fired.
+
+- **`CURRENT_SCORING_CONTRACT_ID` runtime constant referenced by `plugin/skills/audit/SKILL.md` Install Integrity Pre-Check did not exist** anywhere in the shipped repo (repo-wide grep returned the citation itself at SKILL.md:19 as the only match). Rewrote the pre-check to compare `scoring-model.md` frontmatter `scoring_contract_id` against the expected canonical value `audit-score-v4.2.0` — both shipped artifacts, both fetchable.
+
+- **`audit/SKILL.md:162` Phase 4 DS formula was abbreviated**, omitting the all-SKIP branches that `plugin/references/scoring-model.md:84-86` defines (`If T2 all SKIP: DS = T3 × 100`, `If T3 all SKIP: DS = T2 × 100`, both all SKIP: `DS = 0`). Inlined the 3 branch rules so the SKILL.md formula matches the master scoring model.
+
+- **T2.4 destructive-allow detection in `t2-protection.md:135-146` missed catalog-cited threat verbs** that `security-patterns.md` cites as `safety-bypass` and `data-exfiltration`. Added `git commit --no-verify` / `git push --no-verify` / `git rebase --skip` (safety-bypass), `curl * https://*` / `wget * https://*` (data-exfiltration when unscoped by `autoMode.environment`), and `gh gist create` / `gh gist edit` (data-exfiltration via public gists).
+
+- **`docs-check.yml` workflow trigger excluded tag pushes** — the `on.push` clause filtered only branches (`branches: [main, 'v*']`), so tag pushes (e.g., `v2.19.x`) did not invoke any docs-check job, including `tag-sha-propagation`. Added `tags: ['v*']` to the push trigger so `check-tag-sha-propagation.py` runs in CI on tag push (the script already handles non-tag context via soft-skip per line 388-398).
+
+## [2.19.2] - 2026-05-14
+
+### Fixed
+
+- **`#` prompt-shortcut claim was unfounded** in `docs/guides/effective-usage-guide.md` (Session Management Essentials row) and `docs/guides/claude-md-guide.md` "Updating Mid-Session" section (EN + ko-KR + ja-JP, both files bumped `1.3.1` → `1.3.2`). Anthropic's [memory docs](https://code.claude.com/docs/en/memory) document `/memory`, direct prompts ("add this to CLAUDE.md", "remember this"), and `/init` as the official mechanisms; no `#` prefix shortcut is documented. Replaced the row/bullet with the official mechanism and a link to the memory docs.
+
+- **`plugin/references/tool-description-quality.md` dual-format token-count table over-extrapolated Anthropic source** (frontmatter `1.0.1` → `1.0.2`). The `50–80` / `150–250` token bands were local heuristics presented as if specified by Anthropic; the [writing-tools-for-agents](https://www.anthropic.com/engineering/writing-tools-for-agents) article only specifies the dual-mode contract, not numeric token counts. Removed the column and added an explicit note that token counts should be tuned per tool. Also relaxed the `~20–50 sessions/invocations` cadence references to "tune to your evaluation signal" — Anthropic does not prescribe this cadence either.
+
+- **`CLAUDE.md:64` "All 11 Python validators must pass GREEN before tag/push" self-contradiction** with lines 66 / 91 noting `check-tag-sha-propagation.py` runs post-tag-push. Reworded to "10 pre-push + 1 post-push": 10 validators must pass before `git push --follow-tags`; the 11th runs after the tag push because it compares the local annotated tag SHA against `refs/tags/v<tag>` on origin.
+
+- **`docs/guides/multi-agent-patterns-guide.md` Parallel Dispatch primer link covered fan-out only** but the same sentence mentioned `git worktree` session isolation — the `#fan-out-for-batch-tasks` slug does not cover the separate Worktrees section. Split the cross-reference into two anchors (`#fan-out-for-batch-tasks` for `claude -p` loops, `#worktrees-and-parallel-sessions` for worktree isolation). EN + ko-KR + ja-JP, frontmatter `1.0.2` → `1.0.3`.
+
+- **`docs/i18n/{ko-KR,ja-JP}/guides/workflow-patterns-guide.md` Worktrees heading was translated**, breaking the `#worktrees-and-parallel-sessions` slug that the multi-agent guide now links to. Restored heading to English `## Worktrees and parallel sessions` per CLAUDE.md cross-language anchor consistency rule. Drift fix — frontmatter version unchanged per CLAUDE.md i18n bump-semantics rule.
+
+- **`docs/guides/trustworthy-agents-guide.md` 182-line length is now a named exception** in CLAUDE.md:28. The previous "guides should stay under ~130 lines, advanced-features under ~210" rule did not cover the v2.19.0 trustworthy-agents-guide. Updated CLAUDE.md to list `trustworthy-agents-guide.md` (under ~185 — 5 principles × 4 layers + self-audit checklist + cross-references) alongside `advanced-features-guide.md` as a named exception.
+
+- **`docs/guides/multi-agent-patterns-guide.md` footnote paraphrase tightened** to verbatim quote of the Anthropic source (EN + ko-KR + ja-JP). Removed the "even when total worker count is higher" gloss; the article's exact phrasing — "spins up 3–5 subagents in parallel rather than serially" — is now quoted directly.
+
+## [2.19.1] - 2026-05-14
+
+### Fixed
+
+- **Fan-out section claimed "in parallel" but bash loop was sequential** in `docs/guides/workflow-patterns-guide.md` (EN + ko-KR + ja-JP, frontmatter `1.0.1` → `1.0.2`). Reworded to "distribute work across many invocations" and added a bounded-parallel example (`xargs -P 4` and PowerShell `ForEach-Object -Parallel ... -ThrottleLimit 4`) alongside the sequential loop. Also aligned the `--allowedTools` value to upstream form `"Bash(git commit *)"` (no colon).
+
+- **Effort-scaling table over-extrapolated Anthropic source numbers** in `docs/guides/multi-agent-patterns-guide.md` (EN + ko-KR + ja-JP, frontmatter `1.0.1` → `1.0.2`). Previous values `Medium analysis 2–4 / 10–30` and `Complex research 10+ / 30+ per worker` were not in the source. Aligned with the [multi-agent research system writeup](https://www.anthropic.com/engineering/multi-agent-research-system): `Direct comparison 2–4 / 10–15`, `Complex research 10+ / per-worker count not pinned by source`. Added footnote citing the article's "3–5 subagents per parallel batch" figure.
+
+- **`/audit` Phase 3 gate omitted `.claude/skills/`** in `plugin/skills/audit/SKILL.md:120`. A documentation-only project with only `.claude/skills/` would skip loading `t3-optimization.md` and therefore skip the v2.19.0 Skill Description Quality advisory. Added `.claude/skills/` to the non-skip condition, restoring the applicability documented in CHANGELOG v2.19.0.
+
+- **i18n cross-language anchor mismatch** between `multi-agent-patterns-guide.md` and `workflow-patterns-guide.md`. ko-KR and ja-JP workflow-patterns mirrors had translated the `## Fan-out for batch tasks` heading (`## 배치 작업을 위한 Fan-out`, `## バッチタスクの Fan-out`), breaking the `#fan-out-for-batch-tasks` slug that the multi-agent guide linked to. Restored the heading to English in both locale mirrors per CLAUDE.md cross-language anchor consistency rule.
+
+- **Unsourced `$100+` dollar estimate** in the fan-out warning of `docs/guides/workflow-patterns-guide.md` (EN + ko-KR + ja-JP). The figure was a local extrapolation; Anthropic's [best-practices article](https://code.claude.com/docs/en/best-practices) does not give a dollar estimate for fan-out runs. Replaced with a qualitative warning advising readers to estimate using their model's per-token pricing.
+
+- **`ワークロードスケーリング` residue in ja-JP `multi-agent-patterns-guide.md` frontmatter `description`.** The v2.19.0 polish pass updated the body heading to `努力スケーリング` but left the frontmatter line unchanged. Corrected.
+
+- **Skill-description-quality regex rendered ambiguously** in the `Trigger phrase present` row of `plugin/skills/audit/references/checks/t3-optimization.md:141`. The form `Use when\|When to use\|...` reads as escaped literal pipes inside a markdown table cell rather than regex alternation. Converted to an explicit "matches any of" enumeration listing the four trigger phrases without regex syntax.
+
+- **CHANGELOG v2.19.0 line 41 + 45** stated the new T4/T5 guides shipped at `frontmatter version 1.0.0`, but the same release's polish pass patch-bumped them to `1.0.1`. Updated the entries to reflect the final shipped value.
+
+## [2.19.0] - 2026-05-14
+
+### Added
+
 - **CLAUDE.md workflow rules (2 entries from Phase-1-citation cleanup session)** — captured two reusable patterns surfaced during the v2.12.0-era dangling-citation sweep (commit `7fbe59b`):
   - *Verifying Changes Locally*: self-generated end-of-turn "next-task" speculation needs the same grep verification as agent claims — pattern-matching commit-log names (e.g., `T5 Task` / `DEC-N` in `git log -S`) without grepping shipped docs creates phantom TODOs. Same standard regardless of trigger source (subagent vs. own pattern recognition).
   - *Plugin Development Rules*: no inline citations to internal-planning IDs in shipped docs — `plugin/references/` and `plugin/skills/SKILL.md` must not cite IDs whose definitions live only in gitignored `docs/superpowers/plans/` (e.g., `Phase N Global Invariant #M`). Restate the behavioral rule in-place. CLAUDE.md grew 101 → 103 lines, well under the 200-line ceiling.
@@ -28,17 +116,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - *Change Propagation Checklist*: i18n guide relative-path depth — files at `docs/i18n/<locale>/guides/` are 2 directories deeper than `docs/guides/`, so relative links to `plugin/...` need `../../../../` (4 up), not `../../` (2 up). Copying paths verbatim from EN silently breaks i18n cross-links; only `lychee` catches it locally.
   - *Change Propagation Checklist*: cross-language anchor consistency — when a guide deep-links into another guide's heading via `file.md#anchor`, keep the target heading in English across all 3 language versions so the same anchor ID resolves uniformly; translate section bodies, not cross-referenced heading text. CLAUDE.md grew 98 → 101 lines, well under the 200-line ceiling.
 
-- **Architecture Overview** in `plugin/references/learning-system.md` reframes the system as event sourcing (Martin Fowler pattern), with concept-to-file mapping table. Also disambiguates strengths along *deterministic state machine axis* (schema versioning, provenance, recovery, concurrency safety) vs *agentic memory axis* (semantic retrieval, dynamic linking, adaptive activation).
+- `effective-usage-guide.md`: user-level session commands — `/btw` (side questions without context growth), `/rename` (session labels for `--resume`), `Ctrl+G` (plan-mode editor open), partial compaction via `Esc + Esc → Summarize from here`. Common Failure Patterns section compressed from 5 sub-headings to a single table for readability.
 
-- **Anti-sycophancy academic citations** in `plugin/references/critical-thinking.md`: Perez et al. 2022 (inverse scaling for sycophancy) + Sharma et al. 2023 (preference models prefer sycophancy). Frames `decline_count` and STALE-after-3 as structural countermeasures against learned reward-hacking, not stylistic choices.
+- `claude-md-guide.md`: mid-session update patterns — `#` prompt shortcut for appending learnings, and custom compaction directives embedded in CLAUDE.md that survive auto-compaction.
 
-- **Anthropic JSON-vs-Markdown citation** in `plugin/references/schema-policy.md`: Anthropic's "Effective Harnesses" guidance endorses JSON canonical + Markdown derived dual-format pattern.
+- `plugin/references/tool-description-quality.md` (NEW): principles for writing skill and tool descriptions — domain expert framing, trigger phrase patterns, dual-format responses, actionable error messages, evaluation-driven iteration.
 
-- **Build process metaphor section** in `docs/guides/effective-usage-guide.md` (and ko-KR + ja-JP mirrors): user-facing analogy mapping transpiling/bundling/tree shaking/optimization to schema migration/state-summary renderer/compaction/token budget. Frontmatter version bumped 1.2.1 → 1.3.0 in all 3 i18n files atomically.
+- `/audit` advisory check: skill `description` quality — non-scoring, surfaces in Phase 4 "All Suggestions" output. Runs only when `.claude/skills/` exists in the audited project. Scoring contract `audit-score-v4.2.0` is unchanged.
+
+- `advanced-features-guide.md`: cross-link to the new reference (patch bump 1.3.0 → 1.3.1).
+
+- New guide: `docs/guides/multi-agent-patterns-guide.md` — Orchestrator-Worker pattern (4-axis worker spec — objective, output format, tool guidance, boundaries), effort scaling rules, sub-agent context budget (1–2k token summaries), breadth-first search strategy, parallel dispatch primer. ko-KR and ja-JP mirrors included; frontmatter version 1.0.1 (introduced at 1.0.0, patch-bumped to 1.0.1 during the same release polish pass).
+
+- Cross-link added to `advanced-features-guide.md` Agents section (patch bump 1.3.1 → 1.3.2).
+
+- New guide: `docs/guides/workflow-patterns-guide.md` — interview-first specification (`AskUserQuestion`), Writer/Reviewer multi-session, test-first multi-Claude, fan-out for batch tasks (with explicit cost and safety warnings — dry-run, `--allowedTools`, auto-mode fallback), worktrees and parallel sessions. ko-KR and ja-JP mirrors included; frontmatter version 1.0.1 (introduced at 1.0.0, patch-bumped to 1.0.1 during the same release polish pass).
+
+- Cross-links added to `getting-started.md` "What's Next" for the new workflow-patterns + multi-agent-patterns guides; combined patch bump 1.2.6 → 1.2.7.
 
 ### Changed
-
-- **`plugin/references/learning-system.md` decomposed into 8 single-responsibility subfiles + slim orchestrator** (PR1 of two-PR series; mechanical only, zero behavior change). New subfiles in `plugin/references/`: `phase-0.md`, `final-phase.md`, `learning-rules.md`, `compaction.md`, `drift-state.md`, `critical-thinking.md`, `schema-policy.md`, `state-rendering.md`. Orchestrator preserves all 16 H2 anchor stubs (Option D format: file-level link + prose section name) so 4 SKILL.md anchor references (`§ Common Phase 0`, `§ Common Final Phase`, `§ Model Bullet Emission`, `§ Drift Advisory Derivation`) and CI script comments continue to resolve. Orchestrator frontmatter version bumped `2.3.6` → `3.0.0` (file-local independent semver, distinct from plugin SemVer). `.github/workflows/smoke.yml` trigger path filter and tripwire regex extended to include all 8 new subfiles — without this update, smoke verifier would silently skip subfile-only changes. `ci/scripts/check-audit-drift-aware.py` Step 0.5 read-target updated from `learning-system.md` to `phase-0.md` (real code dependency, not just comment). `.github/scripts/check-smoke-fixtures.py` 6 comment references updated to point at new subfile homes. `plugin/references/lib/merge_rules.md` cross-reference updated. Mechanical correctness machine-verified by one-shot `.github/scripts/verify-pr1-split.py` (fence-aware section split + whitespace-normalized byte-equivalence comparison vs original `main:plugin/references/learning-system.md`); verifier may be removed after PR1 merges or kept as historical reference.
 
 - **Philosophy #4 wording renamed across all README mirrors and the Day-based progression frame compressed.** Reflects that AI tooling improves continuously rather than reaching a static depth, and brings the Day-based adoption frame in line with modern AI tool adoption cadence (weekly/bi-weekly rather than monthly/quarterly).
   - EN canonical (`README.md:17,28,81,83,95`): tagline + Philosophy #4 + body reference + 2 headings updated. `Progressive depth` → `Continuous reinforcement`; `Day 30` → `Day 7`; `Day 100+` → `Day 14+`.
@@ -56,6 +152,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - `docs/i18n/ja-JP/README.md:20`: `… 有効化されます` → `… 本領を発揮します`
   - `docs/i18n/ja-JP/README.md:89`: `複数のスキルを実行すると、プラグインは … を活性化します` → `スキルを繰り返し実行する中で、プラグインの … が充実していきます`
   - `docs/ROADMAP.md:24-25` left unchanged — "Day 14 users rely on…" is descriptive of user habit (depend on / count on), not a feature-gate claim.
+- **Polish pass on Anthropic Engineering 2026 patterns documentation** — reconciled `#` shortcut wording across `effective-usage-guide.md` and `claude-md-guide.md`; added Principle 3 scope note and parallel-structure examples to `tool-description-quality.md`; clarified `/audit` advisory check applicability; switched `multi-agent-patterns-guide.md` effort scaling 3rd-row column to numeric metric; corrected ja-JP "ワークロードスケーリング" translation; added PowerShell equivalent and `git worktree` cleanup guidance to `workflow-patterns-guide.md`. Patch bumps across affected guides.
 
 ### Fixed
 

@@ -25,7 +25,7 @@ This is a documentation and template repository — no application source code a
 
 - Templates must all reference the fictional "TaskFlow" project — do not introduce other fictional projects
 - Templates (under `templates/`) and guides (under `docs/guides/`) use YAML frontmatter with `title`, `description`, and `version` fields — each file has its own independent semver starting from `1.0.0`; bump the version when modifying the file's content
-- Guides in `docs/guides/` should stay concise — most under ~130 lines, `advanced-features-guide.md` under ~210 (covers 3 topics with code examples; widened from ~200 since 4 lines of nav links push the floor; Anthropic's 200-line target applies to CLAUDE.md, not guides)
+- Guides in `docs/guides/` should stay concise — most under ~130 lines, with named exceptions for content-heavy framework guides: `advanced-features-guide.md` under ~210 (3 topics with code examples), `trustworthy-agents-guide.md` under ~185 (5 principles × 4 architectural layers + self-audit checklist + cross-references). Anthropic's 200-line target applies to CLAUDE.md, not guides.
 - This CLAUDE.md should stay under 200 lines, matching the repo's own recommendation in `docs/guides/claude-md-guide.md`
 - There is no application source code — primary content is Markdown, supported by JSON/YAML configs, shell scripts (`plugin/hooks/*.sh`, `statusline.sh`, `templates/advanced/hooks/*.sh`), and Python CI validators in `.github/scripts/`. Review for clarity, accuracy, and consistency across files
 - When adding a new guide, follow the existing frontmatter format (`title`, `description`, `version`) and add cross-links from `docs/guides/getting-started.md`
@@ -61,14 +61,16 @@ Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetc
 - `lychee 'README.md' 'docs/**/*.md' 'plugin/**/*.md' 'CHANGELOG.md' 'templates/**/*.md'` — link check (requires [lychee](https://github.com/lycheeverse/lychee))
 - `SMOKE_PINNED_UTC="2026-04-14T00:00:00Z" python .github/scripts/check-smoke-fixtures.py` — smoke fixture byte-diff verifier (env var required, value matches `.github/workflows/smoke.yml`)
 - Python on Windows: prepend `import sys; sys.stdout.reconfigure(encoding="utf-8")` before printing non-ASCII / U+FFFD / mixed CJK; use `open(path, encoding='utf-8')` for files with em-dashes / non-ASCII (e.g., schema descriptions) — default `cp949` codec raises `UnicodeEncodeError` / `UnicodeDecodeError`
-- **All 11 Python validators must pass GREEN before tag/push** (release-time sweep):
-  - 6 routine (run on every push/PR via docs-check): `check-frontmatter-parity.py`, `check-i18n-parity.py`, `check-json-schemas.py`, `check-smoke-fixtures.py`, `check-readme-badge-sync.py`, `check-changelog-anchor-slug.py`
-  - 5 release-only (manual or release-flow): `check-recommendation-registry.py`, `check-skill-stability.py`, `check-qa-report-shape.py`, `check-hook-script-parity.py`, `check-tag-sha-propagation.py` (post-tag-push only)
-  - `lychee` link checker is a separate non-Python tool, NOT counted in the "All 11"
+- **Release-time validator sweep — 10 pre-push + 1 post-push**: 10 Python validators must pass GREEN before `git push --follow-tags`; the 11th (`check-tag-sha-propagation.py`) runs after the tag push because it compares the local annotated tag SHA against `refs/tags/v<tag>` on origin.
+  - 6 routine (also run on every push/PR via docs-check): `check-frontmatter-parity.py`, `check-i18n-parity.py`, `check-json-schemas.py`, `check-smoke-fixtures.py`, `check-readme-badge-sync.py`, `check-changelog-anchor-slug.py`
+  - 4 release-only pre-push: `check-recommendation-registry.py`, `check-skill-stability.py`, `check-qa-report-shape.py`, `check-hook-script-parity.py`
+  - 1 post-push: `check-tag-sha-propagation.py`
+  - `lychee` link checker is a separate non-Python tool, NOT counted in the "11"
 - `jsonschema.Draft202012Validator` does NOT enforce `format` keyword by default — pass `format_checker=FormatChecker()` with a custom checker registered (`.github/scripts/check-json-schemas.py:_FORMAT_CHECKER` shows the stdlib-only `datetime.fromisoformat` pattern that avoids the `jsonschema[format]` extra / `rfc3339-validator` dependency).
 - **Agent review findings about external facts** (GitHub Actions versions, package availability, transitive deps, "dead code" claims) reflect agent training cutoff and may be wrong — verify with `gh api`, `pip show`, or `grep` for module callers before propagating to commits. Agent claims about *file content this repo owns* are typically reliable; *external/version claims* are not.
 - **Self-generated end-of-turn "next-task" speculation** needs the same grep verification as agent claims above — pattern-matching commit-log names (e.g., `T5 Task` / `DEC-N` in `git log -S`) without grepping shipped docs creates phantom TODOs and wastes user attention. Same verification standard regardless of trigger source (subagent output vs. your own pattern recognition).
 - `check-hook-script-parity.py` validates *byte-equal i18n locale mirrors* (EN ↔ ko-KR ↔ ja-JP) of hook scripts, NOT sh ↔ ps1 *behavioral* parity (output equivalence on same input). Behavioral divergence between sh and ps1 implementations escapes CI — when modifying either side, manually cross-check the sibling against the same input scenarios.
+- **SessionStart smoke fixture list is hardcoded** at `.github/scripts/check-smoke-fixtures.py:2923` (`sessionstart_fixtures = [...]` array). Adding a new fixture under `ci/fixtures/sessionstart-orchestrator/<name>/` requires BOTH directory creation AND adding `<name>` to that array — the verifier does NOT glob. Skill-flow lane at `:2908` (`migration` / `beginner-path` / `warm-start` / `monorepo`) is a separate hardcoded list with the same property.
 
 **Cross-platform shell/fixture gotchas** (encountered when authoring hook scripts or extending the smoke runner):
 
@@ -77,6 +79,7 @@ Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetc
 - Windows `bash` via PATH may resolve to WSL bash (fails with Hyper-V error if virtualization disabled). Python subprocess invoking shell should prefer explicit Git Bash path (`C:\Program Files\Git\bin\bash.exe`) — see `_find_bash()` in `.github/scripts/check-smoke-fixtures.py`.
 - CI fixtures requiring file mtime ordering (e.g., `legacy_mtime` drift trigger in `ci/fixtures/sessionstart-orchestrator/`): git checkout does NOT preserve mtimes. Each such fixture ships `setup.sh` with `touch -t YYYYMMDDHHMM <file>`; the smoke runner sources it before invoking the hook.
 - jq `fromdateiso8601` accepts `Z` suffix directly. Do NOT pre-convert via `sub("Z$"; "+00:00")` — some jq builds reject the offset format.
+- Bash heredoc `<<EOF` expansion is **single-pass**: `$VAR` / `$(cmd)` / backticks in the LITERAL heredoc body are processed, but values substituted from variables are inserted as literal text — `<<EOF` with `$GIT_STATUS` whose value contains `$(rm -rf /)` does NOT execute. Counter-claim from LLM reviewers about "heredoc command-substitution risk via variable VALUES" is typically a shell-semantics confabulation; verify with `VAR='$(echo X)'; cat <<EOF` test before patching (outputs literal `$(echo X)`, not `X`). Use `<<'EOF'` (single-quoted delimiter) only when you need to block expansion in the LITERAL body.
 
 ### Release Process
 

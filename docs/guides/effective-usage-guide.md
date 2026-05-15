@@ -1,7 +1,7 @@
 ---
 title: "Effective Usage Patterns"
 description: "Essential day-one patterns for using Claude Code effectively"
-version: 1.3.0
+version: 1.4.0
 ---
 
 # Effective Usage Patterns
@@ -57,10 +57,14 @@ For the strategic significance of Plan Mode in the broader trustworthy-agents fr
 | `/rewind` | Same as double-Esc -- open the rewind menu |
 | `/clear` | Reset context between unrelated tasks. **Use frequently.** |
 | `/compact` | Summarize conversation to free context. Add focus: `/compact focus on the API changes` |
-| `#` | Prompt Claude to update CLAUDE.md with learnings from the current session |
+| `/memory` | Browse and edit memory files (CLAUDE.md, CLAUDE.local.md, rules, auto memory). To add a learning mid-session, ask Claude directly: `add this to CLAUDE.md` or `remember this`. |
 | `/context` | See what is using space in your context window. Use to diagnose when context is getting full. |
 | `--continue` | Resume your most recent conversation (launch flag) |
 | `--resume` | Choose from recent conversations to resume (launch flag) |
+| `/btw` | Side question — answer renders in a dismissible overlay and does NOT enter conversation history. Use to check a detail without growing context. |
+| `/rename` | Name the current session (treat sessions like branches). Helps `claude --resume` show meaningful labels. |
+| `Ctrl+G` (in plan mode) | Open the current plan in your text editor for direct edits before Claude proceeds. |
+| `Esc + Esc` → **Summarize from here** | Partial compaction — pick a checkpoint and condense messages forward of it while keeping earlier context intact. |
 
 **The most underused command is `/clear`.** When you finish one task and start another, clear the context. Leftover context from the previous task confuses Claude and wastes space.
 
@@ -97,33 +101,13 @@ from src/api/middleware.ts. Follow the pattern in src/api/users.ts.
 
 ## Common Failure Patterns
 
-### 1. Kitchen Sink Session
-
-Mixing unrelated tasks in one session. Context from task A confuses task B.
-
-**Fix:** Use `/clear` between unrelated tasks. One task per context.
-
-### 2. Correcting Over and Over
-
-Repeated corrections pollute context with failed attempts. Each correction adds noise.
-
-**Fix:** After two failed corrections, `/clear` and write a better initial prompt that includes what went wrong.
-
-### 3. Over-Specified CLAUDE.md
-
-Long CLAUDE.md files dilute Claude's attention. **Fix:** Ruthlessly prune, or split into [rule files](rules-guide.md).
-
-### 4. Trust-Then-Verify Gap
-
-Accepting plausible-looking output without verification. Claude's code compiles but misses edge cases.
-
-**Fix:** Always provide verification criteria. Include test commands in CLAUDE.md. Ask Claude to run tests after changes.
-
-### 5. Infinite Exploration
-
-Asking Claude to "investigate the codebase" without scope. It reads dozens of files, fills context, and loses focus.
-
-**Fix:** Scope narrowly: "Check only `src/auth/` for token expiration handling" instead of "investigate the codebase."
+| Pattern | Why it hurts | Fix |
+| --------- | -------------- | ----- |
+| **Kitchen Sink Session** — unrelated tasks share one context | Context from task A confuses task B | `/clear` between tasks |
+| **Correcting Over and Over** | Failed attempts pollute context with noise | After two failed corrections, `/clear` and write a better prompt with what you learned |
+| **Over-Specified CLAUDE.md** | Long files dilute Claude's attention | Prune ruthlessly, or split into [rule files](rules-guide.md) |
+| **Trust-Then-Verify Gap** | Plausible-looking output is not the same as correct output | Provide verification criteria; include test commands in CLAUDE.md so Claude can self-check |
+| **Infinite Exploration** | Unscoped "investigate the codebase" reads dozens of files and burns context | Scope narrowly: "Check only `src/auth/` for token expiration handling" |
 
 ## Further Reading
 

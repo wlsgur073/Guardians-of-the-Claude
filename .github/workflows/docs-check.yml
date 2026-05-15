@@ -3,6 +3,7 @@ name: docs-check
 on:
   push:
     branches: [main, 'v*']
+    tags: ['v*']
   pull_request:
     branches: [main]
   schedule:

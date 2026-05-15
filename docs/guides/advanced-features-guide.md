@@ -1,7 +1,7 @@
 ---
 title: "Advanced Features"
 description: "Hooks, agents, and skills -- extending Claude Code beyond basic configuration"
-version: 1.3.1
+version: 1.3.3
 ---
 
 # Advanced Features
@@ -23,7 +23,7 @@ Hooks are shell commands that run automatically before or after Claude uses a to
         "hooks": [
           {
             "type": "command",
-            "command": "echo \"$CLAUDE_FILE_PATH\" | grep -qE '(package-lock\\.json|\\.env|migrations/)' && echo 'Protected file' && exit 2 || exit 0",
+            "command": "jq -r '.tool_input.file_path // empty' | grep -qE '(package-lock\\.json|\\.env|migrations/)' && { echo 'Protected file'; exit 2; } || exit 0",
             "timeout": 5,
             "statusMessage": "Checking for protected files"
           }
@@ -36,7 +36,7 @@ Hooks are shell commands that run automatically before or after Claude uses a to
         "hooks": [
           {
             "type": "command",
-            "command": "npx eslint --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+            "command": "FILE=$(jq -r '.tool_input.file_path // empty'); [ -n \"$FILE\" ] && npx eslint --fix \"$FILE\" 2>/dev/null || true",
             "timeout": 15,
             "statusMessage": "Auto-linting edited file"
           }
@@ -50,7 +50,7 @@ Hooks are shell commands that run automatically before or after Claude uses a to
 Key concepts:
 
 - **`matcher`** -- pipe-separated tool names or regex (e.g., `"Edit|Write"`, `"mcp__.*"`)
-- **`$CLAUDE_FILE_PATH`** / **`$CLAUDE_PROJECT_DIR`** -- injected path variables
+- **Hook input via stdin** -- hooks receive event JSON on stdin (e.g., `{"tool_input": {"file_path": "..."}}`); parse with `jq -r '.tool_input.file_path // empty'`. The only path-related env var is **`$CLAUDE_PROJECT_DIR`** (project root) — file paths are NOT exposed as env vars
 - **`statusMessage`** -- text shown in the UI while the hook runs
 - **`PreToolUse` + `exit 2`** blocks the action and tells Claude why -- use for protecting sensitive files like `.env` or migration directories
 - **`PostToolUse` + `|| true`** runs after the action completes -- use for auto-linting or formatting
@@ -124,6 +124,8 @@ Use `"inherit"` to match the parent session's model. Put the reasoning in a YAML
 
 **Agent pipeline:** Chain agents for multi-stage workflows: `backend-developer` (implement) → `security-reviewer` (review) → `test-writer` (test).
 
+For multi-agent dispatch patterns (Orchestrator-Worker, sub-agent context budgeting, effort scaling), see [Multi-Agent Patterns Guide](multi-agent-patterns-guide.md).
+
 ## Skills
 
 Skills are reusable multi-step workflows in `.claude/skills/`. Each becomes a slash command that automates repeatable processes like scaffolding features or adding components.
@@ -178,6 +180,8 @@ Skills load context in three levels — skill **metadata** (first, for trigger d
 **Fallback pattern:** When a skill depends on an optional tool (MCP server, CI system), provide two paths: Path A uses the tool when available, Path B falls back to a manual alternative.
 
 **Evaluation-driven iteration:** Start by writing example invocations and expected outputs, then iterate the SKILL.md until those evaluations pass. Have Claude capture successful approaches and common mistakes back into the skill text after each pass.
+
+**Description quality matters:** trigger phrases, domain expert framing, dual-format responses, and actionable error messages have outsized impact on whether Claude triggers the skill at the right time. See [`plugin/references/tool-description-quality.md`](../../plugin/references/tool-description-quality.md) for the full principle set.
 
 **Security:** Skills are executable instructions — install only from trusted sources, and audit unfamiliar SKILL.md files before invoking. Review them the way you'd review a script before running it.
 

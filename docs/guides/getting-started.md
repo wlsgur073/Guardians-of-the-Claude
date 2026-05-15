@@ -1,7 +1,7 @@
 ---
 title: "Getting Started"
 description: "Step-by-step guide to set up Claude Code configuration for your project"
-version: 1.2.6
+version: 1.2.7
 ---
 
 # Getting Started
@@ -12,7 +12,7 @@ This guide walks you through setting up Claude Code configuration for your proje
 
 - Claude Code installed and working (run `claude --version` to confirm)
 - A project you want to configure
-- **On Windows**: the plugin's SessionStart hook ships both a bash and a PowerShell script (`plugin/hooks/session-start.ps1`), and the advanced template's `validate-prompt` hook does the same (`templates/advanced/hooks/validate-prompt.ps1` alongside the `.sh`). PowerShell 5.1+ (pre-installed on Windows 10+) or Git Bash/WSL works end-to-end — no extra shell setup needed
+- **On Windows**: the plugin's SessionStart hook and the advanced template's session-lifecycle hooks (`validate-prompt`, `pre-compact`, `subagent-stop`, `stop`) ship both `.sh` and `.ps1` scripts, so PowerShell 5.1+ (pre-installed on Windows 10+), Git Bash, or WSL all work for those layers. The advanced template's inline `PreToolUse` / `PostToolUse` examples in `.claude/settings.json` still use POSIX shell syntax — install Git Bash if you keep them as-is, or convert/remove for a PowerShell-only setup
 
 ## Step 1: Choose Your Setup Method
 
@@ -123,6 +123,8 @@ Once your basic configuration is working, explore hooks, agents, and skills for 
 - [Rules Guide](rules-guide.md) -- Organizing instructions into modular rule files
 - [Settings Guide](settings-guide.md) -- All settings.json configuration options
 - [Trustworthy Agents Guide](trustworthy-agents-guide.md) -- Five-principle framework for evaluating agent configuration
+- [Multi-Agent Patterns Guide](multi-agent-patterns-guide.md) -- Orchestrator-Worker, sub-agent budget, parallel dispatch
+- [Workflow Patterns Guide](workflow-patterns-guide.md) -- Interview-first specs, Writer/Reviewer, fan-out, worktrees
 - [Directory Structure Guide](directory-structure-guide.md) -- Understanding the .claude/ ecosystem
 - [Effective Usage Guide](effective-usage-guide.md) -- Day-one usage patterns and anti-patterns to avoid
 - [Advanced Features Guide](advanced-features-guide.md) -- Hooks, agents, and skills for teams

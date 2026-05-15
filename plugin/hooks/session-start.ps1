@@ -146,7 +146,7 @@ try {
 
         # Reason 3: ecosystem_change -- workspace declaration present but profile records single_project.
         $monorepoDetected = $false
-        if ($profileObj.project_structure.monorepo_detection.detected -eq $true) { $monorepoDetected = $true }
+        if ($profileObj.monorepo_detection.detected -eq $true) { $monorepoDetected = $true }
         $hasWorkspace = $false
         foreach ($wf in @("pnpm-workspace.yaml","lerna.json","nx.json","turbo.json","rush.json")) {
             if (Test-Path $wf) { $hasWorkspace = $true; break }
@@ -160,8 +160,8 @@ try {
 
         # Reason 4: scoring_contract_bump -- expected audit-score-v4.2.0.
         $expectedScore = "audit-score-v4.2.0"
-        $profileScoreAck = if ($profileObj.claude_code_configuration_state.scoring_model_ack.contract_id) {
-            $profileObj.claude_code_configuration_state.scoring_model_ack.contract_id
+        $profileScoreAck = if ($profileObj.claude_code_configuration_state.scoring_model_ack.version) {
+            $profileObj.claude_code_configuration_state.scoring_model_ack.version
         } else { "" }
         if ($profileScoreAck -and $profileScoreAck -ne $expectedScore) {
             if (-not $primary) {

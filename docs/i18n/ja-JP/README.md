@@ -196,7 +196,7 @@ Claude Codeが`~/.claude/statusline.sh`を自動検出します — 追加設定
 
 > **前提条件:**
 > - [jq](https://jqlang.org)がインストールされている必要があります（`brew install jq` / `apt install jq` / `choco install jq`）
-> - `statusline.sh` を実行するための Bash 互換シェルが必要です。**Windows** では **Git Bash** または **WSL** を使用してください。（プラグインフックと advanced テンプレートのフックは `.sh` と `.ps1` の両方を同梱しているため、statusline 自体を除けば PowerShell のみの Windows でも動作します。）
+> - `statusline.sh` を実行するための Bash 互換シェルが必要です。**Windows** では **Git Bash** または **WSL** を使用してください。（プラグインの SessionStart フックと advanced テンプレートのセッションライフサイクルフック — `validate-prompt`、`pre-compact`、`subagent-stop`、`stop` — は `.sh` と `.ps1` の両方を同梱しています。advanced テンプレートの `.claude/settings.json` 内インライン `PreToolUse` / `PostToolUse` の例は POSIX シェル構文（`jq | grep -E`、`[ -n "$VAR" ]`）を使用するため、その 2 つには Git Bash が引き続き必要です — PowerShell のみの環境なら PowerShell に変換するか削除してください。）
 
 ## コントリビュート
 

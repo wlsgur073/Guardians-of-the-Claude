@@ -38,7 +38,7 @@ LINE+="\"event\":\"subagent_stop\","
 LINE+="$(emit_field session_id "$SESSION_ID"),"
 LINE+="$(emit_field agent_id "$AGENT_ID"),"
 LINE+="$(emit_field agent_type "$AGENT_TYPE"),"
-LINE+="\"cwd\":\"$PWD_VAL\""
+LINE+="$(emit_field cwd "$PWD_VAL")"
 LINE+='}'
 
 echo "$LINE" >> "$OUT_FILE"
