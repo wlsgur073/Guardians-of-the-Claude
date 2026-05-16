@@ -80,7 +80,7 @@ cleanup of planning artifacts.
 | Phase-boundary contracts / intra-phase notes for `/audit` | Evidence of phase-boundary failure or state-loss pain | No observed pain reports |
 | Agent Patterns guide + harness subsection | Explicit user demand | Without external demand, becomes mission drift toward "Anthropic concepts explained" |
 | MCP guide: code-execution / programmatic-tool-calling sections | User demand, or MCP guide rework for other reasons | Narrow audience; consolidation lowers cost but does not create demand |
-| New Anthropic engineering insights review round | Canonical Claude Code docs change, new skills/plugins/evals normative guidance, empirical failure cluster (≥3 independent reports OR one high-severity issue), or implemented proposal failure outside current coverage | Generic blog mining without a trigger is out of scope |
+| New Anthropic engineering insights review round | Canonical Claude Code docs change, new skills/plugins/evals normative guidance, empirical failure cluster (≥3 independent reports OR one high-severity issue), or implemented proposal failure outside current coverage | Generic blog mining without a trigger is out of scope. Checked 2026-05-16 (anthropic.com/news, Jan–May 2026): canonical Claude Code docs changed in-window but produced zero shipped-content defects — only discretionary additive items, weighed and declined here; the new-normative-guidance, failure-cluster, and implemented-proposal-failure conditions were unmet (the Agent Skills open-standard framing predates this check). Blog/news mining structurally cannot satisfy the failure-cluster or proposal-failure conditions (internal repository evidence only) — only the first two conditions are reachable this way. |
 
 ## Propose a Change
 
