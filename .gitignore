@@ -21,6 +21,10 @@ Thumbs.db
 /test/
 docs/superpowers/
 
+# Smoke hook ephemeral lock (created by session-start.{sh,ps1} mkdir-lock;
+# normally removed by its EXIT trap — guard against a SIGKILLed leftover)
+ci/fixtures/**/.session-start.lock/
+
 # Node (if contributors install anything for tooling)
 node_modules/
 

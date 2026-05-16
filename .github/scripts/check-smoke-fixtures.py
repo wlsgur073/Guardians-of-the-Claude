@@ -2697,6 +2697,30 @@ def _canonical_json(s: str) -> str:
         return s  # malformed; let exact comparison surface the failure
 
 
+def _clear_sessionstart_lock(input_dir: Path) -> None:
+    """Remove a stale .session-start.lock dir left by a SIGKILLed prior hook
+    run (the hook's EXIT-trap rmdir is skipped on SIGKILL). Without this, the
+    next invocation silently exits 0 with no stdout and an output-producing
+    fixture FAILs. Protects every sessionstart fixture, including ones with
+    no setup.sh. Sequential lanes make a concurrent-race variant unreachable.
+
+    Called after setup.sh and immediately before the hook subprocess in both
+    the bash and PowerShell lanes; the lock dir, when present here, is always
+    a leftover (no live hook holds it at this point).
+    """
+    lock = (input_dir / ".claude" / ".plugin-cache"
+            / "guardians-of-the-claude" / "local" / ".session-start.lock")
+    # The hook creates this lock with `mkdir` and removes it with `rmdir`
+    # (empty by contract). Mirror that here. Deliberately NOT
+    # shutil.rmtree(ignore_errors=True): swallowing a removal failure would
+    # silently reintroduce the exact flake this guards against. Letting
+    # os.rmdir raise points CI straight at the cause instead of the
+    # confusing "empty output diverged" symptom, and a non-empty lock is a
+    # real anomaly worth surfacing rather than nuking.
+    if lock.is_dir():
+        os.rmdir(lock)
+
+
 def run_sessionstart_fixture(name: str) -> tuple[bool, str]:
     """Run plugin/hooks/session-start.sh against a sessionstart-orchestrator fixture.
 
@@ -2740,6 +2764,8 @@ def run_sessionstart_fixture(name: str) -> tuple[bool, str]:
             stderr_decoded = exc.stderr.decode("utf-8", errors="replace") if exc.stderr else ""
             stdout_decoded = exc.stdout.decode("utf-8", errors="replace") if exc.stdout else ""
             return False, f"setup.sh failed (rc={exc.returncode}): stdout={stdout_decoded[:200]!r} stderr={stderr_decoded[:200]!r}"
+
+    _clear_sessionstart_lock(input_dir)
 
     try:
         proc = subprocess.run(
@@ -2808,6 +2834,8 @@ def run_sessionstart_ps1_fixture(name: str) -> tuple[bool, str]:
             stderr_decoded = exc.stderr.decode("utf-8", errors="replace") if exc.stderr else ""
             stdout_decoded = exc.stdout.decode("utf-8", errors="replace") if exc.stdout else ""
             return False, f"setup.sh failed (rc={exc.returncode}): stdout={stdout_decoded[:200]!r} stderr={stderr_decoded[:200]!r}"
+
+    _clear_sessionstart_lock(input_dir)
 
     try:
         proc = subprocess.run(
