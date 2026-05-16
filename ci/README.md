@@ -31,6 +31,8 @@ These are not wired into a separate CI job because the full smoke run (`run-smok
 
 ## Running locally
 
+**Prerequisites:** Python 3.x with `pip install jsonschema==4.23.0 pyyaml==6.0.2` (matching `.github/workflows/smoke.yml`), `jq` on `PATH` (a hard dependency of the SessionStart hook the fixtures exercise), and a POSIX `bash` (Git Bash on Windows — the verifier prefers the Git Bash binary over WSL bash).
+
 ```bash
 bash ci/scripts/run-smoke.sh
 ```

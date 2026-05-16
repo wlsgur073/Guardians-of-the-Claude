@@ -12,7 +12,7 @@ We welcome the following types of contributions:
 
 - **Guide improvements** — Clarify explanations, fix inaccuracies, or add missing details in `docs/guides/`
 - **Template improvements** — Expand or refine the TaskFlow examples in `templates/`
-- **Translations** — Add or improve Korean translations in `docs/i18n/ko-KR/`
+- **Translations** — Add or improve Korean (`docs/i18n/ko-KR/`) or Japanese (`docs/i18n/ja-JP/`) translations
 - **Roadmap proposals** — Suggest new directions or features via [Discussions (Roadmap category)](https://github.com/wlsgur073/Guardians-of-the-Claude/discussions). See [ROADMAP.md](ROADMAP.md) for details.
 - **Typo and grammar fixes** — Always welcome
 
@@ -51,7 +51,7 @@ Keep the subject line concise (under 72 characters). Use the commit body for add
 - **Describe your changes** — Explain what you changed and why
 - **Reference issues** — Link related issues if applicable (e.g., `Closes #12`)
 - **Check cross-references** — If you rename or move files, update all links that point to them
-- **Translation parity** — If you modify `templates/`, update `docs/i18n/ko-KR/` accordingly
+- **Translation parity** — If you modify `templates/`, update `docs/i18n/ko-KR/` and `docs/i18n/ja-JP/` accordingly
 
 ## Code of Conduct
 

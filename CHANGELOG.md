@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.19.5] - 2026-05-16
 
 ### Added
 
@@ -23,15 +23,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - **Build process metaphor section** in `docs/guides/effective-usage-guide.md` (and ko-KR + ja-JP mirrors): user-facing analogy mapping transpiling/bundling/tree shaking/optimization to schema migration/state-summary renderer/compaction/token budget. Frontmatter version bumped 1.3.2 → 1.4.0 in all 3 i18n files atomically.
 
+- **Two SessionStart smoke fixtures exercising the `scoring_contract_bump` drift reason.** `ci/fixtures/sessionstart-orchestrator/fixture_drift_scoring_contract_bump/` drives that reason as the sole drift signal (its message becomes the advisory); `ci/fixtures/sessionstart-orchestrator/fixture_drift_schema_then_scoring/` drives it as a secondary signal behind a schema-version mismatch (it contributes to the "+N other drift signals" count). Earlier fixtures all recorded the current scoring contract, so this reason's primary and secondary code paths in `plugin/hooks/session-start.{sh,ps1}` were never executed by the suite. Both fixtures run in the bash and PowerShell lanes.
+
 ### Changed
 
 - **`plugin/references/learning-system.md` decomposed into 8 single-responsibility subfiles + slim orchestrator** (mechanical only, zero behavior change). New subfiles in `plugin/references/`: `phase-0.md`, `final-phase.md`, `learning-rules.md`, `compaction.md`, `drift-state.md`, `critical-thinking.md`, `schema-policy.md`, `state-rendering.md`. Orchestrator preserves all 16 H2 anchor stubs (Option D format: file-level link + prose section name) so 4 SKILL.md anchor references (`§ Common Phase 0`, `§ Common Final Phase`, `§ Model Bullet Emission`, `§ Drift Advisory Derivation`) and CI script comments continue to resolve. Orchestrator frontmatter version bumped `2.3.6` → `3.0.0` (file-local independent semver, distinct from plugin SemVer). `.github/workflows/smoke.yml` trigger path filter and tripwire regex extended to include all 8 new subfiles — without this update, smoke verifier would silently skip subfile-only changes. `ci/scripts/check-audit-drift-aware.py` Step 0.5 read-target updated from `learning-system.md` to `phase-0.md` (real code dependency, not just comment). `.github/scripts/check-smoke-fixtures.py` 6 comment references updated to point at new subfile homes. `plugin/references/lib/merge_rules.md` cross-reference updated. Mechanical correctness machine-verified by one-shot `.github/scripts/verify-pr1-split.py` (fence-aware section split + whitespace-normalized byte-equivalence comparison vs original `main:plugin/references/learning-system.md`); verifier may be removed in a follow-up cleanup PR.
 
-- **Two SessionStart smoke fixtures exercising the `scoring_contract_bump` drift reason.** `ci/fixtures/sessionstart-orchestrator/fixture_drift_scoring_contract_bump/` drives that reason as the sole drift signal (its message becomes the advisory); `ci/fixtures/sessionstart-orchestrator/fixture_drift_schema_then_scoring/` drives it as a secondary signal behind a schema-version mismatch (it contributes to the "+N other drift signals" count). Earlier fixtures all recorded the current scoring contract, so this reason's primary and secondary code paths in `plugin/hooks/session-start.{sh,ps1}` were never executed by the suite. Both fixtures run in the bash and PowerShell lanes.
-
 ### Fixed
 
 - **SessionStart smoke fixtures could flake on a stale `.session-start.lock`.** `plugin/hooks/session-start.{sh,ps1}` acquire a dedup lock with `mkdir` and release it via an `EXIT` trap; a hook killed by the harness 10-second timeout skips the trap and leaves the lock directory. The next invocation then exits silently with no output, so an output-producing fixture diverges from its golden. `.github/scripts/check-smoke-fixtures.py` now removes any stale lock directory before each SessionStart hook invocation in both the bash and PowerShell lanes, protecting every sessionstart fixture (including ones without a `setup.sh`). A `.gitignore` rule additionally prevents a manually-left lock directory from being committed.
+
+- **`.github/workflows/docs-check.yml:154` pinned `ludeeus/action-shellcheck` to the mutable `@master` branch.** Every CI run resolved `@master` to whatever the upstream default branch pointed at, so an upstream push could change this repo's shellcheck behavior or supply-chain surface with no change here. Pinned to the released `v2.0.0` commit SHA (`00cae500b08a931fb5698e11e79bfbd38e612a38`) with a version comment. The other workflow `uses:` refs were already version-tagged (`actions/checkout@v6`, `lycheeverse/lychee-action@v2`, `actions/cache@v5`, `actions/setup-python@v6`); `@master` was the only moving ref.
+
+- **`docs/CONTRIBUTING.md:15,54` referenced only `docs/i18n/ko-KR/` although the repo ships both `ko-KR` and `ja-JP` translations and CI enforces structural parity for both.** Updated the Translations contribution type and the Translation parity pull-request rule to name `docs/i18n/ja-JP/` alongside `docs/i18n/ko-KR/`.
+
+- **`ci/README.md` "Running locally" listed the smoke commands without their prerequisites.** The smoke verifier needs Python with `jsonschema==4.23.0 pyyaml==6.0.2` (per `.github/workflows/smoke.yml`), `jq` on `PATH` (a hard dependency of the SessionStart hook the fixtures exercise), and a POSIX `bash`. Added a Prerequisites note.
+
+- **`docs/PRIVACY.md:23` pointed readers to a README note named "Unwritable `local/` handling" that no longer exists.** The README documents this behavior under the "v2.11+ State Format & Stateless Mode" section; updated the cross-reference to the current section name (a prose reference the Markdown link checker does not validate).
 
 ## [2.19.4] - 2026-05-15
 

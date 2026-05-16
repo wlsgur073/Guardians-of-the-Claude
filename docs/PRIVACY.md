@@ -20,7 +20,7 @@ This plugin does not transmit any data outside your project. It does write local
 
 ### Stateless mode
 
-If `local/` cannot be written (read-only mount, privacy-sensitive project, user-disabled), the skills automatically enter stateless mode — they print a one-time warning and skip all state file writes. Cross-skill learning is disabled in this mode but the skills still run. See the README "Unwritable `local/` handling" note for details.
+If `local/` cannot be written (read-only mount, privacy-sensitive project, user-disabled), the skills automatically enter stateless mode — they print a one-time warning and skip all state file writes. Cross-skill learning is disabled in this mode but the skills still run. See the README "v2.11+ State Format & Stateless Mode" section for details.
 
 ### Contact
 
