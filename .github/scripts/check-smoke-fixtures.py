@@ -2955,6 +2955,7 @@ def main() -> int:
         "fixture_clear_source", "fixture_compact_source",
         "fixture_legacy_v1_0_0_read", "fixture_unknown_future_version",
         "fixture_stale_excluded", "fixture_pending_decline_count_status_guard",
+        "fixture_drift_scoring_contract_bump", "fixture_drift_schema_then_scoring",
     ]
     for name in sessionstart_fixtures:
         try:

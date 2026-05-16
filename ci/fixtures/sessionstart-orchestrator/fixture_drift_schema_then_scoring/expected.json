@@ -1,0 +1,6 @@
+{
+  "hookSpecificOutput": {
+    "hookEventName": "SessionStart",
+    "additionalContext": "Guardians: project state needs attention.\n- Drift: profile.schema_version 1.1.0 expected 1.2.0 (+1 other drift signals); run /guardians-of-the-claude:audit."
+  }
+}
