@@ -15,7 +15,7 @@ Before Phase 0 (below) and before any state mutation or lock acquisition, verify
 
 **Steps:**
 
-1. Load `plugin/references/scoring-model.md` frontmatter and extract `scoring_contract_id`.
+1. Extract `scoring_contract_id` from `plugin/references/scoring-model.md` **frontmatter only** — use a targeted read (`Grep` the `scoring_contract_id:` line, or a `Read` bounded to the `---`-delimited header). Do NOT load the full file at this step; Phase 4 reads it in full for the scoring formula.
 2. Compare with the expected canonical value `audit-score-v4.2.0` (the contract `/audit` was authored against).
 3. If the two values differ, **abort the run immediately** with a fatal diagnostic:
 

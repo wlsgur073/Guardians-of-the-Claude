@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- `plugin/skills/audit/SKILL.md`: the Install Integrity Pre-Check now extracts `scoring_contract_id` via a targeted frontmatter read instead of loading the full `scoring-model.md`, which Phase 4 already reads in full for the scoring formula. Same contract-id verification and abort behavior; removes one redundant full-file load per `/audit` run.
+
 ### Fixed
 
 - `docs/guides/recommended-plugins-guide.md` (+ ko-KR / ja-JP mirrors): the feature-dev entry described a "7-phase" workflow but listed only five stages; completed the list to the plugin's seven phases (discovery, codebase exploration, clarifying questions, architecture design, implementation, quality review, summary). Frontmatter version bumped `1.0.1` → `1.0.2` in all three files.
