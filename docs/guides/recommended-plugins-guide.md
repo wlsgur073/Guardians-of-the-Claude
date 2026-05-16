@@ -1,7 +1,7 @@
 ---
 title: "Recommended Plugins"
 description: "Curated list of Claude Code plugins organized by category"
-version: 1.0.1
+version: 1.0.2
 ---
 
 # Recommended Plugins
@@ -13,7 +13,7 @@ Claude Code supports both official (Anthropic-maintained) and community plugins 
 | Plugin | What it does |
 | ------ | ------------ |
 | [superpowers](https://github.com/obra/superpowers) | Full dev workflow -- spec, design, plan, subagent-driven implementation. Claude works autonomously for hours without drifting from your plan |
-| [feature-dev](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/feature-dev) | Structured 7-phase feature development: explore codebase, ask questions, design, implement, review |
+| [feature-dev](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/feature-dev) | Structured 7-phase feature development: discovery, codebase exploration, clarifying questions, architecture design, implementation, quality review, summary |
 | [code-review](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-review) | Multi-agent PR review with confidence scoring to filter false positives. Catches real issues, skips noise |
 | [code-simplifier](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier) | Refines recently modified code for clarity and consistency while preserving all behavior |
 

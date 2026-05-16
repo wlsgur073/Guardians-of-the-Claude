@@ -110,7 +110,7 @@ v3.0 リリースまで、または二人目のメンテナが参加するまで
 
 終了条件を満たした後、smoke レーンはすべての release-gate チェックに昇格し、この移行期の注記は README から削除されます。
 
-## テンプレート構造
+## 内部構成
 
 ```text
 Guardians-of-the-Claude/
@@ -164,7 +164,7 @@ Claude Codeは階層型メモリシステムで動作します：CLAUDE.md（ユ
 | 1 | [はじめに](guides/getting-started.md) | 全員 — セットアップガイド |
 | 2 | [CLAUDE.md ガイド](guides/claude-md-guide.md) | 全員 — 効果的な指示の書き方 |
 | 3 | [Settings ガイド](guides/settings-guide.md) | 全員 — 権限と環境設定 |
-| 4 | [Rules ガイド](guides/rules-guide.md) | CLAUDE.mdが約100行を超えた時 |
+| 4 | [Rules ガイド](guides/rules-guide.md) | CLAUDE.mdが約200行を超えた時 |
 | 5 | [ディレクトリ構造](guides/directory-structure-guide.md) | `.claude/`の構造を理解したい時 |
 | 6 | [効果的な使い方](guides/effective-usage-guide.md) | Claude Codeを1日使った後 |
 | 7 | [高度な機能](guides/advanced-features-guide.md) | hooks、agents、skillsが必要な時 |

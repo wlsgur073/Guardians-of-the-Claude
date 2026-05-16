@@ -172,7 +172,7 @@ Start here, then follow the path that matches your level:
 | 1 | [Getting Started](docs/guides/getting-started.md) | Everyone — setup walkthrough |
 | 2 | [CLAUDE.md Guide](docs/guides/claude-md-guide.md) | Everyone — writing effective instructions |
 | 3 | [Settings Guide](docs/guides/settings-guide.md) | Everyone — permissions and preferences |
-| 4 | [Rules Guide](docs/guides/rules-guide.md) | When CLAUDE.md exceeds ~100 lines |
+| 4 | [Rules Guide](docs/guides/rules-guide.md) | When CLAUDE.md exceeds ~200 lines |
 | 5 | [Directory Structure](docs/guides/directory-structure-guide.md) | When you want to understand `.claude/` |
 | 6 | [Effective Usage](docs/guides/effective-usage-guide.md) | After your first day with Claude Code |
 | 7 | [Advanced Features](docs/guides/advanced-features-guide.md) | When you need hooks, agents, or skills |

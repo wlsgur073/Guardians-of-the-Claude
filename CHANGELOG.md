@@ -7,6 +7,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- `docs/guides/recommended-plugins-guide.md` (+ ko-KR / ja-JP mirrors): the feature-dev entry described a "7-phase" workflow but listed only five stages; completed the list to the plugin's seven phases (discovery, codebase exploration, clarifying questions, architecture design, implementation, quality review, summary). Frontmatter version bumped `1.0.1` → `1.0.2` in all three files.
+- `README.md` (+ ko-KR / ja-JP mirrors): the Docs table flagged the Rules Guide as relevant "When CLAUDE.md exceeds ~100 lines", inconsistent with the ~200-line threshold used in the Getting Started, CLAUDE.md, and Rules guides; aligned the README rows to ~200 lines.
+- `docs/i18n/ja-JP/README.md`: the repository-layout section heading read "テンプレート構造" (Template Structure), under-scoping the English "What's Inside" whole-repo tree; renamed to "内部構成" to match the ko-KR mirror ("내부 구성") and the English scope.
+
 ## [2.19.5] - 2026-05-16
 
 ### Added
