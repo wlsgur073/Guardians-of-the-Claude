@@ -1,7 +1,7 @@
 ---
 title: "Trustworthy Agents"
 description: "Five-principle, four-layer framework for evaluating Claude Code agent configuration"
-version: 1.0.1
+version: 1.0.2
 ---
 
 # Trustworthy Agents
@@ -30,7 +30,7 @@ The agent acts under human authority; humans retain the ability to inspect, over
 The agent pursues *your* goals — including the underlying *why*, not just the literal request. Anthropic's [Teaching Claude why](https://www.anthropic.com/research/teaching-claude-why) (May 2026) found that training Claude on principles generalizes better than training on demonstrations alone. The same logic applies to your CLAUDE.md:
 
 - Write rationale alongside rules ("we use repository classes because handler-to-DB shortcuts have caused production data leaks" — not just "use repository classes")
-- See the [CLAUDE.md Guide](claude-md-guide.md) for the canonical six-section structure
+- See [Getting Started](getting-started.md) for the canonical six-section CLAUDE.md structure
 - Skill design that defers to human judgment on multi-valid-approach questions, rather than picking a default
 
 ### Security
@@ -96,7 +96,7 @@ The OS-level boundary around the agent's actions:
 
 - Filesystem scope (working directory, path patterns in deny rules)
 - Network egress (`autoMode.environment` trust boundary; deny patterns for `Bash(curl * https://*:*)` to untrusted hosts)
-- Sandboxing (`sandbox.enabled` — bubblewrap on Linux, native on macOS, WSL2)
+- Sandboxing (`sandbox.enabled` — bubblewrap on Linux/WSL2, native Seatbelt on macOS)
 - See [`security-patterns.md` § Permission and Safety Decision Principles](../../plugin/references/security-patterns.md#permission-and-safety-decision-principles)
 
 Environment alone is insufficient: a sandbox does not stop an agent from making the wrong decision inside it.

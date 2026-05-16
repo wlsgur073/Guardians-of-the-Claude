@@ -1,7 +1,7 @@
 ---
 title: "Using .claude/rules/"
 description: "How to organize project instructions into modular, path-scoped rule files"
-version: 1.0.0
+version: 1.0.1
 ---
 
 # Using .claude/rules/
@@ -50,7 +50,7 @@ For larger projects, organize rules into subdirectories:
     error-handling.md    # Cross-cutting error conventions
 ```
 
-Rule files without `paths` frontmatter are loaded every session, just like CLAUDE.md. Keep them concise -- the same "under 200 lines" guideline applies to the combined total of all always-loaded rules.
+Rule files without `paths` frontmatter are loaded every session, just like CLAUDE.md. Keep them concise -- as a rule of thumb, keep the combined always-loaded total within the same ~200-line budget recommended for CLAUDE.md.
 
 ## Path-Scoping
 

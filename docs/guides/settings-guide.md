@@ -1,7 +1,7 @@
 ---
 title: "Configuring settings.json"
 description: "How to configure Claude Code behavior with settings files"
-version: 1.1.1
+version: 1.1.2
 ---
 
 # Configuring settings.json
@@ -150,7 +150,7 @@ OS-level isolation for Bash subprocesses (Seatbelt on macOS, bubblewrap on Linux
 }
 ```
 
-Linux/WSL2 require `bubblewrap` and `socat` packages. Anthropic reports an 84% reduction in permission prompts when sandboxing is active — Anthropic-internal usage measurement, not a guarantee for arbitrary environments. Effective sandboxing requires both filesystem and network isolation. See the [sandboxing documentation](https://code.claude.com/docs/en/sandboxing) for `denyWrite`/`denyRead`, custom proxies, and security limitations.
+Linux/WSL2 require `bubblewrap` and `socat` packages. Sandboxing lets safe commands run inside defined boundaries without per-command approval, which reduces permission prompts — an Anthropic-internal usage benefit, not a guarantee for arbitrary environments. Effective sandboxing requires both filesystem and network isolation. See the [sandboxing documentation](https://code.claude.com/docs/en/sandboxing) for `denyWrite`/`denyRead`, custom proxies, and security limitations.
 
 ## What NOT to Put in Project Settings
 

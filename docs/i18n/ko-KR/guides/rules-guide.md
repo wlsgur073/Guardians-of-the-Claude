@@ -1,7 +1,7 @@
 ---
 title: ".claude/rules/ 사용하기"
 description: "프로젝트 지침을 모듈화된 경로 범위 규칙 파일로 구성하는 방법"
-version: 1.0.0
+version: 1.0.1
 ---
 
 # .claude/rules/ 사용하기
@@ -50,7 +50,7 @@ version: 1.0.0
     error-handling.md    # 공통 에러 처리 규칙
 ```
 
-`paths` frontmatter가 없는 규칙 파일은 CLAUDE.md와 마찬가지로 매 세션마다 로드됩니다. 간결하게 유지하세요 -- 항상 로드되는 모든 규칙의 전체 분량에도 동일한 "200줄 이하" 가이드라인이 적용됩니다.
+`paths` frontmatter가 없는 규칙 파일은 CLAUDE.md와 마찬가지로 매 세션마다 로드됩니다. 간결하게 유지하세요 -- 경험칙으로, 항상 로드되는 전체 분량을 CLAUDE.md에 권장되는 ~200줄 예산 이내로 유지하세요.
 
 ## 경로 범위 지정
 

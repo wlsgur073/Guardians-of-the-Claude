@@ -1,7 +1,7 @@
 ---
 title: "신뢰할 수 있는 에이전트"
 description: "Claude Code 에이전트 구성을 평가하기 위한 다섯 가지 원칙과 네 가지 계층 프레임워크"
-version: 1.0.1
+version: 1.0.2
 ---
 
 # 신뢰할 수 있는 에이전트
@@ -30,7 +30,7 @@ version: 1.0.1
 에이전트는 *당신의* 목표를 추구합니다 — 문자 그대로의 요청만이 아니라 근본적인 *이유*까지 포함합니다. Anthropic의 [Teaching Claude why](https://www.anthropic.com/research/teaching-claude-why) (2026년 5월)는 원칙으로 Claude를 훈련시키는 것이 시연만으로 훈련시키는 것보다 더 잘 일반화된다는 사실을 발견했습니다. 동일한 논리가 CLAUDE.md에도 적용됩니다:
 
 - 규칙과 함께 근거를 작성하세요 ("저장소 클래스를 사용합니다 — 핸들러에서 DB로 직접 접근하는 단축 경로가 프로덕션 데이터 유출을 일으킨 적이 있기 때문" — 단순히 "저장소 클래스를 사용하세요"만이 아니라)
-- 표준 6개 섹션 구조는 [CLAUDE.md 가이드](claude-md-guide.md)를 참조하세요
+- 표준 6개 섹션 CLAUDE.md 구조는 [시작하기](getting-started.md)를 참조하세요
 - 여러 유효한 접근 방식이 존재하는 질문에 대해 기본값을 선택하기보다 인간의 판단에 맡기는 스킬 설계
 
 ### 보안
@@ -96,7 +96,7 @@ version: 1.0.1
 
 - 파일 시스템 범위(작업 디렉터리, deny 규칙의 경로 패턴)
 - 네트워크 송신(`autoMode.environment` 신뢰 경계; 신뢰할 수 없는 호스트에 대한 `Bash(curl * https://*:*)` deny 패턴)
-- 샌드박스(`sandbox.enabled` — Linux의 bubblewrap, macOS 네이티브, WSL2)
+- 샌드박스(`sandbox.enabled` — Linux/WSL2의 bubblewrap, macOS 네이티브 Seatbelt)
 - [`security-patterns.md` § 권한 및 안전 결정 원칙](../../../../plugin/references/security-patterns.md#permission-and-safety-decision-principles) 참조
 
 환경만으로는 불충분합니다: 샌드박스는 그 안에서 에이전트가 잘못된 결정을 내리는 것을 막지 않습니다.

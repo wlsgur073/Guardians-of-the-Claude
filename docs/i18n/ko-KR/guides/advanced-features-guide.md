@@ -1,7 +1,7 @@
 ---
 title: "고급 기능"
 description: "Hooks, agents, skills — 기본 설정을 넘어 Claude Code를 확장하는 방법"
-version: 1.3.3
+version: 1.3.4
 ---
 
 # 고급 기능
@@ -102,7 +102,7 @@ Only modify files under `src/api/`, `src/services/`, `src/repos/`, and `tests/`.
 - New endpoints include JSDoc tags: @route, @method, @auth
 ```
 
-네 가지 섹션이 agent 프롬프트를 간결하게 유지합니다: **Scope**는 agent가 다룰 수 있는 범위, **Rules**는 작업 방식, **Constraints**는 피해를 방지하는 절대 제한, **Verification**은 작업 완료 확인 방법을 정의합니다. 모든 agent에 네 섹션이 필요한 것은 아닙니다 — 복잡도에 맞게 조절하세요. 모델 선택 이유는 YAML 주석에 남겨 나중에 보는 사람이 의도를 파악할 수 있도록 합니다.
+네 가지 섹션이 agent 프롬프트를 간결하게 유지합니다: **Scope**는 agent가 다룰 수 있는 범위, **Rules**는 작업 방식, **Constraints**는 피해를 방지하는 절대 제한, **Verification**은 작업 완료 확인 방법을 정의합니다. 모든 agent에 네 섹션이 필요한 것은 아닙니다 — 복잡도에 맞게 조절하세요.
 
 ### 모델 선택
 

@@ -1,7 +1,7 @@
 ---
 title: "settings.json 설정하기"
 description: "settings 파일을 사용하여 Claude Code 동작을 설정하는 방법"
-version: 1.1.1
+version: 1.1.2
 ---
 
 # settings.json 설정하기
@@ -150,7 +150,7 @@ Bash 서브프로세스를 OS 수준에서 격리합니다 (macOS는 Seatbelt, L
 }
 ```
 
-Linux/WSL2는 `bubblewrap`과 `socat` 패키지가 필요합니다. Anthropic 보고에 따르면 sandbox 활성화 시 권한 프롬프트가 84% 감소 — Anthropic 내부 사용 측정값이며, 임의 환경에서의 보장은 아닙니다. 효과적인 sandboxing은 파일시스템과 네트워크 격리 *모두*가 필요합니다. `denyWrite`/`denyRead`, custom proxy, 보안 한계는 [sandboxing 문서](https://code.claude.com/docs/en/sandboxing)를 참고하세요.
+Linux/WSL2는 `bubblewrap`과 `socat` 패키지가 필요합니다. sandbox는 안전한 명령을 정의된 경계 안에서 명령별 승인 없이 실행하게 하여 권한 프롬프트를 줄입니다 — Anthropic 내부 사용상의 이점이며, 임의 환경에서의 보장은 아닙니다. 효과적인 sandboxing은 파일시스템과 네트워크 격리 *모두*가 필요합니다. `denyWrite`/`denyRead`, custom proxy, 보안 한계는 [sandboxing 문서](https://code.claude.com/docs/en/sandboxing)를 참고하세요.
 
 ## Project Settings에 넣으면 안 되는 것
 

@@ -1,7 +1,7 @@
 ---
 title: "Advanced Features"
 description: "Hooks, agents, and skills -- extending Claude Code beyond basic configuration"
-version: 1.3.3
+version: 1.3.4
 ---
 
 # Advanced Features
@@ -102,7 +102,7 @@ Only modify files under `src/api/`, `src/services/`, `src/repos/`, and `tests/`.
 - New endpoints include JSDoc tags: @route, @method, @auth
 ```
 
-Four sections keep agent prompts focused: **Scope** defines what the agent can touch, **Rules** define how it works, **Constraints** set hard limits that prevent damage, and **Verification** tells it how to confirm work is done. Not every agent needs all four -- scale to complexity. Put the model choice rationale in a YAML comment so future readers understand the intent.
+Four sections keep agent prompts focused: **Scope** defines what the agent can touch, **Rules** define how it works, **Constraints** set hard limits that prevent damage, and **Verification** tells it how to confirm work is done. Not every agent needs all four -- scale to complexity.
 
 ### Model Selection
 

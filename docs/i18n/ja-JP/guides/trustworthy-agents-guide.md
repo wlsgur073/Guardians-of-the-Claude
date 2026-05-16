@@ -1,7 +1,7 @@
 ---
 title: "信頼できるエージェント"
 description: "Claude Code エージェント設定を評価するための5原則4層フレームワーク"
-version: 1.0.1
+version: 1.0.2
 ---
 
 # 信頼できるエージェント
@@ -30,7 +30,7 @@ version: 1.0.1
 エージェントは*あなたの*目標を追求します — 文字通りの要求だけでなく、その背後にある*理由*も含めて。Anthropic の [Teaching Claude why](https://www.anthropic.com/research/teaching-claude-why) (2026年5月) は、原則で Claude を訓練することが、デモンストレーションのみで訓練するよりも汎化することを示しました。同じ論理が CLAUDE.md にも当てはまります:
 
 - ルールに加えて根拠を書く (「リポジトリクラスを使用します — ハンドラから DB への直接アクセスのショートカットが過去に本番データ漏洩を引き起こしたため」 — 単に「リポジトリクラスを使用してください」だけでなく)
-- 標準の6セクション構造については [CLAUDE.md ガイド](claude-md-guide.md) を参照
+- 標準の6セクション CLAUDE.md 構造については [はじめに](getting-started.md) を参照
 - 複数の有効なアプローチがある問いに対してデフォルトを選ぶのではなく、人間の判断に委ねるスキル設計
 
 ### セキュリティ
@@ -96,7 +96,7 @@ version: 1.0.1
 
 - ファイルシステムのスコープ (作業ディレクトリ、deny ルールのパスパターン)
 - ネットワーク送信 (`autoMode.environment` 信頼境界; 信頼できないホストへの `Bash(curl * https://*:*)` deny パターン)
-- サンドボックス (`sandbox.enabled` — Linux の bubblewrap、macOS ネイティブ、WSL2)
+- サンドボックス (`sandbox.enabled` — Linux/WSL2 の bubblewrap、macOS はネイティブ Seatbelt)
 - [`security-patterns.md` § 権限と安全性の決定原則](../../../../plugin/references/security-patterns.md#permission-and-safety-decision-principles) を参照
 
 環境だけでは不十分です: サンドボックスは、その内部でエージェントが誤った判断を下すのを止めません。

@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `docs/guides/recommended-plugins-guide.md` (+ ko-KR / ja-JP mirrors): the feature-dev entry described a "7-phase" workflow but listed only five stages; completed the list to the plugin's seven phases (discovery, codebase exploration, clarifying questions, architecture design, implementation, quality review, summary). Frontmatter version bumped `1.0.1` → `1.0.2` in all three files.
 - `README.md` (+ ko-KR / ja-JP mirrors): the Docs table flagged the Rules Guide as relevant "When CLAUDE.md exceeds ~100 lines", inconsistent with the ~200-line threshold used in the Getting Started, CLAUDE.md, and Rules guides; aligned the README rows to ~200 lines.
 - `docs/i18n/ja-JP/README.md`: the repository-layout section heading read "テンプレート構造" (Template Structure), under-scoping the English "What's Inside" whole-repo tree; renamed to "内部構成" to match the ko-KR mirror ("내부 구성") and the English scope.
+- `docs/guides/settings-guide.md` (+ ko-KR / ja-JP mirrors): removed an unsourced "84% reduction in permission prompts" sandbox statistic that no primary source substantiates, replacing it with the verified qualitative benefit. Frontmatter version bumped `1.1.1` → `1.1.2` in all three files.
+- `docs/guides/rules-guide.md` (+ ko-KR / ja-JP mirrors): reworded the always-loaded-rules size guidance to read as a recommended budget rather than implying a product-enforced cap. Frontmatter version bumped `1.0.0` → `1.0.1` in all three files.
+- `docs/guides/advanced-features-guide.md` (+ ko-KR / ja-JP mirrors): removed a duplicated "put the model rationale in a YAML comment" sentence already stated with an example a few lines later. Frontmatter version bumped `1.3.3` → `1.3.4` in all three files.
+- `docs/guides/trustworthy-agents-guide.md` (+ ko-KR / ja-JP mirrors): retargeted the "canonical six-section structure" cross-reference to Getting Started, which enumerates the six sections; disambiguated the sandbox platform note (bubblewrap on Linux/WSL2, native Seatbelt on macOS). Frontmatter version bumped `1.0.1` → `1.0.2` in all three files.
+- `docs/CONTRIBUTING.md`: dropped the gitignored `test/` eval framework from the contributor-facing CI description so it lists only CI-visible checks.
+- Removed `.github/scripts/verify-pr1-split.py`, a one-shot byte-equivalence verifier whose task is complete and which no workflow references.
 
 ## [2.19.5] - 2026-05-16
 
