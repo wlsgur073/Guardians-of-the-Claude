@@ -1,7 +1,7 @@
 ---
 title: Drift Advisory Derivation (canonical via drift-state.json)
-description: Model bullet emission policy + drift advisory state machine reading drift-state.json (replaces changelog scan removed in Phase C).
-version: 2.0.0
+description: Model bullet emission policy + drift advisory state machine reading drift-state.json (replaces the changelog scan, now removed).
+version: 2.0.1
 ---
 
 ## Model Bullet Emission (config-changelog.md)

@@ -1,7 +1,7 @@
 ---
 title: Common Phase 0 — Load Context & Learn
 description: Pre-skill state read sequence; 8-phase migration & stale check; learning rule application; migration notice template.
-version: 1.1.0
+version: 1.1.1
 ---
 
 ## Common Phase 0: Load Context & Learn
@@ -37,7 +37,7 @@ Every transition below is explicit. Implicit behavior is forbidden.
    - For each missing-or-corrupt canonical file, attempt recovery from legacy MD if present:
      - `profile.json` ← parse `project-profile.md` (fields not found → `null`)
      - `recommendations.json` ← parse `latest-{skill}.md` Recommendations sections; **resolve legacy ids through registry aliases to canonical keys** (alias is input-only, NEVER persist alias forward)
-     - `drift-state.json` ← derive from `config-changelog.md` if `drift-state.json` absent or corrupt (one-shot Phase C migration):
+     - `drift-state.json` ← derive from `config-changelog.md` if `drift-state.json` absent or corrupt (one-shot migration):
        - Under state-mutation lock: re-read `drift-state.json` from disk.
        - If present-valid (parse + schema-validate) → skip migration; use on-disk state.
        - If absent or invalid → run `derive_from_changelog()`:

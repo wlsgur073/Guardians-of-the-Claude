@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- **Dangling `Phase C` internal-plan label removed from shipped artifacts** — 8 occurrences across `plugin/references/compaction.md` (2), `plugin/references/drift-state.md` (1, frontmatter description), `plugin/references/phase-0.md` (1), and `.github/scripts/check-smoke-fixtures.py` (4, comments/docstring) referenced the drift-state migration's internal `Phase C` plan label, which has no definition anywhere in the shipped tree. Each is restated in-place as the behavioral concept (`drift-state.json migration` / `one-shot migration`); all behavioral content and runtime/verifier behavior unchanged (`check-smoke-fixtures.py` re-run PASS). Frontmatter versions bumped: `compaction.md` `1.0.1` → `1.0.2`, `drift-state.md` `2.0.0` → `2.0.1`, `phase-0.md` `1.1.0` → `1.1.1`.
+
 ## [2.19.7] - 2026-05-18
 
 ### Added

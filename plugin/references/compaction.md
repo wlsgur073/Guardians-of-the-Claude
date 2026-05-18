@@ -1,7 +1,7 @@
 ---
 title: Compaction — Same-Day Duplicate & Quarter Rollup
 description: In-memory compaction algorithm during Final Phase Step 3; lossless anchors preservation; per-skill structured anchor emission.
-version: 1.0.1
+version: 1.0.2
 ---
 
 ## Same-Day Duplicate Check (Step 3a)
@@ -69,7 +69,7 @@ f. **Emit anchor dict** `{"skill": skill, "last_entry_date": last_entry_date, "l
 
 **Lock integration**: Step 3b executes within Final Phase Step 3 (merge deltas) per the lock insertion map — anchors are part of the in-memory merged changelog; persistence occurs at Final Phase Step 5 (atomic write of the full changelog file). No separate lock acquisition — Step 3b rides the existing Final Phase state-mutation lock.
 
-**Interactions** (consumer-side contract — Phase C migration cutover):
+**Interactions** (consumer-side contract — drift-state.json migration cutover):
 
 - **Drift advisory derivation reads `drift-state.json`** (not changelog reverse-scan). See `plugin/references/drift-state.md` § Drift Advisory Derivation (canonical: read `drift-state.json`) for the canonical read path. Step 3b's structured anchor emission (`last_model` + `last_capability_fingerprint` per bucket) is preserved for migration source (Step 0.5 phase 4's `derive_from_changelog()` reads the same anchor format), but post-migration the changelog scan path is removed.
 
@@ -77,7 +77,7 @@ f. **Emit anchor dict** `{"skill": skill, "last_entry_date": last_entry_date, "l
 
 - **Lossy reconstruction acknowledgment**: a Compacted bucket retains only the LAST `/audit` entry per bucket, so an installation whose oldest `/audit` observation was rolled into a Compacted bucket whose *last* `/audit` was a different model loses the original first-observation truth. Best-effort recovery uses the oldest survivable anchor (recorded in `legacy_migration.source_changelog_anchor_run_id`).
 
-- **Step 3b emit unchanged**: bucket-local `last_model` and `last_capability_fingerprint` emission remains exactly as specified above. Phase C does not modify the Step 3b algorithm; only consumer interpretation (now via `drift-state.json`, not reverse-scan) evolves.
+- **Step 3b emit unchanged**: bucket-local `last_model` and `last_capability_fingerprint` emission remains exactly as specified above. The drift-state.json migration does not modify the Step 3b algorithm; only consumer interpretation (now via `drift-state.json`, not reverse-scan) evolves.
 
 4. Three-tier resolution: **year-level** (>2 years) → **quarter-level** (older than current quarter) → **entry-level** (recent, full detail).
 5. Update frontmatter: `compacted_at`, `entry_count`.

@@ -1549,7 +1549,7 @@ def step_0_5(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
                 }
                 atomic_write_json(recs_path, recs_obj)
 
-            # Phase 4 (drift-state.json): one-shot Phase C migration.
+            # Phase 4 (drift-state.json): one-shot migration.
             # Idempotence guard: re-read under lock; skip if already present-valid.
             if drift_state_status != "present-valid":
                 # Re-read from disk (idempotence guard under lock).
@@ -1659,7 +1659,7 @@ def _validate_drift_state_schema(obj: dict) -> bool:
 
 
 def _derive_drift_state_from_changelog(changelog_text: str | None, pinned_utc: str) -> dict:
-    """Derive drift-state.json from config-changelog.md for Phase C migration.
+    """Derive drift-state.json from config-changelog.md for the migration.
 
     Collects all /audit observation events with non-null Model bullets from
     both Recent Activity (v1.1.0) and Compacted History anchors.
@@ -2546,7 +2546,7 @@ FIXTURE_SCENARIOS = {
     "beginner-path": {"skill_sequence": ["create", "audit"], "pre_run": []},
     "warm-start": {"skill_sequence": ["audit"], "pre_run": [("touch_older", "local/state-summary.md", "1 day")]},
     "monorepo": {"skill_sequence": ["audit"], "pre_run": []},
-    # Phase C migration fixtures: test step_0_5 drift-state.json migration path.
+    # drift-state.json migration fixtures: test step_0_5 migration path.
     # skill_sequence=[] — these fixtures verify Step 0.5 in isolation; no skill run needed.
     "drift-state-cold-start": {"skill_sequence": [], "pre_run": []},
     "drift-state-migrate-valid-anchor": {"skill_sequence": [], "pre_run": []},
@@ -3189,7 +3189,7 @@ def main() -> int:
     # CI lane: frozen skill-flow fixture manifest.
     fixtures = [
         "migration", "beginner-path", "warm-start", "monorepo",
-        # Phase C drift-state.json migration fixtures (step_0_5 isolation).
+        # drift-state.json migration fixtures (step_0_5 isolation).
         "drift-state-cold-start",
         "drift-state-migrate-valid-anchor",
         "drift-state-migrate-all-null-anchors",
