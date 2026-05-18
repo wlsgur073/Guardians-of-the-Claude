@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "metadata": { "last_updated": "2026-05-15T09:00:00Z" },
+  "baseline": {
+    "model_id": "",
+    "first_observed_at": "2026-04-15T10:30:00Z",
+    "audit_run_ids": ["2026-04-15T10:30:00Z"]
+  },
+  "last_seen": {
+    "model_id": "",
+    "audit_run_id": "2026-04-15T10:30:00Z",
+    "observed_at": "2026-04-15T10:30:00Z"
+  },
+  "legacy_migration": null
+}

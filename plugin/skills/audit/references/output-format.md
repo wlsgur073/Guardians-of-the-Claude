@@ -11,7 +11,7 @@ Configuration Audit Results
 Quality Gate: READY    (CLAUDE.md OK, test command OK)
 Score: 60/100 (Grade: B)  |  Maturity: Level 3 — Optimized
 
-⚠ Model drift since last /audit (baseline: /audit 2026-04-15, claude-opus-4-6):
+⚠ Model drift detected (audit baseline: claude-opus-4-6, first observed 2026-04-15):
   family_tier:          opus  →  sonnet
   context_window_class: 200k  →  1M
 
@@ -81,7 +81,10 @@ Still open: L5 conciseness flag, no MCP configuration, agent model diversity.
 
 Format rules:
 
-- **Header line:** `⚠ Model drift since last /audit (baseline: {scan_source}, {baseline_model_id}):` where `{scan_source}` is the **scan-winner provenance** — `/audit YYYY-MM-DD` when the scan-winner is a Recent Activity `- Model:` bullet (use that entry's `date`); `/audit compacted-bucket YYYY-MM` when the scan-winner is a Compacted History anchor (use anchor's `last_entry_date`). `{baseline_model_id}` is the scan-winner's raw `last_model` / `- Model:` value.
+- **Header line:** `⚠ Model drift detected (audit baseline: {baseline_model_id}, {anchor_provenance}):` where `{baseline_model_id}` is `drift-state.json` `baseline.model_id` (raw string, human-readable). `{anchor_provenance}` has two variants, each naming its own date source:
+  - `first observed YYYY-MM-DD` when `legacy_migration` is null (baseline established by a real `/audit` Final Phase) — `YYYY-MM-DD` = date portion of `baseline.first_observed_at`
+  - `recovered from /audit YYYY-MM-DD` when `legacy_migration` is non-null (baseline migrated from changelog) — `YYYY-MM-DD` = date portion of `legacy_migration.source_changelog_anchor_run_id`
+  In both variants the date is the ISO-8601 date portion only (drop the time component).
 - **Axis lines:** render **changed axes only** — compare `baseline_fp` and `current_fp` axis-by-axis; emit one line per differing axis. Values are **user-facing** — `opus` / `sonnet` / `haiku`, `200k` / `1M`, `none` / `extended_any`, `manual` / `compaction_capable` — NOT internal enum tokens (like `opus_tier` / `1m_class`). Alignment: axis name left-justified to 22 columns, then `baseline → current`.
 - **No severity label** (no `minor`, `major`, `critical`, or equivalent tier). The drift advisory specification does not define severity levels; adding one would exceed design authority.
 - The block is transient terminal output only — **NOT** added to `recommendations.json` (drift advisories are not persisted as recommendations).

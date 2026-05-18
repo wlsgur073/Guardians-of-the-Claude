@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "drift-state.schema.v1.0.0.json",
+  "type": "object",
+  "allOf": [
+    { "$ref": "drift-state.schema.base.json" },
+    {
+      "if": {
+        "required": ["baseline"],
+        "properties": { "baseline": { "type": "null" } }
+      },
+      "then": {
+        "properties": {
+          "last_seen": { "type": "null" },
+          "legacy_migration": { "type": "null" }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["legacy_migration"],
+        "properties": { "legacy_migration": { "type": "object" } }
+      },
+      "then": {
+        "properties": {
+          "baseline": { "type": "object" },
+          "last_seen": { "type": "object" }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "metadata": {
+      "allOf": [{ "$ref": "drift-state.schema.base.json#/$defs/metadata" }],
+      "unevaluatedProperties": false
+    },
+    "baseline": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "allOf": [
+            { "$ref": "drift-state.schema.base.json#/$defs/baseline/oneOf/1" }
+          ],
+          "unevaluatedProperties": false
+        }
+      ]
+    },
+    "last_seen": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "allOf": [
+            { "$ref": "drift-state.schema.base.json#/$defs/last_seen/oneOf/1" }
+          ],
+          "unevaluatedProperties": false
+        }
+      ]
+    },
+    "legacy_migration": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "allOf": [
+            { "$ref": "drift-state.schema.base.json#/$defs/legacy_migration/oneOf/1" }
+          ],
+          "unevaluatedProperties": false
+        }
+      ]
+    }
+  },
+  "unevaluatedProperties": false
+}

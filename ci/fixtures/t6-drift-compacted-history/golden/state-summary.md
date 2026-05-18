@@ -8,7 +8,7 @@
 
 # Claude Code Configuration State
 
-Model drift: claude-opus-4-7 -> claude-sonnet-4-6
+Model drift detected: claude-opus-4-7 -> claude-sonnet-4-6
 
 ## Project Profile
 - Runtime: Not detected

@@ -126,6 +126,27 @@ RECOMMENDATIONS_NEGATIVE_EXAMPLES: list[str] = [
     "plugin/references/schemas/examples/negative/recommendations.invalid-iso-date.example.json",
 ]
 
+# Drift-state positive examples — dispatcher selects wrapper by schema_version literal.
+DRIFT_STATE_POSITIVE_EXAMPLES: list[str] = [
+    "plugin/references/schemas/examples/drift-state.example.json",
+    "plugin/references/schemas/examples/drift-state.cold-start.example.json",
+    "plugin/references/schemas/examples/drift-state.migrated.example.json",
+]
+
+# Drift-state negative examples — dispatcher selects wrapper; each MUST be rejected.
+DRIFT_STATE_NEGATIVE_EXAMPLES: list[str] = [
+    "plugin/references/schemas/examples/negative/drift-state.missing-required.example.json",
+    "plugin/references/schemas/examples/negative/drift-state.wrong-version.example.json",
+    "plugin/references/schemas/examples/negative/drift-state.baseline-null-but-last-seen-set.example.json",
+    "plugin/references/schemas/examples/negative/drift-state.audit-run-ids-overflow.example.json",
+    "plugin/references/schemas/examples/negative/drift-state.invalid-iso-date.example.json",
+    "plugin/references/schemas/examples/negative/drift-state.empty-model-id.example.json",
+    "plugin/references/schemas/examples/negative/drift-state.legacy-migration-without-baseline.example.json",
+    "plugin/references/schemas/examples/negative/drift-state.legacy-migration-with-null-last-seen.example.json",
+    "plugin/references/schemas/examples/negative/drift-state.source-anchor-null.example.json",
+    "plugin/references/schemas/examples/negative/drift-state.unknown-property.example.json",
+]
+
 
 def _profile_registry() -> Registry:
     """Build a referencing Registry with the base profile schema registered.
@@ -351,6 +372,111 @@ def validate_recommendations_negative_examples(errors: list[str]) -> None:
             pass  # expected: fixture correctly rejected
 
 
+def _drift_state_registry() -> Registry:
+    """Build a referencing Registry with the base drift-state schema registered.
+
+    Versioned wrappers use $ref to drift-state.schema.base.json; the registry
+    resolves those references without network I/O. Mirrors _recommendations_registry().
+    """
+    base = json.loads(
+        (PROFILE_SCHEMAS_DIR / "drift-state.schema.base.json").read_text(encoding="utf-8")
+    )
+    return Registry().with_resources(
+        [("drift-state.schema.base.json", Resource.from_contents(base))]
+    )
+
+
+def select_drift_state_wrapper(schema_version: str) -> tuple[dict, str]:
+    """Select the versioned drift-state schema wrapper by schema_version literal.
+
+    Returns (schema_dict, wrapper_filename). Raises ValueError on unknown version
+    with a diagnostic naming the literal and the candidate path that was tried.
+    Mirrors select_recommendations_wrapper's signature, return type, and registry pattern.
+    """
+    candidate = PROFILE_SCHEMAS_DIR / f"drift-state.schema.v{schema_version}.json"
+    if not candidate.exists():
+        raise ValueError(
+            f"Unknown schema_version '{schema_version}': no wrapper found at"
+            f" {candidate.relative_to(ROOT)}"
+        )
+    return json.loads(candidate.read_text(encoding="utf-8")), candidate.name
+
+
+def validate_drift_state_positive_examples(errors: list[str]) -> int:
+    """Validate drift-state positive examples via the schema_version dispatcher.
+
+    Returns the count of files checked. Mirrors validate_recommendations_positive_examples.
+    Uses FormatChecker so `format: date-time` on all timestamp fields is enforced.
+    """
+    registry = _drift_state_registry()
+    checked = 0
+    for example_path in DRIFT_STATE_POSITIVE_EXAMPLES:
+        e_rel = example_path
+        try:
+            instance = json.loads((ROOT / example_path).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"[example load error] {e_rel}: {exc}")
+            continue
+        sv = instance.get("schema_version")
+        if sv is None:
+            errors.append(f"[missing schema_version] {e_rel}: cannot dispatch without schema_version")
+            continue
+        try:
+            schema, wrapper_name = select_drift_state_wrapper(sv)
+        except ValueError as exc:
+            errors.append(f"[dispatcher error] {e_rel}: {exc}")
+            continue
+        try:
+            jsonschema.Draft202012Validator(
+                schema, registry=registry, format_checker=_FORMAT_CHECKER
+            ).validate(instance)
+        except jsonschema.ValidationError as exc:
+            errors.append(
+                f"[schema violation] {e_rel} against {wrapper_name}: {exc.message}"
+            )
+            continue
+        checked += 1
+    return checked
+
+
+def validate_drift_state_negative_examples(errors: list[str]) -> int:
+    """Assert that drift-state negative examples are REJECTED by the dispatcher.
+
+    Mirrors validate_recommendations_negative_examples. FormatChecker enabled so
+    invalid-iso-date fixture (non-ISO-8601 first_observed_at) rejects.
+    Returns the count of files checked.
+    """
+    registry = _drift_state_registry()
+    checked = 0
+    for fixture_path in DRIFT_STATE_NEGATIVE_EXAMPLES:
+        f_rel = fixture_path
+        try:
+            instance = json.loads((ROOT / fixture_path).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"[fixture load error] {f_rel}: {exc}")
+            continue
+        sv = instance.get("schema_version")
+        if sv is None:
+            checked += 1
+            continue  # missing schema_version is itself a rejection
+        try:
+            schema, wrapper_name = select_drift_state_wrapper(sv)
+        except ValueError:
+            checked += 1
+            continue  # unknown schema_version — dispatcher correctly rejects
+        try:
+            jsonschema.Draft202012Validator(
+                schema, registry=registry, format_checker=_FORMAT_CHECKER
+            ).validate(instance)
+            checked += 1  # fixture was dispatched; count it even on regression
+            errors.append(
+                f"[schema regression] {f_rel} was accepted by {wrapper_name} but must be rejected"
+            )
+        except jsonschema.ValidationError:
+            checked += 1  # expected: fixture correctly rejected
+    return checked
+
+
 def validate_negative_fixtures(errors: list[str]) -> None:
     """Assert that each negative fixture is REJECTED by its schema.
 
@@ -435,6 +561,8 @@ def main() -> int:
     total_checked += validate_local_schemas(errors)
     total_checked += validate_profile_positive_examples(errors)
     total_checked += validate_recommendations_positive_examples(errors)
+    total_checked += validate_drift_state_positive_examples(errors)
+    total_checked += validate_drift_state_negative_examples(errors)
     validate_negative_fixtures(errors)
     validate_profile_negative_examples(errors)
     validate_recommendations_negative_examples(errors)

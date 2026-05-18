@@ -1,7 +1,7 @@
 ---
 title: Compaction — Same-Day Duplicate & Quarter Rollup
 description: In-memory compaction algorithm during Final Phase Step 3; lossless anchors preservation; per-skill structured anchor emission.
-version: 1.0.0
+version: 1.0.1
 ---
 
 ## Same-Day Duplicate Check (Step 3a)
@@ -69,15 +69,15 @@ f. **Emit anchor dict** `{"skill": skill, "last_entry_date": last_entry_date, "l
 
 **Lock integration**: Step 3b executes within Final Phase Step 3 (merge deltas) per the lock insertion map — anchors are part of the in-memory merged changelog; persistence occurs at Final Phase Step 5 (atomic write of the full changelog file). No separate lock acquisition — Step 3b rides the existing Final Phase state-mutation lock.
 
-**Interactions** (consumer-side contract — the drift advisory state machine is the authoritative specification for reader behavior):
+**Interactions** (consumer-side contract — Phase C migration cutover):
 
-- **Drift advisory scan order for `/audit` baseline derivation**: consumers read `bullet_model` from Recent Activity (reverse-chronological) first; if exhausted, fall through to Compacted History buckets (reverse-chronological); within each bucket, the first `/audit` anchor reached supplies `baseline_last_model` for `baseline_fp` normalization. If exhausted across all Compacted History buckets, `baseline_present = false` → `missing_baseline` silence per the silence evaluation order.
+- **Drift advisory derivation reads `drift-state.json`** (not changelog reverse-scan). See `plugin/references/drift-state.md` § Drift Advisory Derivation (canonical: read `drift-state.json`) for the canonical read path. Step 3b's structured anchor emission (`last_model` + `last_capability_fingerprint` per bucket) is preserved for migration source (Step 0.5 phase 4's `derive_from_changelog()` reads the same anchor format), but post-migration the changelog scan path is removed.
 
-- **First-anchor-wins**: if the first `/audit` anchor reached by the scan has `last_model = null`, the state machine yields `normalization_null` silence (`baseline_present == true` AND `baseline_fp == null` → `normalization_null`). The state machine does **NOT** skip past this anchor to search for an older non-null anchor. Step 3b emits bucket-local `last_model` values faithfully (per-bucket most-recent non-null); the first-anchor-wins semantics are a reader-side terminator contract, not an emit-side filter.
+- **Anchor-vs-bullet authority preserved**: `/audit` always-emits the `- Model:` bullet (writer policy unchanged), so any `/audit` anchor in a bucket has a non-null `last_model` unless all `/audit` entries are pre-v2.12.0 legacy. Non-`/audit` anchors may have `last_model = null` when all that skill's entries in the bucket delta-omitted (delta-emit policy). Migration's `audit_observations` filter excludes null-Model entries; `derive_from_changelog()` falls to `cold_start()` if the filter yields an empty list.
 
-- **Anchor-vs-bullet authority per skill**: `/audit` always-emits the `- Model:` bullet (per the writer policy), so any `/audit` anchor in a bucket has a non-null `last_model` **unless** the bucket's `/audit` entries are all pre-v2.12.0 legacy (legacy entries have no bullet, mapping to `null`). Non-/audit anchors (`/create`, `/secure`, `/optimize`) may have `last_model = null` when all that skill's entries in the bucket delta-omitted (per the delta-emit policy). These null-anchor cases are the exact trigger for the first-anchor-wins rule above.
+- **Lossy reconstruction acknowledgment**: a Compacted bucket retains only the LAST `/audit` entry per bucket, so an installation whose oldest `/audit` observation was rolled into a Compacted bucket whose *last* `/audit` was a different model loses the original first-observation truth. Best-effort recovery uses the oldest survivable anchor (recorded in `legacy_migration.source_changelog_anchor_run_id`).
 
-- **Lossless Anchors interaction** (narrative preservation below): the structured anchors are a supplement to, not a replacement for, the narrative Lossless Anchors preservation. The narrative summary (dates, skill names+counts, applied changes, etc.) preserves human-readable audit trail; the structured anchors provide machine-readable state for drift derivation. Both are emitted during Step 3's per-bucket output.
+- **Step 3b emit unchanged**: bucket-local `last_model` and `last_capability_fingerprint` emission remains exactly as specified above. Phase C does not modify the Step 3b algorithm; only consumer interpretation (now via `drift-state.json`, not reverse-scan) evolves.
 
 4. Three-tier resolution: **year-level** (>2 years) → **quarter-level** (older than current quarter) → **entry-level** (recent, full detail).
 5. Update frontmatter: `compacted_at`, `entry_count`.

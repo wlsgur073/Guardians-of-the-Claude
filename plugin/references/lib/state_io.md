@@ -1,7 +1,7 @@
 ---
 title: State I/O Primitives
 description: Skill-facing spec for atomic write, state-mutation lock, and deterministic I/O. Skills reference this file instead of restating rules inline.
-version: 1.0.1
+version: 1.0.3
 ---
 
 # State I/O Primitives
@@ -12,7 +12,7 @@ version: 1.0.1
 
 Every write to a canonical or derived state file must use a temp-file-then-rename pattern. No direct open-and-overwrite.
 
-**Files covered**: `profile.json`, `recommendations.json`, `config-changelog.md`, `state-summary.md` — and the state-mutation lock file itself when acquiring.
+**Files covered**: `profile.json`, `recommendations.json`, `config-changelog.md`, `drift-state.json`, `state-summary.md` — and the state-mutation lock file itself when acquiring.
 
 **Rule**: Write the new content to a temporary file in the **same directory** as the target, then use `os.replace` to move the temp file to the target path. `os.replace` provides POSIX-rename semantics on every platform (atomic overwrite on both POSIX and Windows since Python 3.3). Do NOT use `os.rename` — on Windows it raises `FileExistsError` when the target already exists, which is the normal case for every update after the first run. Readers never observe a partial write; partial files are impossible mid-write.
 
@@ -34,6 +34,18 @@ def atomic_write(path: Path, content: str) -> None:
 
 ---
 
+### Multi-file write order
+
+In any multi-file batch that includes derived views, **write source files first and derived views last**. This ensures `derived_mtime ≥ max(source_mtimes)` is the natural fresh state, eliminating false tamper-detection on derived files written within the same atomic batch.
+
+Order amongst source files themselves is unspecified — partial-write recovery during a multi-file batch relies on file presence + schema validation (per Phase 0.5 stale/recovery routing), not intra-batch ordering.
+
+This is a general principle. The concrete order for the current canonical state set is specified in `plugin/references/final-phase.md` Step 5 (source files + state-summary.md last).
+
+**No `fsync` between writes** — the current repo contract is `os.replace`-based atomic single-file writes. Adding `fsync` is a durability policy change and belongs to a separate state I/O hardening effort, not this multi-file order rule.
+
+---
+
 ## State-mutation lock
 
 A single lock file (`local/.state.lock`) serializes all state mutations. **Both** Step 0.5 (migration) and the Final Phase (merge + write) share this one lock. Never use separate lock files per phase — that introduces ordering and deadlock risk.
@@ -49,7 +61,7 @@ A single lock file (`local/.state.lock`) serializes all state mutations. **Both*
 
 **Release**: `os.unlink("local/.state.lock")` after all writes complete. Always release the lock in a `finally` block or equivalent cleanup path so it runs even if a write raises. The 60-second stale auto-release recovers abandoned locks, but relying on it degrades UX — Step 0.5 of the next run will abort, and Final Phase will stall up to 30 seconds.
 
-**Scope**: the lock covers the entire mutation window — from the moment canonical files are first written until all four files (`profile.json`, `recommendations.json`, `config-changelog.md`, `state-summary.md`) are atomically written and the lock is released.
+**Scope**: the lock covers the entire mutation window — from the moment canonical files are first written until all five canonical files (`profile.json`, `recommendations.json`, `config-changelog.md`, `drift-state.json`, `state-summary.md`) are atomically written and the lock is released.
 
 ---
 

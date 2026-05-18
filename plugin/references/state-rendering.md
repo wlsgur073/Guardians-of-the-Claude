@@ -1,7 +1,7 @@
 ---
 title: State Rendering & Token Budget
 description: Derived state-summary.md layout, config-changelog.md format, per-invocation token costs.
-version: 1.0.0
+version: 1.1.1
 ---
 
 ## config-changelog.md Format
@@ -57,9 +57,9 @@ Skills write `profile.json` + `recommendations.json` as **canonical state**. The
 1. `state-summary.md` is read-only from the user's perspective. Skills never read it in any Phase (hot path or otherwise). Read `profile.json` and `recommendations.json` directly.
 2. **All canonical writes use atomic write** — See `plugin/references/lib/state_io.md` §atomic-write.
 3. **Stale vs tampered semantics**: `state-summary.md` freshness is compared against `max(mtime(profile.json), mtime(recommendations.json), mtime(config-changelog.md))` — the renderer reads from all three sources.
+   - If `state-summary.md` mtime ≥ max(source mtimes) → **fresh** (equal mtimes are safe for same-batch writes; `state-summary.md` is written LAST in the atomic batch per `final-phase.md` Step 5 write order, so equal or greater mtime is the natural fresh state).
    - If `state-summary.md` mtime < max(source mtimes) → **stale**: skill's Phase 0 re-renders, prints per-stale-event message ("state-summary.md was stale. Regenerated from current JSON state.").
-   - If `state-summary.md` mtime > all source mtimes → **tampered**: user edited derived view. Warn ("state-summary.md is newer than all sources — manual edit detected. It will be overwritten at Final Phase. Edits to derived view are not preserved; modify JSON or use config-changelog.md."), do NOT treat as a source of truth, continue normally.
-   - If equal: treat as fresh, no action.
+   - Tamper detection via mtime alone is known to be fragile (deferred state-summary tamper mechanism overhaul). The current rule retains "newer than sources → tampered" semantics, with the caveat that same-batch writes can produce equal mtimes which are now treated as fresh per the rule above.
 
 **Layout** (exact):
 
@@ -96,6 +96,22 @@ Skills write `profile.json` + `recommendations.json` as **canonical state**. The
 ### /{skill} — {most recent entry date}
 {One-line summary from the entry's Applied or Detected field}
 ```
+
+### Drift Advisory Header Inject
+
+The `state-summary.md` header injects a one-line drift advisory immediately after `# Claude Code Configuration State` and before `## Project Profile`, sourced from `local/drift-state.json` and rendered per the drift advisory state machine (4 states: match / drift / missing_baseline / normalization_null per the A1 fixture in `ci/scripts/check-audit-drift-aware.py`).
+
+**Format (drift state only — silent in other 3 states)**:
+
+```
+Model drift detected: <baseline.model_id> -> <last_seen.model_id>
+```
+
+This is the **state-summary header inject format**, distinct from the terminal drift block specified in `plugin/skills/audit/references/output-format.md` (which is longer and includes axis-by-axis change details). State-summary form is short for layout fit; terminal form is full for actionability.
+
+**Note on `last_seen` semantics**: `last_seen.model_id` reflects the most-recent `/audit` Final Phase observation (/audit-only update policy). Drift derivation compares `normalize_model_id(baseline.model_id)` vs `normalize_model_id(last_seen.model_id)` — see `plugin/references/drift-state.md` for the 4-state derivation algorithm.
+
+This sub-section is the canonical specification for the state-summary header inject format. Any prior format specification in other reference files is superseded by this section.
 
 **Render algorithm**:
 1. Read `profile.json`, `recommendations.json`.

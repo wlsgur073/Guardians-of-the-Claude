@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "drift-state.schema.base.json",
+  "title": "Model Drift State (base — shape without closure)",
+  "description": "Canonical ledger replacing first-anchor-wins reverse-chronological scan of config-changelog.md. baseline immutable post-migration; last_seen mutated only by /audit Final Phase; legacy_migration is provenance-only (trust/explainability), not used in drift derivation. All timestamps ISO-8601 UTC.",
+  "type": "object",
+  "required": ["schema_version", "metadata", "baseline", "last_seen", "legacy_migration"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "metadata": { "$ref": "#/$defs/metadata" },
+    "baseline": { "$ref": "#/$defs/baseline" },
+    "last_seen": { "$ref": "#/$defs/last_seen" },
+    "legacy_migration": { "$ref": "#/$defs/legacy_migration" }
+  },
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "required": ["last_updated"],
+      "properties": {
+        "last_updated": { "type": "string", "format": "date-time" }
+      }
+    },
+    "baseline": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "required": ["model_id", "first_observed_at", "audit_run_ids"],
+          "properties": {
+            "model_id": { "type": "string", "minLength": 1 },
+            "first_observed_at": { "type": "string", "format": "date-time" },
+            "audit_run_ids": {
+              "type": "array",
+              "items": { "type": "string", "format": "date-time" },
+              "maxItems": 50
+            }
+          }
+        }
+      ]
+    },
+    "last_seen": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "required": ["model_id", "audit_run_id", "observed_at"],
+          "properties": {
+            "model_id": { "type": "string", "minLength": 1 },
+            "audit_run_id": { "type": "string", "format": "date-time" },
+            "observed_at": { "type": "string", "format": "date-time" }
+          }
+        }
+      ]
+    },
+    "legacy_migration": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "required": ["source_changelog_anchor_run_id"],
+          "properties": {
+            "source_changelog_anchor_run_id": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

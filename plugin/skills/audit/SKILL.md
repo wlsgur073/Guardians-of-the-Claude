@@ -227,7 +227,7 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
 
 - **Step 3 additions (compute deltas):**
   - **Final Phase model write** — set `profile.claude_code_configuration_state.model = <resolver output>`; merge under A1 Row 1 last-write-wins.
-  - **Scoring-model-change banner** (copy: "Scoring contract changed" — must NOT collide with the drift advisory copy "Model drift since last /audit"): apply the trigger rule:
+  - **Scoring-model-change banner** (copy: "Scoring contract changed" — must NOT collide with the drift advisory copy "Model drift detected"): apply the trigger rule:
 
     ```
     if ack.version != current_scoring_contract_id OR ack.seen_count < 2:
@@ -242,11 +242,16 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
   - **Drift advisory — terminal render trigger** (derivation lives in shared `plugin/references/learning-system.md § Drift Advisory Derivation`; this block specifies only the `/audit` terminal render):
     1. On `drift` state returned from the shared derivation, render the terminal drift block per `references/output-format.md` (between Score line and ★ Most impactful; changed-axes-only + baseline annotation + no severity label).
     2. On `match` / `missing_baseline` / `normalization_null` states: terminal is silent (symmetric with state-summary header silence).
-    3. Advisory is **transient** — NOT added to `recommendations.json` (see `plugin/references/learning-system.md § Drift Advisory Derivation` Transience clause).
+    3. Advisory is **transient** — the drift advisory is transient terminal output and is NOT added to recommendations.json (see `plugin/references/learning-system.md § Drift Advisory Derivation` Transience clause).
     4. **Stateless mode**: drift advisory retained — current-state derived from in-memory changelog snapshot; when no baseline is available, advisory resolves to `missing_baseline` silence. `/audit` terminal render proceeds even without `local/` persistence; `state-summary.md` is not written in stateless mode (Final Phase Step 1 fully skipped).
 
 - **Step 5 additions (atomic write):**
   - Write `.model` into `profile.json` (part of `profile.json` file set; no new lock primitive).
   - Write updated `scoring_model_ack` when banner fired (A1 Row 2 full-object replacement).
+- **drift-state.json mutation** (`/audit`-only):
+  - **Step 2**: Re-read `current_drift_state` from `local/drift-state.json` under lock.
+  - **Step 3**: Mutate in-memory — (1) if `baseline` non-null and both `normalize_model_id(current_model_id)` and `normalize_model_id(baseline.model_id)` are non-null and equal: append `current_audit_run_id` to `baseline.audit_run_ids` (FIFO cap 50); (2) if cold-start (`baseline` was null): set `baseline`; (3) always update `last_seen` (`current_model_id`, `current_audit_run_id`, now).
+  - **Step 5**: Atomic-write `drift-state.json` as part of the canonical-files batch (source files first, `state-summary.md` last).
+  - Non-`/audit` skills do NOT mutate `drift-state.json` — they re-write the same `current_drift_state` content read at Step 2 to preserve atomic-write group consistency.
 
 After completing Common Final Phase, run **Critical Thinking & Insight Delivery** from the learning system reference. Apply Socratic verification to audit recommendations before presenting them.

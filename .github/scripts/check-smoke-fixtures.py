@@ -967,14 +967,34 @@ version: 1.1.0
         fixture_name="t6-render-drift-header-unit",
     )
 
-    out = render_state_summary(profile_stub, recs_stub, changelog_stub, ctx_stub)
+    # drift_state with baseline=opus, last_seen=sonnet -> drift.
+    drift_state_drift = {
+        "schema_version": "1.0.0",
+        "metadata": {"last_updated": "2026-04-14T00:00:00Z"},
+        "baseline": {
+            "model_id": "claude-opus-4-7",
+            "first_observed_at": "2026-03-15T00:00:00Z",
+            "audit_run_ids": ["2026-03-15T00:00:00Z"],
+        },
+        "last_seen": {
+            "model_id": "claude-sonnet-4-6",
+            "audit_run_id": "2026-04-14T00:00:00Z",
+            "observed_at": "2026-04-14T00:00:00Z",
+        },
+        "legacy_migration": None,
+    }
 
-    if "Model drift: claude-opus-4-7 -> claude-sonnet-4-6" not in out:
+    out = render_state_summary(
+        profile_stub, recs_stub, changelog_stub, ctx_stub,
+        drift_state=drift_state_drift,
+    )
+
+    if "Model drift detected: claude-opus-4-7 -> claude-sonnet-4-6" not in out:
         failures.append("drift header missing from render")
 
     # Placement: header must fall between H1 and ## Project Profile.
     idx_h1 = out.find("# Claude Code Configuration State")
-    idx_header = out.find("Model drift:")
+    idx_header = out.find("Model drift detected:")
     idx_profile = out.find("## Project Profile")
     if not (idx_h1 != -1 and idx_header != -1 and idx_profile != -1
             and idx_h1 < idx_header < idx_profile):
@@ -983,39 +1003,57 @@ version: 1.1.0
             f"header={idx_header} profile={idx_profile}"
         )
 
-    # Silence test: when current model == baseline model, no header.
-    profile_match = {
-        **profile_stub,
-        "claude_code_configuration_state": {
-            **profile_stub["claude_code_configuration_state"],
-            "model": "claude-opus-4-7",
+    # Silence test: match state (baseline == last_seen) -> no header.
+    drift_state_match = {
+        "schema_version": "1.0.0",
+        "metadata": {"last_updated": "2026-04-14T00:00:00Z"},
+        "baseline": {
+            "model_id": "claude-opus-4-7",
+            "first_observed_at": "2026-03-15T00:00:00Z",
+            "audit_run_ids": ["2026-03-15T00:00:00Z"],
         },
+        "last_seen": {
+            "model_id": "claude-opus-4-7",
+            "audit_run_id": "2026-04-14T00:00:00Z",
+            "observed_at": "2026-04-14T00:00:00Z",
+        },
+        "legacy_migration": None,
     }
     out_match = render_state_summary(
-        profile_match, recs_stub, changelog_stub, ctx_stub
+        profile_stub, recs_stub, changelog_stub, ctx_stub,
+        drift_state=drift_state_match,
     )
-    if "Model drift:" in out_match:
+    if "Model drift detected:" in out_match:
         failures.append("drift header leaked into match state")
 
-    # Silence test: missing_baseline (no /audit in changelog) stays silent.
+    # Silence test: missing_baseline (drift_state=None) stays silent.
     out_missing = render_state_summary(
-        profile_stub, recs_stub, None, ctx_stub
+        profile_stub, recs_stub, None, ctx_stub, drift_state=None
     )
-    if "Model drift:" in out_missing:
+    if "Model drift detected:" in out_missing:
         failures.append("drift header leaked into missing_baseline state")
 
-    # Silence test: normalization_null (unknown current model) stays silent.
-    profile_unknown = {
-        **profile_stub,
-        "claude_code_configuration_state": {
-            **profile_stub["claude_code_configuration_state"],
-            "model": "claude-future-unknown-model-2099",
+    # Silence test: normalization_null (unknown last_seen model) stays silent.
+    drift_state_null = {
+        "schema_version": "1.0.0",
+        "metadata": {"last_updated": "2026-04-14T00:00:00Z"},
+        "baseline": {
+            "model_id": "claude-opus-4-7",
+            "first_observed_at": "2026-03-15T00:00:00Z",
+            "audit_run_ids": ["2026-03-15T00:00:00Z"],
         },
+        "last_seen": {
+            "model_id": "claude-future-unknown-model-2099",
+            "audit_run_id": "2026-04-14T00:00:00Z",
+            "observed_at": "2026-04-14T00:00:00Z",
+        },
+        "legacy_migration": None,
     }
     out_null = render_state_summary(
-        profile_unknown, recs_stub, changelog_stub, ctx_stub
+        profile_stub, recs_stub, changelog_stub, ctx_stub,
+        drift_state=drift_state_null,
     )
-    if "Model drift:" in out_null:
+    if "Model drift detected:" in out_null:
         failures.append("drift header leaked into normalization_null state")
 
     return failures
@@ -1024,10 +1062,10 @@ version: 1.1.0
 def _test_t6_fixtures() -> list[str]:
     """L3 integration test: byte-match smoke fixtures against goldens.
 
-    4 rendering fixtures (drift-recent-activity, drift-compacted-history,
-    normalization-null-silence, crossskill-create-drift) render through
-    render_state_summary and byte-match against ci/fixtures/t6-*/golden/
-    state-summary.md.
+    5 rendering fixtures (drift-recent-activity, drift-compacted-history,
+    normalization-null-silence, crossskill-create-drift,
+    state-summary-drift-header-wording) render through render_state_summary
+    and byte-match against ci/fixtures/t6-*/golden/state-summary.md.
 
     1 stateless fixture (stateless-silence) asserts marker-file presence +
     state-summary.md golden absence (structural evidence that terminal
@@ -1041,11 +1079,13 @@ def _test_t6_fixtures() -> list[str]:
         "t6-drift-compacted-history",
         "t6-normalization-null-silence",
         "t6-crossskill-create-drift",
+        "t6-state-summary-drift-header-wording",
     ]
     for name in rendering_fixtures:
         fdir = fixture_root / name
         profile_path = fdir / "profile.json"
         changelog_path = fdir / "changelog.md"
+        drift_state_path = fdir / "drift-state.json"
         golden_path = fdir / "golden" / "state-summary.md"
         if not profile_path.exists():
             failures.append(f"{name}: missing profile.json")
@@ -1059,6 +1099,11 @@ def _test_t6_fixtures() -> list[str]:
             if changelog_path.exists()
             else None
         )
+        drift_state = (
+            json.loads(drift_state_path.read_text(encoding="utf-8"))
+            if drift_state_path.exists()
+            else None
+        )
         golden = golden_path.read_text(encoding="utf-8")
         ctx = RunContext(
             pinned_utc=os.environ.get("SMOKE_PINNED_UTC", "2026-04-14T00:00:00Z"),
@@ -1070,6 +1115,7 @@ def _test_t6_fixtures() -> list[str]:
             {"schema_version": "1.0.0", "recommendations": []},
             changelog,
             ctx,
+            drift_state=drift_state,
         )
         if actual != golden:
             failures.append(
@@ -1097,7 +1143,13 @@ def _test_t6_fixtures() -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-def render_state_summary(profile: dict, recs: dict, changelog_text: str | None, ctx: RunContext) -> str:
+def render_state_summary(
+    profile: dict,
+    recs: dict,
+    changelog_text: str | None,
+    ctx: RunContext,
+    drift_state: dict | None = None,
+) -> str:
     """Produce state-summary.md content per state-rendering.md layout."""
     header = (
         "<!-- ─────────────────────────────────────────────\n"
@@ -1118,20 +1170,22 @@ def render_state_summary(profile: dict, recs: dict, changelog_text: str | None, 
     ps = profile.get("project_structure") or {}
     ccs = profile.get("claude_code_configuration_state") or {}
 
-    # Drift advisory derivation (shared per drift-state.md, section
-    # "Drift Advisory Derivation"). Silent when state is match,
-    # missing_baseline, or normalization_null.
+    # Drift advisory derivation per drift-state.md "Drift Advisory Derivation".
+    # Reads from drift-state.json (passed as drift_state param).
+    # Absent/None drift_state → missing_baseline (silent). Silent on match,
+    # missing_baseline, normalization_null; injects header only on drift.
     rules = _get_normalization_rules()
-    current_model_id = ccs.get("model")
+    last_seen = (drift_state.get("last_seen") or None) if drift_state else None
+    baseline_obj = (drift_state.get("baseline") or None) if drift_state else None
     current_fp = (
-        normalize_model_id(current_model_id, rules)
-        if current_model_id
+        normalize_model_id(last_seen["model_id"], rules)
+        if last_seen and last_seen.get("model_id")
         else None
     )
-    baseline_present, baseline_model_id = _scan_baseline_anchor(changelog_text)
+    baseline_present = baseline_obj is not None
     baseline_fp = (
-        normalize_model_id(baseline_model_id, rules)
-        if baseline_model_id
+        normalize_model_id(baseline_obj["model_id"], rules)
+        if baseline_obj and baseline_obj.get("model_id")
         else None
     )
     state = _drift_state(current_fp, baseline_present, baseline_fp)
@@ -1139,7 +1193,7 @@ def render_state_summary(profile: dict, recs: dict, changelog_text: str | None, 
     drift_block = ""
     if state == "drift":
         drift_block = (
-            f"Model drift: {baseline_model_id} -> {current_model_id}\n\n"
+            f"Model drift detected: {baseline_obj['model_id']} -> {last_seen['model_id']}\n\n"
         )
 
     def _or_not_detected(v):  # noqa: E306
@@ -1381,7 +1435,8 @@ def step_0_5(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
     2. Classify canonical files (absent | present-valid | present-corrupt).
     3. Routing: all valid -> jump to 6; any missing/corrupt -> 4.
     4. Recover per-file from legacy MD (resolve legacy ids via registry aliases);
-       fallback to empty canonicals on parse failure.
+       fallback to empty canonicals on parse failure; plus one-shot drift-state.json
+       migration (derive from config-changelog.md or cold-start — no legacy MD source).
     5. Quarantine ALL examined legacy MD (success or failure) to legacy-backup.
     6. Regenerate/validate state-summary (mtime-based).
     7. (Optional) Migration notice. CI smoke does not print.
@@ -1403,6 +1458,7 @@ def step_0_5(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
         profile_path = state_root / "profile.json"
         recs_path = state_root / "recommendations.json"
         changelog_path = state_root / "config-changelog.md"
+        drift_state_path = state_root / "drift-state.json"
 
         def _try_load_json(path: Path) -> tuple[str, dict | None]:
             if not path.exists():
@@ -1416,6 +1472,15 @@ def step_0_5(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
         profile_status, profile_obj = _try_load_json(profile_path)
         recs_status, recs_obj = _try_load_json(recs_path)
 
+        # drift-state.json: classify including schema validity (present-valid only
+        # if parse succeeds AND schema validates — corrupt includes schema invalid).
+        drift_state_status_raw, drift_state_obj_raw = _try_load_json(drift_state_path)
+        if drift_state_status_raw == "present-valid":
+            if not _validate_drift_state_schema(drift_state_obj_raw):
+                drift_state_status_raw = "present-corrupt"
+                drift_state_obj_raw = None
+        drift_state_status = drift_state_status_raw
+
         # Phase 2 (legacy)
         legacy_files = _detect_legacy_md(state_root)
         state.examined_legacy_md = [str(p) for p in legacy_files]
@@ -1424,6 +1489,7 @@ def step_0_5(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
         need_recovery = (
             profile_status != "present-valid"
             or recs_status != "present-valid"
+            or drift_state_status != "present-valid"
             or bool(legacy_files)
         )
 
@@ -1483,6 +1549,37 @@ def step_0_5(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
                 }
                 atomic_write_json(recs_path, recs_obj)
 
+            # Phase 4 (drift-state.json): one-shot Phase C migration.
+            # Idempotence guard: re-read under lock; skip if already present-valid.
+            if drift_state_status != "present-valid":
+                # Re-read from disk (idempotence guard under lock).
+                _reread_status, _reread_obj = _try_load_json(drift_state_path)
+                if _reread_status == "present-valid" and _validate_drift_state_schema(_reread_obj):
+                    # Another writer already migrated; use on-disk state.
+                    drift_state_obj_raw = _reread_obj
+                    drift_state_status = "present-valid"
+                else:
+                    # Move corrupt canonical aside BEFORE overwriting.
+                    if drift_state_status == "present-corrupt":
+                        backup_dir.mkdir(parents=True, exist_ok=True)
+                        shutil.move(str(drift_state_path), str(backup_dir / "drift-state.json"))
+                    # Read changelog for derivation (may have been loaded already).
+                    _cl_text = (
+                        changelog_path.read_text(encoding="utf-8")
+                        if changelog_path.exists()
+                        else None
+                    )
+                    derived = _derive_drift_state_from_changelog(_cl_text, ctx.pinned_utc)
+                    atomic_write_json(drift_state_path, derived)
+                    # Readback + schema-validate (single-attempt; no retry).
+                    _rb_status, _rb_obj = _try_load_json(drift_state_path)
+                    if _rb_status == "present-valid" and _validate_drift_state_schema(_rb_obj):
+                        drift_state_obj_raw = _rb_obj
+                    else:
+                        # Readback failed or schema invalid; keep whatever is on-disk.
+                        print("WARNING: drift-state.json readback validation failed after write; using in-memory derived state", file=sys.stderr)
+                        drift_state_obj_raw = derived  # use in-memory fallback
+
             # Phase 5: quarantine EVERY examined legacy MD file.
             if legacy_files:
                 backup_dir.mkdir(parents=True, exist_ok=True)
@@ -1499,7 +1596,8 @@ def step_0_5(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
         # Phase 6: render/regen state-summary.md.
         if state.profile is not None and state.recommendations is not None:
             summary = render_state_summary(
-                state.profile, state.recommendations, state.changelog, ctx
+                state.profile, state.recommendations, state.changelog, ctx,
+                drift_state=drift_state_obj_raw,
             )
             atomic_write_text(state_root / "state-summary.md", summary)
             state.state_summary = summary
@@ -1529,6 +1627,139 @@ def _empty_recommendations(pinned_utc: str) -> dict:
         "schema_version": "1.0.0",
         "metadata": {"last_updated": pinned_utc},
         "recommendations": [],
+    }
+
+
+def _empty_drift_state(pinned_utc: str) -> dict:
+    """Cold-start drift-state.json: all optional fields null."""
+    return {
+        "schema_version": "1.0.0",
+        "metadata": {"last_updated": pinned_utc},
+        "baseline": None,
+        "last_seen": None,
+        "legacy_migration": None,
+    }
+
+
+def _validate_drift_state_schema(obj: dict) -> bool:
+    """Return True if obj passes drift-state.schema.v1.0.0.json validation."""
+    try:
+        from referencing import Registry, Resource  # noqa: PLC0415
+        base_schema = json.loads((SCHEMAS_DIR / "drift-state.schema.base.json").read_text(encoding="utf-8"))
+        wrapper_schema = json.loads((SCHEMAS_DIR / "drift-state.schema.v1.0.0.json").read_text(encoding="utf-8"))
+        registry = Registry().with_resources(
+            [("drift-state.schema.base.json", Resource.from_contents(base_schema))]
+        )
+        jsonschema.Draft202012Validator(wrapper_schema, registry=registry).validate(obj)
+        return True
+    except Exception:  # noqa: BLE001
+        # Fail-closed: if the drift-state schema file is unreadable, classify the
+        # instance as corrupt (forces re-derivation) rather than passing unvalidated.
+        return False
+
+
+def _derive_drift_state_from_changelog(changelog_text: str | None, pinned_utc: str) -> dict:
+    """Derive drift-state.json from config-changelog.md for Phase C migration.
+
+    Collects all /audit observation events with non-null Model bullets from
+    both Recent Activity (v1.1.0) and Compacted History anchors.
+    Sorted ascending by date (oldest first).
+
+    If audit_observations is non-empty → derive_from_changelog:
+      - baseline: oldest observation (model_id, first_observed_at, audit_run_ids)
+      - last_seen: most-recent observation (model_id, audit_run_id, observed_at)
+      - legacy_migration.source_changelog_anchor_run_id = baseline.first_observed_at
+
+    If audit_observations is empty → cold_start (all null fields).
+    """
+    if not changelog_text:
+        return _empty_drift_state(pinned_utc)
+
+    # Collect (date_str, model_id) pairs for /audit entries with non-null Model.
+    audit_observations: list[tuple[str, str]] = []
+
+    # Try to parse changelog version; default to treating as v1.0.0 (no Model bullets)
+    try:
+        fm, body = _strip_frontmatter(changelog_text)
+        version = _extract_frontmatter_version(fm)
+    except Exception:  # noqa: BLE001
+        version = "1.0.0"
+
+    # Recent Activity: scan for /audit entries with - Model: <non-null>
+    # Only v1.1.0+ changelogs have Model bullets; v1.0.0 entries are omit-paths.
+    # Conservative-omit policy: a changelog version other than "1.1.0" (e.g., a
+    # future "1.2.0") intentionally skips Recent Activity collection here and
+    # degrades toward cold_start, rather than raising like _parse_changelog_entries.
+    # A one-shot migration must not hard-fail on a future changelog format; a
+    # missed Recent-Activity observation only delays drift-baseline establishment
+    # to the next /audit, whereas a raise would abort migration entirely.
+    if version == "1.1.0":
+        try:
+            parsed = _parse_changelog_entries(changelog_text)
+            for entry in parsed.get("entries", []):
+                if entry.get("skill") == "audit":
+                    bullet_model = entry.get("bullet_model")
+                    if bullet_model is not None:
+                        audit_observations.append((entry["date"], bullet_model))
+        except Exception:  # noqa: BLE001
+            pass
+
+    # Compacted History: scan anchors for /audit with non-null last_model.
+    # This applies to all versions since compacted anchors are always structured.
+    try:
+        anchors = _parse_compacted_history_anchors(changelog_text)
+        for anchor in anchors:
+            if anchor.get("skill") == "/audit":
+                last_model = anchor.get("last_model")
+                if last_model is not None:
+                    last_entry_date = anchor.get("last_entry_date")
+                    if last_entry_date:
+                        audit_observations.append((last_entry_date, last_model))
+    except Exception:  # noqa: BLE001
+        pass
+
+    if not audit_observations:
+        return _empty_drift_state(pinned_utc)
+
+    # Sort ascending by date (oldest first). Same-date tie: stable (list order).
+    audit_observations.sort(key=lambda t: t[0])
+
+    oldest_date, oldest_model = audit_observations[0]
+    newest_date, newest_model = audit_observations[-1]
+
+    first_observed_at = oldest_date + "T00:00:00Z"
+    rules = _get_normalization_rules()
+    oldest_fp = normalize_model_id(oldest_model, rules)
+
+    # audit_run_ids: all observations where model normalizes to baseline model,
+    # ascending, FIFO trim to 50.
+    audit_run_ids: list[str] = []
+    for obs_date, obs_model in audit_observations:
+        obs_fp = normalize_model_id(obs_model, rules)
+        if oldest_fp is not None and obs_fp is not None and obs_fp == oldest_fp:
+            audit_run_ids.append(obs_date + "T00:00:00Z")
+    audit_run_ids = audit_run_ids[:50]
+
+    # Guarantee at least the baseline itself is in audit_run_ids.
+    if not audit_run_ids:
+        audit_run_ids = [first_observed_at]
+
+    return {
+        "schema_version": "1.0.0",
+        "metadata": {"last_updated": pinned_utc},
+        "baseline": {
+            "model_id": oldest_model,
+            "first_observed_at": first_observed_at,
+            "audit_run_ids": audit_run_ids,
+        },
+        "last_seen": {
+            "model_id": newest_model,
+            "audit_run_id": newest_date + "T00:00:00Z",
+            "observed_at": newest_date + "T00:00:00Z",
+        },
+        "legacy_migration": {
+            "source_changelog_anchor_run_id": first_observed_at,
+        },
     }
 
 
@@ -1782,8 +2013,16 @@ def _final_phase_write(ctx: RunContext, state: WorkspaceState) -> None:
         if state.changelog is not None:
             atomic_write_text(state_root / "config-changelog.md", state.changelog)
         if state.profile is not None and state.recommendations is not None:
+            drift_state_path = state_root / "drift-state.json"
+            try:
+                drift_state = json.loads(
+                    drift_state_path.read_text(encoding="utf-8")
+                ) if drift_state_path.exists() else None
+            except (OSError, json.JSONDecodeError):
+                drift_state = None
             summary = render_state_summary(
-                state.profile, state.recommendations, state.changelog, ctx
+                state.profile, state.recommendations, state.changelog, ctx,
+                drift_state=drift_state,
             )
             atomic_write_text(state_root / "state-summary.md", summary)
             state.state_summary = summary
@@ -2307,6 +2546,13 @@ FIXTURE_SCENARIOS = {
     "beginner-path": {"skill_sequence": ["create", "audit"], "pre_run": []},
     "warm-start": {"skill_sequence": ["audit"], "pre_run": [("touch_older", "local/state-summary.md", "1 day")]},
     "monorepo": {"skill_sequence": ["audit"], "pre_run": []},
+    # Phase C migration fixtures: test step_0_5 drift-state.json migration path.
+    # skill_sequence=[] — these fixtures verify Step 0.5 in isolation; no skill run needed.
+    "drift-state-cold-start": {"skill_sequence": [], "pre_run": []},
+    "drift-state-migrate-valid-anchor": {"skill_sequence": [], "pre_run": []},
+    "drift-state-migrate-all-null-anchors": {"skill_sequence": [], "pre_run": []},
+    "drift-state-corrupt-quarantine": {"skill_sequence": [], "pre_run": []},
+    "drift-state-skip-if-valid": {"skill_sequence": [], "pre_run": []},
 }
 
 
@@ -2456,7 +2702,7 @@ def assert_legacy_quarantined(ctx: RunContext, state: WorkspaceState, scenario: 
 
 def assert_summary_derived_from_sources(ctx: RunContext, state: WorkspaceState) -> list[str]:
     """Invariant 4: state-summary.md must equal the renderer's output over
-    current profile + recommendations + changelog."""
+    current profile + recommendations + changelog + drift-state."""
     if state.profile is None or state.recommendations is None:
         return []
     state_root = _state_root(ctx)
@@ -2464,8 +2710,16 @@ def assert_summary_derived_from_sources(ctx: RunContext, state: WorkspaceState) 
     if not summary_path.exists():
         return ["state-summary.md not present"]
     on_disk = summary_path.read_text(encoding="utf-8")
+    drift_state_path = state_root / "drift-state.json"
+    try:
+        drift_state = json.loads(
+            drift_state_path.read_text(encoding="utf-8")
+        ) if drift_state_path.exists() else None
+    except (OSError, json.JSONDecodeError):
+        drift_state = None
     expected = render_state_summary(
-        state.profile, state.recommendations, state.changelog, ctx
+        state.profile, state.recommendations, state.changelog, ctx,
+        drift_state=drift_state,
     )
     if on_disk != expected:
         return ["state-summary.md not derived from current sources (in-memory re-render mismatch)"]
@@ -2933,7 +3187,15 @@ def main() -> int:
         return run_local_lane(Path(local_dir))
 
     # CI lane: frozen skill-flow fixture manifest.
-    fixtures = ["migration", "beginner-path", "warm-start", "monorepo"]
+    fixtures = [
+        "migration", "beginner-path", "warm-start", "monorepo",
+        # Phase C drift-state.json migration fixtures (step_0_5 isolation).
+        "drift-state-cold-start",
+        "drift-state-migrate-valid-anchor",
+        "drift-state-migrate-all-null-anchors",
+        "drift-state-corrupt-quarantine",
+        "drift-state-skip-if-valid",
+    ]
     fail_count = 0
     for name in fixtures:
         try:

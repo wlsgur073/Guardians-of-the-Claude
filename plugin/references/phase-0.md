@@ -1,7 +1,7 @@
 ---
 title: Common Phase 0 — Load Context & Learn
 description: Pre-skill state read sequence; 8-phase migration & stale check; learning rule application; migration notice template.
-version: 1.0.0
+version: 1.1.0
 ---
 
 ## Common Phase 0: Load Context & Learn
@@ -37,6 +37,16 @@ Every transition below is explicit. Implicit behavior is forbidden.
    - For each missing-or-corrupt canonical file, attempt recovery from legacy MD if present:
      - `profile.json` ← parse `project-profile.md` (fields not found → `null`)
      - `recommendations.json` ← parse `latest-{skill}.md` Recommendations sections; **resolve legacy ids through registry aliases to canonical keys** (alias is input-only, NEVER persist alias forward)
+     - `drift-state.json` ← derive from `config-changelog.md` if `drift-state.json` absent or corrupt (one-shot Phase C migration):
+       - Under state-mutation lock: re-read `drift-state.json` from disk.
+       - If present-valid (parse + schema-validate) → skip migration; use on-disk state.
+       - If absent or invalid → run `derive_from_changelog()`:
+         - Oldest `/audit` anchor with non-null Model bullet → `baseline`
+         - Most-recent anchor → `last_seen`
+         - `legacy_migration.source_changelog_anchor_run_id = baseline.first_observed_at` (successful-recovery equality; both anchor the migration to the same oldest /audit observation)
+         - If `audit_observations` is empty after Model-bullet filter → `cold_start()` (all fields null)
+       - Atomic-write result; readback + schema-validate.
+       - If readback differs (parsed-object equality, NOT byte-equality — `metadata.last_updated` is exempt from the comparison) OR invalid → log warning; use on-disk valid state if available (single-attempt only — do NOT retry).
    - If parse succeeds → write canonical file via atomic write (see `plugin/references/lib/state_io.md` §atomic-write); preserve other valid canonicals untouched.
    - If parse fails OR no legacy source available → initialize empty: `profile.json = {schema_version, metadata}` only; `recommendations.json = {schema_version, metadata, recommendations: []}`. Atomic write (same spec).
    - Move ANY corrupt canonical to backup (phase 5) before overwriting (data preservation).
@@ -50,7 +60,7 @@ Every transition below is explicit. Implicit behavior is forbidden.
    - **Single-source cutover**: legacy MD must NEVER coexist with valid canonical JSON in `local/` after Step 0.5.
 
 6. **Regenerate or validate `state-summary.md`**:
-   - Compute `max_source_mtime = max(mtime(profile.json), mtime(recommendations.json), mtime(config-changelog.md if present))`.
+   - Compute `max_source_mtime = max(mtime(profile.json), mtime(recommendations.json), mtime(config-changelog.md if present), mtime(drift-state.json))`. Note: `drift-state.json` is always present after Step 0.5 phase 4 (cold-start writes a null-fields document). Absence post-Step-0.5 indicates manual deletion → stale-trigger (re-run the `drift-state.json` sub-step of Step 0.5 phase 4 under the state-mutation lock before phase 6).
    - If `state-summary.md` is absent OR `mtime(state-summary.md) < max_source_mtime` → **stale**: invoke renderer; write result via atomic write (see `plugin/references/lib/state_io.md` §atomic-write). Print "state-summary.md was stale. Regenerated from current JSON state."
    - If `mtime(state-summary.md) > max_source_mtime` → **tampered**: print "state-summary.md is newer than all sources — manual edit detected. It will be overwritten at Final Phase. Edits to derived view are not preserved." Do NOT treat tampered file as a source of truth.
    - If equal: treat as fresh, no action.

@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "metadata": { "last_updated": "2026-03-20T12:00:00Z" },
+  "baseline": {
+    "model_id": "claude-opus-4-7",
+    "first_observed_at": "2026-03-20T12:00:00Z",
+    "audit_run_ids": ["2026-03-20T12:00:00Z"]
+  },
+  "last_seen": {
+    "model_id": "claude-opus-4-7",
+    "audit_run_id": "2026-03-20T12:00:00Z",
+    "observed_at": "2026-03-20T12:00:00Z"
+  },
+  "legacy_migration": null
+}

@@ -1,7 +1,7 @@
 ---
 title: Learning System (Orchestrator)
 description: Shared state management entrypoint for /create, /audit, /secure, /optimize. Subfile pointers preserve historical section anchors used by SKILL.md and CI scripts.
-version: 3.0.0
+version: 3.0.1
 ---
 
 # Learning System

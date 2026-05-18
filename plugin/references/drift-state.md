@@ -1,7 +1,7 @@
 ---
-title: Drift Advisory Derivation (Current Algorithm)
-description: First-anchor-wins reverse-chronological scan for model drift; model bullet emission policy; will be replaced by drift-state.json approach in Phase C.
-version: 1.0.0
+title: Drift Advisory Derivation (canonical via drift-state.json)
+description: Model bullet emission policy + drift advisory state machine reading drift-state.json (replaces changelog scan removed in Phase C).
+version: 2.0.0
 ---
 
 ## Model Bullet Emission (config-changelog.md)
@@ -12,7 +12,7 @@ The `- Model:` bullet captures the resolved Claude model ID at the top of each c
 
 **Step 3 (compute `emit_bullet`)** — skill-specific branch:
 
-- **`/audit` always-emit**: `emit_bullet = True` unconditionally. `/audit` is the baseline anchor for drift derivation; always-emitting guarantees the reverse-scan terminator carries non-null `last_model`.
+- **`/audit` always-emit**: `emit_bullet = True` unconditionally. `/audit` is the baseline anchor for drift derivation; always-emitting guarantees consistent Model bullet presence across the changelog.
 - **`/create`, `/secure`, `/optimize` delta-emit**: `emit_bullet = (current_model != previous_model)` with null-safe equality. `current_model` is `profile.claude_code_configuration_state.model` at Final Phase write time. Two non-null values compare as string equality; non-null `current_model` against `null` `previous_model` emits.
 
 **Step 5 (atomic write)** — when `emit_bullet == True`, the bullet is the first line under the `### {YYYY-MM-DD} — /{skill}` heading:
@@ -27,49 +27,75 @@ placed immediately before `- Detected:`. When `emit_bullet == False`, the bullet
 
 ---
 
-## Drift Advisory Derivation
+## Drift Advisory Derivation (canonical: read `drift-state.json`)
 
-The `state-summary.md` header and the `/audit` terminal drift block are two render sinks for a single underlying advisory state. The derivation is pure: same inputs produce the same state regardless of which skill invokes the render. All four skills call this derivation via the shared renderer invocation above.
+The drift advisory state machine derives its inputs from `local/drift-state.json` (the canonical aggregate state file). No scan of `config-changelog.md` is performed for drift purposes; the changelog scan path is removed.
 
-**Inputs**:
+**Inputs** (read at Final Phase Step 2 — re-read under state-mutation lock):
 
-- `current_model_id`: the value written at Common Phase 0 Step 0.5 phase 4 into `profile.json → claude_code_configuration_state.model` (see §Common Phase 0).
-- `changelog_text`: in-memory `new_changelog` content at Final Phase Step 1 substep 3.
-- `current_skill`: the skill currently running (one of `/audit`, `/create`, `/secure`, `/optimize`).
+- `drift_state` ← parse `local/drift-state.json` (post-Phase-0.5 always present; absence indicates manual deletion → the Final Phase lock already held satisfies the lock precondition; perform the cold-start write in place (`baseline=null, last_seen=null, legacy_migration=null`), do NOT re-acquire the lock or re-enter Phase 0.5)
+- `current_model_id` ← `profile.claude_code_configuration_state.model` (Step 0.5 phase 4 write target)
+- `current_skill` ← the skill currently running (diagnostic only; does NOT branch derivation logic — cross-skill invariance)
 
-**Algorithm**:
+**Update step** (Final Phase Step 3, within the delta-merge — `/audit` only):
 
-1. Compute `current_fp = normalize_model_id(current_model_id)` per `plugin/references/model-drift-rules.md`. May return `null` for unrecognized models (fail-safe).
-2. Scan `changelog_text` for the baseline `/audit` anchor in **reverse-chronological order**:
-   - First scan Recent Activity entries (most-recent first) for `/audit` entries with a non-null `- Model:` bullet. If found, `baseline_last_model = bullet value`; stop.
-   - If Recent Activity exhausted without match, scan Compacted History buckets (most-recent bucket first). Within each bucket, locate the structured `/audit` anchor (emitted per §Compaction Algorithm Step 3b). The **first** `/audit` anchor reached wins (first-anchor-wins rule); do NOT skip past a null anchor to search for an older non-null one.
-   - If all buckets exhausted with no `/audit` anchor: `baseline_present = false`.
-3. Compute `baseline_fp`:
-   - `baseline_present == false` → `baseline_fp = null` (meaning: no prior baseline; `missing_baseline` state below).
-   - `baseline_present == true` AND `baseline_last_model is null` → `baseline_fp = null` (anchor exists but delta-omit path; `normalization_null` state below).
-   - `baseline_present == true` AND `baseline_last_model` non-null → `baseline_fp = normalize_model_id(baseline_last_model)`. May itself return `null` (normalization-table boundary case).
-4. Silence evaluation order (short-circuit):
-   a. `current_fp == null` OR (`baseline_present == true` AND `baseline_fp == null`) → `normalization_null`
-   b. `baseline_present == false` → `missing_baseline`
-   c. `current_fp == baseline_fp` → `match`
-   d. otherwise → `drift`
-5. Return `(state, baseline_model_id_string, current_model_id_string)`. The two raw strings are consumed by the render paths for user-facing display (not the normalized fingerprint dicts).
+If running `/audit`, update `drift_state` in memory BEFORE drift derivation:
+
+1. If `baseline` is non-null:
+   - Compute `cur_fp = normalize_model_id(current_model_id)` and `base_fp = normalize_model_id(baseline.model_id)`.
+   - If `cur_fp` is non-null AND `base_fp` is non-null AND `cur_fp == base_fp`: append `current_audit_run_id` to `baseline.audit_run_ids` (FIFO; if length > 50, drop oldest).
+   - Else: do NOT append (null normalization → uncertain match; drift → not baseline-confirming).
+2. Else if `baseline` is null (cold-start first /audit):
+   - Set `baseline = {model_id: current_model_id, first_observed_at: now, audit_run_ids: [current_audit_run_id]}`.
+3. Always update `last_seen = {model_id: current_model_id, audit_run_id: current_audit_run_id, observed_at: now}`.
+
+For non-`/audit` skills, `drift_state` is read-only in Final Phase (skip the update step entirely).
+
+**Derivation** (Final Phase Step 3, after the optional update; consumed by the Step 4 renderer — all skills):
+
+Reduce to fingerprint equality via the 4-state machine in `plugin/references/model-drift-rules.md` `normalize_model_id`:
+
+```
+A1 fixture inputs:
+  current_fp       <- normalize_model_id(last_seen.model_id)
+                      (NOT current_model_id of running skill —
+                       last_seen is the /audit-time observation;
+                       for /audit, last_seen was just updated in
+                       the Update step above)
+  baseline_present <- (baseline is non-null)
+  baseline_fp      <- normalize_model_id(baseline.model_id)
+                      if baseline_present else None
+
+State machine output (per ci/scripts/check-audit-drift-aware.py A1):
+  - current_fp is None OR (baseline_present AND baseline_fp is None)
+      -> normalization_null
+  - NOT baseline_present
+      -> missing_baseline
+  - current_fp == baseline_fp
+      -> match
+  - otherwise
+      -> drift
+```
 
 **Render trigger**:
 
-- `drift` → state-summary renderer injects a one-line header immediately after `# Claude Code Configuration State`, before `## Project Profile`: `Model drift: <baseline_model_id_string> -> <current_model_id_string>`. `/audit` terminal additionally renders the axis-wise block (see `plugin/skills/audit/references/output-format.md`).
-- `match` / `missing_baseline` / `normalization_null` → **silent** at both sinks. No informational fallback line. Silence is by design: the A2 `recommendations.json` boundary keeps drift transient, and non-drift states carry no user-actionable information.
+- `drift` → state-summary renderer injects the header line (see `plugin/references/state-rendering.md` § Drift Advisory Header Inject). `/audit` terminal additionally renders the axis-wise drift block per `plugin/skills/audit/references/output-format.md`.
+- `match` / `missing_baseline` / `normalization_null` → **silent** at both sinks.
 
-**Transience (A2 compliance)**:
+**Transience**: The drift advisory state machine MUST NOT add, modify, or remove entries in `recommendations.json`. The advisory is NOT persisted as a registry entry; the aggregate state IS persisted as `drift-state.json`.
 
-The derivation MUST NOT add, modify, or remove entries in `recommendations.json`. The advisory is recomputed at every render-time call; it is not persisted as a stored recommendation. Schema files (`recommendations.schema.json`, `recommendation-registry.schema.json`) carry comments excluding drift advisories from registry scope.
+**Stateless mode**: When `local/` is unwritable, the Step 0.5 phase 4 drift-state sub-step is skipped; `drift-state.json` is not written. Final Phase lock acquisition aborts. `/audit` terminal drift block may still render from an in-memory snapshot if available (audit-specific behavior); non-`/audit` skills are fully silent.
 
-**Stateless mode**:
+**Cross-skill invariance**: Every skill produces the same derivation output for the same `(drift_state, current_model_id)` pair (modulo the `/audit`-only `last_seen` update). There is no per-skill branching inside the derivation function itself.
 
-When `local/` is unwritable, Final Phase Step 1 is never reached (lock acquisition aborts before substep 2); therefore the state-summary header is not rendered for any skill. The `/audit` terminal drift block is derived from an in-memory-only changelog snapshot when available and renders even without persistence (`/audit`-specific behavior; see `plugin/skills/audit/SKILL.md` stateless guard). Non-`/audit` skills have no terminal drift sink; stateless silence is total for those skills.
+---
 
-**Cross-skill invariance**:
+## Concurrency & Idempotence
 
-Every skill produces the same derivation output for the same `(current_model_id, changelog_text)` pair. There is no per-skill branching inside the derivation. `current_skill` is accepted as an input only for diagnostics / logging, not as a decision variable.
+Concurrency concerns here apply solely to the one-shot Phase 0.5 migration; the steady-state derivation specified above is pure-functional over an already-parsed `drift_state` and introduces no new concurrency surface.
+
+`derive_from_changelog()` (the Phase 0.5 migration helper) is **pure** — the same changelog snapshot produces logically equivalent output. Two concurrent migrations from the same snapshot produce **parsed-object-equal** output modulo `metadata.last_updated` (which records wall-clock write time and may differ by seconds between concurrent runs). The Phase 0.5 idempotence guard validates via parsed-object equality (Python `dict` after `json.loads`), not byte-equality.
+
+The state-mutation lock acquisition is a known fragility (check-then-act on the lock file is not an atomic acquire); a hardening effort tracks the exclusive-acquire fix separately. Phase 0.5's idempotence guard (re-read → skip-if-valid → write → readback) provides partial mitigation in the single-developer default deployment.
 
 ---

@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.1.0",
+  "metadata": {
+    "generated_by": "guardians-of-the-claude",
+    "last_updated": "2026-04-10T00:00:00Z",
+    "source_files_checked": ["package.json"]
+  },
+  "runtime_and_language": {
+    "runtime": "Node.js 22.x",
+    "language": "TypeScript 5.7",
+    "module_system": "ESM"
+  },
+  "framework_and_libraries": {
+    "framework": "Next.js 15",
+    "ui": null,
+    "styling": null
+  },
+  "package_management": {
+    "manager": "pnpm",
+    "lock_file": "pnpm-lock.yaml"
+  },
+  "testing": {
+    "unit": "Vitest",
+    "e2e": null
+  },
+  "build_and_dev": {
+    "bundler": null,
+    "linter": null,
+    "formatter": null
+  },
+  "project_structure": {
+    "type": "single_project",
+    "source_convention": "src/",
+    "key_directories": []
+  },
+  "claude_code_configuration_state": {
+    "model": "claude-sonnet-4-6",
+    "scoring_model_ack": { "version": "audit-score-v4.1.0", "seen_count": 0 },
+    "claude_md": { "exists": true, "section_count": 5 },
+    "settings_json": { "exists": true, "has_permissions": true },
+    "rules_count": 0,
+    "agents_count": 0,
+    "hooks_count": 0,
+    "mcp_servers_count": 0
+  }
+}

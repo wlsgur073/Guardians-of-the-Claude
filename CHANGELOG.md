@@ -7,6 +7,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.19.7] - 2026-05-18
+
+### Added
+
+- New canonical state file `local/drift-state.json` with a versioned JSON Schema (`drift-state.schema.v1.0.0.json`), shipped with positive + negative example fixtures.
+- CI smoke coverage for the migration paths (cold-start, valid-anchor, all-null-anchor, corrupt-quarantine, skip-if-valid) and drift-advisory header rendering.
+
+### Changed
+
+- **Drift advisory derivation** now reads a canonical `local/drift-state.json` aggregate state file. Drift is determined by a model-fingerprint equality check between the recorded baseline and the last-seen model; the 4-state output (match / drift / missing_baseline / normalization_null) is unchanged. The previous reverse-chronological `config-changelog.md` scan and its code path are removed.
+- **Drift advisory wording**: the state-summary header and `/audit` terminal block now read `Model drift detected (...)` — the previous "Model drift since last /audit" phrasing is retired. Migrated installations annotate provenance as `recovered from /audit YYYY-MM-DD`; freshly-baselined installations as `first observed YYYY-MM-DD`.
+- **Phase 0.5 (Migration & Stale Check)** gains a one-shot `drift-state.json` migration step: existing installations derive their baseline/last-seen from the existing changelog on first run after upgrade; cold-start installations write a null-fields document. Migration is idempotent (skip-if-valid) and falls back to cold-start when no usable `/audit` anchor exists. (A state-mutation lock hardening follow-up is tracked in #13.)
+- **Final Phase atomic write** now covers five canonical files (the four prior plus `drift-state.json`); source files are written before the derived `state-summary.md` so the freshness predicate holds.
+
 ## [2.19.6] - 2026-05-17
 
 ### Changed
