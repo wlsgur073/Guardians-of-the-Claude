@@ -4,12 +4,12 @@ description: "Torn-set detection + preserve-first recovery scenario for the stat
 version: "1.0.0"
 ---
 
-# Scenario Contract — Torn-Set Detection + Preserve-First Recovery (spec §9)
+# Scenario Contract — Torn-Set Detection + Preserve-First Recovery
 
-This fixture proves the spec §9 torn-set path: when the 4 canonical
+This fixture proves the torn-set path: when the 4 canonical
 SOURCE files carry a NON-UNIFORM `commit_id` (a crash interrupted a
 prior writer mid-burst, between source writes, leaving mixed nonces),
-the §8 marker preflight classifies the set as TORN and recovery is
+the commit_id marker preflight classifies the set as TORN and recovery is
 PRESERVE-FIRST then STOP — every source is quarantined byte-for-byte
 into `legacy-backup/{ISO-8601-UTC}/`, a precise per-file diagnostic is
 surfaced, and NO merge / reinit / commit / new `commit_id` is
@@ -34,22 +34,22 @@ prior writer crashed between source atomic-writes):
 - `config-changelog.md` → `commit-0003`
 
 The derived `state-summary.md` carries `commit_id: commit-0001`. The
-summary is the derived cache, NEVER a torn-classification authority
-(spec §9): torn is determined SOLELY by the 4 sources' mutual
+summary is the derived cache, NEVER a torn-classification authority:
+torn is determined SOLELY by the 4 sources' mutual
 non-uniformity. A stale/absent `commit_id` on the summary ALONE is NOT
 torn (the sources-first/summary-last write order makes a
 post-sources/pre-summary crash a normal interruption, not a torn set).
 
-## Detection (spec §8 marker preflight → §9 torn branch)
+## Detection (commit_id marker preflight → torn branch)
 
-The §8 marker preflight reads `commit_id` from the 4 SOURCE files only
+The commit_id marker preflight reads `commit_id` from the 4 SOURCE files only
 (summary excluded). `{commit-0001, commit-0002, commit-0001,
 commit-0003}` is non-uniform ⇒ classification `torn`. This is the same
 classifier the `uniform` (OCC) and `absent` (legacy/genesis) branches
 use — the torn branch is its partial/mixed outcome, not a parallel
 detector.
 
-## Recovery (spec §9 — PRESERVE-FIRST, then STOP)
+## Recovery (torn-set contract — PRESERVE-FIRST, then STOP)
 
 Deterministic, single-threaded, clock-pinned (`SMOKE_PINNED_UTC`):
 

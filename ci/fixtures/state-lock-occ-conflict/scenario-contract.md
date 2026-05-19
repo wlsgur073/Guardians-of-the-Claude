@@ -4,16 +4,16 @@ description: "Scripted OCC compare-and-commit conflict scenario for the state-lo
 version: "1.0.0"
 ---
 
-# Scenario Contract — OCC Compare-and-Commit Conflict (spec §6 OCC + §12)
+# Scenario Contract — OCC Compare-and-Commit Conflict (OCC protocol + CI assertions)
 
-This fixture proves the spec §6 OCC compare-and-commit path: when a
+This fixture proves the OCC compare-and-commit path: when a
 concurrent commit lands during shell A's lock-free Step B, A's Step C
 re-read observes a changed `commit_id`, performs a bounded A→B→C retry,
 and the second attempt merges from the now-current state and commits with
 its OWN fresh `commit_id` — never a torn or lost write. It is the
 dedicated OCC-conflict counterpart to `state-lock-concurrent`: same
 scripted-interleaving driver, asserted additionally by
-`ASSERT_NO_READ_DURING_B` and `ASSERT_COMMITID_UNIQUE` (spec §12).
+`ASSERT_NO_READ_DURING_B` and `ASSERT_COMMITID_UNIQUE` (the OCC CI assertions).
 
 The fixture body is byte-identical to `state-lock-concurrent` because the
 OCC conflict scenario IS the concurrent-shell scenario observed through

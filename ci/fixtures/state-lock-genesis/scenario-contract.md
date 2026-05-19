@@ -1,15 +1,16 @@
 ---
 title: "scenario-contract"
-description: "Legacy-upgrade genesis scenario for the state-lock-genesis fixture (spec §8 absent branch)"
+description: "Legacy-upgrade genesis scenario for the state-lock-genesis fixture (commit_id marker preflight absent branch)"
 version: "1.0.0"
 ---
 
-# Scenario Contract — Legacy-Upgrade Genesis (spec §8 `absent` branch)
+# Scenario Contract — Legacy-Upgrade Genesis (`absent` branch)
 
-This fixture proves the spec §8 marker-preflight `absent` branch: when
+This fixture proves the marker-preflight `absent` branch: when
 ALL 4 canonical SOURCE files lack a `commit_id` marker (a pre-marker
-legacy state — written before the commit_id-wrapper era), the §8
-preflight classifies the set as `absent` and Step 0.5 performs the
+legacy state — written before the commit_id-wrapper era), the
+commit_id marker preflight classifies the set as `absent` and Step 0.5
+performs the
 one-time GENESIS upgrade: it MINTS the FIRST `commit_id`
 (`commit-0001`), stamps the existing legacy canonical set with it,
 bumps `profile.json` to the commit_id-required schema wrapper
@@ -49,16 +50,16 @@ header line:
 - `config-changelog.md` → version `1.1.0`, NO `commit_id` frontmatter, 1
   entry (2026-04-13 `/audit`)
 
-## Detection (spec §8 marker preflight → `absent` → §8 genesis branch)
+## Detection (commit_id marker preflight → `absent` → genesis branch)
 
-The §8 marker preflight reads `commit_id` from the 4 SOURCE files only
+The commit_id marker preflight reads `commit_id` from the 4 SOURCE files only
 (summary excluded — it is the derived cache, never a classification
 authority). All 4 absent ⇒ classification `absent` ⇒ legacy upgrade ⇒
 Step 0.5 GENESIS. This is the SAME classifier the `uniform` (OCC) and
 `torn` branches use — the `absent` outcome is its all-markerless case,
 not a parallel detector.
 
-## Recovery / upgrade (spec §8 — GENESIS: mint FIRST commit_id)
+## Recovery / upgrade (GENESIS: mint FIRST commit_id)
 
 Deterministic, single-threaded, clock-pinned (`SMOKE_PINNED_UTC`):
 
@@ -66,7 +67,7 @@ Deterministic, single-threaded, clock-pinned (`SMOKE_PINNED_UTC`):
    quarantine; the markerless JSON sources are present-valid against
    their own commit_id-optional legacy wrappers). It regenerates the
    summary cache from the existing sources.
-2. **GENESIS mint:** the §8 preflight still reports `absent`, so the
+2. **GENESIS mint:** the commit_id marker preflight still reports `absent`, so the
    one-time genesis sub-step mints the FIRST `commit_id` =
    `commit-0001` from the deterministic counter (no observed nonce ⇒
    counter seeded at 0 ⇒ first mint `commit-0001`; no

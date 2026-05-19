@@ -18,9 +18,9 @@ Design:
   the short lock, Step B lock-free merge/render (canonical reads forbidden
   and instrumented), Step C short-lock compare-and-commit keyed on a
   per-write deterministic commit_id nonce with bounded N=3 retry
-- §8 commit_id marker preflight: all-4-absent => genesis (Step 0.5 mints
+- commit_id marker preflight: all-4-absent => genesis (Step 0.5 mints
   the first commit_id; a Final Phase that observes `absent` without
-  genesis aborts), partial/mixed => §9 torn-set preserve-first-then-stop
+  genesis aborts), partial/mixed => torn-set preserve-first-then-stop
 - audit_run_id minted in canonical microsecond form (+00:00 offset) with
   a parse-to-datetime monotonic bump (never string-sort), independent of
   commit_id
@@ -321,11 +321,11 @@ def _scalar(v) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Primitive 1: State-mutation short-lock (spec §7 — directory + owner.json,
-# rename-aside stale reclaim, token-checked idempotent release)
+# Primitive 1: State-mutation short-lock (atomic mkdir-acquire directory +
+# owner.json, rename-aside stale reclaim, token-checked idempotent release)
 # ---------------------------------------------------------------------------
 
-# Reclaim threshold (spec §7): deliberately ≫ the bounded sub-second write
+# Short-lock reclaim threshold: deliberately ≫ the bounded sub-second write
 # burst, and deliberately identical to the Final-Phase contention-wait bound
 # (the single coherent "give up or reclaim" boundary).
 _LOCK_RECLAIM_THRESHOLD_S = 30
@@ -333,7 +333,8 @@ _LOCK_RECLAIM_THRESHOLD_S = 30
 # Deterministic per-acquire nonce source. The verifier is single-threaded and
 # SMOKE_PINNED_UTC-pinned, so a monotonically-increasing counter yields a
 # unique-per-acquire token while keeping fixture output byte-reproducible
-# (NO os.urandom / real randomness — spec §7 + CLAUDE.md verifier mandate).
+# (NO os.urandom / real randomness — short-lock primitive + CLAUDE.md
+# verifier mandate).
 _LOCK_TOKEN_COUNTER = 0
 
 
@@ -342,11 +343,13 @@ class LockContention(Exception):
 
     Step 0.5 (`abort_immediately`) raises this on the first live contention.
     The Final Phase (`wait_30s`) raises it only after the bounded re-attempt
-    window elapses with the holder still live (spec §7 case (iii))."""
+    window elapses with the holder still live (the staleness-reclaim case:
+    bound elapsed but the holder is still alive, so reclaim is refused)."""
 
 
 def _next_lock_token() -> str:
-    """Return a fresh deterministic acquisition nonce (spec §7 `token`)."""
+    """Return a fresh deterministic acquisition nonce (the short-lock
+    owner.json `token`)."""
     global _LOCK_TOKEN_COUNTER
     _LOCK_TOKEN_COUNTER += 1
     return f"tok-{_LOCK_TOKEN_COUNTER:08d}"
@@ -363,16 +366,17 @@ def _parse_iso_utc(value: str) -> float:
 
 def _parse_audit_run_id(value: str) -> datetime:
     """Parse an ``audit_run_id``-family ISO-8601 UTC string to a tz-aware
-    ``datetime`` (spec §10). Reuses the ``.replace("Z", "+00:00")`` idiom so
+    ``datetime``. Reuses the ``.replace("Z", "+00:00")`` idiom so
     BOTH the bare-``Z`` legacy form AND the canonical ``.ffffff+00:00`` form
-    parse identically — this is precisely why §10 mandates parse-to-datetime
-    and FORBIDS string-sort: ``2026-…00Z`` vs ``2026-…00.000001Z`` order
-    correctly as datetimes but MISorder lexicographically."""
+    parse identically — this is precisely why the canonical-microsecond
+    ``audit_run_id`` rule mandates parse-to-datetime and FORBIDS string-sort:
+    ``2026-…00Z`` vs ``2026-…00.000001Z`` order correctly as datetimes but
+    MISorder lexicographically."""
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
 def _canonical_audit_run_id(dt: datetime) -> str:
-    """Render a ``datetime`` to the §10 CANONICAL ``audit_run_id`` form:
+    """Render a ``datetime`` to the CANONICAL ``audit_run_id`` form:
     ISO-8601 UTC, ALWAYS 6 fractional (microsecond) digits, explicit
     ``+00:00`` offset — e.g. ``2026-05-18T09:00:00.000000+00:00``. The
     bare-``Z`` suffix is NORMALIZED AWAY so all values are uniform.
@@ -381,7 +385,7 @@ def _canonical_audit_run_id(dt: datetime) -> str:
 
 
 def _monotonic_audit_run_id(candidate_raw: str, existing_raw: list[str]) -> str:
-    """Spec §10 canonical-form + parse-to-datetime monotonic bump.
+    """Canonical-microsecond form + parse-to-datetime monotonic bump.
 
     ``candidate_raw`` is the new run's id base (the pinned clock —
     ``ctx.pinned_utc`` — NEVER the wall clock, so the verifier stays
@@ -409,7 +413,7 @@ def _monotonic_audit_run_id(candidate_raw: str, existing_raw: list[str]) -> str:
 
 def _write_owner_json(lock_dir: Path, token: str, started_at: str) -> None:
     """Write owner.json via a UNIQUE sibling tempfile under local/ then
-    os.replace into the lock dir (spec §7: NEVER a tempfile inside the lock
+    os.replace into the lock dir (NEVER a tempfile inside the lock
     dir — a stray temp would break os.rmdir)."""
     local_dir = lock_dir.parent
     content = json.dumps({"token": token, "started_at": started_at})
@@ -436,7 +440,7 @@ def _write_owner_json(lock_dir: Path, token: str, started_at: str) -> None:
 def _read_owner_json(lock_dir: Path) -> tuple[str, dict | None]:
     """Classify owner.json: ('absent'|'valid'|'corrupt', obj-or-None).
 
-    A CORRUPT owner.json is NOT reclaimable (spec §7) — the caller must
+    A CORRUPT owner.json is NOT reclaimable — the caller must
     treat 'corrupt' as a live/hard-error, never stale."""
     owner_path = lock_dir / "owner.json"
     try:
@@ -456,7 +460,7 @@ def _read_owner_json(lock_dir: Path) -> tuple[str, dict | None]:
 
 def _gc_tombstones(local_dir: Path, now_epoch: float) -> None:
     """Best-effort GC of .state.lock.dead.* tombstones older than the
-    reclaim threshold (spec §7). Tombstones are NEVER read / never used for
+    reclaim threshold. Tombstones are NEVER read / never used for
     synchronization — purely housekeeping."""
     try:
         entries = list(local_dir.glob(".state.lock.dead.*"))
@@ -475,7 +479,7 @@ def _gc_tombstones(local_dir: Path, now_epoch: float) -> None:
 
 
 def _is_stale(lock_dir: Path, now_epoch: float) -> bool:
-    """Spec §7 dual-condition staleness:
+    """Short-lock dual-condition staleness:
 
     - owner.json present & `started_at` age ≥ threshold  → stale
     - owner.json absent & lock-dir st_mtime age ≥ threshold → stale
@@ -502,9 +506,10 @@ def _is_stale(lock_dir: Path, now_epoch: float) -> bool:
 
 
 def _try_reclaim(lock_dir: Path, token: str) -> None:
-    """Single atomic rename-aside (spec §7). Concurrent reclaimers serialize:
-    exactly one os.replace succeeds; losers get FileNotFoundError/OSError and
-    simply re-evaluate on the next acquire attempt."""
+    """Single atomic rename-aside (the short-lock stale-reclaim primitive).
+    Concurrent reclaimers serialize: exactly one os.replace succeeds; losers
+    get FileNotFoundError/OSError and simply re-evaluate on the next acquire
+    attempt."""
     dead = lock_dir.parent / f".state.lock.dead.{token}"
     try:
         os.replace(lock_dir, dead)
@@ -516,7 +521,7 @@ def _try_reclaim(lock_dir: Path, token: str) -> None:
 def acquire_lock(
     lock_dir: Path, behavior: str, pinned_utc: str
 ) -> str:
-    """Acquire the state-mutation short-lock (spec §7) and return the
+    """Acquire the state-mutation short-lock and return the
     acquisition token (thread it to `release_lock` so release can verify it
     still owns the lock).
 
@@ -525,7 +530,7 @@ def acquire_lock(
     `os.mkdir(lock_dir)` (atomic create-or-fail); `FileExistsError` ⇒
     contention. Stale holders are reclaimed via a single atomic rename-aside.
 
-    Caller asymmetry (spec §7):
+    Caller asymmetry:
       - `abort_immediately` (Step 0.5): raise LockContention on the first
         live contention.
       - `wait_30s` (Final Phase): bounded deterministic re-attempts up to the
@@ -579,7 +584,8 @@ def acquire_lock(
 
 
 def release_lock(lock_dir: Path, token: str) -> None:
-    """Idempotent, finally-style release (spec §7).
+    """Idempotent, finally-style release (the token-checked short-lock
+    release primitive).
 
     Re-read owner.json; ONLY if its `token` matches the token this caller
     acquired with do we unlink owner.json then os.rmdir the lock dir (ENOENT
@@ -1437,8 +1443,9 @@ def render_state_summary(
 ) -> str:
     """Produce state-summary.md content per state-rendering.md layout.
 
-    `commit_id`, when supplied (OCC path only — spec §5: the derived
-    summary *echoes* the source nonce but is never an authority), adds a
+    `commit_id`, when supplied (OCC path only — the derived
+    summary *echoes* the per-write source nonce but is never an authority),
+    adds a
     ` commit_id: <id>` header line directly after the ` Source:` line. It
     is omitted entirely for the pre-OCC fixtures whose goldens carry no
     such line, so their byte output is unchanged."""
@@ -2327,13 +2334,14 @@ def _final_phase_write(ctx: RunContext, state: WorkspaceState) -> None:
 
 
 # ---------------------------------------------------------------------------
-# OCC layer (spec §6 — short-lock A / lock-free B / compare-and-commit C)
+# OCC layer (short-lock A / lock-free B / compare-and-commit C)
 # ---------------------------------------------------------------------------
 #
 # The OCC layer is DORMANT for every fixture whose input source files carry
 # NO commit_id marker (all 39 pre-existing fixtures): _final_phase_write /
-# step_0_5 behave byte-identically to before. It activates only when the §8
-# marker preflight classifies the 4 sources as present-and-uniform — i.e.
+# step_0_5 behave byte-identically to before. It activates only when the
+# commit_id marker preflight classifies the 4 sources as present-and-uniform
+# — i.e.
 # the state-lock-* fixtures whose input is stamped with commit_id. The
 # "concurrency" is SCRIPTED and single-threaded (the verifier is
 # SMOKE_PINNED_UTC-pinned): a fixture counter advances a deterministic
@@ -2354,15 +2362,15 @@ _OCC_READS_DURING_B: list[str] = []
 _OCC_COMMIT_IDS: list[str] = []
 # One-shot guard for the scripted shell-B injection during A's Step B.
 _OCC_B_INJECTED = False
-# Set True ONLY by the §8 genesis sub-step (step_0_5_genesis) immediately
+# Set True ONLY by the genesis sub-step (step_0_5_genesis) immediately
 # before it performs the genesis stamp/commit. The Final-Phase commit
 # chokepoint (_occ_commit) reads this: a commit attempted while the 4
 # sources are still `absent` is permitted ONLY when genesis set this flag
 # (the genesis mint itself). Any OTHER write path that reaches _occ_commit
 # on an `absent` set with this flag still False is a Final Phase that
 # observed `absent` without genesis having minted — it MUST NOT invent a
-# commit_id; the guard raises GenesisRequiredAbort instead (spec §8:
-# "absent" is non-comparable; only Step 0.5 mints the genesis id).
+# commit_id; the guard raises GenesisRequiredAbort instead ("absent" is
+# non-comparable; only Step 0.5 mints the genesis id).
 _GENESIS_MINTED = False
 
 _OCC_CANONICAL_NAMES = frozenset({
@@ -2382,8 +2390,9 @@ _CURRENT_SCORING_CONTRACT = "audit-score-v4.2.0"
 # cannot silently desync (guarded by an assert in `_stamp_commit_id`).
 _MERGE_PROFILE_SCHEMA_VERSION = "1.2.0"
 # Profile schema version whose versioned wrapper REQUIRES metadata.commit_id
-# (spec §5/§11 — only the new wrapper adds commit_id to required). An OCC
-# commit stamps commit_id, so it writes profile at this version. MUST be a
+# (only the new wrapper adds commit_id to required; the legacy wrapper keeps
+# it optional). An OCC commit stamps commit_id, so it writes profile at this
+# version. MUST be a
 # strict bump from `_MERGE_PROFILE_SCHEMA_VERSION` (asserted at the stamp site).
 _OCC_PROFILE_SCHEMA_VERSION = "1.3.0"
 
@@ -2400,7 +2409,7 @@ def _reset_run_state() -> None:
         the no-read-during-B probe)
       - `_OCC_B_INJECTED` -> False  (one-shot scripted shell-B injection
         guard)
-      - `_GENESIS_MINTED` -> False  (the §8 genesis-minted flag the
+      - `_GENESIS_MINTED` -> False  (the genesis-minted flag the
         Final-Phase commit chokepoint checks before permitting a commit
         on an `absent` source set)
       - `_OCC_READS_DURING_B` -> cleared  (canonical reads observed while
@@ -2426,8 +2435,9 @@ def _seed_commit_counter_from(commit_obs: str | None) -> None:
     commit, ``commit-0003`` for shell A's retried commit). Parsing the
     numeric suffix keeps this fully deterministic (no wall-clock / random)
     and contract-faithful (each successful burst gets a distinct, never
-    reused, id — spec §5). Idempotent: only seeds once per run (the first
-    Step A); later Step-A re-snapshots must NOT rewind the counter."""
+    reused, per-write commit_id nonce). Idempotent: only seeds once per run
+    (the first Step A); later Step-A re-snapshots must NOT rewind the
+    counter."""
     global _COMMIT_ID_COUNTER
     if _COMMIT_ID_COUNTER != 0:
         return
@@ -2439,9 +2449,9 @@ def _seed_commit_counter_from(commit_obs: str | None) -> None:
 
 
 def _mint_commit_id() -> str:
-    """Mint the next DETERMINISTIC distinct commit_id (spec §5 verifier
-    value: a distinct sequence advanced by a fixture counter — never a
-    reused constant). The counter is seeded from the input nonce
+    """Mint the next DETERMINISTIC distinct commit_id (the per-write nonce
+    verifier value: a distinct sequence advanced by a fixture counter —
+    never a reused constant). The counter is seeded from the input nonce
     (_seed_commit_counter_from) so mints continue the sequence
     (input commit-0001 → first mint commit-0002 → next commit-0003 …).
     Records every id for ASSERT_COMMITID_UNIQUE."""
@@ -2455,7 +2465,8 @@ def _mint_commit_id() -> str:
 def _occ_read_probe(path: Path) -> None:
     """Instrument a canonical-source read. If shell A is in its lock-free
     Step B window, record the read — ASSERT_NO_READ_DURING_B then fails the
-    fixture (spec §6/§12: Step B must read NOTHING canonical)."""
+    fixture (the OCC protocol's lock-free Step B and its CI assertion: Step
+    B must read NOTHING canonical)."""
     if _OCC_PHASE == "B" and path.name in _OCC_CANONICAL_NAMES:
         _OCC_READS_DURING_B.append(path.name)
 
@@ -2484,10 +2495,11 @@ def _read_commit_id_changelog(path: Path) -> str | None:
     return cid.strip("'\"") if isinstance(cid, str) else None
 
 
-# Single source of truth for the 4 canonical SOURCE files the §8 marker
-# preflight reads, in spec/§8-preflight order, paired with the per-file
-# commit_id reader. state-summary.md is intentionally absent — it is the
-# derived cache and NEVER a marker-classification authority (spec §8/§9).
+# Single source of truth for the 4 canonical SOURCE files the commit_id
+# marker preflight reads, in marker-preflight order, paired with the
+# per-file commit_id reader. state-summary.md is intentionally absent — it
+# is the derived cache and NEVER a marker-classification authority (it
+# participates in neither the preflight nor torn classification).
 # The three consumers (`_occ_marker_state`, `_TORN_SOURCE_FILES`,
 # `_observed_source_commit_ids`) all derive from THIS tuple so the
 # file-list + reader pairing is encoded exactly once (was triplicated).
@@ -2500,11 +2512,12 @@ _SOURCE_READERS: tuple[tuple[str, Callable[[Path], str | None]], ...] = (
 
 
 def _occ_marker_state(state_root: Path) -> tuple[str, str | None]:
-    """§8 marker preflight over the 4 SOURCE files (state-summary.md is the
-    derived cache, never an authority — excluded). Returns:
+    """commit_id marker preflight over the 4 SOURCE files (state-summary.md
+    is the derived cache, never an authority — excluded). Returns:
       ("absent", None)  — all 4 lack commit_id (legacy → genesis elsewhere)
       ("uniform", id)   — all 4 present and identical (OCC-comparable)
-      ("torn", None)    — partial / mixed (→ §9 stop; out of scope here)
+      ("torn", None)    — partial / mixed (→ torn-set preserve-first stop;
+                          out of scope here)
     """
     ids = [reader(state_root / name) for name, reader in _SOURCE_READERS]
     present = [i for i in ids if i is not None]
@@ -2516,7 +2529,7 @@ def _occ_marker_state(state_root: Path) -> tuple[str, str | None]:
 
 
 def _occ_snapshot(ctx: RunContext, state_root: Path) -> dict:
-    """Spec §6 Step A read: under the short lock the 4 sources are read into
+    """OCC Step A read: under the short lock the 4 sources are read into
     an in-memory snapshot (probe-instrumented; A's lock is held here so
     these reads are legitimately NOT in the Step B window)."""
     snap: dict = {}
@@ -2546,8 +2559,9 @@ def _occ_audit_deltas(ctx: RunContext, snapshot: dict) -> dict:
     state-lock-* project shape (Next.js/React/Tailwind, pnpm, Vitest +
     Playwright, Turbopack, single_project — identical to the input profile
     sections). On an OCC retry this function is re-invoked against the NEW
-    snapshot but the *detection* is unchanged — modelling spec §6's "re-merge
-    the already-computed deltas; primary analysis is NOT re-run"."""
+    snapshot but the *detection* is unchanged — modelling the OCC retry rule
+    "re-merge the already-computed deltas; primary analysis is NOT
+    re-run"."""
     date = ctx.pinned_utc.split("T")[0]
 
     profile_delta = {
@@ -2638,7 +2652,7 @@ def _occ_drift_state_audit_update(
     ctx: RunContext, snap_drift_state: dict, current_model_id: str
 ) -> dict:
     """drift-state.md "Update step" (`/audit` only) applied lock-free in
-    Step B from the Step A snapshot, with the spec §10 canonical-microsecond
+    Step B from the Step A snapshot, with the canonical-microsecond
     ``audit_run_id`` form + parse-to-datetime monotonic bump.
 
     Returns a NEW drift_state dict (the snapshot is never mutated).
@@ -2653,7 +2667,7 @@ def _occ_drift_state_audit_update(
     have ``baseline:null,last_seen:null``). So a cold-start (``baseline`` AND
     ``last_seen`` both null) is returned UNCHANGED — preserving every prior
     state-lock golden byte-for-byte while the established-ledger path
-    exercises the §10 canonical form + monotonic bump.
+    exercises the canonical-microsecond form + monotonic bump.
 
     The candidate id base is the PINNED clock (``ctx.pinned_utc``) — never
     ``datetime.now()`` — and the +1µs (when the candidate collides) is
@@ -2668,7 +2682,7 @@ def _occ_drift_state_audit_update(
     if baseline is None and last_seen is None:
         return ds
 
-    # Gather EVERY pre-existing id (spec §10: across baseline.audit_run_ids[]
+    # Gather EVERY pre-existing id (across baseline.audit_run_ids[]
     # AND last_seen.audit_run_id) so the monotonic bump parses them all.
     existing: list[str] = []
     if isinstance(baseline, dict):
@@ -2676,7 +2690,8 @@ def _occ_drift_state_audit_update(
     if isinstance(last_seen, dict) and last_seen.get("audit_run_id"):
         existing.append(last_seen["audit_run_id"])
 
-    # Candidate base = pinned clock; canonical form + monotonic bump (§10).
+    # Candidate base = pinned clock; canonical-microsecond form + monotonic
+    # bump.
     new_run_id = _monotonic_audit_run_id(ctx.pinned_utc, existing)
 
     rules = _get_normalization_rules()
@@ -2700,8 +2715,8 @@ def _occ_drift_state_audit_update(
 
     # Branch 3: ALWAYS update last_seen (canonical-form id; observed_at is a
     # plain pinned-clock timestamp, NOT an audit_run_id-family value, so it
-    # is NOT canonical-normalized — §10 scopes the carve-out to audit_run_id
-    # only).
+    # is NOT canonical-normalized — the canonical-microsecond carve-out is
+    # scoped to audit_run_id only).
     ds["last_seen"] = {
         "model_id": current_model_id,
         "audit_run_id": new_run_id,
@@ -2715,14 +2730,15 @@ def _occ_merge_drift_state(
 ) -> dict:
     """Resolve the Step-B drift_state for an OCC ``/audit`` commit: apply the
     drift-state.md Update step (canonical-microsecond ``audit_run_id`` +
-    monotonic bump, spec §10) to the snapshot's drift_state. ``/audit`` is
+    parse-to-datetime monotonic bump) to the snapshot's drift_state.
+    ``/audit`` is
     the only skill modelled by the OCC scenario, so this is unconditional
     here (the established-ledger gating lives in
     ``_occ_drift_state_audit_update``).
 
     ``current_model_id`` is read from the MERGED profile's
     ``claude_code_configuration_state.model`` — i.e. the model the ``/audit``
-    Final-Phase resolved (drift-state.md: the §8 genesis Model-field write
+    Final-Phase resolved (drift-state.md: the genesis Model-field write
     path) — NOT the raw input snapshot profile (which need not carry a
     ``model`` yet)."""
     current_model_id = (
@@ -2735,12 +2751,13 @@ def _occ_merge_drift_state(
 
 
 def _stamp_commit_id(merged: dict, commit_id: str) -> tuple[dict, dict, str, dict]:
-    """Stamp `commit_id` into the 4 source surfaces (spec §5 placement) and
+    """Stamp the per-write `commit_id` nonce onto the 4 source surfaces and
     bump profile to the commit_id-required wrapper version. Returns
     (profile, recommendations, changelog_text, drift_state)."""
     profile = json.loads(json.dumps(merged["profile"]))
-    # Coupling guard (spec §5/§11): the incoming profile MUST be the
-    # pre-stamp merge wrapper, and the stamp MUST be a real bump. If a
+    # Coupling guard (per-write commit_id nonce + schema requiredness): the
+    # incoming profile MUST be the pre-stamp merge wrapper, and the stamp
+    # MUST be a real bump. If a
     # future edit changes one constant but not the merge/stamp path, this
     # fires loudly instead of silently writing a commit_id-less wrapper
     # tagged as commit_id-required (or vice versa).
@@ -2820,13 +2837,13 @@ def _occ_commit(
     ctx: RunContext, state_root: Path, merged: dict, commit_id: str,
     state: WorkspaceState | None = None,
 ) -> None:
-    """Spec §6 Step C write: atomic-write all 5 files stamped with
-    `commit_id` — the 4 sources first (any order), then state-summary.md
-    LAST (sources-first/summary-last so a post-sources/pre-summary crash is
-    a normal regen, not a torn set).
+    """OCC Step C write (compare-and-commit): atomic-write all 5 files
+    stamped with `commit_id` — the 4 sources first (any order), then
+    state-summary.md LAST (sources-first/summary-last so a
+    post-sources/pre-summary crash is a normal regen, not a torn set).
 
-    Defensive guard (spec §8 — "absent" is non-comparable; ONLY Step 0.5
-    mints the genesis id): this is the single Final-Phase commit
+    Defensive guard ("absent" is non-comparable; ONLY Step 0.5 mints the
+    genesis commit_id): this is the single Final-Phase commit
     chokepoint. If it is reached while the 4 SOURCE files are still
     `absent` (no commit_id anywhere) AND the genesis sub-step has NOT
     flagged a mint this run, then a Final Phase observed `absent` without
@@ -2845,8 +2862,8 @@ def _occ_commit(
             raise GenesisRequiredAbort(
                 "Final-Phase commit attempted on an `absent` (markerless) "
                 "source set without genesis having minted the first "
-                "commit_id; deferring to Step 0.5 genesis (spec §8 — "
-                "absent is non-comparable; inventing a commit_id here is "
+                "commit_id; deferring to Step 0.5 genesis (absent is "
+                "non-comparable; inventing a commit_id here is "
                 "forbidden)."
             )
     merged = dict(merged)
@@ -2904,7 +2921,7 @@ def _occ_one_commit_burst(
         try:
             merged = _occ_audit_deltas(ctx, snapshot)
             # drift-state.md Update step (`/audit`): canonical-microsecond
-            # audit_run_id + parse-to-datetime monotonic bump (spec §10),
+            # audit_run_id + parse-to-datetime monotonic bump,
             # computed lock-free from the Step A snapshot.
             merged["drift_state"] = _occ_merge_drift_state(
                 ctx, snapshot, merged["profile"]
@@ -2932,20 +2949,22 @@ def _occ_one_commit_burst(
 
 
 class OccConflictAbort(Exception):
-    """Raised when OCC exhausts N=3 bounded retries (spec §6 abort)."""
+    """Raised when OCC exhausts its N=3 bounded compare-and-commit
+    retries."""
 
 
 class GenesisRequiredAbort(Exception):
     """Raised when a Final-Phase commit is attempted on an `absent`
-    (markerless) source set without the §8 genesis sub-step having minted
-    the first commit_id (spec §8: "absent" is non-comparable; only Step
+    (markerless) source set without the genesis sub-step having minted
+    the first commit_id ("absent" is non-comparable; only Step
     0.5 mints the genesis id — a Final Phase that observes absent defers,
     it never invents a value)."""
 
 
-# Source files that vote on torn classification (spec §9 — the same 4
-# sources the §8 marker preflight reads; state-summary.md is the derived
-# cache and NEVER participates in torn classification). Derived from the
+# Source files that vote on torn classification (the same 4
+# sources the commit_id marker preflight reads; state-summary.md is the
+# derived cache and NEVER participates in torn classification). Derived
+# from the
 # single _SOURCE_READERS source of truth so the file list cannot drift
 # out of sync with the preflight / per-file observer.
 _TORN_SOURCE_FILES = tuple(name for name, _reader in _SOURCE_READERS)
@@ -2953,24 +2972,24 @@ _TORN_SOURCE_FILES = tuple(name for name, _reader in _SOURCE_READERS)
 
 def _observed_source_commit_ids(state_root: Path) -> list[tuple[str, str | None]]:
     """Return [(filename, observed commit_id or None)] for the 4 SOURCE
-    files in spec/§8-preflight order. None ⇒ the file is absent or carries
+    files in marker-preflight order. None ⇒ the file is absent or carries
     no commit_id marker. The summary is intentionally excluded — it is the
-    derived cache, never a torn-classification authority (spec §9). Derived
+    derived cache, never a torn-classification authority. Derived
     from the single _SOURCE_READERS source of truth (same list+reader
-    pairing the §8 preflight uses)."""
+    pairing the commit_id marker preflight uses)."""
     return [
         (name, reader(state_root / name)) for name, reader in _SOURCE_READERS
     ]
 
 
 def recover_torn_set(ctx: RunContext, state_root: Path) -> str:
-    """Spec §9 torn-set recovery: PRESERVE-FIRST, then STOP.
+    """Torn-set recovery: PRESERVE-FIRST, then STOP.
 
-    Invoked ONLY when the §8 marker preflight (``_occ_marker_state`` — the
-    SAME classifier the ``uniform``/``absent`` branches use; this is its
-    partial/mixed outcome, not a parallel detector) returns ``torn``.
+    Invoked ONLY when the commit_id marker preflight (``_occ_marker_state``
+    — the SAME classifier the ``uniform``/``absent`` branches use; this is
+    its partial/mixed outcome, not a parallel detector) returns ``torn``.
 
-    Order is contractually fixed (spec §9):
+    Order is contractually fixed (the torn-set recovery contract):
       1. PRESERVE FIRST — before anything else, copy all 4 SOURCE files
          BYTE-FOR-BYTE into ``local/legacy-backup/{ISO-8601-UTC}/`` (the
          ISO dir name comes from the pinned clock via the existing
@@ -3019,8 +3038,9 @@ def recover_torn_set(ctx: RunContext, state_root: Path) -> str:
 
 def run_occ_scenario(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
     """Scripted shell-A OCC /audit with shell B's full A→B→C commit injected
-    between A's Step A release and A's Step C acquire (spec §6 Step C !=
-    branch + §12 concurrent-shell mutual exclusion).
+    between A's Step A release and A's Step C acquire (the OCC Step C
+    changed-commit_id retry branch + the concurrent-shell mutual-exclusion
+    CI assertions).
 
     Deterministic, single-threaded, NO real concurrency: the "injection"
     is a one-shot scripted hook fired the first time A enters its Step B
@@ -3049,7 +3069,7 @@ def run_occ_scenario(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
         try:
             merged = _occ_audit_deltas(ctx, snapshot)
             # drift-state.md Update step (`/audit`): canonical-microsecond
-            # audit_run_id + parse-to-datetime monotonic bump (spec §10),
+            # audit_run_id + parse-to-datetime monotonic bump,
             # computed lock-free from the Step A snapshot.
             merged["drift_state"] = _occ_merge_drift_state(
                 ctx, snapshot, merged["profile"]
@@ -3080,7 +3100,8 @@ def run_occ_scenario(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
                 # Bounded A→B→C retry: re-snapshot, re-merge A's already-
                 # computed /audit deltas onto the new snapshot, re-commit.
                 # The scripted B-injection does NOT re-fire (one-shot guard),
-                # so the retry runs A→B→C only — modelling spec §6.
+                # so the retry runs A→B→C only — modelling the OCC
+                # compare-and-commit retry.
                 continue
             commit_id = _mint_commit_id()
             _occ_commit(ctx, state_root, merged, commit_id, state)
@@ -3090,10 +3111,11 @@ def run_occ_scenario(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
 
 
 def step_0_5_genesis(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
-    """Spec §8 `absent` branch — Step 0.5 GENESIS (legacy upgrade).
+    """commit_id marker preflight `absent` branch — Step 0.5 GENESIS
+    (legacy upgrade).
 
-    Invoked ONLY when the §8 marker preflight (``_occ_marker_state`` — the
-    SAME classifier the ``uniform``/``torn`` branches use; this is its
+    Invoked ONLY when the commit_id marker preflight (``_occ_marker_state``
+    — the SAME classifier the ``uniform``/``torn`` branches use; this is its
     all-markerless ``absent`` outcome, not a parallel detector) reports
     ``absent`` AFTER step_0_5 has run. step_0_5 has already locked,
     classified the markerless-but-valid legacy JSON sources as
@@ -3703,7 +3725,8 @@ FIXTURE_SCENARIOS = {
     "drift-state-migrate-all-null-anchors": {"skill_sequence": [], "pre_run": []},
     "drift-state-corrupt-quarantine": {"skill_sequence": [], "pre_run": []},
     "drift-state-skip-if-valid": {"skill_sequence": [], "pre_run": []},
-    # Concurrent-shell mutual-exclusion fixture (spec §6 OCC + §12). DELIBERATE
+    # Concurrent-shell mutual-exclusion fixture (the OCC protocol + its CI
+    # assertions). DELIBERATE
     # TDD red: the stub acquire_lock has no contention detection, so the
     # scripted two-shell A↔B interleaving cannot serialize and the produced
     # state diverges from the golden. Task 7 (real mkdir/token/rename-aside
@@ -3712,23 +3735,26 @@ FIXTURE_SCENARIOS = {
     # drift-state-* Step-0.5-isolation pattern; the OCC driver is wired
     # verifier-side (run_occ_scenario) keyed off the input commit_id markers.
     "state-lock-concurrent": {"skill_sequence": [], "pre_run": []},
-    # OCC compare-and-commit conflict (spec §6 Step C != branch + §12
-    # ASSERT_NO_READ_DURING_B / ASSERT_COMMITID_UNIQUE). Same scripted
+    # OCC compare-and-commit conflict (the OCC Step C changed-commit_id
+    # retry branch + the ASSERT_NO_READ_DURING_B / ASSERT_COMMITID_UNIQUE
+    # CI assertions). Same scripted
     # interleaving as state-lock-concurrent, observed through the OCC lens;
     # pins the same deterministic golden so a regression in either the lock
     # primitive or the OCC layer trips both fixtures independently.
     "state-lock-occ-conflict": {"skill_sequence": [], "pre_run": []},
-    # Torn-set detection + preserve-first recovery (spec §9). The 4 SOURCE
+    # Torn-set detection + preserve-first recovery. The 4 SOURCE
     # files carry a NON-UNIFORM commit_id (a crash interrupted a prior
-    # writer between source writes). The §8 marker preflight's torn branch
+    # writer between source writes). The commit_id marker preflight's torn
+    # branch
     # quarantines all 4 sources byte-for-byte to legacy-backup/{ISO}/,
     # surfaces a per-file diagnostic, and STOPS (no merge/reinit/commit/new
     # commit_id). skill_sequence=[] mirrors the state-lock-* Step-0.5
     # isolation pattern; the torn preflight is wired verifier-side
     # (run_fixture) keyed off the input commit_id markers.
     "state-lock-torn": {"skill_sequence": [], "pre_run": []},
-    # Legacy-upgrade genesis (spec §8 `absent` branch). ALL 4 SOURCE files
-    # lack commit_id (a pre-marker legacy state). The §8 marker preflight
+    # Legacy-upgrade genesis (the commit_id marker preflight `absent`
+    # branch). ALL 4 SOURCE files lack commit_id (a pre-marker legacy
+    # state). The commit_id marker preflight
     # classifies `absent`; after step_0_5 leaves the markerless-valid
     # sources in place, the genesis sub-step mints the FIRST commit_id
     # (commit-0001) and stamps the legacy set (profile→schema 1.3.0 +
@@ -3738,10 +3764,11 @@ FIXTURE_SCENARIOS = {
     # (run_fixture) gated to this fixture so the 39 pre-existing
     # markerless `absent` fixtures stay byte-identical.
     "state-lock-genesis": {"skill_sequence": [], "pre_run": []},
-    # audit_run_id canonical microsecond + monotonic bump (spec §10). Reuses
+    # audit_run_id canonical microsecond + monotonic bump. Reuses
     # the state-lock-occ-conflict scripted interleaving (run_occ_scenario)
     # because that driver already produces TWO /audit write bursts at the
-    # SAME pinned clock — the natural same-microsecond collision §10 fixes.
+    # SAME pinned clock — the natural same-microsecond collision the
+    # canonical-microsecond + monotonic-bump rule fixes.
     # The ONLY pre-state diff vs. state-lock-occ-conflict is drift-state.json
     # (an ALREADY-ESTABLISHED ledger so the drift-state.md Update step's
     # append branch fires; occ-conflict is a cold-start the OCC path leaves
@@ -3798,8 +3825,9 @@ def assert_schema_valid(ctx: RunContext, state: WorkspaceState) -> list[str]:
         "1.0.0": "profile.schema.v1.0.0.json",
         "1.1.0": "profile.schema.v1.1.0.json",
         "1.2.0": "profile.schema.v1.2.0.json",
-        # v1.3.0 is the commit_id-required wrapper (spec §5/§11): the OCC
-        # commit stamps metadata.commit_id and writes profile at this
+        # v1.3.0 is the commit_id-required wrapper (the per-write commit_id
+        # nonce + schema requiredness): the OCC commit stamps
+        # metadata.commit_id and writes profile at this
         # version, so assert_schema_valid must be able to dispatch it.
         "1.3.0": "profile.schema.v1.3.0.json",
     }
@@ -3919,9 +3947,10 @@ def assert_summary_derived_from_sources(ctx: RunContext, state: WorkspaceState) 
         ) if drift_state_path.exists() else None
     except (OSError, json.JSONDecodeError):
         drift_state = None
-    # OCC path: the summary echoes the source commit_id (spec §5). Re-render
-    # with the SAME nonce the sources carry so this invariant compares like
-    # for like. Non-OCC fixtures have no commit_id ⇒ None ⇒ unchanged.
+    # OCC path: the summary echoes the per-write source commit_id nonce.
+    # Re-render with the SAME nonce the sources carry so this invariant
+    # compares like for like. Non-OCC fixtures have no commit_id ⇒ None ⇒
+    # unchanged.
     src_commit_id = (
         state.profile.get("metadata", {}).get("commit_id")
         if isinstance(state.profile, dict) else None
@@ -3936,7 +3965,8 @@ def assert_summary_derived_from_sources(ctx: RunContext, state: WorkspaceState) 
 
 
 def assert_no_read_during_b(ctx: RunContext, state: WorkspaceState) -> list[str]:
-    """ASSERT_NO_READ_DURING_B (spec §6/§12): zero canonical-file reads occur
+    """ASSERT_NO_READ_DURING_B (the OCC lock-free Step B and its CI
+    assertion): zero canonical-file reads occur
     between shell A's Step A lock-release and its Step C lock-acquire — the
     lock-free merge MUST operate solely on the in-memory Step A snapshot.
     The OCC layer sets _OCC_PHASE=="B" across exactly that window and every
@@ -3952,7 +3982,8 @@ def assert_no_read_during_b(ctx: RunContext, state: WorkspaceState) -> list[str]
 
 
 def assert_commitid_unique(ctx: RunContext, state: WorkspaceState) -> list[str]:
-    """ASSERT_COMMITID_UNIQUE (spec §5/§12): every successful write burst AND
+    """ASSERT_COMMITID_UNIQUE (the per-write commit_id nonce and its CI
+    assertion): every successful write burst AND
     every recovery/reinit mints a DISTINCT commit_id — no reuse across the
     run (a reused id would void OCC / torn-set / ABA detection). Inspects
     every id minted via _mint_commit_id this run."""
@@ -4030,7 +4061,7 @@ def byte_diff_tree(actual: Path, golden: Path, input_dir: Path | None = None) ->
 def _collect_files(root: Path) -> set[str]:
     """Return set of POSIX-style relative paths for every file under root.
 
-    Excludes the entire state-mutation short-lock surface (spec §7), which
+    Excludes the entire state-mutation short-lock surface, which
     is transient and must NEVER be byte-diffed against a golden:
       - the lock DIRECTORY ``local/.state.lock/`` and everything inside it
         (``owner.json``),
@@ -4123,11 +4154,12 @@ def run_fixture(
         apply_pre_run(scenario["pre_run"], ctx)
         state = load_initial_state(ctx)
 
-        # §9 torn-set preflight — runs BEFORE step_0_5 so a torn set is
+        # Torn-set preflight — runs BEFORE step_0_5 so a torn set is
         # PRESERVED FIRST then STOPPED, with the originals left exactly as
         # found (step_0_5 would otherwise regen state-summary.md / recover,
-        # mutating the very state §9 says to preserve). Uses the SAME §8
-        # marker classifier the OCC `uniform` branch uses
+        # mutating the very state the torn-set contract says to preserve).
+        # Uses the SAME commit_id marker classifier the OCC `uniform`
+        # branch uses
         # (`_occ_marker_state`) — the `torn` return is its partial/mixed
         # outcome, NOT a parallel detector. Fixtures whose 4 sources carry
         # NO commit_id (all pre-existing) classify `absent` and are
@@ -4141,9 +4173,9 @@ def run_fixture(
             # handlers, no OCC, no merge/reinit/commit, no new commit_id.
             # The originals stay byte-identical; the byte-diff gate against
             # the golden is the only post-condition (summary-derived
-            # assertion is intentionally bypassed: §9 does NOT regenerate
-            # the summary, so the preserved torn summary need not re-render
-            # from the torn sources).
+            # assertion is intentionally bypassed: torn recovery does NOT
+            # regenerate the summary, so the preserved torn summary need not
+            # re-render from the torn sources).
             recover_torn_set(ctx, _state_root(ctx))
             diff = byte_diff_tree(work_dir, golden_dir, input_dir=src_dir)
             if diff:
@@ -4164,12 +4196,12 @@ def run_fixture(
             handler = SKILL_HANDLERS[skill]
             state = handler(ctx, state)
 
-        # §8 marker preflight (post-step_0_5). The SAME `_occ_marker_state`
-        # classifier, three mutually-exclusive outcomes:
+        # commit_id marker preflight (post-step_0_5). The SAME
+        # `_occ_marker_state` classifier, three mutually-exclusive outcomes:
         #   uniform → OCC layer: scripted shell-A /audit with shell B's
         #             A→B→C commit injected during A's lock-free Step B
-        #             (spec §6 + §12).
-        #   absent  → §8 GENESIS: this is a pre-marker legacy state;
+        #             (the OCC protocol + its CI assertions).
+        #   absent  → GENESIS: this is a pre-marker legacy state;
         #             step_0_5 left the markerless-valid sources in place
         #             (commit_id-optional legacy wrappers) and regenerated
         #             the summary. The genesis sub-step mints the FIRST
@@ -4194,7 +4226,7 @@ def run_fixture(
         if occ_pre[0] == "uniform":
             state = run_occ_scenario(ctx, state)
         elif occ_pre[0] == "absent" and name == "state-lock-genesis":
-            # §8 legacy-upgrade genesis. Gated to the dedicated fixture so
+            # Legacy-upgrade genesis. Gated to the dedicated fixture so
             # the 39 pre-existing `absent` fixtures (whose goldens have no
             # commit_id) are byte-unchanged: genesis is opt-in exactly like
             # the OCC `uniform` branch is keyed off input markers.
@@ -4526,23 +4558,26 @@ def main() -> int:
         "drift-state-migrate-all-null-anchors",
         "drift-state-corrupt-quarantine",
         "drift-state-skip-if-valid",
-        # Concurrent-shell mutual exclusion (spec §6 OCC + §12) — DELIBERATE
+        # Concurrent-shell mutual exclusion (the OCC protocol + its CI
+        # assertions) — DELIBERATE
         # TDD red until Task 7 (real short-lock) + Task 8 (OCC) land.
         "state-lock-concurrent",
-        # OCC compare-and-commit conflict (spec §6 Step C != branch + §12
-        # no-read-during-B / commit_id-uniqueness assertions).
+        # OCC compare-and-commit conflict (the OCC Step C changed-commit_id
+        # retry branch + the no-read-during-B / commit_id-uniqueness CI
+        # assertions).
         "state-lock-occ-conflict",
-        # Torn-set detection + preserve-first recovery (spec §9): 4-source
+        # Torn-set detection + preserve-first recovery: 4-source
         # non-uniform commit_id ⇒ quarantine all 4 to legacy-backup/{ISO}/
         # + diagnostic + STOP (no merge/reinit/commit).
         "state-lock-torn",
-        # Legacy-upgrade genesis (spec §8 `absent` branch): 4-source
+        # Legacy-upgrade genesis (the commit_id marker preflight `absent`
+        # branch): 4-source
         # markerless legacy state ⇒ step_0_5 + genesis mints the FIRST
         # commit_id (commit-0001) and stamps the set (profile→1.3.0 +
         # commit_id) via the T8 mint/stamp/commit chain.
         "state-lock-genesis",
         # audit_run_id canonical microsecond + parse-to-datetime monotonic
-        # bump (spec §10): two same-pinned-microsecond /audit emissions ⇒
+        # bump: two same-pinned-microsecond /audit emissions ⇒
         # the second becomes max(existing)+1µs; all ids in canonical
         # .ffffff+00:00 form. Reuses the OCC scripted interleaving.
         "audit-run-id-collision",

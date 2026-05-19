@@ -10,12 +10,12 @@ The `- Model:` bullet captures the resolved Claude model ID at the top of each c
 
 **Step 2 (captured in the Step A snapshot)** — from `snap_changelog` (the changelog captured in the Step A snapshot taken inside the short lock), parse the immediately previous `###` entry (most-recent entry in Recent Activity, **regardless of which skill wrote it**) and extract its `- Model:` line value as `previous_model`. All this derivation is lock-free from that immutable snapshot. Absent bullet (pre-v2.12.0 legacy OR delta-omit path) maps to `previous_model = null`.
 
-**Step 3 (compute `emit_bullet`)** — skill-specific branch:
+**Step 3 (compute `emit_bullet` — lock-free in Step B)** — skill-specific branch:
 
 - **`/audit` always-emit**: `emit_bullet = True` unconditionally. `/audit` is the baseline anchor for drift derivation; always-emitting guarantees consistent Model bullet presence across the changelog.
 - **`/create`, `/secure`, `/optimize` delta-emit**: `emit_bullet = (current_model != previous_model)` with null-safe equality. `current_model` is `profile.claude_code_configuration_state.model` at Final Phase write time. Two non-null values compare as string equality; non-null `current_model` against `null` `previous_model` emits.
 
-**Step 5 (atomic write)** — when `emit_bullet == True`, the bullet is the first line under the `### {YYYY-MM-DD} — /{skill}` heading:
+**Step 5 (atomic write — OCC Step C)** — when `emit_bullet == True`, the bullet is the first line under the `### {YYYY-MM-DD} — /{skill}` heading:
 
 ```
 - Model: {current_model}

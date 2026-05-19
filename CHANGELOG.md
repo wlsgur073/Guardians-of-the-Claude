@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - **Same-instant `audit_run_id` collisions** — concurrent `/audit` runs that started in the same microsecond could mint colliding or mis-ordered ids. Ids are now derived from a canonical-microsecond form with a deterministic monotonic bump (parsed to a datetime and compared as time, never string-sorted), so concurrent runs always produce distinct, correctly ordered ids.
-- **A dangling internal migration-plan label was removed from shipped reference docs and the smoke verifier.** Eight occurrences across `plugin/references/compaction.md`, `plugin/references/drift-state.md` (frontmatter description), `plugin/references/phase-0.md`, and `.github/scripts/check-smoke-fixtures.py` (comments/docstring) referenced an internal plan label with no definition anywhere in the shipped tree. Each is restated in place as the behavioral concept it described (`drift-state.json migration` / one-shot migration).
+- **Dangling internal-planning references removed from shipped artifacts.** An internal migration-plan label (in `plugin/references/compaction.md`, `plugin/references/drift-state.md`, `plugin/references/phase-0.md`, and `.github/scripts/check-smoke-fixtures.py`) and internal design-spec section citations (in the smoke verifier and the CI fixture scenario contracts) had no definition anywhere in the shipped tree; each is restated in place as the behavioral concept it denoted, with no behavioral or runtime change.
 
 ## [2.19.7] - 2026-05-18
 

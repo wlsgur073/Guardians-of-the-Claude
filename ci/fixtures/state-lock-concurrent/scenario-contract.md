@@ -4,7 +4,7 @@ description: "Scripted two-shell contention scenario for the state-lock-concurre
 version: "1.0.0"
 ---
 
-# Scenario Contract — Concurrent-Shell Mutual Exclusion (spec §6 OCC + §12)
+# Scenario Contract — Concurrent-Shell Mutual Exclusion (OCC protocol + CI assertions)
 
 This fixture proves issue #13 criterion 5: under genuine contention on a shared
 `local/`, the real short lock serializes commits and OCC forces the loser to
