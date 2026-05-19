@@ -1,7 +1,7 @@
 ---
 title: Learning System (Orchestrator)
 description: Shared state management entrypoint for /create, /audit, /secure, /optimize. Subfile pointers preserve historical section anchors used by SKILL.md and CI scripts.
-version: 3.0.1
+version: 3.0.2
 ---
 
 # Learning System
@@ -44,9 +44,9 @@ See [learning-rules.md](learning-rules.md).
 
 See [final-phase.md](final-phase.md).
 
-## Per-Skill Merge Rules (Final Phase under state-mutation lock)
+## Per-Skill Merge Rules (applied lock-free in Step B)
 
-See [final-phase.md](final-phase.md), especially `## Per-Skill Merge Rules (Final Phase under state-mutation lock)`.
+See [final-phase.md](final-phase.md), especially `## Per-Skill Merge Rules (applied lock-free in Step B)`.
 
 ## Model Bullet Emission (config-changelog.md)
 

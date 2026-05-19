@@ -96,6 +96,7 @@ NEGATIVE_LOCAL_SCHEMAS: list[tuple[str, str]] = []
 # Profile positive examples — dispatcher selects wrapper by schema_version literal.
 PROFILE_POSITIVE_EXAMPLES: list[str] = [
     "plugin/references/schemas/examples/profile.example.json",
+    "plugin/references/schemas/examples/profile.v1.3.0.example.json",
 ]
 
 # Profile negative examples — dispatcher selects wrapper; each MUST be rejected.
@@ -106,12 +107,14 @@ PROFILE_NEGATIVE_EXAMPLES: list[str] = [
     "plugin/references/schemas/examples/negative/profile.detection-without-monorepo.example.json",
     "plugin/references/schemas/examples/negative/profile.detected-boolean-type-null.example.json",
     "plugin/references/schemas/examples/negative/profile.detected-null-type-not-null.example.json",
+    "plugin/references/schemas/examples/negative/profile.metadata-missing-commit-id.example.json",
 ]
 
 # Recommendations positive examples — dispatcher selects wrapper by schema_version literal.
 RECOMMENDATIONS_POSITIVE_EXAMPLES: list[str] = [
     "plugin/references/schemas/examples/recommendations.example.json",
     "plugin/references/schemas/examples/recommendations.v1.1.0.example.json",
+    "plugin/references/schemas/examples/recommendations.v1.2.0.example.json",
 ]
 
 # Recommendations negative examples — dispatcher selects wrapper; each MUST be rejected.
@@ -124,6 +127,7 @@ RECOMMENDATIONS_NEGATIVE_EXAMPLES: list[str] = [
     "plugin/references/schemas/examples/negative/recommendations.invalid-status-enum.example.json",
     "plugin/references/schemas/examples/negative/recommendations.empty-description.example.json",
     "plugin/references/schemas/examples/negative/recommendations.invalid-iso-date.example.json",
+    "plugin/references/schemas/examples/negative/recommendations.metadata-missing-commit-id.example.json",
 ]
 
 # Drift-state positive examples — dispatcher selects wrapper by schema_version literal.
@@ -131,6 +135,7 @@ DRIFT_STATE_POSITIVE_EXAMPLES: list[str] = [
     "plugin/references/schemas/examples/drift-state.example.json",
     "plugin/references/schemas/examples/drift-state.cold-start.example.json",
     "plugin/references/schemas/examples/drift-state.migrated.example.json",
+    "plugin/references/schemas/examples/drift-state.v1.1.0.example.json",
 ]
 
 # Drift-state negative examples — dispatcher selects wrapper; each MUST be rejected.
@@ -145,6 +150,7 @@ DRIFT_STATE_NEGATIVE_EXAMPLES: list[str] = [
     "plugin/references/schemas/examples/negative/drift-state.legacy-migration-with-null-last-seen.example.json",
     "plugin/references/schemas/examples/negative/drift-state.source-anchor-null.example.json",
     "plugin/references/schemas/examples/negative/drift-state.unknown-property.example.json",
+    "plugin/references/schemas/examples/negative/drift-state.metadata-missing-commit-id.example.json",
 ]
 
 

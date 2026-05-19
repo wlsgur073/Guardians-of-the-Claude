@@ -17,7 +17,8 @@
       "type": "object",
       "required": ["last_updated"],
       "properties": {
-        "last_updated": { "type": "string", "format": "date-time" }
+        "last_updated": { "type": "string", "format": "date-time" },
+        "commit_id": { "type": "string", "minLength": 1 }
       }
     },
     "baseline": {

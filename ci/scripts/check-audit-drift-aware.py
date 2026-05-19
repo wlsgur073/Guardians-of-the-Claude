@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Drift-aware /audit structural + state-machine validator.
 
-Covers 10 assertions:
+Covers 13 assertions:
   A1 drift advisory state machine simulation (5 fixtures)
   A2 .model field in Step 0.5 profile.json write set (phase-0.md)
   A3 install-integrity pre-Phase-0 substep in /audit SKILL.md
@@ -12,6 +12,10 @@ Covers 10 assertions:
   A8 phase-0/final-phase/state-rendering reference docs mention drift-state.json
   A9 algorithm replacement — drift-state.md/output-format.md no longer carry legacy strings
   A10 cross-field invariant I9 — baseline.first_observed_at == legacy_migration.source_changelog_anchor_run_id
+  A_LOCK1 state_io.md §State-mutation lock uses atomic mkdir + rename-aside (no check-then-act)
+  A_LOCK2 final-phase.md/drift-state.md carry no old-contract "re-read/merge under lock" phrasing
+  A_LOCK3 phase-0.md Step 0.5 encodes marker preflight + genesis + torn-set recovery
+  A_LOCK4 drift-state.md drops "tracked separately"; state-rendering.md echoes commit_id (changelog frontmatter + summary header)
 """
 
 from __future__ import annotations
@@ -406,6 +410,192 @@ def check_a10_i9_cross_field() -> list[str]:
 
 
 # ---------------------------------------------------------------------------
+# A_LOCK1: state_io.md §State-mutation lock — atomic mkdir + rename-aside
+# ---------------------------------------------------------------------------
+
+
+def check_a_lock1_short_lock_primitive() -> list[str]:
+    """Verify state_io.md specifies the short-lock primitive.
+
+    The §State-mutation lock section must use the atomic create-or-fail
+    primitive (`os.mkdir`) and the atomic stale-reclaim path (`rename-aside`),
+    and must NOT retain the retired racy check-then-act phrasing
+    ('does not exist, write a fresh lock').
+    """
+    failures = []
+    state_io_path = REPO_ROOT / "plugin" / "references" / "lib" / "state_io.md"
+
+    if not state_io_path.exists():
+        failures.append(f"A_LOCK1: state_io.md missing at {state_io_path}")
+        return failures
+
+    text = state_io_path.read_text(encoding="utf-8")
+
+    if "os.mkdir" not in text:
+        failures.append("A_LOCK1: state_io.md missing 'os.mkdir' acquire-gate primitive")
+    if "rename-aside" not in text:
+        failures.append("A_LOCK1: state_io.md missing 'rename-aside' stale-reclaim path")
+    if "does not exist, write a fresh lock" in text:
+        failures.append("A_LOCK1: state_io.md still contains retired check-then-act phrasing ('does not exist, write a fresh lock')")
+
+    return failures
+
+
+# ---------------------------------------------------------------------------
+# A_LOCK2: final-phase.md/drift-state.md carry no old-contract lock phrasing
+# ---------------------------------------------------------------------------
+
+# Old-contract phrasings the OCC rewrite must eliminate: "re-read under the
+# lock", "merge under the lock", "under the lock ... merge", and "holding the
+# lock ... re-read/merge". Precise, line-scoped, case-insensitive. By
+# construction these patterns do NOT match the new-contract phrasings
+# ("the lock is held only across the write burst", bare `§state-mutation-lock`
+# cross-references, "under the state-mutation lock" applied to a write
+# sub-step) or the unrelated word "threshold" — verified zero matches against
+# state_io.md and phase-0.md (both intentionally OUT of scan scope; that check
+# is only a non-over-broad sanity guard).
+_A_LOCK2_PATTERNS = [
+    re.compile(r"re-?read[^.\n]*\bunder\b[^.\n]*\block\b", re.IGNORECASE),
+    re.compile(r"\bmerg(e|ing)\b[^.\n]*\bunder\b[^.\n]*\block\b", re.IGNORECASE),
+    re.compile(r"\bunder\b[^.\n]*\block\b[^.\n]*\bmerg(e|ing)\b", re.IGNORECASE),
+    re.compile(r"holding the lock[^.\n]*(re-?read|merg(e|ing))", re.IGNORECASE),
+]
+
+
+def check_a_lock2_no_old_contract_lock_phrasing() -> list[str]:
+    """Verify final-phase.md and drift-state.md no longer encode the broken
+    long-lock model (re-read + merge held under the state-mutation lock).
+
+    Scoped to exactly these two files (NOT phase-0.md, NOT state_io.md).
+    Evaluated per-line, case-insensitive; FAIL if ANY line of EITHER file
+    matches ANY old-contract pattern. The failure message names the
+    offending file:line:pattern.
+    """
+    failures = []
+    scoped = [
+        REPO_ROOT / "plugin" / "references" / "final-phase.md",
+        REPO_ROOT / "plugin" / "references" / "drift-state.md",
+    ]
+    for path in scoped:
+        if not path.exists():
+            failures.append(f"A_LOCK2: {path} missing")
+            continue
+        lines = path.read_text(encoding="utf-8").splitlines()
+        for lineno, line in enumerate(lines, start=1):
+            for pat in _A_LOCK2_PATTERNS:
+                if pat.search(line):
+                    failures.append(
+                        f"A_LOCK2: old-contract lock phrasing at "
+                        f"{path.name}:{lineno}: matched /{pat.pattern}/ "
+                        f"-- {line.strip()!r}"
+                    )
+    return failures
+
+
+# ---------------------------------------------------------------------------
+# A_LOCK3: phase-0.md Step 0.5 — marker preflight + genesis + torn-set recovery
+# ---------------------------------------------------------------------------
+
+
+def check_a_lock3_phase0_preflight_genesis_recovery() -> list[str]:
+    """Verify phase-0.md Step 0.5 encodes the §8/§9 model.
+
+    The rewritten Step 0.5 replaces the legacy MD→JSON migration/stale
+    machine with the commit_id marker-preflight + genesis + torn-set
+    recovery model. Assert the body carries the load-bearing vocabulary
+    (case-insensitive substring):
+      - "marker preflight"  — §8 preflight-before-schema-validation gate
+      - "genesis"           — §8 all-4-absent ⇒ Step 0.5 mints first commit_id
+      - "legacy-backup"     — §9 preserve-first quarantine before STOP
+      - an "all 4 ... absent" phrase — the genesis classification rule
+      - "partial" AND "torn" — the partial/mixed ⇒ torn-set branch
+    """
+    failures = []
+    phase_0_path = REPO_ROOT / "plugin" / "references" / "phase-0.md"
+
+    if not phase_0_path.exists():
+        failures.append(f"A_LOCK3: phase-0.md missing at {phase_0_path}")
+        return failures
+
+    text = phase_0_path.read_text(encoding="utf-8")
+    lowered = text.lower()
+
+    if "marker preflight" not in lowered:
+        failures.append("A_LOCK3: phase-0.md missing 'marker preflight' (§8 preflight gate)")
+    if "genesis" not in lowered:
+        failures.append("A_LOCK3: phase-0.md missing 'genesis' (§8 first commit_id mint)")
+    if "legacy-backup" not in lowered:
+        failures.append("A_LOCK3: phase-0.md missing 'legacy-backup' (§9 preserve-first quarantine)")
+    # §8 genesis classification rule: a phrase conveying "all 4 ... absent".
+    if not re.search(r"all 4[^.\n]*absent", lowered):
+        failures.append("A_LOCK3: phase-0.md missing 'all 4 ... absent' genesis classification rule")
+    # §8/§9 partial/mixed ⇒ torn-set branch.
+    if "partial" not in lowered:
+        failures.append("A_LOCK3: phase-0.md missing 'partial' (partial/mixed ⇒ torn branch)")
+    if "torn" not in lowered:
+        failures.append("A_LOCK3: phase-0.md missing 'torn' (torn-set recovery branch)")
+
+    return failures
+
+
+# ---------------------------------------------------------------------------
+# A_LOCK4: drift-state.md forward-ref removed + state-rendering.md commit_id echo
+# ---------------------------------------------------------------------------
+
+
+def check_a_lock4_drift_state_pointer_and_commit_id_echo() -> list[str]:
+    """Verify the Milestone-① cross-file reconciliation landed.
+
+    drift-state.md MUST NOT contain the substring 'tracked separately'
+    (the forward-reference was replaced by a pointer to the now-implemented
+    short-lock + OCC commit_id mechanism). state-rendering.md MUST echo
+    'commit_id' inside BOTH its config-changelog.md frontmatter block AND
+    its state-summary.md header layout (commit_id is the per-write nonce;
+    the summary echoes it but is a non-authoritative cache).
+    """
+    failures = []
+    drift_state_path = REPO_ROOT / "plugin" / "references" / "drift-state.md"
+    state_rendering_path = REPO_ROOT / "plugin" / "references" / "state-rendering.md"
+
+    if not drift_state_path.exists():
+        failures.append(f"A_LOCK4: drift-state.md missing at {drift_state_path}")
+    else:
+        ds_text = drift_state_path.read_text(encoding="utf-8")
+        if "tracked separately" in ds_text:
+            failures.append(
+                "A_LOCK4: drift-state.md still contains forward-ref phrasing "
+                "('tracked separately') — replace with pointer to the "
+                "implemented short-lock + OCC commit_id mechanism"
+            )
+
+    if not state_rendering_path.exists():
+        failures.append(f"A_LOCK4: state-rendering.md missing at {state_rendering_path}")
+    else:
+        sr_text = state_rendering_path.read_text(encoding="utf-8")
+        changelog_match = re.search(
+            r"## config-changelog\.md Format.*?(?=\n## )",
+            sr_text,
+            flags=re.DOTALL,
+        )
+        if not changelog_match:
+            failures.append("A_LOCK4: state-rendering.md missing '## config-changelog.md Format' section")
+        elif "commit_id" not in changelog_match.group(0):
+            failures.append("A_LOCK4: state-rendering.md config-changelog.md frontmatter block does not echo 'commit_id'")
+
+        layout_match = re.search(
+            r"\*\*Layout\*\* \(exact\):.*?(?=\n### |\n## )",
+            sr_text,
+            flags=re.DOTALL,
+        )
+        if not layout_match:
+            failures.append("A_LOCK4: state-rendering.md missing '**Layout** (exact):' state-summary.md header block")
+        elif "commit_id" not in layout_match.group(0):
+            failures.append("A_LOCK4: state-rendering.md state-summary.md header layout does not echo 'commit_id'")
+
+    return failures
+
+
+# ---------------------------------------------------------------------------
 # Driver
 # ---------------------------------------------------------------------------
 
@@ -420,10 +610,21 @@ CHECKS = [
     ("A8 Integration references", check_a8_integration_references),
     ("A9 Algorithm replacement", check_a9_algorithm_replacement),
     ("A10 I9 cross-field", check_a10_i9_cross_field),
+    ("A_LOCK1 state_io short-lock primitive", check_a_lock1_short_lock_primitive),
+    ("A_LOCK2 no old-contract lock phrasing", check_a_lock2_no_old_contract_lock_phrasing),
+    ("A_LOCK3 phase-0 preflight/genesis/recovery", check_a_lock3_phase0_preflight_genesis_recovery),
+    ("A_LOCK4 drift-state pointer + commit_id echo", check_a_lock4_drift_state_pointer_and_commit_id_echo),
 ]
 
 
 def main() -> int:
+    # A_LOCK2 failure messages echo file lines verbatim, which contain
+    # em-dashes / non-ASCII; the default Windows console codec (cp949)
+    # raises UnicodeEncodeError on print. Force UTF-8 stdout/stderr.
+    for _stream in (sys.stdout, sys.stderr):
+        if hasattr(_stream, "reconfigure"):
+            _stream.reconfigure(encoding="utf-8")
+
     all_failures: list[str] = []
     for label, check in CHECKS:
         try:

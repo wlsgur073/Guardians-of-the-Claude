@@ -1,7 +1,7 @@
 ---
 title: Common Phase 0 — Load Context & Learn
-description: Pre-skill state read sequence; 8-phase migration & stale check; learning rule application; migration notice template.
-version: 1.1.1
+description: Pre-skill state read sequence; commit_id marker preflight, migration genesis, torn-set recovery; learning rule application; migration notice template.
+version: 1.2.0
 ---
 
 ## Common Phase 0: Load Context & Learn
@@ -10,85 +10,59 @@ Insert before each skill's existing Phase 0 logic.
 
 **Step 0 — Directory Check**: Check if `local/` exists. If not, this is cold start — skip Steps 1-3, proceed to skill's own Phase 0. Final Phase creates the directory.
 
-**Step 0.5 — Migration & Stale Check** (8-phase clean version)
+**Step 0.5 — Migration & Stale Check**
 
 > **Precondition**: If `local/` is not writable (privacy-sensitive projects, read-only mounts, or user-disabled), skip the entire Step 0.5 and run the skill in **stateless mode** — print one-time warning ("local/ not writable; stateless run — learning disabled") and continue to the skill's own Phase 0 without reading or writing state.
 
-The state machine has 5 axes:
-- `profile.json`: absent | present-valid | present-corrupt
-- `recommendations.json`: absent | present-valid | present-corrupt
-- legacy MD inputs (`project-profile.md` / `latest-*.md`): absent | present
-- `state-summary.md`: absent | present-stale | present-fresh | present-tampered
-- `config-changelog.md`: absent | present
+Step 0.5 classifies on-disk state via a **commit_id marker preflight**, then routes to one of: genesis (legacy upgrade), proceed (uniform state), or torn-set recovery (corrupt/partial state). It is the **sole genesis path** — only Step 0.5 may mint the first `commit_id`. Every transition below is explicit; implicit behavior is forbidden.
 
-Every transition below is explicit. Implicit behavior is forbidden.
+The 4 canonical **SOURCE** files are `profile.json`, `recommendations.json`, `config-changelog.md`, `drift-state.json`. `state-summary.md` is a **derived** view, never a source and never a recovery authority.
 
-1. **Acquire state-mutation lock** — See `plugin/references/lib/state_io.md` §state-mutation-lock. Step 0.5 uses the abort-immediately behavior on contention (< 60s); Final Phase uses the wait-up-to-30s behavior.
+**§8 — Marker preflight & migration genesis**
 
-2. **Classify canonical files** (per file: absent | present-valid | present-corrupt):
-   - For each of `profile.json`, `recommendations.json`: if absent, mark absent. If present, attempt JSON parse + schema validate. Mark present-valid or present-corrupt.
-   - Corrupt is treated separately from absent for recovery routing.
+1. **Marker preflight (binding ordering — runs before any full schema validation)**: parse only the minimal JSON/frontmatter needed to read each SOURCE file's `schema_version` and `metadata.commit_id` — a lightweight pre-parse, **NOT** full schema validation. This preflight MUST run before any full schema validation, in every lane (including CI gates). Any lane that full-schema-validates a legacy-`schema_version` file before this preflight is an **ordering bug to fix in that lane** — never a reason to base-require `commit_id`. Legacy pre-migration fixtures need no `commit_id` backfill.
 
-3. **Routing decision** (based on phase 2 classification):
-   - All canonical present-valid → skip phases 4–5, jump to phase 6.
-   - Any canonical absent or present-corrupt → phase 4 (recovery).
+2. **Version-dispatched validation target**: when a SOURCE file *is* later schema-validated, validate it against the wrapper for **its own declared `schema_version`** (legacy wrapper versions are `commit_id`-optional), never against the newest wrapper. Newest-wrapper validation of a legacy-version file is the same ordering bug as above.
 
-4. **Recover from legacy** (per-file, never "nuke both"):
-   - For each missing-or-corrupt canonical file, attempt recovery from legacy MD if present:
-     - `profile.json` ← parse `project-profile.md` (fields not found → `null`)
-     - `recommendations.json` ← parse `latest-{skill}.md` Recommendations sections; **resolve legacy ids through registry aliases to canonical keys** (alias is input-only, NEVER persist alias forward)
-     - `drift-state.json` ← derive from `config-changelog.md` if `drift-state.json` absent or corrupt (one-shot migration):
-       - Under state-mutation lock: re-read `drift-state.json` from disk.
-       - If present-valid (parse + schema-validate) → skip migration; use on-disk state.
-       - If absent or invalid → run `derive_from_changelog()`:
-         - Oldest `/audit` anchor with non-null Model bullet → `baseline`
-         - Most-recent anchor → `last_seen`
-         - `legacy_migration.source_changelog_anchor_run_id = baseline.first_observed_at` (successful-recovery equality; both anchor the migration to the same oldest /audit observation)
-         - If `audit_observations` is empty after Model-bullet filter → `cold_start()` (all fields null)
-       - Atomic-write result; readback + schema-validate.
-       - If readback differs (parsed-object equality, NOT byte-equality — `metadata.last_updated` is exempt from the comparison) OR invalid → log warning; use on-disk valid state if available (single-attempt only — do NOT retry).
-   - If parse succeeds → write canonical file via atomic write (see `plugin/references/lib/state_io.md` §atomic-write); preserve other valid canonicals untouched.
-   - If parse fails OR no legacy source available → initialize empty: `profile.json = {schema_version, metadata}` only; `recommendations.json = {schema_version, metadata, recommendations: []}`. Atomic write (same spec).
-   - Move ANY corrupt canonical to backup (phase 5) before overwriting (data preservation).
-   - **Model field write path**: when emitting `profile.json` here, include `claude_code_configuration_state.model = <resolver output>` as a non-null string per the schema. This Step 0.5 write path applies to every skill's emission — migration, fresh bootstrap, post-validation re-write — with no new sub-phase and no `/audit`-specific branching. In stateless mode, this write is a no-op.
+3. **Classify the 4 SOURCE files by `commit_id` presence**. "Absent" is a **distinct non-comparable state** — it is NOT a value, NOT `0`, and is **never** OCC-comparable:
+   - **All 4 absent `commit_id`** → legacy upgrade → **genesis** (sub-step 4).
+   - **All 4 present and uniform** (same `commit_id` nonce on all 4) → proceed to full, new-version (marker-required) schema validation of each file against its declared-version wrapper, then continue to the summary freshness check (§Summary freshness) and Step 1.
+   - **Partial / mixed** (some `commit_id` present and some absent, OR present but differing nonces) → **torn/corrupt** → §9 torn-set recovery (STOP). Do not proceed, do not write canonical state.
 
-5. **Quarantine ALL examined legacy inputs** (success AND failure):
-   - Backup path: `local/legacy-backup/{ISO-8601-UTC, e.g., 2026-04-14T13-42-09Z}/`.
-   - If that path exists (re-migration in same second), append `-2`, `-3`, ... suffix.
-   - Move every legacy MD file examined in phase 2 into the backup directory, regardless of recovery outcome.
-   - Move corrupt canonical files (identified in phase 4) into the same backup directory **before** phase 4 overwrites them — the move must happen first.
-   - **Single-source cutover**: legacy MD must NEVER coexist with valid canonical JSON in `local/` after Step 0.5.
+4. **Genesis** (all 4 SOURCE files absent `commit_id` — legacy pre-migration install): the migration mints the **first `commit_id`** and writes the canonical SOURCE set (recovering field values from any legacy MD inputs — `project-profile.md` → `profile.json`; `latest-{skill}.md` Recommendations → `recommendations.json` with legacy ids resolved through registry aliases to canonical keys, alias input-only and NEVER persisted forward; `config-changelog.md` anchors → `drift-state.json` via the documented `derive_from_changelog()`, falling back to a null-fields cold-start document when no usable `/audit` anchor exists). The genesis write is performed under the short lock per `plugin/references/lib/state_io.md` §State-mutation lock (Step 0.5 aborts immediately on live contention; the lock spans only the bounded write burst, no LLM work under the lock). Every legacy MD input examined is then quarantined (§9 preserve-first quarantine semantics: copy into `local/legacy-backup/{ISO-8601-UTC}/`) so legacy MD never coexists with the new canonical JSON — single-source cutover.
+   - **Model field write path**: when emitting `profile.json` here, include `claude_code_configuration_state.model = <resolver output>` as a non-null string per the schema. This `.model` write path applies to every skill's emission — genesis migration, fresh bootstrap, post-validation re-write — with no new sub-phase and no `/audit`-specific branching. In stateless mode, this write is a no-op.
+   - **Absent is non-comparable, not a value**: genesis is the *only* path that may create a `commit_id`. Step 0.5 always runs before the Final Phase, so a Final Phase that observes the absent state means genesis did not occur (Step 0.5 was skipped under a cold-start/stateless run): the Final Phase MUST NOT proceed and MUST NOT invent a value — it treats the state as **genesis-required** and routes back through Step 0.5, or aborts with a diagnostic if state is unwritable. Coercing absent → a real value and committing is **forbidden**. This preflight-before-validation ordering *is* the backward-compat path; there is no separate compat shim.
 
-6. **Regenerate or validate `state-summary.md`**:
-   - Compute `max_source_mtime = max(mtime(profile.json), mtime(recommendations.json), mtime(config-changelog.md if present), mtime(drift-state.json))`. Note: `drift-state.json` is always present after Step 0.5 phase 4 (cold-start writes a null-fields document). Absence post-Step-0.5 indicates manual deletion → stale-trigger (re-run the `drift-state.json` sub-step of Step 0.5 phase 4 under the state-mutation lock before phase 6).
-   - If `state-summary.md` is absent OR `mtime(state-summary.md) < max_source_mtime` → **stale**: invoke renderer; write result via atomic write (see `plugin/references/lib/state_io.md` §atomic-write). Print "state-summary.md was stale. Regenerated from current JSON state."
-   - If `mtime(state-summary.md) > max_source_mtime` → **tampered**: print "state-summary.md is newer than all sources — manual edit detected. It will be overwritten at Final Phase. Edits to derived view are not preserved." Do NOT treat tampered file as a source of truth.
-   - If equal: treat as fresh, no action.
+**§9 — Torn-set detection & recovery**
 
-7. **Print migration notice** (only if phase 4 actually ran a recovery): see `learning-system.md` §Migration Notice. Include the backup path used in phase 5.
+5. **Detection scope = the 4 SOURCE files only.** A non-uniform `commit_id` across the 4 SOURCE files ⇒ **torn**. A stale or absent `commit_id` on the **derived** `state-summary.md` *alone* is **NOT** torn — it only triggers summary regeneration (the sources-first / summary-last write order makes a post-sources / pre-summary crash a normal interruption, not corruption).
 
-8. **Release lock** — See `plugin/references/lib/state_io.md` §state-mutation-lock (release via `os.unlink`). Continue to Step 1 normally.
+6. **Recovery = preserve-first, then STOP** (no auto-merge, no auto-reinit):
+   - **Preserve first**: BEFORE anything else, copy all 4 SOURCE files **byte-for-byte** into `local/legacy-backup/{ISO-8601-UTC}/` (reuse the existing legacy-backup quarantine pattern; if the path exists in the same second, append `-2`, `-3`, … suffix).
+   - **Diagnose**: emit a precise diagnostic naming each of the 4 SOURCE files and its observed `commit_id` (or "absent").
+   - **STOP**: do not auto-merge and do not auto-reinitialize. The 4 independent sources cannot be reconstructed from one another or from the derived summary; the derived summary is **NEVER** a recovery authority. Reinitialization / cold-start is only an explicit, user-acknowledged action.
+   - **Fresh-nonce guarantee**: any recovery / reinitialization mints a brand-new `commit_id` that no prior holder could have observed — so a stale in-flight Final-Phase holder's compare-and-commit check fails and it aborts (ABA closed without any monotonic counter).
 
-**Scenario matrix** (every combination explicit):
+**§Summary freshness** (uniform-state path only; reached from sub-step 3 "all 4 present and uniform"):
 
-| profile.json | recs.json | legacy MD | summary | Behavior |
-|---|---|---|---|---|
-| absent | absent | absent | absent | Fresh first run. Init empty canonicals (phase 4 fallback). Renderer creates summary at Final Phase. |
-| absent | absent | absent | present | Ghost summary. Quarantine summary to legacy-backup, init empty canonicals. |
-| absent | absent | present | * | Migration: parse legacy → canonicals (phase 4); summary regenerated (phase 6). |
-| absent | present-valid | absent | * | Partial canonical: init empty profile.json, preserve recommendations.json (phase 4 per-file). |
-| absent | present-corrupt | * | * | Same + corrupt recommendations.json moved to backup, init empty (phase 4). |
-| present-valid | absent | absent | * | Partial canonical: init empty recommendations.json, preserve profile.json. |
-| present-valid | present-valid | absent | absent | Cache miss: regenerate summary immediately (phase 6 stale path). |
-| present-valid | present-valid | absent | present-stale | Phase 6 stale path: regenerate. |
-| present-valid | present-valid | absent | present-tampered | Phase 6 tampered path: warn, will overwrite at Final Phase. |
-| present-valid | present-valid | absent | present-fresh | No-op (phases 4–5 skipped, phase 6 no-op). |
-| present-valid | present-valid | present | * | Single-source violation: quarantine legacy MD (phase 5) regardless of summary state, then phase 6. |
-| present-corrupt | * | * | * | Phase 4 per-file recovery for profile.json (legacy if available, else empty); other axes evaluated independently. |
+- Compute `max_source_mtime = max(mtime(profile.json), mtime(recommendations.json), mtime(config-changelog.md), mtime(drift-state.json))`.
+- If `state-summary.md` is absent OR `mtime(state-summary.md) < max_source_mtime` → **stale**: invoke the renderer and write the result via atomic write (see `plugin/references/lib/state_io.md` §Atomic write). Print "state-summary.md was stale. Regenerated from current JSON state."
+- If `mtime(state-summary.md) > max_source_mtime` → **tampered**: print "state-summary.md is newer than all sources — manual edit detected. It will be overwritten at Final Phase. Edits to derived view are not preserved." Do NOT treat a tampered derived file as a source of truth.
+- If equal: treat as fresh, no action.
 
-*`*` in a cell means the row applies regardless of that axis — the behavior delegates to the corresponding phase (e.g., `summary = *` defers to phase 6's mtime-based stale/tampered/fresh resolution; `legacy MD = *` defers to phase 4's per-file recovery logic).*
+**Print migration notice** (only when genesis actually ran): see `learning-system.md` §Migration Notice. Include the `local/legacy-backup/{ISO-8601-UTC}/` path used.
 
-After Step 0.5, proceed to Step 1 normally.
+**Routing summary** (every state explicit):
+
+| `commit_id` across 4 SOURCE files | Classification | Behavior |
+|---|---|---|
+| All 4 absent | legacy upgrade | **Genesis**: mint first `commit_id`, recover field values from legacy MD if present (else cold-start), write canonical SOURCE set under the short lock, quarantine legacy MD to `legacy-backup`, print migration notice. |
+| All 4 present and uniform | healthy | Full declared-version schema validation, then §Summary freshness (stale/tampered/fresh), then Step 1. |
+| Partial (some present, some absent) | torn | **§9 STOP**: preserve all 4 SOURCE files byte-for-byte to `legacy-backup`, diagnose, STOP. No auto-merge, no auto-reinit. |
+| Present but differing nonces | torn | Same as partial — **§9 STOP**. |
+| Uniform sources but derived summary stale/absent `commit_id` | NOT torn | Summary regeneration only (§Summary freshness) — derived-view staleness is a normal post-sources/pre-summary interruption, never recovery. |
+
+After Step 0.5 completes (genesis written, or uniform-state validated, or — for torn — Step 0.5 has STOPPED and control does not reach here), proceed to Step 1 normally.
 
 **Step 1 — Load Profile & Spot-Check**: Read `local/profile.json`. If found, use as project context. Then read the project's primary manifest (`package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, or `pom.xml` — whichever exists) and cross-check two high-impact items:
 

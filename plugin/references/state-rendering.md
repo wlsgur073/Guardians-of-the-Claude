@@ -1,7 +1,7 @@
 ---
 title: State Rendering & Token Budget
 description: Derived state-summary.md layout, config-changelog.md format, per-invocation token costs.
-version: 1.1.1
+version: 1.2.0
 ---
 
 ## config-changelog.md Format
@@ -15,8 +15,11 @@ description: Decision journal for Claude Code configuration changes
 version: 1.1.0
 compacted_at: {YYYY-MM-DD or "never"}
 entry_count: {N}
+commit_id: {per-write nonce; uniform across all 4 source files for this write}
 ---
 ```
+
+`commit_id` is the per-write optimistic-concurrency nonce minted in Final Phase Step C — see `plugin/references/lib/state_io.md` §State-mutation lock and `plugin/references/final-phase.md` Steps A/B/C. All 4 SOURCE files (`profile.json`, `recommendations.json`, `config-changelog.md`, `drift-state.json`) carry the **same** `commit_id` for a given write; a non-uniform set across the sources is a torn set (§9). `state-summary.md` echoes this value too but is a derived, **non-authoritative cache** — its `commit_id` is advisory only and never participates in torn-set classification (the 4 SOURCE files are authoritative).
 
 Two sections: `## Compacted History` and `## Recent Activity`. Entry format:
 
@@ -51,13 +54,13 @@ Skills write `profile.json` + `recommendations.json` as **canonical state**. The
 
 `/audit` additionally writes `local/qa-report.md` — a self-versioned post-audit transparency artifact, sibling to `profile.json` / `recommendations.json` / `state-summary.md` / `config-changelog.md`. Terminal-output fallback when `local/` unwritable or stateless mode active.
 
-**Invocation**: Every skill's Final Phase Step 1 substep 4 (see §Common Final Phase above) invokes this renderer. Input is the in-memory `new_profile` + `new_recommendations` + `new_changelog` produced at substep 3; atomic write of `state-summary.md` happens at substep 5. Render is pre-write, not post-write, to avoid TOCTOU against the same Step 1's writes.
+**Invocation**: Every skill's Final Phase **Step B** (Merge & render — see §Common Final Phase above) invokes this renderer. Input is the in-memory `new_profile` + `new_recommendations` + `new_changelog` produced by the Step B merge; the atomic write of `state-summary.md` happens in **Step C** (written LAST, after the 4 source files). Render is pre-write (during Step B, before any Step C write), not post-write, to avoid TOCTOU against Step C's writes.
 
 **Strict rules**:
 1. `state-summary.md` is read-only from the user's perspective. Skills never read it in any Phase (hot path or otherwise). Read `profile.json` and `recommendations.json` directly.
 2. **All canonical writes use atomic write** — See `plugin/references/lib/state_io.md` §atomic-write.
 3. **Stale vs tampered semantics**: `state-summary.md` freshness is compared against `max(mtime(profile.json), mtime(recommendations.json), mtime(config-changelog.md))` — the renderer reads from all three sources.
-   - If `state-summary.md` mtime ≥ max(source mtimes) → **fresh** (equal mtimes are safe for same-batch writes; `state-summary.md` is written LAST in the atomic batch per `final-phase.md` Step 5 write order, so equal or greater mtime is the natural fresh state).
+   - If `state-summary.md` mtime ≥ max(source mtimes) → **fresh** (equal mtimes are safe for same-batch writes; `state-summary.md` is written LAST in the atomic batch per `final-phase.md` Step C write order — 4 source files first in any order, then `state-summary.md` last — so equal or greater mtime is the natural fresh state).
    - If `state-summary.md` mtime < max(source mtimes) → **stale**: skill's Phase 0 re-renders, prints per-stale-event message ("state-summary.md was stale. Regenerated from current JSON state.").
    - Tamper detection via mtime alone is known to be fragile (deferred state-summary tamper mechanism overhaul). The current rule retains "newer than sources → tampered" semantics, with the caveat that same-batch writes can produce equal mtimes which are now treated as fresh per the rule above.
 
@@ -70,6 +73,7 @@ Skills write `profile.json` + `recommendations.json` as **canonical state**. The
  on next skill invocation.
  Generated at: {ISO-8601 UTC}
  Source: profile.json v{schema_version}, recommendations.json v{schema_version}
+ commit_id: {echoed from the SOURCE write — advisory cache marker, non-authoritative}
 ───────────────────────────────────────────────── -->
 
 # Claude Code Configuration State

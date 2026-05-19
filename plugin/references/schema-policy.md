@@ -1,12 +1,12 @@
 ---
 title: Schema Evolution Policy & Recommendation Registry
 description: SemVer + base+versioned-wrapper schema evolution; recommendation ID registry; legacy MD project profile format (pre-v2.11.0).
-version: 1.0.0
+version: 1.1.0
 ---
 
 ## Legacy Project Profile Format (pre-v2.11.0)
 
-> **Note**: Current canonical format is `profile.json` — see `plugin/references/schemas/profile.schema.base.json` (shape) and `profile.schema.v1.0.0.json` / `profile.schema.v1.1.0.json` / `profile.schema.v1.2.0.json` (versioned validators). This legacy MD format is still parsed by Phase 0.5 migration (Task 3) to convert existing installations.
+> **Note**: Current canonical format is `profile.json` — see `plugin/references/schemas/profile.schema.base.json` (shape) and `profile.schema.v1.0.0.json` / `profile.schema.v1.1.0.json` / `profile.schema.v1.2.0.json` / `profile.schema.v1.3.0.json` (versioned validators). This legacy MD format is still parsed by Phase 0.5 migration (Task 3) to convert existing installations.
 
 Frontmatter:
 

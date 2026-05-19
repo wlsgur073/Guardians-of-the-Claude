@@ -1,45 +1,56 @@
 ---
 title: Common Final Phase — Persist Results & Learn
-description: Post-skill merge, write, render sequence under state-mutation lock; per-skill merge rules pointer.
-version: 1.1.0
+description: "Post-skill OCC merge/write sequence: lock-free merge from an immutable snapshot, short-lock compare-and-commit."
+version: 1.2.1
 ---
 
 ## Common Final Phase: Persist Results & Learn
 
 Insert after each skill's existing final phase logic.
 
-**Step 1 — Merge, Write, Render** (concurrency-aware, under state-mutation lock):
+**OCC merge/commit** (optimistic concurrency, three short steps):
 
-The Final Phase does NOT blindly overwrite state with the snapshot read at Phase 0. Between Phase 0 and Final Phase, another skill run in a parallel shell may have modified canonical state. The sequence below protects against serialized lost updates (stale-snapshot overwrite) by re-reading under lock and merging this skill's deltas against current state. The Phase 0 snapshot is NOT the ground truth for write; `current_*` at step 2 is.
+Between Phase 0 and the Final Phase, another skill run in a parallel shell may have committed canonical state. The Final Phase does NOT blindly overwrite state with the Phase 0 snapshot. It also does NOT hold a lock across merge or render work. Instead it uses optimistic concurrency in three steps. Step A takes an immutable snapshot inside a short lock. Step B then merges lock-free from that snapshot. Step C re-acquires the short lock to compare-and-commit. The lock is held only across the two bounded read/write bursts in Steps A and C — never across LLM work.
 
-1. **Acquire `local/.state.lock`** — See `plugin/references/lib/state_io.md` §state-mutation-lock (Final Phase: wait up to 30s behavior).
+**Step A — Snapshot (short lock)**:
 
-2. **Re-read current canonical state under lock**:
-   - `current_profile` ← parse `local/profile.json`
-   - `current_recommendations` ← parse `local/recommendations.json`
-   - `current_changelog` ← read `local/config-changelog.md`
-   - `current_drift_state` ← parse `local/drift-state.json`
+1. Acquire the short lock — see `plugin/references/lib/state_io.md` §State-mutation lock.
+2. Read all 4 source files into an in-memory snapshot:
+   - `snap_profile` ← parse `local/profile.json`
+   - `snap_recommendations` ← parse `local/recommendations.json`
+   - `snap_changelog` ← read `local/config-changelog.md`
+   - `snap_drift_state` ← parse `local/drift-state.json`
+3. Capture `commit_obs` ← the uniform source `commit_id` (all 4 source files carry the same `commit_id`; this single value is the optimistic-concurrency observation token).
+4. Classify markers per §8: if **all marker files are absent**, this is genesis — defer to Step 0.5 (migration/genesis) and do not proceed with A→B→C here. If the marker set is **partial/mixed** (some present, some absent), this is a torn set — stop per §9 (torn-set recovery); do not merge or write.
+5. Release the short lock.
 
-3. **Apply this skill's deltas as a merge** (per-skill merge rules — see Per-Skill Merge Rules section below). Produce `new_profile`, `new_recommendations`, `new_changelog` in memory. The same-day duplicate handling of changelog entries (see §Same-Day Duplicate Check) and the compaction check (see §Compaction Algorithm) are applied in memory during this step, before the atomic write.
+**Step B — Merge & render (NO lock, NO canonical reads)**:
 
-4. **Render `new_state_summary`** from in-memory `new_profile` + `new_recommendations` + `new_changelog`. Do NOT re-read files from disk after step 2; rendering from in-memory state avoids TOCTOU races with step 5's writes.
+Apply this skill's deltas / merge / render **entirely from the Step A in-memory snapshot**. During Step B you MUST NOT read any of `local/profile.json`, `local/recommendations.json`, `local/config-changelog.md`, `local/drift-state.json`, or `local/state-summary.md` — the canonical files are off-limits for the whole of Step B; the snapshot captured at Step A is the sole input.
 
-5. **Atomic write all canonical files** (see `plugin/references/lib/state_io.md` §atomic-write):
-   - **Source files** (relative order within this group does not matter; all four must be written before state-summary.md):
-     - `profile.json` ← `new_profile`
-     - `recommendations.json` ← `new_recommendations`
-     - `config-changelog.md` ← `new_changelog` (whole-file rewrite; DO NOT use `O_APPEND`)
-     - `drift-state.json` ← `new_drift_state` (mutated only by `/audit` Final Phase; non-`/audit` skills re-write the same content read as `current_drift_state` at Step 2 to preserve atomic-write group consistency)
-   - **Derived view (LAST in the batch)**:
-     - `state-summary.md` ← `new_state_summary` (written last so mtime(state-summary.md) >= max_source_mtime — satisfies the freshness predicate checked in plugin/references/phase-0.md §Step 0.5 phase 6)
+1. Apply this skill's deltas as a merge (per-skill merge rules — see the Per-Skill Merge Rules section below) against `snap_profile` / `snap_recommendations` / `snap_changelog` / `snap_drift_state`. Produce `new_profile`, `new_recommendations`, `new_changelog`, `new_drift_state` in memory (non-`/audit` skills set `new_drift_state := snap_drift_state` unchanged — only `/audit` mutates it; see Step C). The same-day duplicate handling of changelog entries (see §Same-Day Duplicate Check) and the compaction check (see §Compaction Algorithm) are applied in memory during this step.
+2. Render `new_state_summary` from in-memory `new_profile` + `new_recommendations` + `new_changelog`. Rendering is purely from in-memory state — consistent with the Step B no-canonical-read rule and avoiding any TOCTOU race with Step C's writes.
 
-6. **Release `local/.state.lock`** — See `plugin/references/lib/state_io.md` §state-mutation-lock (release via `os.unlink`).
+**Step C — Compare-and-commit (short lock)**:
+
+1. Acquire the short lock.
+2. Re-read the 4 source files' `commit_id` → `commit_now`.
+3. **If `commit_now != commit_obs`** (a concurrent commit landed during Step B): release the lock and retry **A→B→C only** — re-snapshot, re-merge *this skill's already-computed deltas* against the new snapshot, and re-commit. The skill's primary analysis that precedes the Common Final Phase is NEVER re-run. Bound the retry to **N = 3** attempts; if still conflicting after the 3rd attempt, abort with: `state not persisted due to concurrent activity; re-run.`
+4. **If `commit_now == commit_obs`** (no concurrent commit): mint a fresh `commit_id`; atomic-write all 5 files stamped with that `commit_id` (see `plugin/references/lib/state_io.md` §atomic-write) — the 4 source files first in any order, then `state-summary.md` last:
+   - `profile.json` ← `new_profile`
+   - `recommendations.json` ← `new_recommendations`
+   - `config-changelog.md` ← `new_changelog` (whole-file rewrite; DO NOT use `O_APPEND`)
+   - `drift-state.json` ← `new_drift_state` (mutated only by `/audit`; non-`/audit` skills re-write the same content carried in `snap_drift_state` to preserve atomic-write group consistency)
+   - `state-summary.md` ← `new_state_summary` (written LAST so mtime(state-summary.md) >= max_source_mtime — satisfies the freshness predicate checked in `plugin/references/phase-0.md` §Summary freshness)
+5. Release the short lock.
+
+Step 0.5 (migration) performs the equivalent short-lock A→C around its own write burst and is the sole genesis path (§8) — see `plugin/references/phase-0.md` §Step 0.5; it is not duplicated here.
 
 Do NOT write `latest-{skill}.md` — legacy per-skill result files are deprecated; per-skill result info surfaces through `config-changelog.md` entries and `state-summary.md`'s Recent Skill Results section.
 
 ---
 
-## Per-Skill Merge Rules (Final Phase under state-mutation lock)
+## Per-Skill Merge Rules (applied lock-free in Step B)
 
 See `plugin/references/lib/merge_rules.md`.
 

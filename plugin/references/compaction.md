@@ -71,7 +71,7 @@ f. **Emit anchor dict** `{"skill": skill, "last_entry_date": last_entry_date, "l
 
 **Interactions** (consumer-side contract — drift-state.json migration cutover):
 
-- **Drift advisory derivation reads `drift-state.json`** (not changelog reverse-scan). See `plugin/references/drift-state.md` § Drift Advisory Derivation (canonical: read `drift-state.json`) for the canonical read path. Step 3b's structured anchor emission (`last_model` + `last_capability_fingerprint` per bucket) is preserved for migration source (Step 0.5 phase 4's `derive_from_changelog()` reads the same anchor format), but post-migration the changelog scan path is removed.
+- **Drift advisory derivation reads `drift-state.json`** (not changelog reverse-scan). See `plugin/references/drift-state.md` § Drift Advisory Derivation (canonical: read `drift-state.json`) for the canonical read path. Step 3b's structured anchor emission (`last_model` + `last_capability_fingerprint` per bucket) is preserved for migration source (the §8 genesis sub-step's `derive_from_changelog()` reads the same anchor format), but post-migration the changelog scan path is removed.
 
 - **Anchor-vs-bullet authority preserved**: `/audit` always-emits the `- Model:` bullet (writer policy unchanged), so any `/audit` anchor in a bucket has a non-null `last_model` unless all `/audit` entries are pre-v2.12.0 legacy. Non-`/audit` anchors may have `last_model = null` when all that skill's entries in the bucket delta-omitted (delta-emit policy). Migration's `audit_observations` filter excludes null-Model entries; `derive_from_changelog()` falls to `cold_start()` if the filter yields an empty list.
 

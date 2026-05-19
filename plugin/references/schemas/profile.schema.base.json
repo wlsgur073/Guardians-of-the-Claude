@@ -22,7 +22,8 @@
       "properties": {
         "generated_by": { "const": "guardians-of-the-claude" },
         "last_updated": { "type": "string", "format": "date-time" },
-        "source_files_checked": { "type": "array", "items": { "type": "string" } }
+        "source_files_checked": { "type": "array", "items": { "type": "string" } },
+        "commit_id": { "type": "string", "minLength": 1 }
       }
     },
     "runtime_and_language": {
