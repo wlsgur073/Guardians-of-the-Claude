@@ -334,6 +334,36 @@ jobs:
           fi
           exit "$EXIT_CODE"
 
+  atomic-fixture-runners-check:
+    name: Atomic fixture runners (t3 model-drift + t7 e2e)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install jsonschema==4.23.0 pyyaml==6.0.2
+
+      - name: Run t3 + t7 atomic fixture runners
+        env:
+          SMOKE_PINNED_UTC: "2026-04-14T00:00:00Z"
+        run: |
+          rc=0
+          for s in t3_model_drift_check t7_optimize_e2e_check t7_secure_counts_check t7_secure_e2e_check; do
+            e=0
+            python "ci/scripts/$s.py" || e=$?
+            if [ "$e" -eq 2 ]; then
+              echo "::warning::$s setup error (exit 2), skipped"
+            elif [ "$e" -ne 0 ]; then
+              echo "::error::$s failed (exit $e)"
+              rc=1
+            fi
+          done
+          exit $rc
+
   qa-report-shape-check:
     name: qa-report.md golden shape validator
     runs-on: ubuntu-latest

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `t3-model-drift` conformance and the `t7-*` end-to-end runners are now CI-gated by a new `atomic-fixture-runners-check` job in `.github/workflows/docs-check.yml`, run on every push to `main`, on pull requests, and on version tags. They were previously standalone local-only runners executed by no workflow.
+
 ### Fixed
 
 - `plugin/references/schemas/recommendations.schema.v1.2.0.json`: the schema `description` now states the `metadata.commit_id` requirement that defines the v1.2.0 wrapper; it previously carried the v1.1.0 wording describing only the `decline_count` field. No schema-constraint or validation-behavior change.

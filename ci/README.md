@@ -27,7 +27,7 @@ For faster iteration during fixture development, individual fixtures can be exer
 - `scripts/t7_secure_counts_check.py` — `t7-secure-counts`
 - `scripts/t7_secure_e2e_check.py` — `t7-secure-e2e`
 
-These runners are **local-only and not CI-gated**. The full smoke run (`run-smoke.sh`) does **not** execute the `t3-model-drift` conformance suite or the `t7-*` end-to-end scenarios — `check-smoke-fixtures.py` imports the t3 `model-drift-rules.md` parser for the drift-state fixtures but does not run `test-cases.json`, and the `t7-*` scenarios are not in the smoke fixture set. Run them locally before changes that touch the model-drift rules or the `/optimize`·`/secure` Final-Phase write path.
+These runners are CI-gated by the `atomic-fixture-runners-check` job in `.github/workflows/docs-check.yml`, which runs them on every push to `main`, on pull requests, and on version tags. They remain runnable standalone for fast local iteration. Note the **smoke** lane (`run-smoke.sh`) still does **not** execute them: `check-smoke-fixtures.py` imports the t3 `model-drift-rules.md` parser for the drift-state fixtures but does not run `test-cases.json`, and the `t7-*` scenarios are not in the smoke fixture set — the docs-check job is their gate.
 
 ## Running locally
 
