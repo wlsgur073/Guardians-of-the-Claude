@@ -7,11 +7,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.19.8] - 2026-05-19
+
+### Added
+
+- **`commit_id` metadata field on the profile, recommendations, and drift-state schemas** — new versioned schema wrappers carry a per-write `commit_id` nonce so cross-file state can be validated as a consistent set. The field is optional on the prior schema versions, so existing installations and fixtures need no backfill.
+- **Concurrency-safety smoke and drift-aware coverage** — new CI fixtures exercise concurrent-shell mutual exclusion, torn cross-file state, first-run genesis minting, optimistic-concurrency commit conflict, and same-instant `audit_run_id` collision.
+- **Cross-document old-contract-phrasing assertions** across the state/merge reference docs and every skill `SKILL.md`, so a future reversion to the pre-OCC lock wording is caught by CI rather than shipping silently.
+
+### Changed
+
+- **State-mutation lock now uses an atomic short-lock plus an optimistic-concurrency (OCC) commit protocol.** Each write is keyed by a per-write `commit_id` nonce. The Final-Phase profile/recommendations merge runs lock-free against an immutable snapshot and then performs a bounded compare-and-commit retry, so the short-lock is held only for the commit, not for the merge. Cross-file torn state — a partial or mismatched `commit_id` across the canonical files — is detected and safely halted (preserve-first; no automatic merge of inconsistent state). First-run installations mint a genesis `commit_id`. The per-skill Final-Phase profile-merge contract and the shared merge-rules reference were aligned to this lock-free model. Resolves #13.
 
 ### Fixed
 
-- **Dangling `Phase C` internal-plan label removed from shipped artifacts** — 8 occurrences across `plugin/references/compaction.md` (2), `plugin/references/drift-state.md` (1, frontmatter description), `plugin/references/phase-0.md` (1), and `.github/scripts/check-smoke-fixtures.py` (4, comments/docstring) referenced the drift-state migration's internal `Phase C` plan label, which has no definition anywhere in the shipped tree. Each is restated in-place as the behavioral concept (`drift-state.json migration` / `one-shot migration`); all behavioral content and runtime/verifier behavior unchanged (`check-smoke-fixtures.py` re-run PASS). Frontmatter versions bumped: `compaction.md` `1.0.1` → `1.0.2`, `drift-state.md` `2.0.0` → `2.0.1`, `phase-0.md` `1.1.0` → `1.1.1`.
+- **Same-instant `audit_run_id` collisions** — concurrent `/audit` runs that started in the same microsecond could mint colliding or mis-ordered ids. Ids are now derived from a canonical-microsecond form with a deterministic monotonic bump (parsed to a datetime and compared as time, never string-sorted), so concurrent runs always produce distinct, correctly ordered ids.
+- **A dangling internal migration-plan label was removed from shipped reference docs and the smoke verifier.** Eight occurrences across `plugin/references/compaction.md`, `plugin/references/drift-state.md` (frontmatter description), `plugin/references/phase-0.md`, and `.github/scripts/check-smoke-fixtures.py` (comments/docstring) referenced an internal plan label with no definition anywhere in the shipped tree. Each is restated in place as the behavioral concept it described (`drift-state.json migration` / one-shot migration).
 
 ## [2.19.7] - 2026-05-18
 
