@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - `plugin/references/schemas/recommendations.schema.v1.2.0.json`: the schema `description` now states the `metadata.commit_id` requirement that defines the v1.2.0 wrapper; it previously carried the v1.1.0 wording describing only the `decline_count` field. No schema-constraint or validation-behavior change.
 - `README.md` (+ ko-KR / ja-JP mirrors): the "CI smoke lane" section now describes the actual coverage — the skill-flow, drift-state, state-lock concurrency, `audit_run_id`, and SessionStart hook-parity lanes — and scopes "maintainer-local" to the separate gitignored `test/` evaluation framework. The prior text understated it as a "minimal 4-fixture set" with wider evaluation maintainer-local.
+- `ci/fixtures/t3-model-drift/test-cases.json`: the `claude-sonnet-4-5` (Anthropic-direct) case now expects `200k`, matching the canonical `plugin/references/model-drift-rules.md` row; the prior `1M` was a beta-transitional value whose window closed 2026-04-30.
+- `ci/fixtures/t7-optimize-e2e`, `t7-secure-counts`, `t7-secure-e2e` (`expected/local/`): added the `drift-state.json` the Final-Phase write has emitted since the five-file atomic write; the end-to-end goldens now match current output, with every other golden file byte-unchanged. No skill-behavior change.
+- `ci/README.md`: corrected the smoke-lane scope description — the deterministic state-lock concurrency fixtures run in the smoke lane, and the `t3-model-drift` conformance suite plus the `t7-*` end-to-end runners are local-only (not executed by the full smoke run).
 
 ## [2.19.8] - 2026-05-19
 

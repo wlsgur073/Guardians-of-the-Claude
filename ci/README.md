@@ -15,19 +15,19 @@ Canonical regression fixtures + golden snapshots for Guardians-of-the-Claude. CI
 
 ## Out of scope
 
-- **Concurrency fixtures** — environment-dependent (process scheduling, filesystem lock behavior vary by platform); manual testing recommended.
+- **Multi-process OS-race testing** — actual concurrent-process scheduling and OS-level filesystem-lock races are environment-dependent (vary by platform); manual testing recommended. The *deterministic* state-lock concurrency fixtures that simulate these scenarios (`state-lock-concurrent`, `state-lock-occ-conflict`, `state-lock-torn`, `state-lock-genesis`) **are** in the smoke lane.
 - **Partial recovery fixtures** (e.g., `profile.json` corrupt + `recommendations.json` valid) — covered by separate local tooling outside the canonical CI lane.
 
 ## Atomic fixture runners
 
 For faster iteration during fixture development, individual fixtures can be exercised via dedicated runners instead of the full smoke run:
 
-- `scripts/t3_model_drift_check.py` — `t3-model-drift` (also imported by `.github/scripts/check-smoke-fixtures.py` for the full smoke run)
+- `scripts/t3_model_drift_check.py` — `t3-model-drift` (the 16-case model-fingerprint conformance suite over `test-cases.json`)
 - `scripts/t7_optimize_e2e_check.py` — `t7-optimize-e2e`
 - `scripts/t7_secure_counts_check.py` — `t7-secure-counts`
 - `scripts/t7_secure_e2e_check.py` — `t7-secure-e2e`
 
-These are not wired into a separate CI job because the full smoke run (`run-smoke.sh`) covers the same scenarios; they exist as local-only debugging entry points.
+These runners are **local-only and not CI-gated**. The full smoke run (`run-smoke.sh`) does **not** execute the `t3-model-drift` conformance suite or the `t7-*` end-to-end scenarios — `check-smoke-fixtures.py` imports the t3 `model-drift-rules.md` parser for the drift-state fixtures but does not run `test-cases.json`, and the `t7-*` scenarios are not in the smoke fixture set. Run them locally before changes that touch the model-drift rules or the `/optimize`·`/secure` Final-Phase write path.
 
 ## Running locally
 
