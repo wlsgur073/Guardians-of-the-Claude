@@ -114,7 +114,7 @@ Over multiple skill runs, the plugin's **meta-system layer** fills out — persi
 
 ## CI smoke lane (transitional bridge)
 
-Until v3.0 ships or a second maintainer joins (whichever comes first), the CI smoke lane (`ci/fixtures/` + `ci/golden/`) validates a minimal 4-fixture set: migration / beginner-path / warm-start / monorepo. Wider evaluation remains maintainer-local.
+Until v3.0 ships or a second maintainer joins (whichever comes first), the CI smoke lane (`ci/fixtures/` + `ci/golden/`) validates a broad fixture set — the skill-flow, drift-state, state-lock concurrency, `audit_run_id`, and SessionStart hook-parity lanes — compared against frozen golden snapshots on pull requests that touch the plugin, template, or CI paths and on every version tag. The separate skill-output quality evaluation (the gitignored `test/` framework) is what remains maintainer-local.
 
 After the exit condition is met, the smoke lane will be promoted to cover all release-gate checks, and this transitional note will be removed from the README.
 

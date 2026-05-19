@@ -106,7 +106,7 @@ Claude Code 설정을 위한 메타 시스템. 2분 빠른 시작부터 시작�
 
 ## CI smoke 레인 (전환기 브릿지)
 
-v3.0이 출시되거나 두 번째 maintainer가 합류할 때까지(둘 중 먼저 도래하는 시점), CI smoke 레인(`ci/fixtures/` + `ci/golden/`)은 최소 4개 fixture 세트(`migration` / `beginner-path` / `warm-start` / `monorepo`)를 검증합니다. 더 폭넓은 평가는 maintainer-local에서 수행됩니다.
+v3.0이 출시되거나 두 번째 maintainer가 합류할 때까지(둘 중 먼저 도래하는 시점), CI smoke 레인(`ci/fixtures/` + `ci/golden/`)은 광범위한 fixture 세트 — skill-flow, drift-state, state-lock 동시성, `audit_run_id`, SessionStart 훅 패리티 레인 — 를 plugin·template·CI 경로를 건드리는 pull request 및 모든 버전 태그에서 frozen golden 스냅샷과 대조해 검증합니다. maintainer-local에 남는 것은 별도의 skill-output 품질 평가(gitignored `test/` 프레임워크)입니다.
 
 종료 조건 충족 후 smoke 레인은 모든 release-gate 검사로 확장되며, 이 전환기 안내는 README에서 제거됩니다.
 

@@ -106,7 +106,7 @@ Claude Code設定のためのメタシステム。2分のガイド付きセッ�
 
 ## CI smoke レーン（移行ブリッジ）
 
-v3.0 リリースまで、または二人目のメンテナが参加するまで（いずれか早い方）、CI smoke レーン（`ci/fixtures/` + `ci/golden/`）は最小 4 つのフィクスチャセット（`migration` / `beginner-path` / `warm-start` / `monorepo`）を検証します。より広範な評価はメンテナローカルで実施されます。
+v3.0 リリースまで、または二人目のメンテナが参加するまで（いずれか早い方）、CI smoke レーン（`ci/fixtures/` + `ci/golden/`）は広範なフィクスチャセット — skill-flow、drift-state、state-lock 並行性、`audit_run_id`、SessionStart フックパリティの各レーン — を、plugin・template・CI パスに触れる pull request、およびすべてのバージョンタグで frozen golden スナップショットと照合して検証します。メンテナローカルに残るのは、別個の skill-output 品質評価（gitignored の `test/` フレームワーク）です。
 
 終了条件を満たした後、smoke レーンはすべての release-gate チェックに昇格し、この移行期の注記は README から削除されます。
 

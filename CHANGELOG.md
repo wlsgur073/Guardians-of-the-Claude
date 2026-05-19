@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- `plugin/references/schemas/recommendations.schema.v1.2.0.json`: the schema `description` now states the `metadata.commit_id` requirement that defines the v1.2.0 wrapper; it previously carried the v1.1.0 wording describing only the `decline_count` field. No schema-constraint or validation-behavior change.
+- `README.md` (+ ko-KR / ja-JP mirrors): the "CI smoke lane" section now describes the actual coverage — the skill-flow, drift-state, state-lock concurrency, `audit_run_id`, and SessionStart hook-parity lanes — and scopes "maintainer-local" to the separate gitignored `test/` evaluation framework. The prior text understated it as a "minimal 4-fixture set" with wider evaluation maintainer-local.
+
 ## [2.19.8] - 2026-05-19
 
 ### Added

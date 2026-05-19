@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "recommendations.schema.v1.2.0.json",
   "title": "Open Recommendations — v1.2.0 Wrapper",
-  "description": "Versioned wrapper adding decline_count integer field per recommendation entry. Closes at wrapper scope AND per-property: metadata is wrapped with allOf + unevaluatedProperties: false (rejects metadata.extra), recommendations items wrapped the same. decline_count is monotonic-cumulative: increments on each DECLINE write recorded by /create, /audit, /secure, or /optimize; never decremented even if rec re-transitions PENDING -> DECLINED. Mirrors profile.schema.v1.1.0.json's per-property closure pattern.",
+  "description": "Versioned wrapper that additionally requires metadata.commit_id — the per-write nonce that lets cross-file state be validated as a consistent set under the state-mutation OCC protocol. Inherits the v1.1.0 decline_count integer field per recommendation entry. Closes at wrapper scope AND per-property: metadata is wrapped with allOf + unevaluatedProperties: false (rejects metadata.extra) plus the commit_id requirement, recommendations items wrapped the same. decline_count is monotonic-cumulative: increments on each DECLINE write recorded by /create, /audit, /secure, or /optimize; never decremented even if rec re-transitions PENDING -> DECLINED. Mirrors profile.schema.v1.1.0.json's per-property closure pattern.",
   "type": "object",
   "allOf": [{ "$ref": "recommendations.schema.base.json" }],
   "properties": {
