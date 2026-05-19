@@ -1,7 +1,7 @@
 ---
 title: Compaction — Same-Day Duplicate & Quarter Rollup
-description: In-memory compaction algorithm during Final Phase Step 3; lossless anchors preservation; per-skill structured anchor emission.
-version: 1.0.2
+description: In-memory compaction algorithm during the Final Phase lock-free merge (Step B); lossless anchors preservation; per-skill structured anchor emission.
+version: 1.0.3
 ---
 
 ## Same-Day Duplicate Check (Step 3a)
@@ -67,7 +67,7 @@ f. **Emit anchor dict** `{"skill": skill, "last_entry_date": last_entry_date, "l
 
 **Stateless mode**: Step 3b is skipped transitively because the changelog write is skipped (`local/` unwritable). Stateless mode does not enumerate Step 3b separately — no Step 3b-specific stateless logic is required.
 
-**Lock integration**: Step 3b executes within Final Phase Step 3 (merge deltas) per the lock insertion map — anchors are part of the in-memory merged changelog; persistence occurs at Final Phase Step 5 (atomic write of the full changelog file). No separate lock acquisition — Step 3b rides the existing Final Phase state-mutation lock.
+**Lock integration**: Step 3b executes within the Final Phase lock-free merge (Step B — merge deltas) per the OCC step map — anchors are part of the in-memory merged changelog; persistence occurs at Final Phase Step C (the short-lock compare-and-commit atomic write of the full changelog file). No separate lock acquisition — Step 3b rides the existing Final Phase OCC A→B→C state-mutation short lock.
 
 **Interactions** (consumer-side contract — drift-state.json migration cutover):
 

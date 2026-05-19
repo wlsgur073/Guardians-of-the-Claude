@@ -1,18 +1,18 @@
 ---
 title: Per-Skill Merge Rules
 description: Canonical merge rules for profile.json, recommendations.json, and config-changelog.md. Each skill's Final Phase references this file instead of duplicating the rules inline.
-version: 1.3.0
+version: 1.3.1
 ---
 
 # Per-Skill Merge Rules
 
-These rules govern how each skill's Final Phase applies its changes to canonical state. The Final Phase does **not** blindly overwrite state with the Phase 0 snapshot. Under the state-mutation lock (see `state_io.md §state-mutation-lock`), it re-reads current canonical state and merges this skill's deltas against that current state — protecting against lost updates from parallel shell sessions.
+These rules govern how each skill's Final Phase applies its changes to canonical state. The Final Phase does **not** blindly overwrite state with the Phase 0 snapshot. It merges this skill's deltas **lock-free in Final Phase Step B, against the Step A snapshot** of current canonical state. Lost-update protection comes from the **Step C compare-and-commit**: Step C re-acquires the short lock (lock mechanics: see `state_io.md §state-mutation-lock`) and aborts+retries if the sources' `commit_id` changed since the Step A snapshot — not from holding a lock across re-read+merge.
 
 ---
 
 ## profile.json merge rules
 
-Each skill owns specific top-level sections of `profile.json`. It replaces **only the fields it owns** in this run. All other fields must be preserved from the re-read `current_profile`.
+Each skill owns specific top-level sections of `profile.json`. It replaces **only the fields it owns** in this run. All other fields must be preserved from `snap_profile` (the `profile.json` captured in the Step A snapshot).
 
 **Section ownership**:
 
@@ -43,9 +43,9 @@ When `current_profile` has no `claude_code_configuration_state.settings_json` at
 
 ### project_structure / monorepo_detection consistency precondition (v1.2.0 new)
 
-Any writer that updates `project_structure.type` MUST re-read `current_profile` under the state-mutation lock and produce a profile that validates against the type-consistency invariants in the v1.2.0 wrapper schema.
+Any writer that updates `project_structure.type` MUST merge against `snap_profile` (the Step A snapshot) and produce a profile that validates against the type-consistency invariants in the v1.2.0 wrapper schema.
 
-`/audit` is the only writer that owns `monorepo_detection` and the only writer that may transition monorepo state. On each writable `/audit` run, it MUST recompute detection and write `monorepo_detection` plus `project_structure.type` in the same locked transaction:
+`/audit` is the only writer that owns `monorepo_detection` and the only writer that may transition monorepo state. On each writable `/audit` run, it MUST recompute detection and write `monorepo_detection` plus `project_structure.type` in the same Step C compare-and-commit:
 
 - If recomputed `monorepo_detection.detected == true`, set `project_structure.type = "monorepo"`.
 - If recomputed `monorepo_detection.detected == false`, set `project_structure.type = "single_project"`.
@@ -57,7 +57,7 @@ Non-`/audit` writers do not own `monorepo_detection`:
 - If `current_profile.monorepo_detection.detected == false`, they MUST NOT write `project_structure.type = null` or `"monorepo"`; they may preserve or write `"single_project"`.
 - If `current_profile.monorepo_detection == null` or `.detected == null`, they may write `"single_project"` or `null` according to their analysis, but MUST NOT write `"monorepo"` because they cannot also write `monorepo_detection.detected = true`.
 
-This handles the stale-workspace edge case: when `/audit` re-reads stale current state, recomputes `detected = false` after the user removed the workspace declaration, then writes `detected = false` and `type = "single_project"` in one transaction.
+This handles the stale-workspace edge case: when `/audit`'s Step A snapshot reflects stale current state, recomputes `detected = false` after the user removed the workspace declaration, then writes `detected = false` and `type = "single_project"` via the Step C compare-and-commit.
 
 `monorepo_detection`, `claude_md.subpackages`, and `claude_md.subpackage_coverage` are full-replace on each writable `/audit` run: deterministic recomputation of the per-package score snapshot replaces the previous list (no key-merge by `path`, since per-package scores have no historical-trend semantic in this version).
 
@@ -91,10 +91,10 @@ Merge by canonical `id` (key). Never rewrite the whole array.
 
 ## config-changelog.md merge rules
 
-Use whole-file read-modify-write under the state-mutation lock. Read the entire file into memory, apply changes, then atomic-write the result (see `state_io.md §atomic-write`). Do not use `O_APPEND`.
+Use whole-file read-modify-write driven by the OCC steps: read the changelog from the Step A snapshot, apply changes in-memory (Step B), then Step C atomic-writes the result (see `state_io.md §atomic-write`). Do not use `O_APPEND`.
 
 **Same-day update semantics**: if an entry for this skill already exists in today's Recent Activity section, update that entry in place (append new actions to its body). Otherwise append a new entry to the Recent Activity tail.
 
 **Compaction**: apply the Compaction rule (per `§config-changelog Format` in `state-rendering.md`) after the update if Recent Activity exceeds its cap.
 
-**Rationale**: the changelog requires same-day in-place updates, which pure append cannot express. Reading and rewriting the whole file under the lock is correct and not a performance concern given the bounded log size (compaction enforces the cap).
+**Rationale**: the changelog requires same-day in-place updates, which pure append cannot express. Reading from the Step A snapshot and rewriting the whole file in the Step C compare-and-commit is correct and not a performance concern given the bounded log size (compaction enforces the cap).

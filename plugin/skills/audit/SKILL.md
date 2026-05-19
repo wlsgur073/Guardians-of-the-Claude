@@ -206,27 +206,27 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
 
   The score itself (`XX/100`, grade, maturity level) is a user-facing snapshot surfaced in the terminal output of Phase 4 and in `state-summary.md`'s Recent Skill Results section. It must NOT be written into the `config-changelog.md` entry as a field — the changelog is learning data, not a report ledger.
 
-  Profile merge under the state-mutation lock: `/audit` is the authoritative full refresh (Layer 3 of stale prevention). Always regenerate all `/audit`-owned sections — `runtime_and_language`, `framework_and_libraries`, `package_management`, `testing`, `build_and_dev`, `project_structure`, `monorepo_detection`, and `claude_code_configuration_state.claude_md` — from detected state, regardless of whether changes were detected. When `monorepo_detection.detected` flips from `true` to `false` or `null`, full-replace regeneration must clear stale `claude_md.subpackages` and reset `claude_md.subpackage_coverage` counters per `merge_rules.md` full-replace semantics. Other sections (e.g., `claude_code_configuration_state.settings_json` owned by `/secure`) must be preserved from the re-read `current_profile` (see `plugin/references/lib/merge_rules.md` §profile.json merge rules).
+  Profile merge (lock-free in Final Phase Step B, against the Step A snapshot): `/audit` is the authoritative full refresh (Layer 3 of stale prevention). Always regenerate all `/audit`-owned sections — `runtime_and_language`, `framework_and_libraries`, `package_management`, `testing`, `build_and_dev`, `project_structure`, `monorepo_detection`, and `claude_code_configuration_state.claude_md` — from detected state, regardless of whether changes were detected. When `monorepo_detection.detected` flips from `true` to `false` or `null`, full-replace regeneration must clear stale `claude_md.subpackages` and reset `claude_md.subpackage_coverage` counters per `merge_rules.md` full-replace semantics. Other sections (e.g., `claude_code_configuration_state.settings_json` owned by `/secure`) must be preserved from `snap_profile` (the `profile.json` captured in the Step A snapshot; see `plugin/references/lib/merge_rules.md` §profile.json merge rules).
 
   **A1 merge rule amendments** (applied summary; mechanism in `plugin/references/lib/merge_rules.md`):
   - **Row 1 — `claude_code_configuration_state.model`**: any-skill writer; last-write-wins; written at Step 0.5 and Final Phase. Stateless mode: no-op.
   - **Row 2 — `claude_code_configuration_state.scoring_model_ack`**: `/audit` exclusive writer; full-object replacement; Final Phase only. Stateless mode: no-op.
-  - **Row 3 — `config-changelog.md` entry `- Model:` bullet**: `/audit` always-emits per the shared hybrid writer policy. See `plugin/references/learning-system.md § Model Bullet Emission` for full mechanics; this skill's branch is the always-emit terminator (Phase 1 baseline already re-reads `current_changelog`, and `/audit` does not branch on the re-read value).
+  - **Row 3 — `config-changelog.md` entry `- Model:` bullet**: `/audit` always-emits per the shared hybrid writer policy. See `plugin/references/learning-system.md § Model Bullet Emission` for full mechanics; this skill's branch is the always-emit terminator (the previous-entry `- Model:` value is derived lock-free from `snap_changelog` in the Step A snapshot, and `/audit` does not branch on that value).
 
 - **Stateless guard (Phase 5 top-level branch)**: if `local/` is unwritable:
-  - SKIP Step 2 `scoring_model_ack` re-read.
-  - SKIP Step 3 ack delta computation + scoring-model-change banner trigger (persistence-backed banner fully skipped to avoid double-warning after stateless degradation notice).
+  - SKIP the Step A `scoring_model_ack` snapshot capture.
+  - SKIP the Step B ack delta computation + scoring-model-change banner trigger (persistence-backed banner fully skipped to avoid double-warning after stateless degradation notice).
   - RETAIN drift advisory derivation — current-state transient, no file write.
   - Proceed to print the stateless-mode warning; no JSON state writes, no changelog write.
 
   Non-stateless path continues below.
 
-- **Step 2 additions (re-read under lock, `/audit`-specific fields):**
-  - Re-read `profile.claude_code_configuration_state.model` for drift advisory baseline input.
-  - Re-read `profile.claude_code_configuration_state.scoring_model_ack` for scoring-contract-change banner trigger decision.
+- **Step A additions (`/audit`-specific fields captured in the snapshot under the short lock):**
+  - Capture `profile.claude_code_configuration_state.model` into the Step A snapshot for drift advisory baseline input.
+  - Capture `profile.claude_code_configuration_state.scoring_model_ack` into the Step A snapshot for the scoring-contract-change banner trigger decision.
 
-- **Step 3 additions (compute deltas):**
-  - **Final Phase model write** — set `profile.claude_code_configuration_state.model = <resolver output>`; merge under A1 Row 1 last-write-wins.
+- **Step B additions (compute deltas lock-free against the Step A snapshot):**
+  - **Final Phase model write** — the model delta `new_profile.claude_code_configuration_state.model = <resolver output>` is computed in memory here (merge under A1 Row 1 last-write-wins); the durable write of this value lands in the Step C compare-and-commit batch.
   - **Scoring-model-change banner** (copy: "Scoring contract changed" — must NOT collide with the drift advisory copy "Model drift detected"): apply the trigger rule:
 
     ```
@@ -243,15 +243,15 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
     1. On `drift` state returned from the shared derivation, render the terminal drift block per `references/output-format.md` (between Score line and ★ Most impactful; changed-axes-only + baseline annotation + no severity label).
     2. On `match` / `missing_baseline` / `normalization_null` states: terminal is silent (symmetric with state-summary header silence).
     3. Advisory is **transient** — the drift advisory is transient terminal output and is NOT added to recommendations.json (see `plugin/references/learning-system.md § Drift Advisory Derivation` Transience clause).
-    4. **Stateless mode**: drift advisory retained — current-state derived from in-memory changelog snapshot; when no baseline is available, advisory resolves to `missing_baseline` silence. `/audit` terminal render proceeds even without `local/` persistence; `state-summary.md` is not written in stateless mode (Final Phase Step 1 fully skipped).
+    4. **Stateless mode**: drift advisory retained — current-state derived from the in-memory Step A snapshot; when no baseline is available, advisory resolves to `missing_baseline` silence. `/audit` terminal render proceeds even without `local/` persistence; `state-summary.md` is not written in stateless mode (the Final Phase Step C compare-and-commit write — which writes `state-summary.md` last — is fully skipped).
 
-- **Step 5 additions (atomic write):**
-  - Write `.model` into `profile.json` (part of `profile.json` file set; no new lock primitive).
-  - Write updated `scoring_model_ack` when banner fired (A1 Row 2 full-object replacement).
-- **drift-state.json mutation** (`/audit`-only):
-  - **Step 2**: Re-read `current_drift_state` from `local/drift-state.json` under lock.
-  - **Step 3**: Mutate in-memory — (1) if `baseline` non-null and both `normalize_model_id(current_model_id)` and `normalize_model_id(baseline.model_id)` are non-null and equal: append `current_audit_run_id` to `baseline.audit_run_ids` (FIFO cap 50); (2) if cold-start (`baseline` was null): set `baseline`; (3) always update `last_seen` (`current_model_id`, `current_audit_run_id`, now).
-  - **Step 5**: Atomic-write `drift-state.json` as part of the canonical-files batch (source files first, `state-summary.md` last).
-  - Non-`/audit` skills do NOT mutate `drift-state.json` — they re-write the same `current_drift_state` content read at Step 2 to preserve atomic-write group consistency.
+- **Step C additions (compare-and-commit atomic write, short lock):**
+  - Write `new_profile.…model` into `profile.json` (part of the `profile.json` file in the 5-file batch; no new lock primitive — reuses the Step C short lock).
+  - Write updated `scoring_model_ack` when the banner fired (A1 Row 2 full-object replacement).
+- **drift-state.json mutation** (`/audit`-only) — mapped onto the OCC Step A/B/C model:
+  - **Step A (snapshot)**: `current_drift_state` is the `drift-state.json` parsed into `snap_drift_state` when the Step A snapshot is taken inside the short lock; no separate read.
+  - **Step B (lock-free, against the snapshot)**: derive `new_drift_state` from `snap_drift_state` in memory — (1) if `baseline` non-null and both `normalize_model_id(current_model_id)` and `normalize_model_id(baseline.model_id)` are non-null and equal: append `current_audit_run_id` to `baseline.audit_run_ids` (FIFO cap 50); (2) if cold-start (`baseline` was null): set `baseline`; (3) always update `last_seen` (`current_model_id`, `current_audit_run_id`, now).
+  - **Step C (compare-and-commit)**: atomic-write `new_drift_state` to `drift-state.json` as part of the 5-file batch (the 4 source files first in any order, `state-summary.md` last).
+  - Non-`/audit` skills do NOT perform this Step B drift-state mutation — they re-write the `current_drift_state` value exactly as captured in `snap_drift_state` (set `new_drift_state := snap_drift_state` unchanged) so the Step C atomic-write group stays consistent.
 
 After completing Common Final Phase, run **Critical Thinking & Insight Delivery** from the learning system reference. Apply Socratic verification to audit recommendations before presenting them.

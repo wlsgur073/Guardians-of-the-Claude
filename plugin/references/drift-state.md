@@ -1,7 +1,7 @@
 ---
 title: Drift Advisory Derivation (canonical via drift-state.json)
-description: Model bullet emission policy + drift advisory state machine reading drift-state.json (replaces changelog scan removed in Phase C).
-version: 2.0.1
+description: Model bullet emission policy + drift advisory state machine reading drift-state.json (replaces the changelog scan, now removed).
+version: 2.0.3
 ---
 
 ## Model Bullet Emission (config-changelog.md)
@@ -37,7 +37,7 @@ The drift advisory state machine derives its inputs from `local/drift-state.json
 - `current_model_id` ← `profile.claude_code_configuration_state.model` (the §8 genesis sub-step Model field write path; from `snap_profile`)
 - `current_skill` ← the skill currently running (diagnostic only; does NOT branch derivation logic — cross-skill invariance)
 
-**Update step** (Final Phase Step 3, within the delta-merge — `/audit` only):
+**Update step** (Final Phase Step B, within the lock-free delta-merge — `/audit` only):
 
 If running `/audit`, update `drift_state` in memory BEFORE drift derivation:
 
@@ -51,7 +51,16 @@ If running `/audit`, update `drift_state` in memory BEFORE drift derivation:
 
 For non-`/audit` skills, `drift_state` is read-only in Final Phase (skip the update step entirely).
 
-**Derivation** (Final Phase Step 3, after the optional update; consumed by the Step 4 renderer — all skills):
+**`current_audit_run_id` derivation (canonical microsecond form + monotonic bump)**:
+
+`current_audit_run_id` above is NOT the raw `now` string. It is produced by this rule (computed under the **Final-Phase short lock during the OCC compare-and-commit write path** — Step C of `plugin/references/final-phase.md`, where exclusivity now holds — so two contending `/audit` runs cannot mint colliding ids):
+
+- **Canonical form (always emit this exact shape)**: ISO-8601 UTC with **microseconds** and an **explicit `+00:00` offset**, ALWAYS 6 fractional digits — for example `2026-05-18T09:00:00.000000+00:00`. The bare-`Z` suffix form (e.g. `2026-05-18T09:00:00Z`) is **normalized away**: every emitted `audit_run_id` value (in both `baseline.audit_run_ids[]` and `last_seen.audit_run_id`) is in the `…ffffff+00:00` form, never `…Z`, never second-precision.
+- **Monotonic bump (parse to datetime — NEVER string-sort)**: let `candidate` be `now` rendered in the canonical form above. Parse **every** existing `audit_run_id` value — across **both** `baseline.audit_run_ids[]` **and** `last_seen.audit_run_id` — into `datetime` objects. **Never string-sort**: a mixed ledger of `…00Z` and `…00.000001Z` (or `…00.000000+00:00`) misorders lexicographically while ordering correctly as parsed datetimes. If `candidate <= max(existing parsed datetimes)`, then `current_audit_run_id = max(existing) + 1 microsecond` (re-rendered in the canonical form); otherwise `current_audit_run_id = candidate` as-is.
+- **Independent of `commit_id`**: `commit_id` deliberately carries **no ordering**; `audit_run_id` is the sole timestamp-ordering carrier. The two are never entangled — the monotonic bump consults only `audit_run_id` values, never `commit_id`.
+- **Targeted carve-out (determinism preserved)**: this is a deliberate carve-out from the `plugin/references/lib/state_io.md` Deterministic-I/O second-precision rule, applying ONLY to `audit_run_id`. Determinism holds because the `+1 microsecond` is derived from the **on-disk maximum** of already-persisted ids, not from a wall clock — the candidate base is the pinned/Final-Phase clock and the bump is a pure function of on-disk state, so the same inputs always yield the same `audit_run_id`.
+
+**Derivation** (Final Phase Step B, after the optional update; consumed by the Step B renderer — all skills):
 
 Reduce to fingerprint equality via the 4-state machine in `plugin/references/model-drift-rules.md` `normalize_model_id`:
 

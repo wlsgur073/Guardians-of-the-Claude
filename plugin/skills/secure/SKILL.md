@@ -177,7 +177,7 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
 
   For DECLINED items, increment `decline_count` per `plugin/references/lib/merge_rules.md §recommendations.json merge rules`: PENDING -> DECLINED sets `decline_count = 1`; DECLINED -> DECLINED re-record increments `decline_count++`. Monotonic — never decremented. Writes always emit schema 1.1.0; reading a 1.0.0 file performs lazy migration (inflate missing `decline_count` to 0). The repeated-decline trigger in `plugin/hooks/session-start.{sh,ps1}` reads this field after status==DECLINED filter and renders `"declined N times total"` for the rec with the highest `decline_count`.
 
-  Profile merge under the state-mutation lock must update the `claude_code_configuration_state.settings_json` section (owned by `/secure`), plus `hooks_count` and `rules_count` if they changed (see `plugin/references/lib/merge_rules.md` §profile.json merge rules).
+  Profile merge (lock-free in Final Phase Step B, against the Step A snapshot) must update the `claude_code_configuration_state.settings_json` section (owned by `/secure`), plus `hooks_count` and `rules_count` if they changed (see `plugin/references/lib/merge_rules.md` §profile.json merge rules).
 
   Additionally, when 3.4 mutates `.claude/settings.json`, update `profile.json claude_code_configuration_state.settings_json.deny_patterns_count` if deny entries changed, and append a `Resolved:` entry for any `/audit` T2.4 PENDING recommendations now addressed.
 

@@ -4,7 +4,7 @@
   "baseline": {
     "model_id": "claude-opus-4-7",
     "first_observed_at": "2026-04-15T10:30:00Z",
-    "audit_run_ids": ["2026-04-15T10:30:00Z"]
+    "audit_run_ids": ["2026-04-15T10:30:00.000000+00:00"]
   },
   "last_seen": null,
   "legacy_migration": {

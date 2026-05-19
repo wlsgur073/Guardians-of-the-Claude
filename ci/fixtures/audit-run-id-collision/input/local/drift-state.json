@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "metadata": { "last_updated": "2026-04-13T00:00:00Z", "commit_id": "commit-0001" },
+  "baseline": {
+    "model_id": "claude-opus-4-7",
+    "first_observed_at": "2026-04-13T00:00:00Z",
+    "audit_run_ids": ["2026-04-13T00:00:00.000000+00:00"]
+  },
+  "last_seen": {
+    "model_id": "claude-opus-4-7",
+    "audit_run_id": "2026-04-13T00:00:00.000000+00:00",
+    "observed_at": "2026-04-13T00:00:00Z"
+  },
+  "legacy_migration": null
+}
