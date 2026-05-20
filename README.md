@@ -185,27 +185,6 @@ Claude Code supports both official (Anthropic-maintained) and community plugins 
 
 Browse available plugins with `/plugin` in Claude Code, or see [Plugin docs](https://code.claude.com/docs/en/discover-plugins) for details.
 
-## Statusline
-
-Customize the Claude Code status bar to show model, context usage, cost, duration, and git branch at a glance:
-
-```text
-[Opus 4.7 (1M context)] 📁 my-project
- 🌿 feature/auth | ████████░░ 80% | $1.25 | ⏱️ 3m 42s
-```
-
-One-line setup:
-
-```bash
-cp ./statusline.sh ~/.claude/statusline.sh
-```
-
-Claude Code automatically detects `~/.claude/statusline.sh` — no additional configuration needed.
-
-> **Prerequisites:**
-> - [jq](https://jqlang.org) must be installed (`brew install jq` / `apt install jq` / `choco install jq`)
-> - A Bash-compatible shell to run `statusline.sh`. On **Windows**, use **Git Bash** or **WSL**. (The plugin's SessionStart hook and the advanced-template session-lifecycle hooks — `validate-prompt`, `pre-compact`, `subagent-stop`, `stop` — ship both `.sh` and `.ps1` variants. The advanced template's inline `PreToolUse` / `PostToolUse` examples in `.claude/settings.json` use POSIX shell syntax (`jq | grep -E`, `[ -n "$VAR" ]`), so Git Bash remains required for those two — convert to PowerShell or remove them if running PowerShell-only.)
-
 ## Contributing
 
 Contributing? In this repo? Just tell Claude to do it.

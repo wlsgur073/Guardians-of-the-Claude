@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - `t3-model-drift` conformance and the `t7-*` end-to-end runners are now CI-gated by a new `atomic-fixture-runners-check` job in `.github/workflows/docs-check.yml`, run on every push to `main`, on pull requests, and on version tags. They were previously standalone local-only runners executed by no workflow.
 
+### Removed
+
+- **`statusline.sh` (root + `docs/i18n/ko-KR/` mirror) and the README "Statusline" section** (EN / ko-KR / ja-JP). The optional Claude Code statusline customization was a one-time `cp ./statusline.sh ~/.claude/statusline.sh` recipe with no ongoing repo dependency — users who already installed it keep their local copy. The asymmetric ko-KR-only locale mirror (no ja-JP counterpart by design) is also retired. `CLAUDE.md`'s shell-scripts inventory line dropped the `statusline.sh` reference accordingly. No CI gate referenced the file by name (the `shellcheck` job globs `*.sh`, and the `i18n-parity` / `hook-script-parity` validators scope to `guides/` + `templates/` + `templates/advanced/hooks/`), so no validator change was needed.
+
 ### Fixed
 
 - `plugin/references/schemas/recommendations.schema.v1.2.0.json`: the schema `description` now states the `metadata.commit_id` requirement that defines the v1.2.0 wrapper; it previously carried the v1.1.0 wording describing only the `decline_count` field. No schema-constraint or validation-behavior change.

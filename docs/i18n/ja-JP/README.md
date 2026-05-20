@@ -177,27 +177,6 @@ Claude Codeは公式（Anthropic公式）プラグインとコミュニティプ
 
 Claude Codeで`/plugin`を実行してプラグインを検索するか、[プラグインドキュメント](https://code.claude.com/docs/en/discover-plugins)を参照してください。
 
-## ステータスライン
-
-Claude Code下部のステータスバーをカスタマイズして、モデル、コンテキスト使用量、コスト、経過時間、gitブランチを一目で確認できます:
-
-```text
-[Opus 4.7 (1M context)] 📁 my-project
- 🌿 feature/auth | ████████░░ 80% | $1.25 | ⏱️ 3m 42s
-```
-
-ワンライン設定:
-
-```bash
-cp ./statusline.sh ~/.claude/statusline.sh
-```
-
-Claude Codeが`~/.claude/statusline.sh`を自動検出します — 追加設定不要。
-
-> **前提条件:**
-> - [jq](https://jqlang.org)がインストールされている必要があります（`brew install jq` / `apt install jq` / `choco install jq`）
-> - `statusline.sh` を実行するための Bash 互換シェルが必要です。**Windows** では **Git Bash** または **WSL** を使用してください。（プラグインの SessionStart フックと advanced テンプレートのセッションライフサイクルフック — `validate-prompt`、`pre-compact`、`subagent-stop`、`stop` — は `.sh` と `.ps1` の両方を同梱しています。advanced テンプレートの `.claude/settings.json` 内インライン `PreToolUse` / `PostToolUse` の例は POSIX シェル構文（`jq | grep -E`、`[ -n "$VAR" ]`）を使用するため、その 2 つには Git Bash が引き続き必要です — PowerShell のみの環境なら PowerShell に変換するか削除してください。）
-
 ## コントリビュート
 
 コントリビュート？ここで？Claudeにやらせればいいのに...（笑）
