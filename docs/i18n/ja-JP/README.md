@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../../../assets/banner-v2.svg" alt="Guardians of the Claude" width="700"/>
+  <img src="../../../assets/banner-v3.png" alt="Guardians of the Claude" width="700"/>
 </p>
 
 <p align="center">

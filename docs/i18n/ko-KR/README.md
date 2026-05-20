@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../../../assets/banner-v2.svg" alt="Guardians of the Claude" width="700"/>
+  <img src="../../../assets/banner-v3.png" alt="Guardians of the Claude" width="700"/>
 </p>
 
 Claude Code 설정을 위한 메타 시스템. 2분 빠른 시작부터 시작해서, 프로젝트가 성장하면 감사, 보안 강화, 최적화 워크플로우로 자연스럽게 확장됩니다. 하나의 도구, 점진적으로 강화되는 경험.
