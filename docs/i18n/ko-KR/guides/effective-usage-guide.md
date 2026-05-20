@@ -1,7 +1,7 @@
 ---
 title: "효과적인 사용 패턴"
 description: "Claude Code를 효과적으로 사용하기 위한 필수 패턴"
-version: 1.4.0
+version: 1.5.0
 ---
 
 # 효과적인 사용 패턴
@@ -93,6 +93,19 @@ from src/api/middleware.ts. Follow the pattern in src/api/users.ts.
 
 **풍부한 콘텐츠를 제공하세요.** `@`를 사용하여 파일을 참조하고, 오류나 디자인의 이미지를 붙여넣고, `cat error.log | claude`로 데이터를 파이프하세요. Claude가 처음부터 관련 컨텍스트를 많이 가질수록 수정을 위한 반복이 줄어듭니다.
 
+## 좋은 Claude 응답이란
+
+응답이 빗나갈 때 쓸 수 있는 진단 어휘 — 좋은 응답이 어떤 모습인지 알면 정확하게 push back 하거나 프로젝트 규칙으로 명문화할 수 있습니다.
+
+| 좋은 패턴 | Push-back / CLAUDE.md 규칙 |
+| --------- | --------- |
+| 핵심 순간의 짧은 상태 업데이트 — 내부 추론에 대한 running commentary 가 아님 | "결과와 방향 전환만 보고하라" |
+| 우선 합리적 시도, 정말로 막혔을 때만 질문 | "질문하기 전에 시도하라" |
+| 다중 파트 질문의 각 부분에 답하고, 도구 결과를 답변에 사용 | "각 부분에 답하고, 도구 결과를 dump 하지 말고 사용하라" |
+| 1-2 문장의 턴 종료 요약 — 모든 단계의 재현이 아님 | "1-2 문장으로 끝내라" |
+
+참고: Anthropic [Claude Code system prompt release notes](https://platform.claude.com/docs/en/release-notes/system-prompts).
+
 ## 기존 프로젝트에 Claude Code 도입하기
 
 1. **기존 도구를 먼저 확인하세요** -- 린터 설정, 테스트 프레임워크, 빌드 도구를 확인하세요. 해당 명령어를 CLAUDE.md에 추가하세요.
@@ -106,7 +119,6 @@ from src/api/middleware.ts. Follow the pattern in src/api/users.ts.
 | **잡다한 세션** — 관련 없는 작업이 하나의 컨텍스트를 공유 | 작업 A의 컨텍스트가 작업 B를 혼란스럽게 함 | 작업 사이에 `/clear` 사용 |
 | **반복적인 수정** | 실패한 시도가 컨텍스트를 노이즈로 오염시킴 | 두 번 실패하면 `/clear` 후, 무엇이 잘못됐는지 반영한 더 나은 프롬프트 작성 |
 | **과도하게 지정된 CLAUDE.md** | 긴 파일이 Claude의 주의를 분산시킴 | 과감하게 줄이거나 [규칙 파일](rules-guide.md)로 분리 |
-| **신뢰 후 검증 격차** | 그럴듯해 보이는 출력이 정확한 출력과 같지 않음 | 검증 기준을 제공하고, CLAUDE.md에 테스트 명령어를 포함하여 Claude가 자체 검증하도록 함 |
 | **끝없는 탐색** | 범위 없는 "코드베이스 조사" 요청이 수십 개 파일을 읽고 컨텍스트를 소진시킴 | 범위를 좁히세요: "토큰 만료 처리를 위해 `src/auth/`만 확인하라" |
 
 ## 추가 자료

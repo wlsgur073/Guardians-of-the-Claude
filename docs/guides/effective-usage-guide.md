@@ -1,7 +1,7 @@
 ---
 title: "Effective Usage Patterns"
 description: "Essential day-one patterns for using Claude Code effectively"
-version: 1.4.0
+version: 1.5.0
 ---
 
 # Effective Usage Patterns
@@ -93,6 +93,19 @@ from src/api/middleware.ts. Follow the pattern in src/api/users.ts.
 
 **Provide rich content.** Use `@` to reference files, paste images of errors or designs, pipe data with `cat error.log | claude`. The more relevant context Claude has upfront, the fewer back-and-forth corrections needed.
 
+## What Good Claude Responses Look Like
+
+A diagnostic vocabulary for when responses drift — knowing what good looks like lets you push back precisely or encode the correction as a project rule.
+
+| Good pattern | Push-back / CLAUDE.md rule |
+| --------- | --------- |
+| Short status updates at key moments — not running commentary on internal reasoning | "State results and direction changes only" |
+| Make a reasonable attempt first; ask only when genuinely blocked | "Make an attempt before asking" |
+| Address each part of multi-part questions; use tool results in the answer | "Address each part; use tool results, don't dump them" |
+| One or two sentence end-of-turn summary — not a recap | "End with one or two sentences" |
+
+Reference: Anthropic [Claude Code system prompt release notes](https://platform.claude.com/docs/en/release-notes/system-prompts).
+
 ## Adopting Claude Code in Existing Projects
 
 1. **Explore existing tooling first** -- Check for linter configs, test frameworks, and build tools. Add their commands to your CLAUDE.md.
@@ -106,7 +119,6 @@ from src/api/middleware.ts. Follow the pattern in src/api/users.ts.
 | **Kitchen Sink Session** — unrelated tasks share one context | Context from task A confuses task B | `/clear` between tasks |
 | **Correcting Over and Over** | Failed attempts pollute context with noise | After two failed corrections, `/clear` and write a better prompt with what you learned |
 | **Over-Specified CLAUDE.md** | Long files dilute Claude's attention | Prune ruthlessly, or split into [rule files](rules-guide.md) |
-| **Trust-Then-Verify Gap** | Plausible-looking output is not the same as correct output | Provide verification criteria; include test commands in CLAUDE.md so Claude can self-check |
 | **Infinite Exploration** | Unscoped "investigate the codebase" reads dozens of files and burns context | Scope narrowly: "Check only `src/auth/` for token expiration handling" |
 
 ## Further Reading
