@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- `docs/i18n/ko-KR/templates/{starter,advanced}/CLAUDE.md` and `docs/i18n/ja-JP/templates/{starter,advanced}/CLAUDE.md`: corrected the relative link to `plugin/references/security-patterns.md#defense-surfaces-catalog` (under the "Untrusted input rule" section) from `../../../../` (4 ups) to `../../../../../` (5 ups). Translated template clones rendered the link as a broken path (`docs/plugin/...`); the 4-up depth applies to i18n guides but i18n templates are one directory deeper, so they need 5 ups. `link-check-internal` flagged this on the v2.19.9 tag push.
+
 ## [2.19.9] - 2026-05-21
 
 ### Added
