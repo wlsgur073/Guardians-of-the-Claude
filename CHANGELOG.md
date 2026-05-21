@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Removed redundant "Trust-Then-Verify Gap" row from the Common Failure Patterns table in `docs/guides/effective-usage-guide.md` (and ko-KR / ja-JP mirrors) — content already covered by §"The #1 Practice: Give Claude a Way to Verify Its Work".
 - `plugin/references/security-patterns.md` Defense Surfaces Catalog: dropped dangling internal-planning citation from the Local memory row (per project rule against citing planning IDs in shipped references); renamed "Memory verification doctrine" lead-in to lowercase descriptive phrase; cleaned cut-line wording. (Plan 07 Job 1 code-quality cleanup)
+- `plugin/references/security-patterns.md` Defense Surfaces Catalog: added "Quoted/pasted external content and attachments" surface; reframed "Local memory" → "Persistent local state" with injection-class threat mapping (was conflating staleness with injection); renamed "Hooks" → "Hook code and hook output" and added `tool-output-injection`; expanded threat mappings on Dependency scripts (+`data-exfiltration`, +`credential-exploration`) and External downloads (+`tool-output-injection`); aligned deny pattern syntax with project convention used elsewhere in this file and in `templates/*/.claude/settings.json` (`Read(./secrets/)`, `Bash(curl * https://*:*)`); replaced vague "review" postures with specific check lists; added concrete authorization example to "Authorized Security Work" footnote. Surface count: 10 → 11.
 
 ### Removed
 
