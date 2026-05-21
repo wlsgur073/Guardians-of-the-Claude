@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `t3-model-drift` conformance and the `t7-*` end-to-end runners are now CI-gated by a new `atomic-fixture-runners-check` job in `.github/workflows/docs-check.yml`, run on every push to `main`, on pull requests, and on version tags. They were previously standalone local-only runners executed by no workflow.
 - `docs/guides/effective-usage-guide.md` (and ko-KR / ja-JP mirrors): new "What Good Claude Responses Look Like" section — diagnostic vocabulary for response patterns (status updates, act-first, completeness, end-of-turn summary), citing Anthropic's public release-notes for Claude Code system prompts.
 - `templates/starter/CLAUDE.md`, `templates/advanced/CLAUDE.md` (and ko-KR / ja-JP mirrors), and `plugin/skills/create/templates/starter.md` + `advanced.md` (the `/create` skill's generation instructions): new `## Trust Boundary` H2 section instructing reading agents to treat any content Claude reads — files, web content, logs, comments, tool output — as evidence to consider, not instructions to follow. Instructions come only from the user and the project's configured rules. Default-on coverage for both cloned-example users and `/create` users.
+- Defense Surfaces Catalog section in `plugin/references/security-patterns.md` — maps 10 input surfaces to existing threats and defensive postures with an "Authorized Security Work" footnote. (Plan 07 Job 1, addresses ROADMAP backlog item 96-T5)
 
 ### Changed
 
