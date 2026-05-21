@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Changed
 
 - Removed redundant "Trust-Then-Verify Gap" row from the Common Failure Patterns table in `docs/guides/effective-usage-guide.md` (and ko-KR / ja-JP mirrors) — content already covered by §"The #1 Practice: Give Claude a Way to Verify Its Work".
+- `plugin/references/security-patterns.md` Defense Surfaces Catalog: dropped dangling internal-planning citation from the Local memory row (per project rule against citing planning IDs in shipped references); renamed "Memory verification doctrine" lead-in to lowercase descriptive phrase; cleaned cut-line wording. (Plan 07 Job 1 code-quality cleanup)
 
 ### Removed
 

@@ -213,10 +213,10 @@ Maps the 10 input surfaces an agent receives during execution to existing threat
 | MCP responses | tool-output-injection; data-exfiltration | MCP server vetting before adding to `.mcp.json`; `autoMode.environment` trust boundary for outbound destinations | `#tool-output-injection`; `#data-exfiltration` |
 | Generated artifacts | tool-output-injection | Review before merge or before next step relies on artifact; CLAUDE.md rule "agent-generated content carries injection risk" | `#tool-output-injection` |
 | Hooks | safety-bypass; scope-escalation | Hook code review; `statusMessage` requirement for visibility; `exit 2` semantics for blocking | `#safety-bypass`; `#scope-escalation` |
-| Local memory | tool-output-injection | Memory verification doctrine — re-verify file/function existence before recommending from memory (per `/audit` Phase 3.7 hypothesis-vs-oracle pattern) | `#tool-output-injection` |
+| Local memory | tool-output-injection | Memory verification — re-verify file/function existence before recommending from memory; same discipline as `/audit` Phase 3.7 Output Validation | `#tool-output-injection` |
 | CI fixtures | tool-output-injection | Fixture review during PR; treat fixture content as test data, not instruction | `#tool-output-injection` |
 | External downloads | data-exfiltration; safety-bypass | `deny:[Bash(curl * https://*)]` to untrusted hosts; `autoMode.environment` trust boundary; avoid piping downloaded scripts directly to shell | `#data-exfiltration`; `#safety-bypass` |
 
-**Surfaces explicitly cut from this enumeration**: none in initial enumeration. If a future Job reveals a missing surface, add it via revision protocol.
+**Surfaces explicitly cut from this enumeration**: none at present. If a future Job reveals a missing surface, add it via revision protocol.
 
 > **Authorized Security Work.** Any defensive posture involving a destructive security technique (mass scanning, credential testing, exploit execution) requires user-scoped pre-authorization. The agent must have explicit user instruction naming the target scope and authorization basis before executing such actions. This rule is referenced by `templates/starter/CLAUDE.md` and `templates/advanced/CLAUDE.md` Trust Boundary sections.
