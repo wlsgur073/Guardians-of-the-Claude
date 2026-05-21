@@ -156,15 +156,15 @@ Print a suggestion block. Do NOT mutate user files.
 
 Always merge — never overwrite existing `allow:[]` / `ask:[]` / `deny:[]` entries unrelated to the violation being fixed.
 
-#### Injection Reminder Mapping
+### Injection Reminder Mapping
 
-Anthropic's claude.ai conversational layer fires reminder messages (observed in community-extracted source material as of 2026-05-21) when specific injection-adjacent content surfaces. The six reminder types map to surfaces from [`plugin/references/security-patterns.md` Defense Surfaces Catalog](../../references/security-patterns.md#defense-surfaces-catalog) and to `/secure` check patterns as follows. Reminders outside `/secure`'s mechanical scope are listed as advisory references — they alert the user but require human judgment, not automated mitigation.
+Anthropic's claude.ai conversational layer fires reminder messages (observed in community-extracted source material as of 2026-05-21) when specific injection-adjacent content surfaces. The six reminder types map to surfaces from [Defense Surfaces Catalog](../../references/security-patterns.md#defense-surfaces-catalog) and to `/secure` check patterns as follows. Reminders outside `/secure`'s mechanical scope are listed as advisory references — they alert the user but require human judgment, not automated mitigation.
 
 | Reminder type | Surface(s) | `/secure` check pattern | Scope |
 |---|---|---|---|
 | Image content reminder | Quoted/pasted external content and attachments | (advisory) — `/secure` does not process image content | Advisory |
 | Cyber-action warning | Shell output; External downloads | Deny patterns for credential files (`Read(./secrets/)`); outbound URL denylist for untrusted hosts (`Bash(curl * https://*:*)`) | Mechanical |
-| System-instruction warning | Shell output; Hook code and hook output | Hook configuration audit (Phase 1.3 + 3 File Protection Hooks); `bypassPermissions` reservation rule (Phase 1.4 sub-check 4b + Phase 3.4 suggestion) | Mechanical |
+| System-instruction warning | Shell output; Hook code and hook output | Hook configuration audit (Phase 1.3 scan + Phase 3 "File Protection Hooks" sub-section); `bypassPermissions` reservation rule (Phase 1.4 sub-check 4b + Phase 3.4 4b suggestion) | Mechanical |
 | Ethics reminder | Repository files; Generated artifacts; Persistent local state | (advisory) — falls under the "Authorized Security Work" footnote in the Defense Surfaces Catalog | Advisory |
 | Intellectual property reminder | Repository files; Generated artifacts | (advisory) — repository licensing checks are outside `/secure` scope | Advisory |
 | Long-conversation reminder | Persistent local state | (advisory) — context-window and conversation-history monitoring are outside `/secure` scope | Advisory |
