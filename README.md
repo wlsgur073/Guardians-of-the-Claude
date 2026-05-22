@@ -7,7 +7,6 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg" alt="Claude Code Plugin">
   <img src="https://img.shields.io/badge/Skills-4_Commands-orange.svg" alt="4 Skills">
-  <a href="https://github.com/wlsgur073/Guardians-of-the-Claude/stargazers"><img src="https://img.shields.io/github/stars/wlsgur073/Guardians-of-the-Claude?style=social" alt="GitHub Stars"></a>
 </p>
 
 <p align="center">
