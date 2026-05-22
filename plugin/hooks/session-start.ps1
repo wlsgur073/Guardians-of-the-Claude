@@ -134,10 +134,12 @@ try {
         $profileObj = $null
         try { $profileObj = Get-Content $script:ProfilePath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop } catch { }
 
-        # Reason 2: schema_version_mismatch -- expected 1.2.0.
-        $expectedSv = "1.2.0"
+        # Reason 2: schema_version_mismatch -- current canonical 1.3.0; previous
+        # minor 1.2.0 still supported per schema-policy.md (drift fires below 1.2.0).
+        $expectedSv = "1.3.0"
+        $prevSv = "1.2.0"
         $profileSv = if ($profileObj.schema_version) { $profileObj.schema_version } else { "" }
-        if ($profileSv -and $profileSv -ne $expectedSv) {
+        if ($profileSv -and $profileSv -ne $expectedSv -and $profileSv -ne $prevSv) {
             if (-not $primary) {
                 $primary = "schema_version_mismatch"
                 $primaryMsg = "profile.schema_version $profileSv expected $expectedSv"
@@ -200,8 +202,13 @@ try {
         }
         if ($matching.Count -eq 0) { return "" }
 
-        $sorted = $matching | Sort-Object first_seen
-        $oldest = $sorted[0]
+        # Stable selection of the oldest first_seen: PowerShell 5.1 Sort-Object is
+        # NOT stable, so a manual min-scan in array order matches the bash hook's
+        # jq `sort_by` (stable) tie-break — the first rec wins when first_seen ties.
+        $oldest = $matching[0]
+        for ($i = 1; $i -lt $matching.Count; $i++) {
+            if ($matching[$i].first_seen -lt $oldest.first_seen) { $oldest = $matching[$i] }
+        }
         $count = $matching.Count
         # ConvertFrom-Json auto-converts ISO 8601 strings to [DateTime] in PS 5.1+ and 7+,
         # and `-split "T"` on a DateTime stringifies via current culture (e.g. "04/29/2026 00:00:00" on en-US).

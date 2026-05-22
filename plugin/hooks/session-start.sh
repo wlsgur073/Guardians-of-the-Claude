@@ -110,11 +110,13 @@ check_drift_family() {
   done
 
   # Reason 2: schema_version_mismatch — profile.schema_version differs from plugin's expected.
-  # Canonical version is 1.2.0 (current shipped profile schema).
+  # Current canonical profile schema is 1.3.0; the previous minor (1.2.0) is
+  # still supported per schema-policy.md, so drift fires only below 1.2.0.
   local PROFILE_SV
   PROFILE_SV=$(jq -r '.schema_version // ""' < "$PROFILE" 2>/dev/null || echo "")
-  local EXPECTED_SV="1.2.0"
-  if [ -n "$PROFILE_SV" ] && [ "$PROFILE_SV" != "$EXPECTED_SV" ]; then
+  local EXPECTED_SV="1.3.0"
+  local PREV_SV="1.2.0"
+  if [ -n "$PROFILE_SV" ] && [ "$PROFILE_SV" != "$EXPECTED_SV" ] && [ "$PROFILE_SV" != "$PREV_SV" ]; then
     if [ -z "$primary" ]; then
       primary="schema_version_mismatch"
       primary_message="profile.schema_version $PROFILE_SV expected $EXPECTED_SV"
