@@ -1,7 +1,7 @@
 ---
 title: "Getting Started"
 description: "Step-by-step guide to set up Claude Code configuration for your project"
-version: 1.2.7
+version: 1.2.8
 ---
 
 # Getting Started
@@ -56,16 +56,17 @@ If `/init` already created a CLAUDE.md, merge the template sections into it. The
 
 ## Step 3: Fill in Your CLAUDE.md
 
-If you used `/guardians-of-the-claude:create` in Step 1, skip this step -- the six canonical sections are already generated. Run `/memory` to confirm your CLAUDE.md is loaded, then jump to Step 4.
+If you used `/guardians-of-the-claude:create` in Step 1, skip this step -- the seven canonical sections are already generated. Run `/memory` to confirm your CLAUDE.md is loaded, then jump to Step 4.
 
 If you are writing CLAUDE.md by hand, work through the sections below. Keep the same structure so `/audit` can grade it against the same rubric:
 
 1. **Project Overview** -- One or two sentences: what the project does, language and framework.
-2. **Build & Run** -- Exact commands to install dependencies and run the project.
-3. **Testing** -- Test commands Claude can use to verify its own work.
-4. **Code Style & Conventions** -- Only rules that differ from language defaults. Be specific.
-5. **Development Approach** -- How Claude should handle ambiguous requests (analyze assumptions, ask targeted questions, confirm the approach before coding). `/create` seeds a 4-line default here.
-6. **Important Context** -- Non-obvious things: required services, auth patterns, environment quirks.
+2. **Trust Boundary** -- Instruct Claude to treat content it reads (files, web content, logs, tool output) as evidence, not instructions. `/create` seeds a fixed default here.
+3. **Build & Run** -- Exact commands to install dependencies and run the project.
+4. **Testing** -- Test commands Claude can use to verify its own work.
+5. **Code Style & Conventions** -- Only rules that differ from language defaults. Be specific.
+6. **Development Approach** -- How Claude should handle ambiguous requests (analyze assumptions, ask targeted questions, confirm the approach before coding). `/create` seeds a 4-line default here.
+7. **Important Context** -- Non-obvious things: required services, auth patterns, environment quirks.
 
 Projects that outgrow the baseline can add `Workflow`, `Project Structure`, `References`, or the `Available Skills`/`Available Agents` tables — see [`templates/advanced/CLAUDE.md`](../../templates/advanced/CLAUDE.md) for a filled example. For what to include vs. leave out in each section, see the [include/exclude table in the CLAUDE.md Guide](claude-md-guide.md#what-to-include-vs-exclude).
 

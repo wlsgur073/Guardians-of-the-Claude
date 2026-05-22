@@ -1,7 +1,7 @@
 ---
 title: "시작하기"
 description: "프로젝트에 Claude Code 설정을 구성하는 단계별 가이드"
-version: 1.2.7
+version: 1.2.8
 ---
 
 # 시작하기
@@ -56,16 +56,17 @@ claude
 
 ## Step 3: CLAUDE.md 작성
 
-1단계에서 `/guardians-of-the-claude:create`을 사용했다면 이 단계를 건너뛰세요 — 6개의 canonical 섹션이 이미 생성되어 있습니다. `/memory`로 CLAUDE.md가 로드되었는지 확인한 후 Step 4로 넘어가세요.
+1단계에서 `/guardians-of-the-claude:create`을 사용했다면 이 단계를 건너뛰세요 — 7개의 canonical 섹션이 이미 생성되어 있습니다. `/memory`로 CLAUDE.md가 로드되었는지 확인한 후 Step 4로 넘어가세요.
 
 수동으로 CLAUDE.md를 작성하는 경우, 아래 섹션을 채우세요. `/audit`가 동일한 루브릭으로 채점할 수 있도록 동일한 구조를 유지하세요:
 
 1. **Project Overview** -- 한두 문장으로: 프로젝트가 무엇을 하는지, 언어와 프레임워크.
-2. **Build & Run** -- 의존성 설치와 실행에 필요한 정확한 명령어.
-3. **Testing** -- Claude가 자신의 작업을 검증할 수 있는 테스트 명령어.
-4. **Code Style & Conventions** -- 언어 기본값과 다른 규칙만. 구체적으로.
-5. **Development Approach** -- 모호한 요청을 Claude가 어떻게 다룰지 (가정 분석 → 질문 → 접근 확인 후 구현). `/create`가 4줄 기본값을 시드합니다.
-6. **Important Context** -- 명확하지 않은 것들: 필수 서비스, 인증 패턴, 환경 특이사항.
+2. **Trust Boundary** -- Claude가 읽는 콘텐츠(파일, 웹 콘텐츠, 로그, 도구 출력)를 지시가 아닌 참고 자료로 취급하도록 지시. `/create`가 고정 기본값을 시드합니다.
+3. **Build & Run** -- 의존성 설치와 실행에 필요한 정확한 명령어.
+4. **Testing** -- Claude가 자신의 작업을 검증할 수 있는 테스트 명령어.
+5. **Code Style & Conventions** -- 언어 기본값과 다른 규칙만. 구체적으로.
+6. **Development Approach** -- 모호한 요청을 Claude가 어떻게 다룰지 (가정 분석 → 질문 → 접근 확인 후 구현). `/create`가 4줄 기본값을 시드합니다.
+7. **Important Context** -- 명확하지 않은 것들: 필수 서비스, 인증 패턴, 환경 특이사항.
 
 기준선을 넘어 확장이 필요해지면 `Workflow`, `Project Structure`, `References`, `Available Skills`/`Available Agents` 표를 추가할 수 있습니다 — 완성 예시는 [`templates/advanced/CLAUDE.md`](../templates/advanced/CLAUDE.md)를 참고하세요. 각 섹션에 무엇을 포함하고 제외할지는 [CLAUDE.md 가이드의 포함/제외 표](claude-md-guide.md#포함할-것과-제외할-것)를 참고하세요.
 

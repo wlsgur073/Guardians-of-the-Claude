@@ -61,7 +61,7 @@ A meta-system for Claude Code configuration. Start with a 2-minute guided setup,
 
    | Path | When | What happens |
    | ---- | ---- | ------------ |
-   | **New project** | No code yet | 4 quick questions → `CLAUDE.md` (6 sections) + `.claude/settings.json` |
+   | **New project** | No code yet | 4 quick questions → `CLAUDE.md` (7 sections) + `.claude/settings.json` |
    | **Existing project** | Code exists, no Claude config | 6 questions with auto-detected defaults → full config (CLAUDE.md + settings + rules + optional hooks/agents/skills) |
    | **Add missing features** | Config already exists | Scans current setup, shows what's configured vs missing, lets you add only what you need |
 

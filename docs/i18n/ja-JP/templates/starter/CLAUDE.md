@@ -1,7 +1,7 @@
 ---
 title: "TaskFlow CLAUDE.md (Starter)"
-description: "Node.js/Express REST API プロジェクト向けの最小 6 セクション例"
-version: 1.1.1
+description: "Node.js/Express REST API プロジェクト向けの最小 7 セクション例"
+version: 1.1.2
 ---
 
 <!--

@@ -1,7 +1,7 @@
 ---
 title: "はじめに"
 description: "プロジェクトに Claude Code 設定をセットアップするためのステップバイステップガイド"
-version: 1.2.7
+version: 1.2.8
 ---
 
 # はじめに
@@ -56,16 +56,17 @@ Step 1 で `/guardians-of-the-claude:create` を使用した場合はこの手�
 
 ## Step 3: CLAUDE.md を埋める
 
-Step 1 で `/guardians-of-the-claude:create` を使用した場合はこの手順をスキップしてください。6 つの正規セクションはすでに生成されています。`/memory` で CLAUDE.md が読み込まれていることを確認したら Step 4 に進んでください。
+Step 1 で `/guardians-of-the-claude:create` を使用した場合はこの手順をスキップしてください。7 つの正規セクションはすでに生成されています。`/memory` で CLAUDE.md が読み込まれていることを確認したら Step 4 に進んでください。
 
 CLAUDE.md を手動で書く場合は、以下のセクションを順に埋めていきます。`/audit` が同じルーブリックで採点できるよう、構造はそのまま保ってください。
 
 1. **Project Overview** -- 1〜2 文で、プロジェクトの概要・使用言語・フレームワークを記述します。
-2. **Build & Run** -- 依存関係のインストールとプロジェクト実行に必要な正確なコマンド。
-3. **Testing** -- Claude が自身の作業を検証するために使えるテストコマンド。
-4. **Code Style & Conventions** -- 言語のデフォルトと異なるルールのみを、具体的に記述します。
-5. **Development Approach** -- 曖昧な依頼への対応方法（前提を分析し、的を絞った質問をし、コーディングの前にアプローチを確認する）。`/create` はここに 4 行のデフォルトを差し込みます。
-6. **Important Context** -- 自明ではない情報: 必要なサービス、認証パターン、環境固有のクセなど。
+2. **Trust Boundary** -- Claude が読むコンテンツ（ファイル、ウェブコンテンツ、ログ、ツール出力）を指示ではなく根拠として扱うよう指示します。`/create` は固定のデフォルトを差し込みます。
+3. **Build & Run** -- 依存関係のインストールとプロジェクト実行に必要な正確なコマンド。
+4. **Testing** -- Claude が自身の作業を検証するために使えるテストコマンド。
+5. **Code Style & Conventions** -- 言語のデフォルトと異なるルールのみを、具体的に記述します。
+6. **Development Approach** -- 曖昧な依頼への対応方法（前提を分析し、的を絞った質問をし、コーディングの前にアプローチを確認する）。`/create` はここに 4 行のデフォルトを差し込みます。
+7. **Important Context** -- 自明ではない情報: 必要なサービス、認証パターン、環境固有のクセなど。
 
 ベースラインを超えるプロジェクトでは、`Workflow`、`Project Structure`、`References`、または `Available Skills` / `Available Agents` のテーブルを追加できます。記入済みの例は [`templates/advanced/CLAUDE.md`](../templates/advanced/CLAUDE.md) を参照してください。各セクションに何を含めて何を除外すべきかは、[CLAUDE.md ガイドの「含めるものと除外するもの」](claude-md-guide.md#含めるものと除外するもの)を参照してください。
 

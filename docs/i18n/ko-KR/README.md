@@ -53,7 +53,7 @@ Claude Code 설정을 위한 메타 시스템. 2분 빠른 시작부터 시작�
 
    | 경로 | 시기 | 동작 |
    | ---- | ---- | ---- |
-   | **New project** | 코드 없음 | 4개 질문 → `CLAUDE.md` (6섹션) + `.claude/settings.json` |
+   | **New project** | 코드 없음 | 4개 질문 → `CLAUDE.md` (7섹션) + `.claude/settings.json` |
    | **Existing project** | 코드 있음, Claude 설정 없음 | 6개 질문 (자동 감지 기본값) → 전체 설정 (CLAUDE.md + settings + rules + 선택적 hooks/agents/skills) |
    | **Add missing features** | 설정이 이미 존재 | 현재 설정을 스캔하고, 설정된 항목과 누락된 항목을 보여준 뒤, 필요한 것만 추가 |
 

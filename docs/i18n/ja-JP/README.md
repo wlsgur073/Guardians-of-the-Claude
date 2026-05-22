@@ -53,7 +53,7 @@ Claude Code設定のためのメタシステム。2分のガイド付きセッ�
 
    | パス | タイミング | 動作 |
    | ---- | --------- | ---- |
-   | **New project** | コードなし | 4つの質問 → `CLAUDE.md`（6セクション）+ `.claude/settings.json` |
+   | **New project** | コードなし | 4つの質問 → `CLAUDE.md`（7セクション）+ `.claude/settings.json` |
    | **Existing project** | コードあり、Claude設定なし | 6つの質問（自動検出デフォルト）→ フル設定（CLAUDE.md + settings + rules + オプションhooks/agents/skills） |
    | **Add missing features** | 設定が既に存在 | 現在の設定をスキャン、設定済み/未設定を表示、必要なものだけ追加 |
 

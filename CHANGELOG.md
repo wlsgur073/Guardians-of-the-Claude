@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - `docs/i18n/ko-KR/templates/{starter,advanced}/CLAUDE.md` and `docs/i18n/ja-JP/templates/{starter,advanced}/CLAUDE.md`: corrected the relative link to `plugin/references/security-patterns.md#defense-surfaces-catalog` (under the "Untrusted input rule" section) from `../../../../` (4 ups) to `../../../../../` (5 ups). Translated template clones rendered the link as a broken path (`docs/plugin/...`); the 4-up depth applies to i18n guides but i18n templates are one directory deeper, so they need 5 ups. `link-check-internal` flagged this on the v2.19.9 tag push.
+- `templates/starter/CLAUDE.md`, `README.md`, `docs/guides/getting-started.md`, `docs/guides/trustworthy-agents-guide.md` (all with ko-KR / ja-JP mirrors), root `CLAUDE.md`, and `plugin/skills/create/templates/starter.md`: corrected the starter CLAUDE.md section count from 6 to 7. The v2.19.9 `## Trust Boundary` addition raised the count but it was updated in only one location at the time; the Getting Started canonical-section enumeration also gains the Trust Boundary entry. Frontmatter `version` bumped on each affected `templates/` and `docs/guides/` file (EN + i18n in lockstep).
+- `docs/ROADMAP.md`: removed a dangling internal-planning task ID from a table row — the identifier was defined nowhere in the shipped tree, so no reader could resolve the citation. The surrounding row text remains self-describing without it.
 
 ## [2.19.9] - 2026-05-21
 
