@@ -1,15 +1,16 @@
 # Shell scripts must use LF line endings to run correctly on Unix/macOS
 *.sh text eol=lf
-# PowerShell scripts pinned to LF for byte-identical cross-platform storage
-# (PS 5.1 and PS 7 both accept LF-terminated .ps1 files without issue)
-*.ps1 text eol=lf
+# .cmd batch scripts pinned to LF to avoid cmd.exe parser quirks on
+# Windows clones with core.autocrlf=true.
+*.cmd text eol=lf
+# plugin/hooks/hooks.json pinned to LF for byte-stable storage (matches
+# the smoke fixture comparison contract).
+plugin/hooks/hooks.json text eol=lf
 # CI smoke fixtures + golden snapshots must be LF for byte-identical diff
 # across platforms (verifier writes with newline="\n"; any CRLF drift breaks
 # the golden diff on Windows checkouts).
 ci/fixtures/** text eol=lf
 ci/golden/** text eol=lf
-# Config assets not covered by wildcard rules above (hook scripts already covered by *.sh / *.ps1)
+# Config assets not covered by wildcard rules above (hook scripts already covered by *.sh)
 templates/advanced/.claude/.gitignore text eol=lf
 templates/advanced/.claude/settings.json text eol=lf
-docs/i18n/*/templates/advanced/.claude/.gitignore text eol=lf
-docs/i18n/*/templates/advanced/.claude/settings.json text eol=lf

@@ -3,21 +3,33 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-2.19.9-brightgreen.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Version-3.0.0-brightgreen.svg" alt="Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg" alt="Claude Code Plugin">
   <img src="https://img.shields.io/badge/Skills-4_Commands-orange.svg" alt="4 Skills">
 </p>
 
-<p align="center">
-  <b>English</b> | <a href="docs/i18n/ko-KR/README.md">한국어</a> | <a href="docs/i18n/ja-JP/README.md">日本語</a>
-</p>
+> ⚠️ **v3.0.0 (2026-05-23)** — Breaking change: `bash` is now required (Git Bash on Windows or WSL). PowerShell `.ps1` companions and ko-KR / ja-JP localizations removed. [Migration guide →](CHANGELOG.md#300---2026-05-23)
 
 A meta-system for Claude Code configuration. Start with a 2-minute guided setup, then grow into audit, security hardening, and optimization workflows as your project evolves. Same tool, continuous reinforcement.
 
 **For beginners:** 2-minute setup — Claude asks a few questions and generates all configuration files for you.
 
 **For power users:** 4 chained skills (`/create` → `/audit` → `/secure`/`/optimize`) backed by cross-skill memory, profile drift detection, and a decision journal.
+
+## Requirements
+
+Guardians-of-the-Claude requires `bash` to run its hook scripts (SessionStart) and CI tooling.
+
+| Platform | bash provider |
+|---|---|
+| **Linux** | Native (`bash` ships with all distros) |
+| **macOS** | Native (`bash 3.2+` preinstalled, or Homebrew `bash 5+`) |
+| **Windows** | [Git for Windows](https://git-scm.com/download/win) (provides Git Bash) **or** WSL |
+
+`jq` is also required for SessionStart hook JSON parsing. **It is NOT bundled with Git for Windows** — install separately via `winget install jqlang.jq`, [download from jqlang.org](https://jqlang.org/download/), or use a package manager (Scoop: `scoop install jq`; Chocolatey: `choco install jq`). Linux/macOS: available via every major package manager (`apt`, `brew`, etc.).
+
+> **Migrating from v2.x?** v3.0.0 retired the `.ps1` companion scripts. Windows users without Git Bash or WSL will see a one-line onboarding message at session start pointing here — see [CHANGELOG v3.0.0](CHANGELOG.md#300---2026-05-23) for the full migration path.
 
 ## Philosophy
 
@@ -28,8 +40,7 @@ A meta-system for Claude Code configuration. Start with a 2-minute guided setup,
 
 ## Day 1 — 2-Minute Quickstart
 
-> **Prerequisites:** Claude Code installed (`claude --version`).
-> **On Windows**, both the plugin's SessionStart hook and the advanced template's `UserPromptSubmit` hook now ship parallel bash + PowerShell entries, so **PowerShell 5.1+ (pre-installed on Windows 10+) or Git Bash/WSL** work end-to-end — no extra setup needed for either layer.
+> **Prerequisites:** Claude Code installed (`claude --version`), plus `bash` and `jq`. See the [Requirements](#requirements) section below for platform-specific install guidance.
 
 1. **Add the marketplace and install the plugin** in Claude Code:
 
@@ -126,9 +137,9 @@ Guardians-of-the-Claude/
 │   ├── .claude-plugin/
 │   │   └── plugin.json
 │   ├── hooks/
-│   │   ├── hooks.json       ← SessionStart hook (bash + powershell entries)
+│   │   ├── hooks.json       ← SessionStart hook (bash + cmd fallback entries)
 │   │   ├── session-start.sh ← bash state check (Linux/macOS/Git Bash/WSL)
-│   │   └── session-start.ps1 ← PowerShell port (Windows 10+)
+│   │   └── session-start.cmd ← Windows onboarding fallback (when bash not on PATH)
 │   ├── references/
 │   │   ├── security-patterns.md  ← Shared security templates (used by /create and /secure)
 │   │   └── learning-system.md   ← Shared learning system reference (used by all skills)
@@ -148,8 +159,6 @@ Guardians-of-the-Claude/
 ├── templates/advanced/      ← Filled advanced example (rules, hooks, agents, skills)
 ├── docs/
 │   ├── guides/              ← Guides explaining each concept
-│   ├── i18n/ko-KR/          ← Korean translations (guides, templates)
-│   ├── i18n/ja-JP/          ← Japanese translations (guides, templates)
 │   └── *.md                 ← Community health files and project roadmap
 └── CHANGELOG.md             ← Version history (Keep a Changelog format)
 ```

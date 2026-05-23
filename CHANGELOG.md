@@ -9,6 +9,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-05-23
+
+**⚠️ BREAKING CHANGE**: `bash` (Git Bash on Windows or WSL) is now a hard requirement.
+The `.ps1` hook companions and ko-KR / ja-JP localizations are removed in this release.
+See the [Migration](#migration) section below for platform-specific guidance.
+
+### Added
+
+- `plugin/hooks/session-start.cmd` — minimal Windows onboarding fallback (~8 lines). Self-probes for `bash` via `where bash`; emits a single `hookSpecificOutput` JSON pointing at Git for Windows / WSL only when bash is absent. Exits silently on every other platform and on Windows-with-bash. Registered in `hooks.json` as a second `SessionStart` entry; the bash entry handles all normal execution.
+
+### Changed
+
+- `plugin/hooks/session-start.sh` simplified by removing the mkdir-based dual-entry lock (LOCK_DIR constant + stale-lock cleanup + atomic lock acquisition + cleanup trap). The lock previously deduplicated parallel bash + PowerShell entries; the new `.cmd` fallback self-probes for bash and exits silently when bash is present, making the lock unnecessary. Hook source drops from ~256 lines to ~236 lines.
+- `plugin/hooks/hooks.json` — replaced the PowerShell entry under `SessionStart` with a `cmd /c session-start.cmd` entry. Description updated to reflect the new self-probe mechanism.
+- `ci/README.md` — removed PowerShell smoke-runner instructions. Local smoke runs now use the bash equivalents through Git Bash or WSL.
+- `plugin/skills/audit/references/oracle-coverage-map.md` — fixed stale "11 CI scripts/validators" inventory counts to "8" at lines 5, 11, 84. The actual inventory table was corrected when the three i18n parity validators were removed; this is the matching body-prose fix.
+- `docs/CONTRIBUTING.md` — replaced stale i18n contribution surfaces with the on-demand translation model. The "Translations" bullet (formerly pointing at `docs/i18n/ko-KR/` and `docs/i18n/ja-JP/`) now describes opening a GitHub issue for translation requests; the "Translation parity" rule (which required mirror updates on every `templates/` change) is removed entirely.
+- `.gitattributes` — added LF line-ending rules for `*.cmd` and `plugin/hooks/hooks.json` to prevent CRLF normalization on Windows clones (matches the existing `*.sh text eol=lf` convention; needed for the v3.0.0 `session-start.cmd` Windows onboarding fallback).
+- `README.md` — added "Requirements" section listing bash + jq per platform; added a top-of-file breaking-change banner pointing at the v3.0.0 CHANGELOG entry; updated the Day 1 prerequisites paragraph to remove the parallel bash + PowerShell narrative; updated the "What's Inside" directory tree to reflect post-v3.0.0 hook layout (`session-start.cmd` added, `session-start.ps1` removed).
+- `docs/guides/getting-started.md` — Windows prerequisites bullet updated to bash-only (Git Bash or WSL required, jq required) since the .ps1 hook companions are retired.
+
+### Removed
+
+- `.github/scripts/check-frontmatter-parity.py`, `.github/scripts/check-i18n-parity.py`, `.github/scripts/check-hook-script-parity.py` validators and their corresponding `frontmatter-parity`, `i18n-parity`, `hook-script-parity` jobs in `.github/workflows/docs-check.yml`. The three parity validators enforced byte-equal mirrors between EN and ko-KR / ja-JP content; with the i18n locales retiring in a subsequent commit, these checks become moot. `docs-check.yml` job count drops from 23 to 20.
+- Entire `docs/i18n/` directory tree — both `ko-KR/` and `ja-JP/` localizations (82 files including translated guides, templates, README, and PowerShell hook mirrors). EN becomes the canonical single source; future translations will be on-demand per-request rather than CI-enforced mirrors. The README language switcher row is removed in the same commit to keep `link-check-internal` green.
+- All 9 PowerShell `.ps1` companion scripts: `plugin/hooks/session-start.ps1`, `templates/advanced/hooks/{pre-compact,stop,subagent-stop,validate-prompt}.ps1`, and `ci/scripts/{build-manifest,compare-golden,preflight-schema,run-smoke}.ps1`. Maintaining byte-parity between `.sh` and `.ps1` siblings on every hook edit grew disproportionately costly; `bash` (Git Bash on Windows or WSL) becomes a hard requirement going forward. `templates/advanced/.claude/settings.json` updated to drop the 4 parallel PowerShell hook entries (UserPromptSubmit, PreCompact, SubagentStop, Stop) while keeping their bash siblings; `.github/scripts/check-smoke-fixtures.py` PowerShell parity lane (~50 lines: `_find_pwsh()`, `run_sessionstart_ps1_fixture()`, parity loop) removed as dead code; `.gitattributes` `*.ps1` line-ending rule and dead `docs/i18n/` entries cleaned.
+- `.github/scripts/check-json-schemas.py` orphan glob entries — 4 dead entries globbing into the `docs/i18n/{ko-KR,ja-JP}/` paths deleted when the i18n directory tree was removed. The validator was silently matching zero files for those entries; removed for code hygiene. Total JSON files validated remains 26.
+- `.github/scripts/check-smoke-fixtures.py` dead `_clear_sessionstart_lock()` helper (~25 lines: function definition + single caller). After the mkdir lock was removed from `session-start.sh`, the helper's `lock.is_dir()` guard never fired again. All 30 smoke fixtures still pass byte-equal.
+- `.gitignore` stale `.session-start.lock/` ignore block (4 lines including comment) — referenced both the retired `.ps1` companion and the retired session-start mkdir lock mechanism. Functionally harmless but misleading documentation; cleaned for clarity.
+
 ### Fixed
 
 - `plugin/hooks/session-start.sh` and `session-start.ps1`: the `schema_version_mismatch` drift check now treats both the current profile schema version (`1.3.0`) and the previous minor (`1.2.0`) as non-drift, instead of comparing against a single hardcoded `1.2.0`. When the `commit_id`-marker profile schema wrapper (`profile.schema.v1.3.0.json`) shipped, the hook's expected-version constant was not bumped, so every SessionStart on a current `1.3.0` profile emitted a false `profile.schema_version 1.3.0 expected 1.2.0` drift signal that no `/audit` run could clear (each `/audit` re-writes the profile at `1.3.0`). The N / N-1 acceptance window matches the support guarantee in `plugin/references/schema-policy.md`. `ci/fixtures/sessionstart-orchestrator/fixture_drift_schema_then_scoring/expected.json` golden updated — the rendered expected-version token tracks the constant (now `1.3.0`).
@@ -16,6 +46,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `docs/i18n/ko-KR/templates/{starter,advanced}/CLAUDE.md` and `docs/i18n/ja-JP/templates/{starter,advanced}/CLAUDE.md`: corrected the relative link to `plugin/references/security-patterns.md#defense-surfaces-catalog` (under the "Untrusted input rule" section) from `../../../../` (4 ups) to `../../../../../` (5 ups). Translated template clones rendered the link as a broken path (`docs/plugin/...`); the 4-up depth applies to i18n guides but i18n templates are one directory deeper, so they need 5 ups. `link-check-internal` flagged this on the v2.19.9 tag push.
 - `templates/starter/CLAUDE.md`, `README.md`, `docs/guides/getting-started.md`, `docs/guides/trustworthy-agents-guide.md` (all with ko-KR / ja-JP mirrors), root `CLAUDE.md`, and `plugin/skills/create/templates/starter.md`: corrected the starter CLAUDE.md section count from 6 to 7. The v2.19.9 `## Trust Boundary` addition raised the count but it was updated in only one location at the time; the Getting Started canonical-section enumeration also gains the Trust Boundary entry. Frontmatter `version` bumped on each affected `templates/` and `docs/guides/` file (EN + i18n in lockstep).
 - `docs/ROADMAP.md`: removed a dangling internal-planning task ID from a table row — the identifier was defined nowhere in the shipped tree, so no reader could resolve the citation. The surrounding row text remains self-describing without it.
+
+### Migration
+
+#### Scenario A — Windows users without Git Bash or WSL
+This is the only audience that experiences a hard break. The plugin's SessionStart hook will emit a one-line onboarding message and otherwise stay silent until you install bash.
+
+1. **Install Git for Windows** (provides `bash` via Git Bash): download from https://git-scm.com/download/win and run the installer. **Then install `jq` separately** — Git for Windows does NOT bundle `jq`. Recommended: `winget install jqlang.jq` (or via Scoop / Chocolatey / manual download from https://jqlang.org/download/). Both `bash` and `jq` must be on PATH.
+2. **Or install WSL**: `wsl --install` from an elevated PowerShell. Choose a distro (Ubuntu recommended), launch it once to complete setup, install `jq`: `sudo apt install jq`.
+3. **Restart Claude Code** — hook discovery happens at startup.
+4. **Verify**: open this repo in Claude Code; the SessionStart digest should appear in the first session.
+
+#### Scenario B — Users of ko-KR / ja-JP localizations
+The last release with localized content is **v2.19.9**. There is no migration path to v3.0.0 with localizations preserved.
+
+- **Extract legacy translations from the v2.19.9 git tag**: `git clone https://github.com/wlsgur073/Guardians-of-the-Claude && cd Guardians-of-the-Claude && git checkout v2.19.9 -- docs/i18n/`. The extracted `docs/i18n/ko-KR/` and `docs/i18n/ja-JP/` directories contain the full localized guides, templates, and READMEs from v2.19.9. Reference them locally; Claude Code's marketplace system does not currently support pinning a plugin to a specific tag, so future plugin updates will continue to pull v3.x+.
+- **Request translation of v3.x content**: open a GitHub issue describing which guide or template you need translated. EN is the canonical source; translations are on-demand rather than CI-enforced mirrors.
+
+#### Scenario C — Plugin contributors
+- Local validator sweep simplified: no more `check-frontmatter-parity.py`, `check-i18n-parity.py`, `check-hook-script-parity.py`. The 11-validator release sweep is now 8 (7 pre-push + 1 post-push).
+- `.ps1` files are gone — Windows contributors should develop in Git Bash or WSL going forward. Local smoke runs use the bash equivalents (`ci/scripts/run-smoke.sh`).
+- `CLAUDE.md` updated with the new sweep policy and the bash-only contract — review the "Release Process" section before next contribution.
 
 ## [2.19.9] - 2026-05-21
 

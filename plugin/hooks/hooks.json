@@ -1,5 +1,5 @@
 {
-  "description": "Read-only state-aware re-entry digest on session start (startup + resume sources only via matcher: \"startup|resume\" first-line filter, with script-side parser as defense-in-depth; clear and compact suppressed). Bootstrap cases (no config / no profile) early-return with the same prompts as before. After profile exists, stacks up to 3 trigger families -- drift (manifest staleness, schema mismatch, ecosystem change, scoring contract bump), unresolved recommendations, repeated declines -- into a capped 2000-char multi-line digest in fixed priority order. Lock-based first-wins de-duplication prevents duplicate emit on machines with both bash and powershell interpreters. Ships two command entries so bare Windows shells without Git Bash or WSL still get the hint; missing-interpreter entries exit with ENOENT and are silently skipped.",
+  "description": "Read-only state-aware re-entry digest on session start (startup + resume sources only via matcher: \"startup|resume\" first-line filter, with script-side parser as defense-in-depth; clear and compact suppressed). Bootstrap cases (no config / no profile) early-return with the same prompts as before. After profile exists, stacks up to 3 trigger families -- drift (manifest staleness, schema mismatch, ecosystem change, scoring contract bump), unresolved recommendations, repeated declines -- into a capped 2000-char multi-line digest in fixed priority order. Bash entry handles all normal execution; the cmd fallback entry emits a Windows onboarding message only when bash is not on PATH (self-probes via `where bash`).",
   "hooks": {
     "SessionStart": [
       {
@@ -13,9 +13,9 @@
           },
           {
             "type": "command",
-            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.ps1\"",
+            "command": "cmd /c \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.cmd\"",
             "timeout": 5,
-            "statusMessage": "Checking for project state signals"
+            "statusMessage": "Checking bash availability (Windows fallback)"
           }
         ]
       }

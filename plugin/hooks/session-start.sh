@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # plugin/hooks/session-start.sh — SessionStart state-aware re-entry digest.
-# Read-only over canonical state. Source filter + lock-based dual-entry de-duplication.
+# Read-only over canonical state. Source filter narrows execution to startup|resume.
+# Dedup with the Windows .cmd fallback is automatic: the .cmd entry self-skips
+# when bash is on PATH, so this script runs unconditionally as the sole emitter.
 # Bootstrap cases (no config / no profile) early-return with the existing prompts;
 # after profile exists, three trigger families (drift / unresolved / repeated-decline)
 # stack into a capped multi-line digest in fixed priority order.
@@ -8,7 +10,6 @@ set -e
 
 PROFILE=".claude/.plugin-cache/guardians-of-the-claude/local/profile.json"
 RECS=".claude/.plugin-cache/guardians-of-the-claude/local/recommendations.json"
-LOCK_DIR=".claude/.plugin-cache/guardians-of-the-claude/local/.session-start.lock"
 
 # Threshold constants (calibrated against representative scenarios; tune via patch
 # release if production noise/signal feedback surfaces).
@@ -37,26 +38,6 @@ SOURCE=$(jq -r '.source // "startup"' 2>/dev/null || echo "startup")
 case "$SOURCE" in
   clear|compact) exit 0 ;;
 esac
-
-# Stale lock cleanup — capture mtime safely; skip cleanup on parse failure.
-# Avoids the unsafe `|| echo 0` fallback that would synthesize an "ancient"
-# age and falsely cleanup a valid lock.
-if [ -d "$LOCK_DIR" ]; then
-  LOCK_MTIME=$(stat -c %Y "$LOCK_DIR" 2>/dev/null || stat -f %m "$LOCK_DIR" 2>/dev/null || true)
-  if [ -n "$LOCK_MTIME" ]; then
-    LOCK_AGE=$(( NOW_UTC - LOCK_MTIME ))
-    [ "$LOCK_AGE" -gt 30 ] && rmdir "$LOCK_DIR" 2>/dev/null
-  fi
-fi
-
-# Parent dir ensure (in case skills haven't created local/ yet).
-mkdir -p "$(dirname "$LOCK_DIR")" 2>/dev/null
-
-# Atomic lock acquisition via mkdir; sibling entry exits silently.
-# SIGKILL between mkdir and trap registration is an unrecoverable race;
-# the 30s TTL stale-cleanup above is the explicit backstop.
-mkdir "$LOCK_DIR" 2>/dev/null || exit 0
-trap 'rmdir "$LOCK_DIR" 2>/dev/null' EXIT  # set ONLY after acquire
 
 # Case 1: No Claude Code configuration at all (PRESERVED VERBATIM)
 if [ ! -f "CLAUDE.md" ] && [ ! -f ".claude/settings.json" ]; then

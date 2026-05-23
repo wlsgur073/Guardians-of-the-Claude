@@ -4272,72 +4272,6 @@ def _find_bash() -> str:
     return found if found else "bash"
 
 
-def _find_pwsh() -> str | None:
-    """Locate a working PowerShell interpreter, or return None to skip.
-
-    On Windows, prefer pwsh (PowerShell 7+) over powershell.exe (5.1) for
-    parity with Linux. On Linux/macOS, /usr/bin/pwsh from PATH (provided by
-    PowerShell 7+ install). Linux ubuntu-latest CI runner ships pwsh by
-    default so the ps1 fixture lane runs in CI.
-    Returns absolute path or None if no PowerShell is available — caller
-    skips the lane with a warning rather than failing.
-    """
-    import platform  # noqa: PLC0415
-    if platform.system() == "Windows":
-        for cand in (
-            r"C:\Program Files\PowerShell\7\pwsh.exe",
-            r"C:\Program Files\PowerShell\6\pwsh.exe",
-            r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe",
-        ):
-            if Path(cand).is_file():
-                return cand
-    found = shutil.which("pwsh")
-    if found:
-        return found
-    return shutil.which("powershell")
-
-
-def _canonical_json(s: str) -> str:
-    """Return canonical-form JSON string for cross-format comparison.
-
-    The bash hook emits jq-default formatting (2-space indent, single-space
-    after colons). The PowerShell hook emits ConvertTo-Json formatting
-    (4-space indent, double-space after colons). For semantic equivalence
-    checks across both lanes, normalize via json.loads + json.dumps with
-    sorted keys and compact separators. Empty input returns empty string.
-    """
-    if not s.strip():
-        return ""
-    try:
-        return json.dumps(json.loads(s), sort_keys=True, separators=(",", ":"))
-    except json.JSONDecodeError:
-        return s  # malformed; let exact comparison surface the failure
-
-
-def _clear_sessionstart_lock(input_dir: Path) -> None:
-    """Remove a stale .session-start.lock dir left by a SIGKILLed prior hook
-    run (the hook's EXIT-trap rmdir is skipped on SIGKILL). Without this, the
-    next invocation silently exits 0 with no stdout and an output-producing
-    fixture FAILs. Protects every sessionstart fixture, including ones with
-    no setup.sh. Sequential lanes make a concurrent-race variant unreachable.
-
-    Called after setup.sh and immediately before the hook subprocess in both
-    the bash and PowerShell lanes; the lock dir, when present here, is always
-    a leftover (no live hook holds it at this point).
-    """
-    lock = (input_dir / ".claude" / ".plugin-cache"
-            / "guardians-of-the-claude" / "local" / ".session-start.lock")
-    # The hook creates this lock with `mkdir` and removes it with `rmdir`
-    # (empty by contract). Mirror that here. Deliberately NOT
-    # shutil.rmtree(ignore_errors=True): swallowing a removal failure would
-    # silently reintroduce the exact flake this guards against. Letting
-    # os.rmdir raise points CI straight at the cause instead of the
-    # confusing "empty output diverged" symptom, and a non-empty lock is a
-    # real anomaly worth surfacing rather than nuking.
-    if lock.is_dir():
-        os.rmdir(lock)
-
-
 def run_sessionstart_fixture(name: str) -> tuple[bool, str]:
     """Run plugin/hooks/session-start.sh against a sessionstart-orchestrator fixture.
 
@@ -4382,8 +4316,6 @@ def run_sessionstart_fixture(name: str) -> tuple[bool, str]:
             stdout_decoded = exc.stdout.decode("utf-8", errors="replace") if exc.stdout else ""
             return False, f"setup.sh failed (rc={exc.returncode}): stdout={stdout_decoded[:200]!r} stderr={stderr_decoded[:200]!r}"
 
-    _clear_sessionstart_lock(input_dir)
-
     try:
         proc = subprocess.run(
             [bash_bin, str(hook_path)],
@@ -4402,72 +4334,6 @@ def run_sessionstart_fixture(name: str) -> tuple[bool, str]:
     expected = expected_path.read_text(encoding="utf-8").strip()
     if actual == expected:
         return True, "byte-equal"
-    return False, f"diverged:\n  expected: {expected[:200]}\n  actual:   {actual[:200]}"
-
-
-def run_sessionstart_ps1_fixture(name: str) -> tuple[bool, str]:
-    """Run plugin/hooks/session-start.ps1 against a sessionstart-orchestrator
-    fixture for cross-platform parity verification.
-
-    Mirrors run_sessionstart_fixture's contract: same setup.sh handling, same
-    SMOKE_PINNED_UTC, same fixture directory layout. Comparison is against
-    canonical JSON form (json.loads + sorted keys + compact separators) since
-    bash uses jq-default pretty format and PowerShell uses ConvertTo-Json
-    formatting that differ in whitespace/indent — equivalence is semantic.
-    Caller is responsible for not invoking this when _find_pwsh() returns None.
-    """
-    fixture_dir = ROOT / "ci" / "fixtures" / "sessionstart-orchestrator" / name
-    input_dir = fixture_dir / "input"
-    expected_path = fixture_dir / "expected.json"
-    setup_path = fixture_dir / "setup.sh"
-    if not input_dir.is_dir() or not expected_path.is_file():
-        return False, f"fixture missing: {fixture_dir}"
-
-    if "clear" in name:
-        stdin_payload = '{"source":"clear"}'
-    elif "compact" in name:
-        stdin_payload = '{"source":"compact"}'
-    else:
-        stdin_payload = '{"source":"startup"}'
-
-    hook_path = ROOT / "plugin" / "hooks" / "session-start.ps1"
-    env = os.environ.copy()
-    env["SMOKE_PINNED_UTC"] = "2026-05-07T00:00:00Z"
-    pwsh_bin = _find_pwsh()
-    if pwsh_bin is None:
-        return False, "pwsh not found (caller should have skipped)"
-
-    if setup_path.is_file():
-        bash_bin = _find_bash()
-        try:
-            subprocess.run(
-                [bash_bin, str(setup_path)],
-                check=True, capture_output=True,
-                cwd=str(fixture_dir), env=env, timeout=10,
-            )
-        except subprocess.TimeoutExpired:
-            return False, "setup.sh timed out"
-        except subprocess.CalledProcessError as exc:
-            stderr_decoded = exc.stderr.decode("utf-8", errors="replace") if exc.stderr else ""
-            stdout_decoded = exc.stdout.decode("utf-8", errors="replace") if exc.stdout else ""
-            return False, f"setup.sh failed (rc={exc.returncode}): stdout={stdout_decoded[:200]!r} stderr={stderr_decoded[:200]!r}"
-
-    _clear_sessionstart_lock(input_dir)
-
-    try:
-        proc = subprocess.run(
-            [pwsh_bin, "-NoProfile", "-File", str(hook_path)],
-            input=stdin_payload.encode("utf-8"),
-            capture_output=True,
-            cwd=str(input_dir), env=env, timeout=10,
-        )
-    except subprocess.TimeoutExpired:
-        return False, "hook timed out"
-
-    actual = _canonical_json(proc.stdout.decode("utf-8", errors="replace") if proc.stdout else "")
-    expected = _canonical_json(expected_path.read_text(encoding="utf-8"))
-    if actual == expected:
-        return True, "canonical-json-equal"
     return False, f"diverged:\n  expected: {expected[:200]}\n  actual:   {actual[:200]}"
 
 
@@ -4615,24 +4481,6 @@ def main() -> int:
         print(f"[{tag}] sessionstart-bash/{name}: {msg}")
         if not passed:
             fail_count += 1
-
-    # PowerShell parity lane — both bash and ps1 hooks must produce semantically
-    # equivalent advisory text for each fixture. Skipped (with notice) when no
-    # PowerShell interpreter is available; runs in CI on ubuntu-latest (pwsh
-    # pre-installed) and on Windows local dev (pwsh 7+ or powershell.exe 5.1).
-    if _find_pwsh() is None:
-        print("[SKIP] sessionstart-ps1: no pwsh / powershell on PATH")
-    else:
-        for name in sessionstart_fixtures:
-            try:
-                passed, msg = run_sessionstart_ps1_fixture(name)
-            except Exception as exc:  # noqa: BLE001
-                passed = False
-                msg = f"exception: {exc.__class__.__name__}: {exc}"
-            tag = "PASS" if passed else "FAIL"
-            print(f"[{tag}] sessionstart-ps1/{name}: {msg}")
-            if not passed:
-                fail_count += 1
 
     return 1 if fail_count else 0
 

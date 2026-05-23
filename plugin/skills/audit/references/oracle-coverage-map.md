@@ -2,15 +2,15 @@
 
 **Status**: Active (discovery artifact informing later pilot proposals)
 **Created**: 2026-05-09
-**Scope**: Maps `/audit`'s 14 rules (Tiers 1–3) against the 11 `.github/scripts/check-*.py` CI validators to surface the upper bound of deterministic verifiability available from this repo's CI surface.
+**Scope**: Maps `/audit`'s 14 rules (Tiers 1–3) against the 8 `.github/scripts/check-*.py` CI validators to surface the upper bound of deterministic verifiability available from this repo's CI surface.
 
 ---
 
 ## Summary Finding
 
-**Zero direct oracle coverage.** None of the 11 CI scripts oracles any of the 14 `/audit` rules, because the two sets target different domains:
+**Zero direct oracle coverage.** None of the 8 CI scripts oracles any of the 14 `/audit` rules, because the two sets target different domains:
 
-- **CI scripts** validate this repository's own content (frontmatter parity across EN/i18n, JSON schema conformance for our manifests, smoke fixtures byte-diff, README badge sync, etc.).
+- **CI scripts** validate this repository's own content (JSON schema conformance for our manifests, smoke fixtures byte-diff, README badge sync, etc.).
 - **`/audit` rules** evaluate user projects' Claude Code configurations (CLAUDE.md content quality, deny patterns, hook portability, agent diversity, etc.).
 
 The deterministic portions of `/audit` rules are **rule-internal** (file existence, string match, JSON parse, line count, Glob match) — they do not need an external oracle because they ARE the deterministic check. The remaining surface (severity grading, scope decisions, conditional recommendations) is LLM-judgment-bound.
@@ -27,7 +27,7 @@ The deterministic portions of `/audit` rules are **rule-internal** (file existen
 | T1.4 Project overview | heuristic on first 20 lines | none | partial (line scan deterministic; "vague" LLM) |
 | T2.1 Sensitive file protection | settings.json parse + deny pattern presence + op coverage | none† | inherent (parse + pattern scan); "weaker protection" LLM |
 | T2.2 Security rules | filename/keyword search | none | partial (presence deterministic; "security-relevant surface" heuristic) |
-| T2.3 Hook config quality | field presence + portability + event-type | none‡ | partial (field presence deterministic; "inappropriate" LLM) |
+| T2.3 Hook config quality | field presence + portability + event-type | none | partial (field presence deterministic; "inappropriate" LLM) |
 | T3.1 Directory references | Glob check on extracted paths | none | inherent |
 | T3.2 CLAUDE.md length | line count | none | inherent |
 | T3.3 Command availability | manifest + tool-config existence | none | inherent |
@@ -37,7 +37,6 @@ The deterministic portions of `/audit` rules are **rule-internal** (file existen
 | T3.7 Environment variable documentation | env var scan + CLAUDE.md cross-ref | none | partial (pattern detection deterministic; "sufficient documentation" LLM) |
 
 † `check-json-schemas.py` validates this repo's manifests against canonical Claude Code schemas; validation *logic* (JSON parse + schema match) is reusable conceptually, but the script does not run on user projects.
-‡ `check-hook-script-parity.py` checks `.sh` ↔ `.ps1` companion presence in `templates/advanced/hooks/`. Different concern (cross-platform parity) than T2.3 (config field quality).
 § `check-skill-stability.py` validates SKILL.md frontmatter contract for OUR plugin skills (same YAML-field-presence pattern as T3.5 but applied to a different file type / scope).
 
 ---
@@ -46,13 +45,10 @@ The deterministic portions of `/audit` rules are **rule-internal** (file existen
 
 | Script | Validates |
 | --- | --- |
-| check-frontmatter-parity.py | EN/i18n guide & template `version:` lockstep |
-| check-i18n-parity.py | `docs/i18n/{ko-KR,ja-JP}/` directory mirror of EN |
 | check-json-schemas.py | `plugin.json`, `marketplace.json`, `templates/*/.claude/settings.json` |
 | check-recommendation-registry.py | `recommendations.json` shape + ISO date validity |
 | check-skill-stability.py | SKILL.md frontmatter contract for the four plugin skills |
 | check-changelog-anchor-slug.py | CHANGELOG `[X.Y.Z]` heading slug consistency |
-| check-hook-script-parity.py | `.sh` ↔ `.ps1` companion presence in `templates/advanced/hooks/` |
 | check-qa-report-shape.py | `/audit` QA report OUTPUT shape (not rule-correctness) |
 | check-readme-badge-sync.py | `README.md` shields.io version badge ↔ `plugin.json` |
 | check-smoke-fixtures.py | `ci/golden/` byte-diff regression for plugin output |
@@ -85,4 +81,4 @@ These are the LLM-judge cluster's domain (tracked in `docs/ROADMAP.md` "Revisit 
 ## References
 
 - `checks/{t1-foundation,t2-protection,t3-optimization}.md` — full `/audit` rule definitions
-- `.github/scripts/check-*.py` — the 11 CI validators
+- `.github/scripts/check-*.py` — the 8 CI validators
