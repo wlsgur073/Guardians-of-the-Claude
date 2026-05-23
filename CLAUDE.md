@@ -1,7 +1,7 @@
 # CLAUDE.md
 <!-- Last reviewed: 2026-05-21 -->
 
-This is a documentation and template repository — no application source code and no runtime build system, but CI validates it via Python structural checks (frontmatter parity, i18n parity, JSON schemas), shellcheck, and link checking. Its purpose is to teach developers how to configure Claude Code for their own projects.
+This is a documentation and template repository — no application source code and no runtime build system, but CI validates it via Python structural checks (JSON schemas, smoke fixtures, badge sync), shellcheck, and link checking. Its purpose is to teach developers how to configure Claude Code for their own projects.
 
 ## Repository Structure
 
@@ -11,14 +11,12 @@ This is a documentation and template repository — no application source code a
 - `templates/starter/` — Minimal filled example for TaskFlow (7-section CLAUDE.md + basic settings.json)
 - `templates/advanced/` — Full filled example for TaskFlow (rules, hooks, agents, skills, MCP)
 - `docs/guides/` — Guides covering each Claude Code configuration concept (CLAUDE.md writing, rules, settings, directory structure, effective usage patterns, advanced features, MCP integration, recommended plugins)
-- `docs/i18n/ko-KR/` — Korean translations (`guides/`, `templates/`, `README.md`)
-- `docs/i18n/ja-JP/` — Japanese translations (`guides/`, `templates/`, `README.md`)
 - `docs/*.md` — GitHub community health files and project governance (CODE_OF_CONDUCT.md, CONTRIBUTING.md, SECURITY.md, PRIVACY.md, ROADMAP.md)
 - `.claude/` — This repo's own Claude Code settings
 - `.claude/.plugin-cache/<plugin-name>/local/` — plugin-managed state (`recommendations.json`, `profile.json`, `state-summary.md`, `config-changelog.md`). Read for status (`PENDING`/`RESOLVED`/`DECLINED`/`decline_count`); do NOT manually edit (plugin auto-updates on next skill invocation via `issued_by`/`resolver` matching).
 - `test/` — Skill evaluation framework (rubrics, scenarios, fixtures, scripts) and results. Not a unit test suite — used to grade skill output quality. See `test/testing-strategy.md`.
 - `ci/` — CI smoke lane: fixtures, golden snapshots, and scripts for plugin regression testing (run by `.github/workflows/smoke.yml`; shipped, unlike gitignored `test/`). Template clone users can ignore; plugin contributors who change skill output must update fixtures/goldens. See `ci/README.md`.
-- `.github/workflows/docs-check.yml` — CI with 23 jobs (link-check-internal, link-check-external, frontmatter-parity, json-schema, registry-lint, skill-stability-lint, i18n-parity, shellcheck, encoding-check, preflight-schema, scoring-formula-simulation, scoring-model-lav-linkage, changelog-parser-check, audit-goldens-check, audit-drift-aware-check, scoring-contract-consistency, detection-probe-check, qa-report-shape-check, hook-script-parity, readme-badge-sync, tag-sha-propagation, changelog-anchor-slug, atomic-fixture-runners-check). Python validators live in `.github/scripts/`.
+- `.github/workflows/docs-check.yml` — CI with 20 jobs (link-check-internal, link-check-external, json-schema, registry-lint, skill-stability-lint, shellcheck, encoding-check, preflight-schema, scoring-formula-simulation, scoring-model-lav-linkage, changelog-parser-check, audit-goldens-check, audit-drift-aware-check, scoring-contract-consistency, detection-probe-check, qa-report-shape-check, readme-badge-sync, tag-sha-propagation, changelog-anchor-slug, atomic-fixture-runners-check). Python validators live in `.github/scripts/`.
 - `.github/workflows/smoke.yml` — CI smoke lane (2 jobs: smoke fixtures, verifier drift tripwire); triggers on PRs touching `plugin/**`/`templates/**`/`ci/**` and on version tags.
 
 ## Contribution Rules
@@ -39,40 +37,29 @@ This is a documentation and template repository — no application source code a
 
 A single change can ripple across the repo. When modifying any file, check downstream:
 
-- **`security-patterns.md`** → `/create` templates (`starter.md`, `advanced.md`) → filled examples (`templates/*/settings.json` EN + ko-KR + ja-JP, 6 files)
-- **`docs/guides/*.md`** → `docs/i18n/ko-KR/guides/*.md` and `docs/i18n/ja-JP/guides/*.md` — sync content + match frontmatter `version`
-- **`templates/starter/` or `advanced/`** → `docs/i18n/ko-KR/templates/` and `docs/i18n/ja-JP/templates/` — mirror structure and content
+- **`security-patterns.md`** → `/create` templates (`starter.md`, `advanced.md`) → filled examples (`templates/*/settings.json`, 2 files)
 - **Skill SKILL.md** (behavior change) → verify other skills' Phase 0 reading scope still covers the change; update `CHANGELOG.md`
 - **Deny pattern format change** → grep `Read\(.*secrets` or similar across all files to ensure consistency
-- **Root `README.md` → i18n mirrors** (ko-KR, ja-JP): sync content + language switcher, but NOT the badge row (version/license/status badges are language-neutral, EN-only by design — absence in translations is not drift)
-- **i18n frontmatter `version:` bump semantics:** bump when new content is added/translated, NOT when fixing drift to restore parity with EN (drift fixes return already-agreed content to parity — no semantic change)
-- **i18n single-mirror review findings → cross-mirror check first** — when an agent reviews ko-KR or ja-JP only and surfaces a finding, check whether the *other* mirror has the identical pattern before fixing. Single-mirror fix creates new ko-KR ↔ ja-JP divergence; either fix both or document as cross-mirror design intent (memory closure pattern)
-- **New i18n guide atomic-commit:** when adding a *new* guide (vs. editing an existing one), commit all 3 language files (EN + ko-KR + ja-JP) in the SAME commit — staging EN alone makes `check-i18n-parity.py` (structural mirror check) fail. Existing-guide edits don't have this constraint since parity is preserved file-by-file
-- **i18n guide and template relative-path depth:** files at `docs/i18n/<locale>/guides/` are 2 directories deeper than `docs/guides/`, so relative links to `plugin/...` need `../../../../` (4 up), not `../../` (2 up like the EN canonical). **i18n templates are one directory deeper still** at `docs/i18n/<locale>/templates/<starter|advanced>/`, so their relative links to `plugin/...` need `../../../../../` (5 up). Copying paths verbatim from EN silently breaks i18n cross-links; only `lychee` catches it locally
-- **Cross-language anchor consistency:** when a guide deep-links into another guide's heading via `file.md#anchor`, keep the target heading in English across all 3 language versions so the same anchor ID resolves uniformly. Translate section *bodies*, not cross-referenced heading text
 - **`templates/` path/structural rename** → grep `CLAUDE.md` `Repository Structure` for stale path mentions (`*.sh` lists, dir paths); CLAUDE.md is consistently missed as a cascade target
 
 ### Verifying Changes Locally
 
 Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetches the Claude Code settings schema from schemastore.org and degrades to required-field-only checks on network failure, so full schema validation locally requires connectivity. First-time setup: `pip install pyyaml==6.0.2 jsonschema==4.23.0 referencing==0.37.0 requests==2.32.3`
 
-- `python .github/scripts/check-frontmatter-parity.py` — confirms EN and i18n files have matching `version` fields
-- `python .github/scripts/check-i18n-parity.py` — confirms i18n directories mirror EN structure (stdlib only)
 - `python .github/scripts/check-json-schemas.py` — validates `plugin.json`, `marketplace.json`, `settings.json` schemas
 - `lychee 'README.md' 'docs/**/*.md' 'plugin/**/*.md' 'CHANGELOG.md' 'templates/**/*.md'` — link check (requires [lychee](https://github.com/lycheeverse/lychee))
 - `SMOKE_PINNED_UTC="2026-04-14T00:00:00Z" python .github/scripts/check-smoke-fixtures.py` — smoke fixture byte-diff verifier (env var required, value matches `.github/workflows/smoke.yml`)
 - Python on Windows: prepend `import sys; sys.stdout.reconfigure(encoding="utf-8")` before printing non-ASCII / U+FFFD / mixed CJK; use `open(path, encoding='utf-8')` for files with em-dashes / non-ASCII (e.g., schema descriptions) — default `cp949` codec raises `UnicodeEncodeError` / `UnicodeDecodeError`
-- **Release-time validator sweep — 10 pre-push + 1 post-push**: 10 Python validators must pass GREEN before `git push --follow-tags`; the 11th (`check-tag-sha-propagation.py`) runs after the tag push because it compares the local annotated tag SHA against `refs/tags/v<tag>` on origin.
-  - 6 routine (also run on every push/PR via docs-check): `check-frontmatter-parity.py`, `check-i18n-parity.py`, `check-json-schemas.py`, `check-smoke-fixtures.py`, `check-readme-badge-sync.py`, `check-changelog-anchor-slug.py`
-  - 4 release-only pre-push: `check-recommendation-registry.py`, `check-skill-stability.py`, `check-qa-report-shape.py`, `check-hook-script-parity.py`
+- **Release-time validator sweep — 7 pre-push + 1 post-push**: 7 Python validators must pass GREEN before `git push --follow-tags`; the 8th (`check-tag-sha-propagation.py`) runs after the tag push because it compares the local annotated tag SHA against `refs/tags/v<tag>` on origin.
+  - 4 routine (also run on every push/PR via docs-check): `check-json-schemas.py`, `check-smoke-fixtures.py`, `check-readme-badge-sync.py`, `check-changelog-anchor-slug.py`
+  - 3 release-only pre-push: `check-recommendation-registry.py`, `check-skill-stability.py`, `check-qa-report-shape.py`
   - 1 post-push: `check-tag-sha-propagation.py`
-  - `lychee` link checker is a separate non-Python tool, NOT counted in the "11"
+  - `lychee` link checker is a separate non-Python tool, NOT counted in the "8"
 - `jsonschema.Draft202012Validator` does NOT enforce `format` keyword by default — pass `format_checker=FormatChecker()` with a custom checker registered (`.github/scripts/check-json-schemas.py:_FORMAT_CHECKER` shows the stdlib-only `datetime.fromisoformat` pattern that avoids the `jsonschema[format]` extra / `rfc3339-validator` dependency).
 - **Agent review findings about external facts** (GitHub Actions versions, package availability, transitive deps, "dead code" claims) reflect agent training cutoff and may be wrong — verify with `gh api`, `pip show`, or `grep` for module callers before propagating to commits. Agent claims about *file content this repo owns* are typically reliable; *external/version claims* are not.
 - **`atomic-fixture-runners-check` (docs-check) transitive-dep guard:** the t3/t7 runner scripts are stdlib-only by file-scan but importlib-exec `check-smoke-fixtures.py` (needs `jsonschema`/`pyyaml`). Since the run-block maps exit 2 → `::warning::` skip, a missing core dep would otherwise silently no-op the gate (green job, zero gating) — so a pre-loop `python -c "import jsonschema, yaml"` guard fails the job loud (`exit 1`). Do NOT remove that guard or the `pip install` step; verify dep changes by running the runners, not import-scanning the scripts.
 - **Line-count checks** (guide `~130`/`~170`/`~185`/`~210`, CLAUDE.md `<200`): use `(Get-Content file).Count` / `wc -l` / LF count — NOT PowerShell `Measure-Object -Line`, which silently drops blank lines (~30% markdown undercount, e.g. 165→115) and yields confident-wrong conclusions.
 - **Self-generated end-of-turn "next-task" speculation** needs the same grep verification as agent claims above — pattern-matching commit-log names (e.g., `T5 Task` / `DEC-N` in `git log -S`) without grepping shipped docs creates phantom TODOs and wastes user attention. Same verification standard regardless of trigger source (subagent output vs. your own pattern recognition).
-- `check-hook-script-parity.py` validates *byte-equal i18n locale mirrors* (EN ↔ ko-KR ↔ ja-JP) of hook scripts, NOT sh ↔ ps1 *behavioral* parity (output equivalence on same input). Behavioral divergence between sh and ps1 implementations escapes CI — when modifying either side, manually cross-check the sibling against the same input scenarios.
 - **SessionStart smoke fixture list is hardcoded** at `.github/scripts/check-smoke-fixtures.py:2923` (`sessionstart_fixtures = [...]` array). Adding a new fixture under `ci/fixtures/sessionstart-orchestrator/<name>/` requires BOTH directory creation AND adding `<name>` to that array — the verifier does NOT glob. Skill-flow lane at `:2908` (`migration` / `beginner-path` / `warm-start` / `monorepo`) is a separate hardcoded list with the same property.
 
 **Cross-platform shell/fixture gotchas** (encountered when authoring hook scripts or extending the smoke runner):
@@ -86,10 +73,10 @@ Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetc
 
 ### Release Process
 
-- **SemVer:** patch (z) for fixes and platform-compat work (e.g., adding a `.ps1` companion to an existing `.sh` hook — no new user-callable surface); minor (y) only when adding user-callable surface (new skill, new SKILL.md frontmatter field, new template variant, new `/audit` flag); major (x) for breaking contract changes
+- **SemVer:** patch (z) for fixes and platform-compat work; minor (y) only when adding user-callable surface (new skill, new SKILL.md frontmatter field, new template variant, new `/audit` flag); major (x) for breaking contract changes
 - **GitHub Release title:** version only (`vX.Y.Z`) — no subtitle or theme. **Body:** `## Highlights` section with 3–5 short pointer bullets summarizing the release, followed by `**Full details:** [CHANGELOG — vX.Y.Z](<anchor URL>)`. CHANGELOG.md remains the source of truth for full rationale, validation, and notes — the release body is intentionally minimal to avoid redundancy. No `## Summary` prose, no self-curated "What's new" headers, no emojis. Anchor URL format: `https://github.com/<owner>/<repo>/blob/main/CHANGELOG.md#<slug>` where `<slug>` is the GitHub slug of `[X.Y.Z] - YYYY-MM-DD` (drop `[`, `]`, `.`; spaces → hyphens; lowercase). Past releases set the pattern: `gh release view <prev> --json name,body`
 - **`gh release` with markdown body:** HEREDOC breaks on backticks and special chars in markdown — always write notes to a temp file and pass with `-F <file>`, then delete the file. Full sequence: stage specific files → commit → `git tag -a vX.Y.Z -m "vX.Y.Z — <feature>"` (annotated, not lightweight) → `git push --follow-tags origin main` (atomic commits+tag push) → `gh release create vX.Y.Z --title "vX.Y.Z" -F notes.md`
-- **CHANGELOG `## [Unreleased]` bucket:** post-release docs/i18n fixes accumulate in a `## [Unreleased]` section at the top of CHANGELOG. Each fix commit includes its own Unreleased entry (atomic, self-describing). At next patch release, rename `## [Unreleased]` → `## [X.Y.Z] - YYYY-MM-DD`. Promote triggers: security-adjacent fix lands → release immediately; 5+ accumulated items or 30+ days stale → suggest release.
+- **CHANGELOG `## [Unreleased]` bucket:** post-release docs fixes accumulate in a `## [Unreleased]` section at the top of CHANGELOG. Each fix commit includes its own Unreleased entry (atomic, self-describing). At next patch release, rename `## [Unreleased]` → `## [X.Y.Z] - YYYY-MM-DD`. Promote triggers: security-adjacent fix lands → release immediately; 5+ accumulated items or 30+ days stale → suggest release.
 - **Pre-push self-regression grep:** before `git push --follow-tags`, grep working tree for retired vocab from same-cycle renames (heading labels, retired internal IDs) — catches incomplete cascades that escape per-task review. Cheap insurance vs forced post-push fix-up commit.
 - **Pre-push divergence check:** before `git tag`/`push --follow-tags`, `git fetch` then `git rev-list --left-right --count origin/main...HEAD` — origin may carry an unmerged concurrent commit. Don't tag a stale base or force-push over it: rebase, RE-RUN the full sweep on the merged tree (a concurrent commit may have changed validators/fixtures), and READ the merged `## [Unreleased]` — a no-conflict 3-way merge silently misfiles bullets under the wrong `###` ("no conflict" ≠ correct).
 - **Pre-publish release notes verification:** before `gh release create`, grep actual implementation file (hook script, validator) against any specific technical claim in body (regex, allow-list, threshold) — catches spec-vs-claim drift that pre-push grep misses.

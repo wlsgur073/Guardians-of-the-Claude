@@ -2,15 +2,15 @@
 
 **Status**: Active (discovery artifact informing later pilot proposals)
 **Created**: 2026-05-09
-**Scope**: Maps `/audit`'s 14 rules (Tiers 1–3) against the 11 `.github/scripts/check-*.py` CI validators to surface the upper bound of deterministic verifiability available from this repo's CI surface.
+**Scope**: Maps `/audit`'s 14 rules (Tiers 1–3) against the 8 `.github/scripts/check-*.py` CI validators to surface the upper bound of deterministic verifiability available from this repo's CI surface.
 
 ---
 
 ## Summary Finding
 
-**Zero direct oracle coverage.** None of the 11 CI scripts oracles any of the 14 `/audit` rules, because the two sets target different domains:
+**Zero direct oracle coverage.** None of the 8 CI scripts oracles any of the 14 `/audit` rules, because the two sets target different domains:
 
-- **CI scripts** validate this repository's own content (frontmatter parity across EN/i18n, JSON schema conformance for our manifests, smoke fixtures byte-diff, README badge sync, etc.).
+- **CI scripts** validate this repository's own content (JSON schema conformance for our manifests, smoke fixtures byte-diff, README badge sync, etc.).
 - **`/audit` rules** evaluate user projects' Claude Code configurations (CLAUDE.md content quality, deny patterns, hook portability, agent diversity, etc.).
 
 The deterministic portions of `/audit` rules are **rule-internal** (file existence, string match, JSON parse, line count, Glob match) — they do not need an external oracle because they ARE the deterministic check. The remaining surface (severity grading, scope decisions, conditional recommendations) is LLM-judgment-bound.
@@ -81,4 +81,4 @@ These are the LLM-judge cluster's domain (tracked in `docs/ROADMAP.md` "Revisit 
 ## References
 
 - `checks/{t1-foundation,t2-protection,t3-optimization}.md` — full `/audit` rule definitions
-- `.github/scripts/check-*.py` — the 11 CI validators
+- `.github/scripts/check-*.py` — the 8 CI validators
