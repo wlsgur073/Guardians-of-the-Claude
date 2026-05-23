@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `plugin/hooks/session-start.cmd` — minimal Windows onboarding fallback (~8 lines). Self-probes for `bash` via `where bash`; emits a single `hookSpecificOutput` JSON pointing at Git for Windows / WSL only when bash is absent. Exits silently on every other platform and on Windows-with-bash. Registered in `hooks.json` as a second `SessionStart` entry; the bash entry handles all normal execution.
+
+### Changed
+
+- `plugin/hooks/session-start.sh` simplified by removing the mkdir-based dual-entry lock (LOCK_DIR constant + stale-lock cleanup + atomic lock acquisition + cleanup trap). The lock previously deduplicated parallel bash + PowerShell entries; the new `.cmd` fallback self-probes for bash and exits silently when bash is present, making the lock unnecessary. Hook source drops from ~256 lines to ~236 lines.
+- `plugin/hooks/hooks.json` — replaced the PowerShell entry under `SessionStart` with a `cmd /c session-start.cmd` entry. Description updated to reflect the new self-probe mechanism.
+
 ### Removed
 
 - `.github/scripts/check-frontmatter-parity.py`, `.github/scripts/check-i18n-parity.py`, `.github/scripts/check-hook-script-parity.py` validators and their corresponding `frontmatter-parity`, `i18n-parity`, `hook-script-parity` jobs in `.github/workflows/docs-check.yml`. The three parity validators enforced byte-equal mirrors between EN and ko-KR / ja-JP content; with the i18n locales retiring in a subsequent commit, these checks become moot. `docs-check.yml` job count drops from 23 to 20.
