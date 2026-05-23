@@ -27,7 +27,7 @@ Guardians-of-the-Claude requires `bash` to run its hook scripts (SessionStart) a
 | **macOS** | Native (`bash 3.2+` preinstalled, or Homebrew `bash 5+`) |
 | **Windows** | [Git for Windows](https://git-scm.com/download/win) (provides Git Bash) **or** WSL |
 
-`jq` is also required for SessionStart hook JSON parsing. It ships with Git Bash on Windows and is available via every major package manager on Linux/macOS.
+`jq` is also required for SessionStart hook JSON parsing. **It is NOT bundled with Git for Windows** — install separately via `winget install jqlang.jq`, [download from jqlang.org](https://jqlang.org/download/), or use a package manager (Scoop: `scoop install jq`; Chocolatey: `choco install jq`). Linux/macOS: available via every major package manager (`apt`, `brew`, etc.).
 
 > **Migrating from v2.x?** v3.0.0 retired the `.ps1` companion scripts. Windows users without Git Bash or WSL will see a one-line onboarding message at session start pointing here — see [CHANGELOG v3.0.0](CHANGELOG.md#300---2026-05-23) for the full migration path.
 

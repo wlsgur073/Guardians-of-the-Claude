@@ -52,7 +52,7 @@ See the [Migration](#migration) section below for platform-specific guidance.
 #### Scenario A — Windows users without Git Bash or WSL
 This is the only audience that experiences a hard break. The plugin's SessionStart hook will emit a one-line onboarding message and otherwise stay silent until you install bash.
 
-1. **Install Git for Windows** (recommended): download from https://git-scm.com/download/win and run the installer. Accept defaults — this puts `bash` and `jq` on PATH.
+1. **Install Git for Windows** (provides `bash` via Git Bash): download from https://git-scm.com/download/win and run the installer. **Then install `jq` separately** — Git for Windows does NOT bundle `jq`. Recommended: `winget install jqlang.jq` (or via Scoop / Chocolatey / manual download from https://jqlang.org/download/). Both `bash` and `jq` must be on PATH.
 2. **Or install WSL**: `wsl --install` from an elevated PowerShell. Choose a distro (Ubuntu recommended), launch it once to complete setup, install `jq`: `sudo apt install jq`.
 3. **Restart Claude Code** — hook discovery happens at startup.
 4. **Verify**: open this repo in Claude Code; the SessionStart digest should appear in the first session.
@@ -60,8 +60,8 @@ This is the only audience that experiences a hard break. The plugin's SessionSta
 #### Scenario B — Users of ko-KR / ja-JP localizations
 The last release with localized content is **v2.19.9**. There is no migration path to v3.0.0 with localizations preserved.
 
-- **Pin to v2.19.9 in your marketplace install**: in your `~/.claude/plugin-marketplaces.json`, set the `guardians-of-the-claude` ref to `v2.19.9`. Future updates blocked.
-- **Or extract legacy translations**: `git clone https://github.com/wlsgur073/Guardians-of-the-Claude && cd Guardians-of-the-Claude && git checkout v2.19.9 -- docs/i18n/`. Use these as reference; on-demand translation of v3.x content can be requested via GitHub issue.
+- **Extract legacy translations from the v2.19.9 git tag**: `git clone https://github.com/wlsgur073/Guardians-of-the-Claude && cd Guardians-of-the-Claude && git checkout v2.19.9 -- docs/i18n/`. The extracted `docs/i18n/ko-KR/` and `docs/i18n/ja-JP/` directories contain the full localized guides, templates, and READMEs from v2.19.9. Reference them locally; Claude Code's marketplace system does not currently support pinning a plugin to a specific tag, so future plugin updates will continue to pull v3.x+.
+- **Request translation of v3.x content**: open a GitHub issue describing which guide or template you need translated. EN is the canonical source; translations are on-demand rather than CI-enforced mirrors.
 
 #### Scenario C — Plugin contributors
 - Local validator sweep simplified: no more `check-frontmatter-parity.py`, `check-i18n-parity.py`, `check-hook-script-parity.py`. The 11-validator release sweep is now 8 (7 pre-push + 1 post-push).

@@ -12,7 +12,7 @@ This guide walks you through setting up Claude Code configuration for your proje
 
 - Claude Code installed and working (run `claude --version` to confirm)
 - A project you want to configure
-- **On Windows**: `bash` is required — install [Git for Windows](https://git-scm.com/download/win) (provides Git Bash) or use WSL. The plugin's SessionStart hook, the advanced template's session-lifecycle hooks, and the inline `PreToolUse` / `PostToolUse` examples all use POSIX shell syntax. `jq` is also required (ships with Git Bash; available via package managers on WSL)
+- **On Windows**: `bash` is required — install [Git for Windows](https://git-scm.com/download/win) (provides Git Bash) or use WSL. The plugin's SessionStart hook, the advanced template's session-lifecycle hooks, and the inline `PreToolUse` / `PostToolUse` examples all use POSIX shell syntax. `jq` is also required — **Git for Windows does NOT bundle it**, install separately (`winget install jqlang.jq` or via Scoop/Chocolatey); on WSL, use `sudo apt install jq` (or your distro's equivalent)
 
 ## Step 1: Choose Your Setup Method
 
