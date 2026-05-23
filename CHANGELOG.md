@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Removed
 
 - `.github/scripts/check-frontmatter-parity.py`, `.github/scripts/check-i18n-parity.py`, `.github/scripts/check-hook-script-parity.py` validators and their corresponding `frontmatter-parity`, `i18n-parity`, `hook-script-parity` jobs in `.github/workflows/docs-check.yml`. The three parity validators enforced byte-equal mirrors between EN and ko-KR / ja-JP content; with the i18n locales retiring in a subsequent commit, these checks become moot. `docs-check.yml` job count drops from 23 to 20.
+- Entire `docs/i18n/` directory tree — both `ko-KR/` and `ja-JP/` localizations (82 files including translated guides, templates, README, and PowerShell hook mirrors). EN becomes the canonical single source; future translations will be on-demand per-request rather than CI-enforced mirrors. The README language switcher row is removed in the same commit to keep `link-check-internal` green.
 
 ### Fixed
 

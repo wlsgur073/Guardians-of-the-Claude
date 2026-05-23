@@ -9,10 +9,6 @@
   <img src="https://img.shields.io/badge/Skills-4_Commands-orange.svg" alt="4 Skills">
 </p>
 
-<p align="center">
-  <b>English</b> | <a href="docs/i18n/ko-KR/README.md">한국어</a> | <a href="docs/i18n/ja-JP/README.md">日本語</a>
-</p>
-
 A meta-system for Claude Code configuration. Start with a 2-minute guided setup, then grow into audit, security hardening, and optimization workflows as your project evolves. Same tool, continuous reinforcement.
 
 **For beginners:** 2-minute setup — Claude asks a few questions and generates all configuration files for you.
@@ -148,8 +144,6 @@ Guardians-of-the-Claude/
 ├── templates/advanced/      ← Filled advanced example (rules, hooks, agents, skills)
 ├── docs/
 │   ├── guides/              ← Guides explaining each concept
-│   ├── i18n/ko-KR/          ← Korean translations (guides, templates)
-│   ├── i18n/ja-JP/          ← Japanese translations (guides, templates)
 │   └── *.md                 ← Community health files and project roadmap
 └── CHANGELOG.md             ← Version history (Keep a Changelog format)
 ```
