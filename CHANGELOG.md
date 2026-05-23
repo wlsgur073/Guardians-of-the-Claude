@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-05-23
+
+**⚠️ BREAKING CHANGE**: `bash` (Git Bash on Windows or WSL) is now a hard requirement.
+The `.ps1` hook companions and ko-KR / ja-JP localizations are removed in this release.
+See the [Migration](#migration) section below for platform-specific guidance.
+
 ### Added
 
 - `plugin/hooks/session-start.cmd` — minimal Windows onboarding fallback (~8 lines). Self-probes for `bash` via `where bash`; emits a single `hookSpecificOutput` JSON pointing at Git for Windows / WSL only when bash is absent. Exits silently on every other platform and on Windows-with-bash. Registered in `hooks.json` as a second `SessionStart` entry; the bash entry handles all normal execution.
@@ -40,6 +46,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `docs/i18n/ko-KR/templates/{starter,advanced}/CLAUDE.md` and `docs/i18n/ja-JP/templates/{starter,advanced}/CLAUDE.md`: corrected the relative link to `plugin/references/security-patterns.md#defense-surfaces-catalog` (under the "Untrusted input rule" section) from `../../../../` (4 ups) to `../../../../../` (5 ups). Translated template clones rendered the link as a broken path (`docs/plugin/...`); the 4-up depth applies to i18n guides but i18n templates are one directory deeper, so they need 5 ups. `link-check-internal` flagged this on the v2.19.9 tag push.
 - `templates/starter/CLAUDE.md`, `README.md`, `docs/guides/getting-started.md`, `docs/guides/trustworthy-agents-guide.md` (all with ko-KR / ja-JP mirrors), root `CLAUDE.md`, and `plugin/skills/create/templates/starter.md`: corrected the starter CLAUDE.md section count from 6 to 7. The v2.19.9 `## Trust Boundary` addition raised the count but it was updated in only one location at the time; the Getting Started canonical-section enumeration also gains the Trust Boundary entry. Frontmatter `version` bumped on each affected `templates/` and `docs/guides/` file (EN + i18n in lockstep).
 - `docs/ROADMAP.md`: removed a dangling internal-planning task ID from a table row — the identifier was defined nowhere in the shipped tree, so no reader could resolve the citation. The surrounding row text remains self-describing without it.
+
+### Migration
+
+#### Scenario A — Windows users without Git Bash or WSL
+This is the only audience that experiences a hard break. The plugin's SessionStart hook will emit a one-line onboarding message and otherwise stay silent until you install bash.
+
+1. **Install Git for Windows** (recommended): download from https://git-scm.com/download/win and run the installer. Accept defaults — this puts `bash` and `jq` on PATH.
+2. **Or install WSL**: `wsl --install` from an elevated PowerShell. Choose a distro (Ubuntu recommended), launch it once to complete setup, install `jq`: `sudo apt install jq`.
+3. **Restart Claude Code** — hook discovery happens at startup.
+4. **Verify**: open this repo in Claude Code; the SessionStart digest should appear in the first session.
+
+#### Scenario B — Users of ko-KR / ja-JP localizations
+The last release with localized content is **v2.19.9**. There is no migration path to v3.0.0 with localizations preserved.
+
+- **Pin to v2.19.9 in your marketplace install**: in your `~/.claude/plugin-marketplaces.json`, set the `guardians-of-the-claude` ref to `v2.19.9`. Future updates blocked.
+- **Or extract legacy translations**: `git clone https://github.com/wlsgur073/Guardians-of-the-Claude && cd Guardians-of-the-Claude && git checkout v2.19.9 -- docs/i18n/`. Use these as reference; on-demand translation of v3.x content can be requested via GitHub issue.
+
+#### Scenario C — Plugin contributors
+- Local validator sweep simplified: no more `check-frontmatter-parity.py`, `check-i18n-parity.py`, `check-hook-script-parity.py`. The 11-validator release sweep is now 8 (7 pre-push + 1 post-push).
+- `.ps1` files are gone — Windows contributors should develop in Git Bash or WSL going forward. Local smoke runs use the bash equivalents (`ci/scripts/run-smoke.sh`).
+- `CLAUDE.md` updated with the new sweep policy and the bash-only contract — review the "Release Process" section before next contribution.
 
 ## [2.19.9] - 2026-05-21
 

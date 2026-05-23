@@ -3,13 +3,13 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-2.19.9-brightgreen.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Version-3.0.0-brightgreen.svg" alt="Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg" alt="Claude Code Plugin">
   <img src="https://img.shields.io/badge/Skills-4_Commands-orange.svg" alt="4 Skills">
 </p>
 
-> ⚠️ **v3.0.0 (YYYY-MM-DD)** — Breaking change: `bash` is now required (Git Bash on Windows or WSL). PowerShell `.ps1` companions and ko-KR / ja-JP localizations removed. [Migration guide →](CHANGELOG.md#300---YYYY-MM-DD)
+> ⚠️ **v3.0.0 (2026-05-23)** — Breaking change: `bash` is now required (Git Bash on Windows or WSL). PowerShell `.ps1` companions and ko-KR / ja-JP localizations removed. [Migration guide →](CHANGELOG.md#300---2026-05-23)
 
 A meta-system for Claude Code configuration. Start with a 2-minute guided setup, then grow into audit, security hardening, and optimization workflows as your project evolves. Same tool, continuous reinforcement.
 
@@ -29,7 +29,7 @@ Guardians-of-the-Claude requires `bash` to run its hook scripts (SessionStart) a
 
 `jq` is also required for SessionStart hook JSON parsing. It ships with Git Bash on Windows and is available via every major package manager on Linux/macOS.
 
-> **Migrating from v2.x?** v3.0.0 retired the `.ps1` companion scripts. Windows users without Git Bash or WSL will see a one-line onboarding message at session start pointing here — see [CHANGELOG v3.0.0](CHANGELOG.md#300---YYYY-MM-DD) for the full migration path.
+> **Migrating from v2.x?** v3.0.0 retired the `.ps1` companion scripts. Windows users without Git Bash or WSL will see a one-line onboarding message at session start pointing here — see [CHANGELOG v3.0.0](CHANGELOG.md#300---2026-05-23) for the full migration path.
 
 ## Philosophy
 
