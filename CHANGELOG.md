@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `plugin/skills/audit/references/oracle-coverage-map.md` — fixed stale "11 CI scripts/validators" inventory counts to "8" at lines 5, 11, 84. The actual inventory table was corrected when the three i18n parity validators were removed; this is the matching body-prose fix.
 - `docs/CONTRIBUTING.md` — replaced stale i18n contribution surfaces with the on-demand translation model. The "Translations" bullet (formerly pointing at `docs/i18n/ko-KR/` and `docs/i18n/ja-JP/`) now describes opening a GitHub issue for translation requests; the "Translation parity" rule (which required mirror updates on every `templates/` change) is removed entirely.
 - `.gitattributes` — added LF line-ending rules for `*.cmd` and `plugin/hooks/hooks.json` to prevent CRLF normalization on Windows clones (matches the existing `*.sh text eol=lf` convention; needed for the v3.0.0 `session-start.cmd` Windows onboarding fallback).
+- `README.md` — added "Requirements" section listing bash + jq per platform; added a top-of-file breaking-change banner pointing at the v3.0.0 CHANGELOG entry; updated the Day 1 prerequisites paragraph to remove the parallel bash + PowerShell narrative; updated the "What's Inside" directory tree to reflect post-v3.0.0 hook layout (`session-start.cmd` added, `session-start.ps1` removed).
+- `docs/guides/getting-started.md` — Windows prerequisites bullet updated to bash-only (Git Bash or WSL required, jq required) since the .ps1 hook companions are retired.
 
 ### Removed
 
