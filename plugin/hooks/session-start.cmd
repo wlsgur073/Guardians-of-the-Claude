@@ -1,5 +1,5 @@
 @echo off
-REM Guardians-of-the-Claude — Windows onboarding fallback.
+REM Guardians-of-the-Claude - Windows onboarding fallback.
 REM Emits onboarding JSON only when bash is NOT available.
 REM On Linux/macOS, this script is never invoked (cmd interpreter absent).
 where bash >NUL 2>&1
