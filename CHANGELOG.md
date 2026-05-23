@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Removed
+
+- `.github/scripts/check-frontmatter-parity.py`, `.github/scripts/check-i18n-parity.py`, `.github/scripts/check-hook-script-parity.py` validators and their corresponding `frontmatter-parity`, `i18n-parity`, `hook-script-parity` jobs in `.github/workflows/docs-check.yml`. The three parity validators enforced byte-equal mirrors between EN and ko-KR / ja-JP content; with the i18n locales retiring in a subsequent commit, these checks become moot. `docs-check.yml` job count drops from 23 to 20.
+
 ### Fixed
 
 - `plugin/hooks/session-start.sh` and `session-start.ps1`: the `schema_version_mismatch` drift check now treats both the current profile schema version (`1.3.0`) and the previous minor (`1.2.0`) as non-drift, instead of comparing against a single hardcoded `1.2.0`. When the `commit_id`-marker profile schema wrapper (`profile.schema.v1.3.0.json`) shipped, the hook's expected-version constant was not bumped, so every SessionStart on a current `1.3.0` profile emitted a false `profile.schema_version 1.3.0 expected 1.2.0` drift signal that no `/audit` run could clear (each `/audit` re-writes the profile at `1.3.0`). The N / N-1 acceptance window matches the support guarantee in `plugin/references/schema-policy.md`. `ci/fixtures/sessionstart-orchestrator/fixture_drift_schema_then_scoring/expected.json` golden updated — the rendered expected-version token tracks the constant (now `1.3.0`).
