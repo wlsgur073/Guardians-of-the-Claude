@@ -43,6 +43,30 @@ jobs:
           SMOKE_PINNED_UTC: "2026-04-14T00:00:00Z"
         run: bash ci/scripts/run-smoke.sh
 
+  smoke-windows:
+    name: Smoke fixtures (Windows Git Bash)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install jq
+        run: choco install jq -y --no-progress
+
+      - name: Install Python dependencies
+        run: pip install jsonschema==4.23.0 pyyaml==6.0.2
+
+      - name: Run smoke verifier
+        env:
+          SMOKE_PINNED_UTC: "2026-04-14T00:00:00Z"
+        run: bash ci/scripts/run-smoke.sh
+
   verifier-drift-tripwire:
     # Catches the silent-omission failure mode: PRs that change skill logic
     # without updating the verifier or fixtures. Per Codex Q5 (2026-04-14).
