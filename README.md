@@ -38,6 +38,12 @@ Guardians-of-the-Claude requires `bash` to run its hook scripts (SessionStart) a
 3. **Specific over vague** — `npm test` not "make sure it works." Every command must be copy-pasteable.
 4. **Continuous reinforcement** — Day 1 is a 2-minute setup. Day 7 adds audit and hardening. Day 14 is when cross-skill memory and automated drift detection come into their own. The tool grows with you — you never pay for complexity you don't need.
 
+## Trust Model
+
+This plugin generates configuration files and runs two Claude Code hooks (`SessionStart`, `PreToolUse:Bash`) with your full shell privileges — same as any other Claude Code plugin. It does **not** call external LLMs, send telemetry, or write outside your project (`.claude/`, `CLAUDE.md`) and the plugin cache (`.claude/.plugin-cache/<plugin>/local/`). Skills are markdown instructions Claude Code reads — there is no separate runtime executing on your machine.
+
+For vulnerability reports, see [SECURITY.md](docs/SECURITY.md). For per-skill privilege scope, see each `plugin/skills/<name>/SKILL.md`.
+
 ## Day 1 — 2-Minute Quickstart
 
 > **Prerequisites:** Claude Code installed (`claude --version`), plus `bash` and `jq`. See the [Requirements](#requirements) section below for platform-specific install guidance.
