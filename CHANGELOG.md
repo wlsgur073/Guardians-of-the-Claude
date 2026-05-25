@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `docs/ROADMAP.md` — new `Backlog` item "3-tier config deep merge for skill rule customization", proposing a `jq`-based deep merge of plugin-bundled defaults + `~/.claude/guardians/config.json` user-global + per-project `<project>/.claude/guardians/config.json` to let users customize `/audit` score gates, `/secure` deny patterns, and `/optimize` skip rules without forking. Sub-decisions (schema versioning, migration, conflict resolution, skill-side opt-in) deferred to scheduling cycle. Inspiration noted in the entry.
+
 ### Changed
 
 - `docs/ROADMAP.md` — moved "Default-stance pattern example for advanced template" from `Backlog` to `Will Not Pursue`. The Anthropic Opus 4.7 system prompt's attempt-first default stance in `<acting_vs_clarifying>` directs Claude to attempt immediately when minor details are unspecified and to ask only when missing information makes the request unanswerable; this is calibrated for the general chat context (claude.ai web/mobile interface) where misinterpretation cost is low. The advanced template's ask-first "Development Approach" section — cascaded across `templates/advanced/CLAUDE.md` and `plugin/skills/create/templates/{advanced,starter}.md` — is intentional for production-code template editing where ambiguous requests can affect APIs, data models, security, migrations, or user-visible behavior. The relocated entry documents reopen triggers, including a separate-entry path for a production-adapted default-stance variant with non-Opus-4.7 attribution.
