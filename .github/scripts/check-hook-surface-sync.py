@@ -2,9 +2,7 @@
 """Verify README hook count claims match plugin/hooks/hooks.json.
 
 Catches the drift class where the README advertises N hooks but the plugin
-manifest registers a different count -- the same drift visible in the
-external project `claude-remember` (README claims three hooks, manifest
-registers two).
+manifest registers a different count.
 
 The check pattern is intentionally narrow: only "runs N Claude Code hook(s)"
 phrasings are validated, because that is the precise contractual claim the
