@@ -40,7 +40,7 @@ Guardians-of-the-Claude requires `bash` to run its hook scripts (SessionStart) a
 
 ## Trust Model
 
-This plugin generates configuration files and runs two Claude Code hooks (`SessionStart`, `PreToolUse:Bash`) with your full shell privileges — same as any other Claude Code plugin. It does **not** call external LLMs, send telemetry, or write outside your project (`.claude/`, `CLAUDE.md`) and the plugin cache (`.claude/.plugin-cache/<plugin>/local/`). Skills are markdown instructions Claude Code reads — there is no separate runtime executing on your machine.
+This plugin generates configuration files and runs one Claude Code hook (`SessionStart`) with your full shell privileges — same as any other Claude Code plugin. The hook reads project state files (e.g., `profile.json`, `recommendations.json`) and emits a short digest if attention is needed; it does not modify your project. The plugin also does **not** call external LLMs, send telemetry, or write outside your project (`.claude/`, `CLAUDE.md`) and the plugin cache (`.claude/.plugin-cache/<plugin>/local/`). Skills are markdown instructions Claude Code reads — there is no separate runtime executing on your machine.
 
 For vulnerability reports, see [SECURITY.md](docs/SECURITY.md). For per-skill privilege scope, see each `plugin/skills/<name>/SKILL.md`.
 
