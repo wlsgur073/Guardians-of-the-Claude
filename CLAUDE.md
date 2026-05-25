@@ -1,5 +1,5 @@
 # CLAUDE.md
-<!-- Last reviewed: 2026-05-21 -->
+<!-- Last reviewed: 2026-05-26 -->
 
 This is a documentation and template repository — no application source code and no runtime build system, but CI validates it via Python structural checks (JSON schemas, smoke fixtures, badge sync), shellcheck, and link checking. Its purpose is to teach developers how to configure Claude Code for their own projects.
 
@@ -16,8 +16,8 @@ This is a documentation and template repository — no application source code a
 - `.claude/.plugin-cache/<plugin-name>/local/` — plugin-managed state (`recommendations.json`, `profile.json`, `state-summary.md`, `config-changelog.md`). Read for status (`PENDING`/`RESOLVED`/`DECLINED`/`decline_count`); do NOT manually edit (plugin auto-updates on next skill invocation via `issued_by`/`resolver` matching).
 - `test/` — Skill evaluation framework (rubrics, scenarios, fixtures, scripts) and results. Not a unit test suite — used to grade skill output quality. See `test/testing-strategy.md`.
 - `ci/` — CI smoke lane: fixtures, golden snapshots, and scripts for plugin regression testing (run by `.github/workflows/smoke.yml`; shipped, unlike gitignored `test/`). Template clone users can ignore; plugin contributors who change skill output must update fixtures/goldens. See `ci/README.md`.
-- `.github/workflows/docs-check.yml` — CI with 20 jobs (link-check-internal, link-check-external, json-schema, registry-lint, skill-stability-lint, shellcheck, encoding-check, preflight-schema, scoring-formula-simulation, scoring-model-lav-linkage, changelog-parser-check, audit-goldens-check, audit-drift-aware-check, scoring-contract-consistency, detection-probe-check, qa-report-shape-check, readme-badge-sync, tag-sha-propagation, changelog-anchor-slug, atomic-fixture-runners-check). Python validators live in `.github/scripts/`.
-- `.github/workflows/smoke.yml` — CI smoke lane (2 jobs: smoke fixtures, verifier drift tripwire); triggers on PRs touching `plugin/**`/`templates/**`/`ci/**` and on version tags.
+- `.github/workflows/docs-check.yml` — CI with 21 jobs (link-check-internal, link-check-external, json-schema, registry-lint, skill-stability-lint, shellcheck, encoding-check, preflight-schema, scoring-formula-simulation, scoring-model-lav-linkage, changelog-parser-check, audit-goldens-check, audit-drift-aware-check, scoring-contract-consistency, detection-probe-check, qa-report-shape-check, readme-badge-sync, tag-sha-propagation, changelog-anchor-slug, atomic-fixture-runners-check, hook-surface-sync). Python validators live in `.github/scripts/`.
+- `.github/workflows/smoke.yml` — CI smoke lane (3 jobs: smoke fixtures, smoke-windows, verifier drift tripwire); triggers on PRs touching `plugin/**`/`templates/**`/`ci/**` and on version tags.
 
 ## Contribution Rules
 
@@ -50,11 +50,11 @@ Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetc
 - `lychee 'README.md' 'docs/**/*.md' 'plugin/**/*.md' 'CHANGELOG.md' 'templates/**/*.md'` — link check (requires [lychee](https://github.com/lycheeverse/lychee))
 - `SMOKE_PINNED_UTC="2026-04-14T00:00:00Z" python .github/scripts/check-smoke-fixtures.py` — smoke fixture byte-diff verifier (env var required, value matches `.github/workflows/smoke.yml`)
 - Python on Windows: prepend `import sys; sys.stdout.reconfigure(encoding="utf-8")` before printing non-ASCII / U+FFFD / mixed CJK; use `open(path, encoding='utf-8')` for files with em-dashes / non-ASCII (e.g., schema descriptions) — default `cp949` codec raises `UnicodeEncodeError` / `UnicodeDecodeError`
-- **Release-time validator sweep — 7 pre-push + 1 post-push**: 7 Python validators must pass GREEN before `git push --follow-tags`; the 8th (`check-tag-sha-propagation.py`) runs after the tag push because it compares the local annotated tag SHA against `refs/tags/v<tag>` on origin.
-  - 4 routine (also run on every push/PR via docs-check): `check-json-schemas.py`, `check-smoke-fixtures.py`, `check-readme-badge-sync.py`, `check-changelog-anchor-slug.py`
+- **Release-time validator sweep — 8 pre-push + 1 post-push**: 8 Python validators must pass GREEN before `git push --follow-tags`; the 9th (`check-tag-sha-propagation.py`) runs after the tag push because it compares the local annotated tag SHA against `refs/tags/v<tag>` on origin.
+  - 5 routine (also run on every push/PR via docs-check): `check-json-schemas.py`, `check-smoke-fixtures.py`, `check-readme-badge-sync.py`, `check-changelog-anchor-slug.py`, `check-hook-surface-sync.py`
   - 3 release-only pre-push: `check-recommendation-registry.py`, `check-skill-stability.py`, `check-qa-report-shape.py`
   - 1 post-push: `check-tag-sha-propagation.py`
-  - `lychee` link checker is a separate non-Python tool, NOT counted in the "8"
+  - `lychee` link checker is a separate non-Python tool, NOT counted in the "9"
 - `jsonschema.Draft202012Validator` does NOT enforce `format` keyword by default — pass `format_checker=FormatChecker()` with a custom checker registered (`.github/scripts/check-json-schemas.py:_FORMAT_CHECKER` shows the stdlib-only `datetime.fromisoformat` pattern that avoids the `jsonschema[format]` extra / `rfc3339-validator` dependency).
 - **Agent review findings about external facts** (GitHub Actions versions, package availability, transitive deps, "dead code" claims) reflect agent training cutoff and may be wrong — verify with `gh api`, `pip show`, or `grep` for module callers before propagating to commits. Agent claims about *file content this repo owns* are typically reliable; *external/version claims* are not.
 - **`atomic-fixture-runners-check` (docs-check) transitive-dep guard:** the t3/t7 runner scripts are stdlib-only by file-scan but importlib-exec `check-smoke-fixtures.py` (needs `jsonschema`/`pyyaml`). Since the run-block maps exit 2 → `::warning::` skip, a missing core dep would otherwise silently no-op the gate (green job, zero gating) — so a pre-loop `python -c "import jsonschema, yaml"` guard fails the job loud (`exit 1`). Do NOT remove that guard or the `pip install` step; verify dep changes by running the runners, not import-scanning the scripts.
