@@ -6,7 +6,7 @@
 # Bootstrap cases (no config / no profile) early-return with the existing prompts;
 # after profile exists, three trigger families (drift / unresolved / repeated-decline)
 # stack into a capped multi-line digest in fixed priority order.
-set -e
+set -euo pipefail
 
 PROFILE=".claude/.plugin-cache/guardians-of-the-claude/local/profile.json"
 RECS=".claude/.plugin-cache/guardians-of-the-claude/local/recommendations.json"
