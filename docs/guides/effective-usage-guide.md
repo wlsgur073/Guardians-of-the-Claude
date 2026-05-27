@@ -1,7 +1,7 @@
 ---
 title: "Effective Usage Patterns"
 description: "Essential day-one patterns for using Claude Code effectively"
-version: 1.7.0
+version: 1.8.0
 ---
 
 # Effective Usage Patterns
@@ -32,6 +32,10 @@ npm run build        # verify TypeScript compiles
 When prompting, provide verification criteria: expected outputs, test cases, screenshots. Claude produces dramatically better results when it can verify its own work rather than relying on plausible-looking output.
 
 This is the single highest-leverage thing you can do, per the official best practices.
+
+### Operational verification
+
+Test commands and verification criteria above are *configuration-time* verification — Claude can run them automatically. *Runtime* verification covers the gap that automated tests can't: read-back-after-edit (re-read what you just changed to confirm intent), tool-success ≠ task-correct (a successful Edit doesn't mean the change advanced the task), scope-checked reporting (name what you actually checked, not what you generically might have). See [`plugin/references/verification-discipline.md`](../../plugin/references/verification-discipline.md) for the full rubric and a reusable Job DoD checklist template.
 
 ## The Recommended Workflow
 

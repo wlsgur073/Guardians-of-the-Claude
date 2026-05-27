@@ -1,7 +1,7 @@
 ---
 title: "Sprint Contract"
 description: "Scope contract for the current work cycle"
-version: 1.0.0
+version: 1.0.1
 ---
 
 # Sprint Contract
@@ -30,3 +30,5 @@ is outside this contract unless the user explicitly updates this file.
   message-template decisions.
 - **Real-time updates (WebSocket)** — Reason: belongs after core REST API
   ships; requires session affinity design.
+
+See also: [`plugin/references/verification-discipline.md`](../../plugin/references/verification-discipline.md) DoD checklist template — apply to any In Scope item before shipping.

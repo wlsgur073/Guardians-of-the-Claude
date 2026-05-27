@@ -255,3 +255,5 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
   - Non-`/audit` skills do NOT perform this Step B drift-state mutation — they re-write the `current_drift_state` value exactly as captured in `snap_drift_state` (set `new_drift_state := snap_drift_state` unchanged) so the Step C atomic-write group stays consistent.
 
 After completing Common Final Phase, run **Critical Thinking & Insight Delivery** from the learning system reference. Apply Socratic verification to audit recommendations before presenting them.
+
+After Critical Thinking, also reference [`../../references/verification-discipline.md`](../../references/verification-discipline.md) for the operational-verification rubric (read-back-after-edit, tool-success ≠ task-correct, scope-checked reporting) — complementary to the Socratic discipline. Apply read-back when citing specific lines from CLAUDE.md, settings.json, or other audited files in findings.
