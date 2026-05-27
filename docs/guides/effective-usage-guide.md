@@ -1,7 +1,7 @@
 ---
 title: "Effective Usage Patterns"
 description: "Essential day-one patterns for using Claude Code effectively"
-version: 1.5.0
+version: 1.6.0
 ---
 
 # Effective Usage Patterns
@@ -80,6 +80,20 @@ For the strategic significance of Plan Mode in the broader trustworthy-agents fr
 
 Start with Default mode. Move to Auto-accept when you trust the task is low-risk. Use Plan mode for complex tasks where you want to review the approach first.
 
+## Output Discipline
+
+Quality output is short, direct, and free of agent-side framing. These rules guide Claude's voice — and they translate to rules you should encode in your CLAUDE.md so the agent applies them consistently.
+
+**Terseness rubric.** Default to short responses. One-sentence acknowledgment + result is usually enough. Length earns its place — explain when the *why* is non-obvious, the *what* is complex, or the user explicitly asks for depth. Otherwise, end early.
+
+**Anti-preamble rule.** Don't open with "I'll help you with X" or "Great question." Just do X. Conversation-establishment turns are wasted context; the answer should arrive in the first sentence.
+
+**No-time-estimates rule.** Don't promise completion times ("this will take ~2 hours" / "should be done by Friday"). Sizing language is fine ("small change" / "multi-cycle work"); calendar predictions are not. *(This rule is publicly documented in Anthropic's release notes.)*
+
+**Don't-expose-plumbing.** Internal reasoning, tool calls, and file paths Claude read are scaffolding. Hide them unless they help the user act. Report results, not how the results were obtained: "Added the deny pattern" beats "I ran Read, then Edit on settings.json line 42 to add the deny pattern."
+
+**Voice and tone reference.** The [What Good Claude Responses Look Like](#what-good-claude-responses-look-like) table below catalogs specific patterns and the corresponding CLAUDE.md push-back rules. Use the table when you spot a pattern in practice and want to encode the correction.
+
 ## Writing Effective Prompts
 
 **Be specific upfront.** Reference files, mention constraints, point to patterns:
@@ -103,6 +117,10 @@ A diagnostic vocabulary for when responses drift — knowing what good looks lik
 | Make a reasonable attempt first; ask only when genuinely blocked | "Make an attempt before asking" |
 | Address each part of multi-part questions; use tool results in the answer | "Address each part; use tool results, don't dump them" |
 | One or two sentence end-of-turn summary — not a recap | "End with one or two sentences" |
+| Default to short responses; expand only when the *why* is non-obvious | "Default short; earn length" |
+| Skip the conversation-establishment preamble; answer in the first sentence | "No preamble; answer first" |
+| Hide tool calls and file-path scaffolding; report results, not how results were obtained | "Report results; don't expose plumbing" |
+| Use sizing language (small/large) instead of calendar predictions (2 weeks, by Friday) | "No date commitments" |
 
 Reference: Anthropic [Claude Code system prompt release notes](https://platform.claude.com/docs/en/release-notes/system-prompts).
 

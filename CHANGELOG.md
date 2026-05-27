@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `docs/guides/claude-md-guide.md` — new `## Identity-DNA` section introducing a four-part framework for stabilizing voice across long sessions: role-declaration template, mental model for the user, mental model for the agent, and the "deliverable is the artifact; chat is the cover note" invariant with per-surface variants (CLI / mobile / document-embedded). Section anchors after `## Writing Principles`; positions Identity-DNA as the first specific pattern after general principles.
+- `docs/guides/effective-usage-guide.md` — new `## Output Discipline` section anchored after `## Permission Modes`, covering terseness rubric, anti-preamble rule, no-time-estimates rule (publicly-documented), don't-expose-plumbing, and a voice/tone reference pointing at the response-patterns table. The existing "What Good Claude Responses Look Like" table extended with 4 new rows aligning to each Output Discipline element.
+- `templates/advanced/CLAUDE.md` — new `## Identity` section between `# Project Overview` and `## Trust Boundary` with a TaskFlow-specific instantiation (Node.js + TypeScript backend engineer voice; references `claude-md-guide.md#identity-dna`); 5 new anti-pattern rules added to the existing `## Development Approach` section (default-short, no-preamble, hide-plumbing, no-calendar-dates) cross-linking to `effective-usage-guide.md#output-discipline`.
+- `docs/guides/getting-started.md` — new cross-link in Step 3 to `claude-md-guide.md#identity-dna` for users who want to stabilize Claude's voice beyond the 7 canonical sections.
+
+### Changed
+
+- `CLAUDE.md` — added `claude-md-guide.md` to the framework-guide line-budget exception list (~165 lines) reflecting its promotion from "how-to" to a framework guide via the new Identity-DNA section.
+
 ### Removed
 
 - `plugin/hooks/hooks.json` — removed the second `SessionStart` entry (`cmd /c "${CLAUDE_PLUGIN_ROOT}/hooks/session-start.cmd"`) and the companion `plugin/hooks/session-start.cmd` script. The fallback was introduced in v3.0.0 to emit a Windows onboarding message when `bash` was not on PATH, but Claude Code's hook executor launches every hook command through `bash` on Windows (Git Bash / MSYS). Under that shell, `cmd /c` has its `/c` switch path-mangled by the MSYS POSIX path conversion (cmd never receives the `/c` flag, opens interactively or fails), and `2>nul` is interpreted as a redirect to a literal file named `nul` in the working directory rather than the Windows NUL device. Net effect: the entry always exited non-zero with no stderr, surfacing as `SessionStart:startup hook error Failed with non-blocking status code: No stderr output` while leaving a stray `nul` artifact in the project root. Removing the entry eliminates the spurious error and matches the actual single-emitter model the bash hook already uses. `plugin/hooks/session-start.sh` header comment and `README.md` "What's Inside" tree updated to reflect the bash-only surface; `check-hook-surface-sync.py` still passes (event-count surface unchanged at 1).

@@ -1,7 +1,7 @@
 ---
 title: "Writing Effective CLAUDE.md Files"
 description: "How to write, organize, and maintain CLAUDE.md files for Claude Code"
-version: 1.3.2
+version: 1.4.0
 ---
 
 # Writing Effective CLAUDE.md Files
@@ -49,6 +49,25 @@ This keeps your root CLAUDE.md focused on project-wide instructions while provid
 - **Use markdown headers and bullets.** Structure makes instructions scannable for both Claude and humans.
 - **Be specific and verifiable.** Write "Use 2-space indentation" not "Format code properly." Write "Run `npm test` to verify" not "Make sure it works."
 - **Avoid conflicting instructions.** If your CLAUDE.md says one thing and a rule file says another, Claude may follow either. Audit for contradictions.
+
+## Identity-DNA
+
+The top of CLAUDE.md should declare *what Claude is* in your project. This identity-DNA stabilizes voice across long sessions and prevents drift toward generic-assistant behavior. It has four parts: a role declaration, a mental model for the user, a mental model for the agent, and a deliverable invariant.
+
+**Role declaration template:**
+
+```markdown
+You are a [role] working on [project]. Your job is to [primary outcome].
+You write [deliverable], not commentary about deliverables.
+```
+
+For TaskFlow: "You are a Rust backend engineer working on TaskFlow. Your job is to ship correct, tested code that fits the existing service-repository-handler layering. You write code and migrations, not explanations about what you would write."
+
+**Mental model for the user.** Describes who the user is to Claude. Example: "The user is your collaborator with domain authority. They catch design errors you miss because they hold context you can't see — deadlines, prior incidents, stakeholder pressure. Read their requests for what they're actually trying to achieve, not just the literal ask."
+
+**Mental model for the agent.** Describes how Claude should hold its own role. Example: "You are embedded in this project, not visiting it. Code you read is the spec; conventions you encounter are the law. You don't 'answer questions about' the codebase — you change the codebase. When uncertain, read more files before guessing."
+
+**Deliverable invariant.** Names what the primary artifact is and what chat is for. Example: "The code, document, or migration you produce is the primary artifact. Chat is the cover note — terse status, blockers, what's next." This invariant takes different forms per surface: CLI ships as file diffs (chat is short), mobile ships as answer paragraphs (chat IS the answer), document-embedded ships as document edits (chat is the cover note).
 
 ## What to Include vs Exclude
 
