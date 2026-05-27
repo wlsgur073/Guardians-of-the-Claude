@@ -1,7 +1,7 @@
 ---
 title: "Getting Started"
 description: "Step-by-step guide to set up Claude Code configuration for your project"
-version: 1.2.10
+version: 1.2.11
 ---
 
 # Getting Started
@@ -73,6 +73,8 @@ Projects that outgrow the baseline can add `Workflow`, `Project Structure`, `Ref
 Projects looking to stabilize Claude's voice across long sessions can also add an [Identity-DNA section](claude-md-guide.md#identity-dna) at the top of CLAUDE.md — role declaration, mental models for the user and the agent, and a deliverable invariant.
 
 Projects that want Claude to retain context across sessions should also configure [memory patterns](memory-patterns-guide.md) — the four memory types (user / feedback / project / reference), the MEMORY.md index format, and verify-before-recommending discipline.
+
+Projects that ship from a CLI editor — where the file diff is the deliverable and chat is a cover note — benefit from an explicit verification discipline. See [`verification-discipline.md`](../../plugin/references/verification-discipline.md) for the runtime rubric (read-back-after-edit, tool-success ≠ task-correct, scope-checked reporting) and a reusable Definition-of-Done checklist.
 
 ## Step 4: Set Up Rules (Optional)
 

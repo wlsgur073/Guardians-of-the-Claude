@@ -1,7 +1,7 @@
 ---
 title: "TaskFlow CLAUDE.md (Advanced)"
 description: "Example root CLAUDE.md for a Node.js/Express REST API project"
-version: 1.4.0
+version: 1.5.0
 ---
 
 <!--
@@ -98,6 +98,16 @@ See [`docs/guides/memory-patterns-guide.md`](../../docs/guides/memory-patterns-g
 - Commit messages: conventional commits format
 - Run full test suite before pushing: `npm test && npm run lint`
 - All PRs require passing CI and one review approval
+
+## Verification
+
+After every non-trivial edit:
+
+- Read back the affected lines to confirm the change landed as intended; tool-success ≠ task-correct (the tool reports its operation succeeded, not that the task is semantically right)
+- When summarizing, name what you actually checked, not what you generically might have checked
+- Run `npm test && npm run lint` before declaring work done
+
+See [`plugin/references/verification-discipline.md`](../../plugin/references/verification-discipline.md) for the runtime rubric and a reusable Definition-of-Done checklist template.
 
 ## Project Structure
 

@@ -1,7 +1,7 @@
 ---
 title: "Writing Effective CLAUDE.md Files"
 description: "How to write, organize, and maintain CLAUDE.md files for Claude Code"
-version: 1.4.0
+version: 1.4.1
 ---
 
 # Writing Effective CLAUDE.md Files
@@ -126,7 +126,7 @@ Reserve emphasis for rules that truly matter. If everything is marked IMPORTANT,
 
 Two mechanisms keep CLAUDE.md responsive to what you learn during a session:
 
-- **Direct prompt + `/memory`** — When you discover a rule mid-session (e.g., "always run `npm run typecheck` after edits"), tell Claude directly: `"add this to CLAUDE.md"` or `"remember this"`. Claude saves to CLAUDE.md or auto memory as appropriate. Run `/memory` to browse, open, and edit memory files. See the [official memory docs](https://code.claude.com/docs/en/memory) for auto memory's storage location and toggle.
+- **Direct prompt + `/memory`** — When you discover a rule mid-session (e.g., "always run `npm run typecheck` after edits"), tell Claude directly: `"add this to CLAUDE.md"` or `"remember this"`. Claude saves to CLAUDE.md or auto memory as appropriate. Run `/memory` to browse, open, and edit memory files. For the auto-memory entry schema — four types, frontmatter, `MEMORY.md` index format, and verify-before-recommending discipline — see the [Memory Patterns Guide](memory-patterns-guide.md). See also the [official memory docs](https://code.claude.com/docs/en/memory) for auto memory's storage location and toggle.
 - **Custom compaction directives** — Embed instructions inside CLAUDE.md that survive auto-compaction. Example: `"When compacting, always preserve the full list of modified files and any test commands."` Because the directive lives in CLAUDE.md, it reloads every session and applies whenever compaction triggers.
 
 ## Common Mistakes

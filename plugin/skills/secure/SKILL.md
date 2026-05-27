@@ -42,6 +42,8 @@ Check if `.claude/settings.json` has `hooks` with `PreToolUse` entries that bloc
 
 ### 1.4 Autonomy Risk Policy
 
+The `allow` / `ask` / `deny` entries this skill scans and mutates correspond to the three permission tiers (Regular / Explicit-permission / Prohibited) documented in [`docs/guides/settings-guide.md` § The three permission tiers](../../../docs/guides/settings-guide.md#the-three-permission-tiers); the tightening logic in Phase 3.4 below moves entries between tiers when violations are detected.
+
 Read `.claude/settings.json` (and `.claude/settings.local.json` if present) and `.mcp.json` (project-scope only). Apply the 5 sub-checks defined in `plugin/skills/audit/references/checks/t2-protection.md` §T2.4:
 
 - 4a wildcard allow: `permissions.allow[]` entries matching `Bash(*)`, `Bash(python*)`, `Bash(node*)`, `Bash(npm run *)`, `Agent(*)`, `PowerShell(*)`

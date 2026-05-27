@@ -1,7 +1,7 @@
 ---
 title: Verification Discipline
 description: Operational verification — read-back-after-edit, tool-success vs task-correct, scope-checked reporting. Complementary to critical-thinking.md.
-version: 1.0.0
+version: 1.0.1
 ---
 
 # Verification Discipline
@@ -64,7 +64,7 @@ Use this template at the end of any Job that ships content into the repo. Items 
 - [ ] Anchor used as declared in the project's Edit Envelopes (for OWN'd files, anchor verified against current file structure)
 - [ ] Line-budget respected (post-edit line count within declared cap for the OWN'd file)
 - [ ] Cross-references resolve (target files exist; anchor slugs match GitHub-flavored markdown slugification)
-- [ ] Evidence label assigned (one of: publicly-documented, repo-derived, generalized-pattern, speculative); any within-Job claim of different evidence class locally marked
+- [ ] Evidence label assigned (one of: public-doc-backed, repo-derived, generalized-pattern, speculative); any within-Job claim of different evidence class locally marked
 - [ ] No anti-goal violation (per the project's anti-goal list: no direct third-party quotes, no vendor-does-X claims, no speculative date commitments, no external-source branding in filenames/titles)
 - [ ] Read-back performed on every regex-anchored Edit
 - [ ] Tool-success ≠ task-correct check performed
@@ -78,7 +78,7 @@ Copy this into the Phase plan's DoD section and tailor only the file/anchor-spec
 This file's DoD checklist applies to its own creation. The two items below specifically catch the "agent forgot to verify its own discipline" failure mode — meta-items that close the loop:
 
 - [ ] Cumulative line-budget ledger maintained for shared files (declared budget per file; current line count tracked; growth verified within budget)
-- [ ] Every behavioral claim has an evidence label (one of: publicly-documented, repo-derived, generalized-pattern, speculative-needs-justification)
+- [ ] Every behavioral claim has an evidence label (one of: public-doc-backed, repo-derived, generalized-pattern, speculative)
 
 Without these, the verification discipline becomes self-exempt: the agent verifies *other things* but not the verification process itself.
 
