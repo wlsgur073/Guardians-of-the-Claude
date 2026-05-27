@@ -143,9 +143,8 @@ Guardians-of-the-Claude/
 │   ├── .claude-plugin/
 │   │   └── plugin.json
 │   ├── hooks/
-│   │   ├── hooks.json       ← SessionStart hook (bash + cmd fallback entries)
-│   │   ├── session-start.sh ← bash state check (Linux/macOS/Git Bash/WSL)
-│   │   └── session-start.cmd ← Windows onboarding fallback (when bash not on PATH)
+│   │   ├── hooks.json       ← SessionStart hook (bash entry)
+│   │   └── session-start.sh ← bash state check (Linux/macOS/Git Bash/WSL)
 │   ├── references/
 │   │   ├── security-patterns.md  ← Shared security templates (used by /create and /secure)
 │   │   └── learning-system.md   ← Shared learning system reference (used by all skills)

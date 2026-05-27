@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # plugin/hooks/session-start.sh — SessionStart state-aware re-entry digest.
 # Read-only over canonical state. Source filter narrows execution to startup|resume.
-# Dedup with the Windows .cmd fallback is automatic: the .cmd entry self-skips
-# when bash is on PATH, so this script runs unconditionally as the sole emitter.
+# Sole SessionStart emitter: bash is a hard requirement (CHANGELOG v3.0.0),
+# and Claude Code's hook executor launches commands via bash on every platform.
 # Bootstrap cases (no config / no profile) early-return with the existing prompts;
 # after profile exists, three trigger families (drift / unresolved / repeated-decline)
 # stack into a capped multi-line digest in fixed priority order.

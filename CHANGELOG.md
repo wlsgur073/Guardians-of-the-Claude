@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Removed
+
+- `plugin/hooks/hooks.json` — removed the second `SessionStart` entry (`cmd /c "${CLAUDE_PLUGIN_ROOT}/hooks/session-start.cmd"`) and the companion `plugin/hooks/session-start.cmd` script. The fallback was introduced in v3.0.0 to emit a Windows onboarding message when `bash` was not on PATH, but Claude Code's hook executor launches every hook command through `bash` on Windows (Git Bash / MSYS). Under that shell, `cmd /c` has its `/c` switch path-mangled by the MSYS POSIX path conversion (cmd never receives the `/c` flag, opens interactively or fails), and `2>nul` is interpreted as a redirect to a literal file named `nul` in the working directory rather than the Windows NUL device. Net effect: the entry always exited non-zero with no stderr, surfacing as `SessionStart:startup hook error Failed with non-blocking status code: No stderr output` while leaving a stray `nul` artifact in the project root. Removing the entry eliminates the spurious error and matches the actual single-emitter model the bash hook already uses. `plugin/hooks/session-start.sh` header comment and `README.md` "What's Inside" tree updated to reflect the bash-only surface; `check-hook-surface-sync.py` still passes (event-count surface unchanged at 1).
+
 ## [3.0.1] - 2026-05-26
 
 ### Added
