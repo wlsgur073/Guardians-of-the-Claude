@@ -11,6 +11,11 @@
       "Bash(git diff *)",
       "Bash(git log *)"
     ],
+    "ask": [
+      "Bash(npm install:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(git push --force-with-lease:*)"
+    ],
     "deny": [
       "Read(./.env)",
       "Read(./.env.*)",
@@ -20,7 +25,11 @@
       "Write(./.env.*)",
       "Read(./secrets/)",
       "Edit(./secrets/)",
-      "Write(./secrets/)"
+      "Write(./secrets/)",
+      "Bash(rm -rf *)",
+      "Bash(git push --delete *)",
+      "Bash(git commit --no-verify *)",
+      "Bash(git push --no-verify *)"
     ]
   },
   "sandbox": {

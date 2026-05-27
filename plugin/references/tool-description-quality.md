@@ -1,7 +1,7 @@
 ---
 title: "Skill & Tool Description Quality"
 description: "Domain expert framing, dual-format responses, error message design, evaluation-driven iteration"
-version: 1.0.2
+version: 1.1.0
 ---
 
 # Skill & Tool Description Quality
@@ -46,6 +46,15 @@ Replace opaque traceback dumps with actionable improvements. The agent needs to 
 
 - Avoid: `"Error: invalid argument"`
 - Prefer: `"Error: \`path\` must be an absolute path (received: ./src/file.ts). Try /home/user/project/src/file.ts, or use the \`resolve_path\` tool first."`
+
+### 5. Tool hierarchy positioning
+
+Tool descriptions should reflect where the tool sits in the surgical-tool-first hierarchy. Surgical tools (Edit, Grep, Read, dedicated specialized tools) are *primary* — describe them as the default choice for their domain. Fallback or general-purpose tools (Bash, scripting) should carry explicit "when to use this instead of [primary]" guidance.
+
+- Primary tool example: `"Read(path)"` description simply describes the tool's function; no "use this instead" guidance needed.
+- Fallback tool example: `"Bash(command)"` description should note "Prefer dedicated tools (Read, Edit, Grep) when applicable. Use Bash only for shell-specific operations or pipelines that have no surgical equivalent."
+
+Without this guidance, agents tend to default to the most-general tool (Bash) and bypass tool-level permission scopes. Tool descriptions are where hierarchy gets enforced; CLAUDE.md is where the *user* asks for hierarchy. See [`docs/guides/effective-usage-guide.md` § Tool Hierarchy](../../docs/guides/effective-usage-guide.md#tool-hierarchy) for the user-facing principle.
 
 ## Iterative refinement
 

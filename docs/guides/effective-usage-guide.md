@@ -1,7 +1,7 @@
 ---
 title: "Effective Usage Patterns"
 description: "Essential day-one patterns for using Claude Code effectively"
-version: 1.6.0
+version: 1.7.0
 ---
 
 # Effective Usage Patterns
@@ -93,6 +93,22 @@ Quality output is short, direct, and free of agent-side framing. These rules gui
 **Don't-expose-plumbing.** Internal reasoning, tool calls, and file paths Claude read are scaffolding. Hide them unless they help the user act. Report results, not how the results were obtained: "Added the deny pattern" beats "I ran Read, then Edit on settings.json line 42 to add the deny pattern."
 
 **Voice and tone reference.** The [What Good Claude Responses Look Like](#what-good-claude-responses-look-like) table below catalogs specific patterns and the corresponding CLAUDE.md push-back rules. Use the table when you spot a pattern in practice and want to encode the correction.
+
+## Tool Hierarchy
+
+Within any given task, multiple tools could accomplish the same thing. Pick the surgical tool, not the generic one.
+
+**Surgical > generic.** Prefer dedicated tools over Bash for the same job. Reaches the result with less context spent parsing output, AND the dedicated tools respect permission scopes (`Read` honors `permissions.deny:[]`; Bash equivalents bypass tool-level rules):
+
+- File search: Glob, Grep over `find` / `ls` / shell `grep` via Bash
+- File reads: Read over `cat` / `head` / `tail` via Bash
+- File edits: Edit over `sed` / `awk` via Bash
+
+**Surgical edits > batched edits.** Prefer one Edit per logical change over a Bash sequence that does multiple things. Easier to review, easier to roll back, easier to verify with read-back-after-edit (see [`plugin/references/verification-discipline.md`](../../plugin/references/verification-discipline.md)).
+
+**Batched edits > free-form code.** If a multi-line transformation doesn't fit a single Edit, prefer a structured sequence of tool calls over generating a one-off script. Scripts hide intent; tool calls preserve it.
+
+Encode the hierarchy as a CLAUDE.md instruction: "Prefer surgical tools (Edit, Grep, Read) over their Bash equivalents (sed, grep, cat). When using Bash, prefer specific commands over general shell scripting." This shifts the burden from per-action review to one explicit rule.
 
 ## Writing Effective Prompts
 

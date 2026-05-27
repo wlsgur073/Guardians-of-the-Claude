@@ -1,7 +1,7 @@
 ---
 title: "Configuring settings.json"
 description: "How to configure Claude Code behavior with settings files"
-version: 1.1.2
+version: 1.2.0
 ---
 
 # Configuring settings.json
@@ -47,9 +47,19 @@ Your editor will suggest valid keys and flag errors as you type.
 
 ## Key Options for Beginners
 
-### permissions.allow and permissions.deny
+### The three permission tiers
 
-Pre-approve or block specific tool actions using `Tool(specifier)` syntax:
+Permission entries categorize actions into three behavioral tiers, not just "allow" or "deny." Understanding the tiers lets you tune the prompt cadence precisely:
+
+| Tier | Setting | When to use |
+|---|---|---|
+| **Regular** | (default; no entry needed) | Routine operations Claude handles every session — reading project files, running tests, basic git queries. Default permission behavior applies. |
+| **Explicit-permission** | `permissions.ask: [...]` | Actions needing per-call approval — `npm install` (new dependency surface), `gh pr merge` (visible to others), `git push --force` (overwrites upstream). Use for "I want a confirmation prompt before this runs." |
+| **Prohibited** | `permissions.deny: [...]` | Never permitted regardless of context — reads on `.env` / `*.pem` / `*.key`; destructive Bash patterns like `rm -rf *`; safety-bypass flags like `--no-verify`. Use for "this should never happen, period." |
+
+`permissions.allow: [...]` is a *fourth* entry — it bypasses the prompt for routine actions, e.g., `Bash(npm test)`. Think of `allow` as a fast-path on the Regular tier, not a separate tier.
+
+Example covering all four entries:
 
 ```json
 {
@@ -61,19 +71,27 @@ Pre-approve or block specific tool actions using `Tool(specifier)` syntax:
       "Bash(git diff *)",
       "Bash(git log *)"
     ],
+    "ask": [
+      "Bash(npm install:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(git push --force-with-lease:*)"
+    ],
     "deny": [
       "Read(./.env)",
-      "Read(./.env.*)"
+      "Read(./.env.*)",
+      "Bash(rm -rf *)",
+      "Bash(git push --delete *)",
+      "Bash(* --no-verify)"
     ]
   }
 }
 ```
 
-The `allow` list eliminates permission prompts for commands you trust. The `deny` list blocks actions you never want Claude to perform. Start with your test and build commands -- those are the safest and most common.
+The `allow` list eliminates permission prompts for trusted routine commands. The `ask` list inserts a confirmation prompt for actions where the cost of getting it wrong is real (publishing, force-push, dependency surface). The `deny` list blocks actions you never want — even with confirmation.
 
 Common tool names: `Bash(command)`, `Read(path)`, `Edit(path)`, `Write(path)`.
 
-For the full permission rule syntax, see the [official permissions documentation](https://code.claude.com/docs/en/permissions#permission-rule-syntax).
+For the full permission rule syntax, see the [official permissions documentation](https://code.claude.com/docs/en/permissions#permission-rule-syntax). For the threat-model rationale behind which patterns belong in which tier, see [`plugin/references/security-patterns.md`](../../plugin/references/security-patterns.md).
 
 ### autoMemoryEnabled
 

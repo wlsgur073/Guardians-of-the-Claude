@@ -4,6 +4,8 @@ Shared reference for `/create` and `/secure` skills. Contains templates for secu
 
 ## Recommended Deny Patterns
 
+> **Tier vocabulary:** Deny entries below correspond to the **Prohibited** tier; `ask:[]` entries (not enumerated here) correspond to **Explicit-permission**; routine entries are **Regular**. See [`docs/guides/settings-guide.md` § The three permission tiers](../../docs/guides/settings-guide.md#the-three-permission-tiers) for the full tier model.
+
 ### Essential (always suggest)
 
 ```json
