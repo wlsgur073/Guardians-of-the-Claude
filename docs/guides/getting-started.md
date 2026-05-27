@@ -1,7 +1,7 @@
 ---
 title: "Getting Started"
 description: "Step-by-step guide to set up Claude Code configuration for your project"
-version: 1.2.9
+version: 1.2.10
 ---
 
 # Getting Started
@@ -71,6 +71,8 @@ If you are writing CLAUDE.md by hand, work through the sections below. Keep the 
 Projects that outgrow the baseline can add `Workflow`, `Project Structure`, `References`, or the `Available Skills`/`Available Agents` tables — see [`templates/advanced/CLAUDE.md`](../../templates/advanced/CLAUDE.md) for a filled example. For what to include vs. leave out in each section, see the [include/exclude table in the CLAUDE.md Guide](claude-md-guide.md#what-to-include-vs-exclude).
 
 Projects looking to stabilize Claude's voice across long sessions can also add an [Identity-DNA section](claude-md-guide.md#identity-dna) at the top of CLAUDE.md — role declaration, mental models for the user and the agent, and a deliverable invariant.
+
+Projects that want Claude to retain context across sessions should also configure [memory patterns](memory-patterns-guide.md) — the four memory types (user / feedback / project / reference), the MEMORY.md index format, and verify-before-recommending discipline.
 
 ## Step 4: Set Up Rules (Optional)
 

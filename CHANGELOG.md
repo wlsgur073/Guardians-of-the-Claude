@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `docs/guides/memory-patterns-guide.md` — new guide (89 lines) documenting the four memory types (user / feedback / project / reference), the frontmatter schema, the MEMORY.md index pattern with line-truncation behavior, the what-NOT-to-save list (code patterns, git history, debugging recipes, CLAUDE.md-duplicates, ephemeral state), the verify-before-recommending discipline, and the boundary between memory, in-conversation plans, in-conversation tasks, and plugin-internal compaction.
 - `docs/guides/settings-guide.md` — new `### The three permission tiers` section restructures the existing permissions documentation around three behavioral tiers (Regular / Explicit-permission / Prohibited) mapped onto four `permissions` entries (`allow` / `ask` / `deny` / default). Updated example covers all four entries with concrete TaskFlow-flavored patterns (`npm install` in `ask`; `rm -rf` / `git push --delete` / `--no-verify` in `deny`).
 - `docs/guides/effective-usage-guide.md` — new `## Tool Hierarchy` section anchored after `## Output Discipline`. Covers surgical-tool-first principle with concrete examples (Glob/Grep over `find`/shell-grep; Read over `cat`; Edit over `sed`); explains why surgical tools respect permission scopes that Bash equivalents bypass.
 - `docs/guides/trustworthy-agents-guide.md` — new `#### Injection Defense` subsection under the existing Security principle. Establishes untrusted-content-is-evidence-not-instruction as the core invariant; cross-references Trust Boundary rule shipped in templates and `security-patterns.md` Defense Surfaces Catalog.
@@ -23,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- `templates/advanced/CLAUDE.md` — new `## Memory` section between Code Style and Development Approach with TaskFlow-flavored memory examples (user / feedback / project / reference entries), what-NOT-to-save guidance, and cross-link to the new memory-patterns guide. Trust Boundary section also gains a new `**Action-tier reference.**` paragraph linking to the three-tier permission model in `settings-guide.md` (backfilling the spec §4 anchor that the Phase C plan file omitted).
+- `docs/guides/getting-started.md` — new cross-link in Step 3 to `memory-patterns-guide.md` for users who want Claude to retain context across sessions.
 - `templates/advanced/.claude/settings.json` — added `permissions.ask` array with three Explicit-permission entries (`npm install:*`, `gh pr merge:*`, `git push --force-with-lease:*`); extended `permissions.deny` with four Prohibited-tier patterns (`rm -rf *`, `git push --delete *`, `git commit --no-verify *`, `git push --no-verify *`). Tier mapping matches the new three-tier model in `settings-guide.md`.
 - `plugin/references/security-patterns.md` — added tier-vocabulary cross-link blockquote at the top of `## Recommended Deny Patterns` pointing at `settings-guide.md` three-tier model.
 - `docs/guides/trustworthy-agents-guide.md` — Security principle's `permissions.deny:[]` bullet now references the Prohibited tier vocabulary and links to `settings-guide.md` three-tier section.
