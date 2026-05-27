@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `plugin/references/verification-discipline.md` — new operational-verification reference file (87 lines). Defines three named concepts (read-back-after-edit, tool-success ≠ task-correct, scope-checked reporting) with concrete project-flavored examples for each, a reusable Job Definition-of-Done checklist template covering anchor / line-budget / cross-reference / evidence-label / anti-goal / read-back / tool-success / scope-checked items, and a self-policing meta-loop that ensures the verification discipline audits its own ledger and label compliance. Cross-linked bidirectionally with `critical-thinking.md`: critical-thinking guards inputs and conclusions at reasoning time; verification-discipline guards outputs and effects at runtime.
 - `docs/guides/claude-md-guide.md` — new `## Identity-DNA` section introducing a four-part framework for stabilizing voice across long sessions: role-declaration template, mental model for the user, mental model for the agent, and the "deliverable is the artifact; chat is the cover note" invariant with per-surface variants (CLI / mobile / document-embedded). Section anchors after `## Writing Principles`; positions Identity-DNA as the first specific pattern after general principles.
 - `docs/guides/effective-usage-guide.md` — new `## Output Discipline` section anchored after `## Permission Modes`, covering terseness rubric, anti-preamble rule, no-time-estimates rule (publicly-documented), don't-expose-plumbing, and a voice/tone reference pointing at the response-patterns table. The existing "What Good Claude Responses Look Like" table extended with 4 new rows aligning to each Output Discipline element.
 - `templates/advanced/CLAUDE.md` — new `## Identity` section between `# Project Overview` and `## Trust Boundary` with a TaskFlow-specific instantiation (Node.js + TypeScript backend engineer voice; references `claude-md-guide.md#identity-dna`); 5 new anti-pattern rules added to the existing `## Development Approach` section (default-short, no-preamble, hide-plumbing, no-calendar-dates) cross-linking to `effective-usage-guide.md#output-discipline`.
@@ -18,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- `plugin/references/critical-thinking.md` — new `### See Also` subsection pointing at `verification-discipline.md`. Establishes the bidirectional cross-link between reasoning-time and runtime verification (Socratic discipline ↔ operational discipline).
 - `CLAUDE.md` — added `claude-md-guide.md` to the framework-guide line-budget exception list (~165 lines) reflecting its promotion from "how-to" to a framework guide via the new Identity-DNA section.
 
 ### Removed

@@ -1,7 +1,7 @@
 ---
 title: Critical Thinking & Insight Delivery
 description: Anti-sycophancy principles, Socratic verification, insight quality rules, dialogue over monologue.
-version: 1.0.0
+version: 1.0.1
 ---
 
 ## Critical Thinking & Insight Delivery
@@ -49,3 +49,7 @@ Must be project-specific, actionable/educational, concise (2-3 sentences). NOT g
 ### Dialogue over Monologue
 
 When self-verification reveals something worth discussing, present as question/observation inviting user judgment — not as a directive.
+
+### See Also
+
+- [`verification-discipline.md`](verification-discipline.md) — operational verification at runtime (read-back-after-edit, tool-success vs task-correct, scope-checked reporting). Complementary to the Socratic discipline above.
