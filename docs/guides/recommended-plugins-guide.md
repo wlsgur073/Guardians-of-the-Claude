@@ -1,7 +1,7 @@
 ---
 title: "Recommended Plugins"
 description: "Curated list of Claude Code plugins organized by category"
-version: 1.0.2
+version: 1.1.0
 ---
 
 # Recommended Plugins
@@ -39,6 +39,16 @@ Claude Code supports both official (Anthropic-maintained) and community plugins 
 | ------ | ------------ |
 | [claude-code-setup](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-code-setup) | Scans your codebase and recommends the best hooks, skills, MCP servers, and subagents for your project |
 | [claude-md-management](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-md-management) | Audit CLAUDE.md quality + capture session learnings with `/revise-claude-md` |
+
+## Cross-plugin coordination
+
+Plugins that ship into the same marketplace can compose — one plugin's skill can hand off to another, share state via the plugin cache, or cross-reference each other's references. Coordination patterns from our own marketplace:
+
+- **Skill-to-skill delegation.** A skill that produces a profile (e.g., `/guardians-of-the-claude:create`) writes to the plugin cache; subsequent skills (`/audit`, `/secure`, `/optimize`) read from it. The first-write-wins contract is documented in the plugin's reference files.
+- **Shared references.** Plugins under a single marketplace can share reference files via `plugin/references/*.md`. The dependency direction is one-way: skills consume references; references don't depend on skills. This matches our `security-patterns.md` ↔ skill relationship.
+- **Marketplace name as namespace.** Skills install as `<plugin>@<marketplace>` (e.g., `guardians-of-the-claude@guardians`). The marketplace name namespaces a coherent set of related plugins; cross-marketplace coordination is intentionally NOT supported.
+
+For shipping a plugin into a multi-plugin marketplace: declare which references it owns vs which it consumes; document the read/write contract in `plugin/references/`; avoid skill-to-skill cycles (always one-direction dependency).
 
 ## How to Install
 

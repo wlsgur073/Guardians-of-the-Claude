@@ -1,7 +1,7 @@
 ---
 title: "Trustworthy Agents"
 description: "Five-principle, four-layer framework for evaluating Claude Code agent configuration"
-version: 1.1.0
+version: 1.2.0
 ---
 
 # Trustworthy Agents
@@ -166,6 +166,16 @@ When agents dispatch parallel subagents, you should retain a thread of *which su
 - See [Advanced Features Guide § Hooks](advanced-features-guide.md#hooks) for hook event types
 
 This guide does not prescribe a specific hook pattern — pick what matches your team's review workflow.
+
+## Skill Invocation
+
+Skills (custom instructions exposed via `/skill-name` or auto-triggered by description matching) extend an agent's capability surface beyond built-in tools. The skill-invocation pattern carries the same identity and verification disciplines as direct tool use:
+
+- **Trigger phrase pattern** — skills with explicit "Use when..." trigger language activate reliably; skills without trigger phrases miss activation even when relevant. See [`plugin/references/tool-description-quality.md`](../../plugin/references/tool-description-quality.md) for description quality principles.
+- **Permission scope** — skills inherit the calling agent's permission tier (see [`settings-guide.md` § The three permission tiers](settings-guide.md#the-three-permission-tiers)). A skill touching `.env` files is blocked by the same `permissions.deny:[]` entries that block direct Read tool use.
+- **Verification handoff** — a skill that executes work should self-verify per [`plugin/references/verification-discipline.md`](../../plugin/references/verification-discipline.md) (read-back-after-edit; scope-checked reporting) before returning to the caller.
+
+When designing a new skill: declare its trigger phrase, its permission scope, and its verification handoff before writing instructions. These three declarations make the skill audit-able from outside.
 
 ## Cross-references
 

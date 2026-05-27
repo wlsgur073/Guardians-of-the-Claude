@@ -1,7 +1,7 @@
 ---
 title: "Multi-Agent Patterns"
 description: "Orchestrator-Worker, effort scaling, sub-agent context budget, breadth-first search, parallel dispatch — for Claude Code subagent workflows"
-version: 1.0.3
+version: 1.1.0
 ---
 
 # Multi-Agent Patterns
@@ -87,6 +87,36 @@ Going deep first wastes calls if you picked the wrong branch.
 For local parallel dispatch via `claude -p` loops, see [Workflow Patterns — Fan-out for batch tasks](workflow-patterns-guide.md#fan-out-for-batch-tasks) — includes cost and safety warnings; do not run a fan-out without reading them. For `git worktree` session isolation as a separate parallelism mechanism, see [Workflow Patterns — Worktrees and parallel sessions](workflow-patterns-guide.md#worktrees-and-parallel-sessions).
 
 For Claude Code's *built-in* subagent dispatch via the `Agent` tool, the orchestrator-worker pattern above maps directly — the parent session is the lead, each `Agent` invocation is a worker.
+
+## Multi-surface identity invariance
+
+Different surfaces shape *how* Claude communicates, but the role and deliverable invariant stay constant. A CLI session, a mobile chat, and a document-embedded helper all run with the same identity DNA — but each surface enforces a different output discipline.
+
+| Surface | Identity (constant) | Output discipline (variant) |
+|---|---|---|
+| **CLI / Claude Code** | Same role declaration | Terse status updates; file diff is the deliverable; chat is the cover note |
+| **Mobile / chat** | Same role declaration | The answer paragraph IS the deliverable; complete sentences; bounded length |
+| **Document-embedded** (Excel, Word) | Same role declaration | The document edit is the deliverable; chat is a brief receipt |
+
+When Claude moves between surfaces, the user mental model and agent mental model stay the same; what shifts is what counts as the "deliverable" and how chat relates to it. This invariance is what makes a single CLAUDE.md identity-DNA section adapt to multi-surface use without needing per-surface variants.
+
+See [`claude-md-guide.md` § Identity-DNA](claude-md-guide.md#identity-dna) for the role-declaration template; the surface variants there are concrete examples of this invariance pattern.
+
+## Peer message protocol
+
+When an orchestrator delegates work to a worker (subagent), the inter-agent protocol carries three load-bearing elements beyond the four prerequisites already named in the Orchestrator-Worker pattern:
+
+1. **Return-format contract.** Reinforces "Output format" above with peer-specific shape — verbatim raw output, a structured summary, or a yes/no verdict. Without an explicit contract, the orchestrator has to reparse free-form replies.
+2. **Verification handoff.** Does the worker self-verify (read-back, scope-checked reporting per [`verification-discipline.md`](../../plugin/references/verification-discipline.md)), or does the orchestrator verify what the worker returns? Either is fine; ambiguity is not.
+3. **Inspectability invariant.** Cross-agent threads should remain inspectable per [`trustworthy-agents-guide.md` § Subagent Observability](trustworthy-agents-guide.md#subagent-observability) — hook events recording subagent completion let the user see who-did-what across the parallel dispatch.
+
+**Concrete example.** Orchestrator delegates "verify this Edit landed correctly" to a verification worker:
+
+- Return-format: one-line verdict ("MATCH" / "MISMATCH: [reason]") plus the byte-compared lines.
+- Verification handoff: worker performs read-back; orchestrator treats verdict as evidence (still subject to tool-success ≠ task-correct).
+- Inspectability: `SubagentStop` hook records the worker's verdict in the decision changelog.
+
+These elements are not tools — they are disciplines encoded in how peers prompt each other. State them explicitly in each dispatch.
 
 ## Further reading
 
