@@ -1,7 +1,7 @@
 ---
 title: "Effective Usage Patterns"
 description: "Essential day-one patterns for using Claude Code effectively"
-version: 1.8.0
+version: 1.8.1
 ---
 
 # Effective Usage Patterns
@@ -35,7 +35,7 @@ This is the single highest-leverage thing you can do, per the official best prac
 
 ### Operational verification
 
-Test commands and verification criteria above are *configuration-time* verification — Claude can run them automatically. *Runtime* verification covers the gap that automated tests can't: read-back-after-edit (re-read what you just changed to confirm intent), tool-success ≠ task-correct (a successful Edit doesn't mean the change advanced the task), scope-checked reporting (name what you actually checked, not what you generically might have). See [`plugin/references/verification-discipline.md`](../../plugin/references/verification-discipline.md) for the full rubric and a reusable Job DoD checklist template.
+Test commands above are *configuration-time* verification — Claude can run them automatically. *Runtime* verification covers the gap: read-back-after-edit, tool-success ≠ task-correct, scope-checked reporting. See [`plugin/references/verification-discipline.md`](../../plugin/references/verification-discipline.md) for the full rubric and a reusable Job DoD checklist template.
 
 ## The Recommended Workflow
 
@@ -46,9 +46,7 @@ For non-trivial tasks, follow this cycle:
 3. **Implement** -- Switch to Normal Mode and execute the plan
 4. **Commit** -- Review changes and commit
 
-**Plan Mode:** Press `Shift+Tab` twice to enter Plan Mode. Claude uses read-only tools to explore and creates an implementation plan for your approval. Review the plan, then switch back to Normal Mode for execution.
-
-For the strategic significance of Plan Mode in the broader trustworthy-agents framework, see the [Trustworthy Agents Guide § Plan Mode as Strategy-Level Oversight](trustworthy-agents-guide.md#plan-mode-as-strategy-level-oversight).
+**Plan Mode:** Press `Shift+Tab` twice to enter Plan Mode. Claude uses read-only tools to explore and creates an implementation plan for your approval. Review the plan, then switch back to Normal Mode for execution. For the strategic significance of Plan Mode, see the [Trustworthy Agents Guide § Plan Mode as Strategy-Level Oversight](trustworthy-agents-guide.md#plan-mode-as-strategy-level-oversight).
 
 **Skip planning for trivial tasks** -- typo fixes, log line additions, simple renames. Planning adds overhead that is not worth it for small changes.
 
@@ -57,18 +55,16 @@ For the strategic significance of Plan Mode in the broader trustworthy-agents fr
 | Command | What it does |
 | --------- | ------------- |
 | `Esc` | Interrupt Claude mid-action. Context is preserved. |
-| `Esc` twice | Open the rewind menu -- restore conversation, code, or both to a checkpoint |
-| `/rewind` | Same as double-Esc -- open the rewind menu |
+| `Esc` twice / `/rewind` | Open the rewind menu — restore conversation, code, or both to a checkpoint |
 | `/clear` | Reset context between unrelated tasks. **Use frequently.** |
 | `/compact` | Summarize conversation to free context. Add focus: `/compact focus on the API changes` |
-| `/memory` | Browse and edit memory files (CLAUDE.md, CLAUDE.local.md, rules, auto memory). To add a learning mid-session, ask Claude directly: `add this to CLAUDE.md` or `remember this`. |
-| `/context` | See what is using space in your context window. Use to diagnose when context is getting full. |
-| `--continue` | Resume your most recent conversation (launch flag) |
-| `--resume` | Choose from recent conversations to resume (launch flag) |
-| `/btw` | Side question — answer renders in a dismissible overlay and does NOT enter conversation history. Use to check a detail without growing context. |
-| `/rename` | Name the current session (treat sessions like branches). Helps `claude --resume` show meaningful labels. |
-| `Ctrl+G` (in plan mode) | Open the current plan in your text editor for direct edits before Claude proceeds. |
-| `Esc + Esc` → **Summarize from here** | Partial compaction — pick a checkpoint and condense messages forward of it while keeping earlier context intact. |
+| `/memory` | Browse and edit memory files. To add a learning mid-session, ask Claude: `add this to CLAUDE.md` or `remember this`. |
+| `/context` | See what is using space in your context window. Diagnose when context is getting full. |
+| `--continue` / `--resume` | Resume your most recent conversation (`--continue`) or pick one (`--resume`) — launch flags. |
+| `/btw` | Side question — answer renders in a dismissible overlay and does NOT enter conversation history. |
+| `/rename` | Name the current session. Helps `claude --resume` show meaningful labels. |
+| `Ctrl+G` (in plan mode) | Open the current plan in your text editor for direct edits. |
+| `Esc + Esc` → **Summarize from here** | Partial compaction — pick a checkpoint and condense forward while keeping earlier context intact. |
 
 **The most underused command is `/clear`.** When you finish one task and start another, clear the context. Leftover context from the previous task confuses Claude and wastes space.
 
@@ -86,33 +82,22 @@ Start with Default mode. Move to Auto-accept when you trust the task is low-risk
 
 ## Output Discipline
 
-Quality output is short, direct, and free of agent-side framing. These rules guide Claude's voice — and they translate to rules you should encode in your CLAUDE.md so the agent applies them consistently.
+Quality output is short, direct, and free of agent-side framing. Encode these in CLAUDE.md so Claude applies them consistently:
 
-**Terseness rubric.** Default to short responses. One-sentence acknowledgment + result is usually enough. Length earns its place — explain when the *why* is non-obvious, the *what* is complex, or the user explicitly asks for depth. Otherwise, end early.
-
-**Anti-preamble rule.** Don't open with "I'll help you with X" or "Great question." Just do X. Conversation-establishment turns are wasted context; the answer should arrive in the first sentence.
-
-**No-time-estimates rule.** Don't promise completion times ("this will take ~2 hours" / "should be done by Friday"). Sizing language is fine ("small change" / "multi-cycle work"); calendar predictions are not. *(This rule is publicly documented in Anthropic's release notes.)*
-
-**Don't-expose-plumbing.** Internal reasoning, tool calls, and file paths Claude read are scaffolding. Hide them unless they help the user act. Report results, not how the results were obtained: "Added the deny pattern" beats "I ran Read, then Edit on settings.json line 42 to add the deny pattern."
-
-**Voice and tone reference.** The [What Good Claude Responses Look Like](#what-good-claude-responses-look-like) table below catalogs specific patterns and the corresponding CLAUDE.md push-back rules. Use the table when you spot a pattern in practice and want to encode the correction.
+- **Terseness.** Default to short responses. One-sentence acknowledgment + result is usually enough. Length earns its place — explain when *why* is non-obvious or *what* is complex.
+- **No preamble.** Don't open with "I'll help you with X" or "Great question." The answer should arrive in the first sentence.
+- **No time estimates.** Sizing language ("small change") is fine; calendar predictions ("by Friday") are not. *(Publicly documented in Anthropic's release notes.)*
+- **Don't expose plumbing.** Internal reasoning, tool calls, and file paths are scaffolding. Report results, not how they were obtained: "Added the deny pattern" beats "I ran Read then Edit on settings.json line 42."
 
 ## Tool Hierarchy
 
-Within any given task, multiple tools could accomplish the same thing. Pick the surgical tool, not the generic one.
+Within any given task, multiple tools could accomplish the same thing. Pick the surgical tool — reaches the result with less context AND respects permission scopes (`Read` honors `permissions.deny:[]`; Bash equivalents bypass tool-level rules):
 
-**Surgical > generic.** Prefer dedicated tools over Bash for the same job. Reaches the result with less context spent parsing output, AND the dedicated tools respect permission scopes (`Read` honors `permissions.deny:[]`; Bash equivalents bypass tool-level rules):
+- **Surgical > generic.** Glob/Grep over `find`/`ls`/shell `grep`; Read over `cat`/`head`/`tail`; Edit over `sed`/`awk`.
+- **Surgical edits > batched edits.** One Edit per logical change beats Bash sequences. Easier to review, roll back, and verify with read-back-after-edit (see [`verification-discipline.md`](../../plugin/references/verification-discipline.md)).
+- **Structured tool calls > free-form scripts.** Multi-line transformations: prefer tool sequences over one-off scripts. Scripts hide intent; tool calls preserve it.
 
-- File search: Glob, Grep over `find` / `ls` / shell `grep` via Bash
-- File reads: Read over `cat` / `head` / `tail` via Bash
-- File edits: Edit over `sed` / `awk` via Bash
-
-**Surgical edits > batched edits.** Prefer one Edit per logical change over a Bash sequence that does multiple things. Easier to review, easier to roll back, easier to verify with read-back-after-edit (see [`plugin/references/verification-discipline.md`](../../plugin/references/verification-discipline.md)).
-
-**Batched edits > free-form code.** If a multi-line transformation doesn't fit a single Edit, prefer a structured sequence of tool calls over generating a one-off script. Scripts hide intent; tool calls preserve it.
-
-Encode the hierarchy as a CLAUDE.md instruction: "Prefer surgical tools (Edit, Grep, Read) over their Bash equivalents (sed, grep, cat). When using Bash, prefer specific commands over general shell scripting." This shifts the burden from per-action review to one explicit rule.
+Encode as a CLAUDE.md rule: "Prefer surgical tools (Edit, Grep, Read) over Bash equivalents (sed, grep, cat)." Shifts the burden from per-action review to one explicit rule.
 
 ## Writing Effective Prompts
 
@@ -155,25 +140,12 @@ Reference: Anthropic [Claude Code system prompt release notes](https://platform.
 | Pattern | Why it hurts | Fix |
 | --------- | -------------- | ----- |
 | **Kitchen Sink Session** — unrelated tasks share one context | Context from task A confuses task B | `/clear` between tasks |
-| **Correcting Over and Over** | Failed attempts pollute context with noise | After two failed corrections, `/clear` and write a better prompt with what you learned |
+| **Correcting Over and Over** | Failed attempts pollute context with noise | After 2 failed corrections, `/clear` and rewrite the prompt |
 | **Over-Specified CLAUDE.md** | Long files dilute Claude's attention | Prune ruthlessly, or split into [rule files](rules-guide.md) |
-| **Infinite Exploration** | Unscoped "investigate the codebase" reads dozens of files and burns context | Scope narrowly: "Check only `src/auth/` for token expiration handling" |
+| **Infinite Exploration** | Unscoped "investigate" reads dozens of files | Scope narrowly: "Check only `src/auth/` for token expiration" |
 
 ## Further Reading
 
 - [CLAUDE.md Guide](claude-md-guide.md) -- Writing effective instructions
 - [Settings Guide](settings-guide.md) -- Configuring permissions to reduce prompts
 - [Getting Started](getting-started.md) -- Full setup walkthrough
-
-## Understanding Plugin Learning State
-
-The `guardians-of-the-claude` plugin maintains state similar to how a frontend build process produces optimized output:
-
-| Build process step | Plugin equivalent |
-|---|---|
-| Transpiling (modern → compatible syntax) | Schema migration (v1.0.0 → v1.2.0) |
-| Bundling (many files → one bundle) | `state-summary.md` renderer |
-| Tree shaking (remove unused code) | Compaction (>30 days → quarter rollup) |
-| Production optimization (minify) | Token budget enforcement |
-
-The key difference: build is *one-shot at deploy*; plugin learning is *incremental at every invocation*. A more precise architectural model is **event sourcing** — see `plugin/references/learning-system.md` for internals.
