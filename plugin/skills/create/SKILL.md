@@ -76,7 +76,7 @@ The generated configuration should incorporate four agent-contract patterns. Eac
 - **Identity-DNA** (CLAUDE.md role declaration, mental models for user and agent, deliverable invariant) — see [`docs/guides/claude-md-guide.md` § Identity-DNA](../../../docs/guides/claude-md-guide.md#identity-dna)
 - **Memory patterns** (four memory types, frontmatter schema, MEMORY.md index, what-NOT-to-save, verify-before-recommending) — see [`docs/guides/memory-patterns-guide.md`](../../../docs/guides/memory-patterns-guide.md)
 - **Three permission tiers** (settings.json `allow` / `ask` / `deny` mapped to Regular / Explicit-permission / Prohibited) — see [`docs/guides/settings-guide.md` § The three permission tiers](../../../docs/guides/settings-guide.md#the-three-permission-tiers)
-- **Verification discipline** (read-back-after-edit, tool-success ≠ task-correct, scope-checked reporting) — see [`plugin/references/verification-discipline.md`](../references/verification-discipline.md)
+- **Verification discipline** (read-back-after-edit, tool-success ≠ task-correct, scope-checked reporting) — see [`plugin/references/verification-discipline.md`](../../references/verification-discipline.md)
 
 When Phase 3.5 Quick Verify runs, the four patterns above should be discoverable in the generated `CLAUDE.md` and `settings.json` (or explicitly skipped per the user's Phase 2A answers). Path files embed contract-aware content directly; this overview lets future skill maintenance verify that generated output still includes the four patterns.
 
