@@ -17,8 +17,8 @@ Covers 17 assertions:
   A_LOCK3 phase-0.md Step 0.5 encodes marker preflight + genesis + torn-set recovery
   A_LOCK4 drift-state.md drops "tracked separately"; state-rendering.md echoes commit_id (changelog frontmatter + summary header)
   A_LOCK5 drift-state.md affirmatively encodes marker/OCC-derivation (Step-C compare-and-commit; commit_id marker) + final-phase.md Step C / OCC framing exists (POSITIVE companion to A9's negative)
-  A_LOCK6 drift-state.md §10 canonical-microsecond + monotonic-bump current_audit_run_id contract present (OCC Step-C derivation-path scope; NOT the repo-wide every-emitted invariant — migration path legitimately bare-Z)
-  A_LOCK7 §11 verification gate — ANY plugin/skills/*/SKILL.md carries no old-contract "re-read/merge under (state-mutation) lock" phrasing nor retired Final-Phase Step-numbering (globbed, not audit-hardcoded)
+  A_LOCK6 drift-state.md canonical-microsecond + monotonic-bump current_audit_run_id contract present (OCC Step-C derivation-path scope; NOT the repo-wide every-emitted invariant — migration path legitimately bare-Z)
+  A_LOCK7 verification gate — ANY plugin/skills/*/SKILL.md carries no old-contract "re-read/merge under (state-mutation) lock" phrasing nor retired Final-Phase Step-numbering (globbed, not audit-hardcoded)
 """
 
 from __future__ import annotations
@@ -636,7 +636,7 @@ def check_a_lock5_marker_driven_derivation() -> list[str]:
         failures.append(f"A_LOCK5: drift-state.md missing at {drift_state_path}")
     else:
         ds_text = drift_state_path.read_text(encoding="utf-8")
-        # The §10 derivation anchor: current_audit_run_id is computed under
+        # The derivation anchor: current_audit_run_id is computed under
         # the Final-Phase short lock during the OCC compare-and-commit write
         # path — Step C (durable phrasing, drift-state.md ~:56).
         if "Final-Phase short lock during the OCC compare-and-commit write path" not in ds_text:
@@ -684,12 +684,12 @@ def check_a_lock5_marker_driven_derivation() -> list[str]:
 
 # ---------------------------------------------------------------------------
 # A_LOCK6: audit_run_id canonical-microsecond + monotonic-bump contract
-# present in drift-state.md §10 derivation subsection
+# present in drift-state.md derivation subsection
 # ---------------------------------------------------------------------------
 
 
 def check_a_lock6_audit_run_id_canonical_contract() -> list[str]:
-    """Verify drift-state.md carries the §10 canonical-microsecond +
+    """Verify drift-state.md carries the canonical-microsecond +
     monotonic-bump `current_audit_run_id` derivation contract.
 
     SCOPE (deliberate): this asserts the **OCC Step-C derivation-path** rule
@@ -697,7 +697,7 @@ def check_a_lock6_audit_run_id_canonical_contract() -> list[str]:
     Final-Phase OCC compare-and-commit write path. It is NOT a repo-wide
     "every emitted audit_run_id, by any writer, is never bare-Z" invariant.
     The Phase-0.5 *migration* path legitimately still emits bare-`Z`
-    second-precision audit_run_id and is intentionally out of §10 scope
+    second-precision audit_run_id and is intentionally out of derivation-anchor scope
     (ruled FAITHFUL-SCOPING). Accordingly the anchors below are taken from
     the derivation SUBSECTION ('current_audit_run_id derivation (canonical
     microsecond form + monotonic bump)') — deliberately NOT the standalone
@@ -719,7 +719,7 @@ def check_a_lock6_audit_run_id_canonical_contract() -> list[str]:
     # the OCC Step-C mint path; drift-state.md ~:54).
     if "`current_audit_run_id` derivation (canonical microsecond form + monotonic bump)" not in ds_text:
         failures.append(
-            "A_LOCK6: drift-state.md missing the §10 derivation subsection "
+            "A_LOCK6: drift-state.md missing the derivation subsection "
             "heading ('`current_audit_run_id` derivation (canonical "
             "microsecond form + monotonic bump)')"
         )
@@ -754,15 +754,15 @@ def check_a_lock6_audit_run_id_canonical_contract() -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-# A_LOCK7: §11 verification gate — ANY plugin/skills/*/SKILL.md carries no
+# A_LOCK7: verification gate — ANY plugin/skills/*/SKILL.md carries no
 # old-contract long-lock phrasing nor retired Final-Phase Step-numbering
 # ---------------------------------------------------------------------------
 
-# Design-spec §11 names three forbidden old-contract residues across
+# The audit drift-aware design names three forbidden old-contract residues across
 # state_io.md / final-phase.md / phase-0.md / drift-state.md / *any SKILL.md*.
 # A_LOCK1-3 cover the four reference .md files; this gate closes the
 # "any SKILL.md" sub-clause by globbing EVERY plugin/skills/*/SKILL.md
-# (general, NOT audit-hardcoded — §11 says "any SKILL.md").
+# (general, NOT audit-hardcoded — the gate applies to "any SKILL.md").
 #
 # Patterns (precise, per-line, case-insensitive — same philosophy as
 # _A_LOCK2_PATTERNS):
@@ -801,9 +801,9 @@ _A_LOCK7_PATTERNS = [
 
 def check_a_lock7_skill_md_no_old_contract() -> list[str]:
     """Verify NO plugin/skills/*/SKILL.md retains the broken long-lock
-    model — design-spec §11's "any SKILL.md" verification-gate clause.
+    model — the "any SKILL.md" verification-gate clause.
 
-    Globs EVERY plugin/skills/*/SKILL.md (not just audit/ — §11 is
+    Globs EVERY plugin/skills/*/SKILL.md (not just audit/ — the gate is
     general). Evaluated per-line, case-insensitive; FAIL if ANY line of
     ANY SKILL.md matches ANY old-contract pattern. The failure message
     names the offending file:line:pattern (UTF-8 stdout reconfigure in
@@ -851,7 +851,7 @@ CHECKS = [
     ("A_LOCK4 drift-state pointer + commit_id echo", check_a_lock4_drift_state_pointer_and_commit_id_echo),
     ("A_LOCK5 marker-driven OCC derivation", check_a_lock5_marker_driven_derivation),
     ("A_LOCK6 audit_run_id canonical contract", check_a_lock6_audit_run_id_canonical_contract),
-    ("A_LOCK7 §11 any-SKILL.md no old-contract", check_a_lock7_skill_md_no_old_contract),
+    ("A_LOCK7 any-SKILL.md no old-contract", check_a_lock7_skill_md_no_old_contract),
 ]
 
 
