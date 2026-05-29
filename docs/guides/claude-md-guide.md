@@ -1,7 +1,7 @@
 ---
 title: "Writing Effective CLAUDE.md Files"
 description: "How to write, organize, and maintain CLAUDE.md files for Claude Code"
-version: 1.4.2
+version: 1.4.3
 ---
 
 # Writing Effective CLAUDE.md Files
@@ -122,6 +122,8 @@ When a rule is critical, add emphasis to make it stand out:
 - "YOU MUST run the test suite before committing"
 
 Reserve emphasis for rules that truly matter. If everything is marked IMPORTANT, nothing is.
+
+**Which rules earn that emphasis?** Match a rule's *form* to the cost of getting it wrong. When an error would be costly enough that you want guaranteed, predictable compliance rather than a judgment call -- deleting data, committing secrets, skipping tests before a release -- write the rule as a rigid directive (`IMPORTANT` / `YOU MUST` / `never`). Otherwise, prefer a rule that states the *why* and lets Claude's judgment adapt: rigid rules cannot anticipate every situation, and the rationale is what lets Claude apply the rule to a case you did not foresee. Anthropic's [constitution](https://www.anthropic.com/constitution) makes the same trade-off -- favoring "good values and judgment over strict rules," and reserving fixed rules for when "the costs of errors are severe enough that predictability and evaluability become critical." Either way, explain the rule (see the [Trustworthy Agents Guide](trustworthy-agents-guide.md)) -- even a rigid directive works better with its reason attached.
 
 ## Updating Mid-Session
 

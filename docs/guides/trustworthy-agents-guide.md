@@ -1,7 +1,7 @@
 ---
 title: "Trustworthy Agents"
 description: "Five-principle, four-layer framework for evaluating Claude Code agent configuration"
-version: 1.2.2
+version: 1.2.3
 ---
 
 # Trustworthy Agents
@@ -28,6 +28,7 @@ The agent acts under human authority; humans retain the ability to inspect, over
 The agent pursues *your* goals — including the underlying *why*, not just the literal request. Anthropic's [Teaching Claude why](https://www.anthropic.com/research/teaching-claude-why) (May 2026) found that training Claude on principles generalizes better than training on demonstrations alone. The same logic applies to your CLAUDE.md:
 
 - Write rationale alongside rules ("we use repository classes because handler-to-DB shortcuts have caused production data leaks" — not just "use repository classes")
+- This is the default, not an absolute: for high-stakes rules — where an error is severe or hard to reverse — *also* give the rule rigid, non-negotiable phrasing (`IMPORTANT` / `YOU MUST`). Rationale and rigidity are not opposites; explain even the rigid ones. See [CLAUDE.md Guide](claude-md-guide.md#pruning-your-claudemd) on which rules earn rigid phrasing
 - See [Getting Started](getting-started.md) for the canonical seven-section CLAUDE.md structure
 - Skill design that defers to human judgment on multi-valid-approach questions, rather than picking a default
 
