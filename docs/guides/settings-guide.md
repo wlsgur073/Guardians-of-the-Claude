@@ -1,7 +1,7 @@
 ---
 title: "Configuring settings.json"
 description: "How to configure Claude Code behavior with settings files"
-version: 1.2.2
+version: 1.2.3
 ---
 
 # Configuring settings.json
@@ -155,6 +155,8 @@ OS-level isolation for Bash subprocesses (Seatbelt on macOS, bubblewrap on Linux
 ```
 
 Linux/WSL2 require `bubblewrap` and `socat` packages. Sandboxing lets safe commands run inside defined boundaries without per-command approval — reducing permission prompts. Effective sandboxing requires both filesystem and network isolation. See the [sandboxing documentation](https://code.claude.com/docs/en/sandboxing) for `denyWrite`/`denyRead`, custom proxies, and security limitations.
+
+**Reasoning effort** is a separate quality↔latency dial, set at runtime (e.g., fast mode via `/fast`) rather than in `settings.json`. Lower effort trades response depth for speed and cost; for hard, security-sensitive, or long-running coding work, prefer higher effort. These controls and their supported models evolve — verify specifics against the current canonical docs.
 
 ## What NOT to Put in Project Settings
 

@@ -1,7 +1,7 @@
 ---
 title: "Effective Usage Patterns"
 description: "Essential day-one patterns for using Claude Code effectively"
-version: 1.8.2
+version: 1.8.3
 ---
 
 # Effective Usage Patterns
@@ -82,7 +82,7 @@ Start with Default mode. Move to Auto-accept when you trust the task is low-risk
 
 Quality output is short, direct, and free of agent-side framing. Encode these in CLAUDE.md so Claude applies them consistently:
 
-- **Terseness.** Default to short responses. One-sentence acknowledgment + result is usually enough. Length earns its place — explain when *why* is non-obvious or *what* is complex.
+- **Terseness.** Default to short responses. One-sentence acknowledgment + result is usually enough. Length earns its place — explain when *why* is non-obvious or *what* is complex. Treat this as a *bias, not a hard cap*: rigid per-reply word limits can measurably degrade quality (Anthropic's [Apr 2026 postmortem](https://www.anthropic.com/engineering/april-23-postmortem) traced a ~3% coding-intelligence drop to a "≤25 words between tool calls" instruction).
 - **No preamble.** Don't open with "I'll help you with X" or "Great question." The answer should arrive in the first sentence.
 - **No time estimates.** Sizing language ("small change") is fine; calendar predictions ("by Friday") are not. *(Publicly documented in Anthropic's release notes.)*
 - **Don't expose plumbing.** Internal reasoning, tool calls, and file paths are scaffolding. Report results, not how they were obtained: "Added the deny pattern" beats "I ran Read then Edit on settings.json line 42."

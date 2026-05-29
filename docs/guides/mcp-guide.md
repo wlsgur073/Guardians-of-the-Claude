@@ -1,14 +1,14 @@
 ---
 title: "MCP Integration"
 description: "Connecting Claude Code to external tools and services via Model Context Protocol"
-version: 1.0.3
+version: 1.0.4
 ---
 
 # MCP Integration
 
 ## What Is MCP?
 
-Model Context Protocol (MCP) lets Claude Code connect to external tools — databases, APIs, documentation services. MCP servers run as local processes and expose tools that Claude can call during a session.
+Model Context Protocol (MCP) lets Claude Code connect to external tools — databases, APIs, documentation services. MCP servers expose tools Claude can call during a session — most run as local processes, though some connect to remote or hosted services.
 
 ## Configuration
 
@@ -121,9 +121,11 @@ With this configured, Claude can query the database directly — checking schema
 
 ## Security Considerations
 
-- **Only register servers you trust** -- MCP servers can execute arbitrary code on your machine
-- **Keep secrets out of committed files** -- use environment variables or `.gitignore` your `.mcp.json`
-- **Pin server versions** -- use exact package versions in args to avoid unexpected updates
+- **Only register servers you trust** -- MCP servers can execute arbitrary code on your machine.
+- **Pin and review what runs locally.** A *pinned, reviewed* server is an auditable snapshot. `npx -y <pkg>` with no version is local execution with **remote supply-chain behavior** — it can pull new code on any run. Pin exact versions.
+- **Treat remote/hosted connectors as mutable.** A remote connector can change behavior *after* you approve it. Re-evaluate it periodically; prefer a pinned local server when behavior must stay fixed.
+- **Vet new connectors with throwaway data and minimal scope.** Before pointing a server at real credentials or production data, exercise it with fake inputs and read-only / minimal scopes in a contained environment — especially for tools with side effects.
+- **Keep secrets out of committed files** -- use environment variables or `.gitignore` your `.mcp.json`.
 
 ## Further Reading
 

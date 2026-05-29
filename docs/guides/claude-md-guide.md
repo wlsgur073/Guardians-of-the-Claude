@@ -1,7 +1,7 @@
 ---
 title: "Writing Effective CLAUDE.md Files"
 description: "How to write, organize, and maintain CLAUDE.md files for Claude Code"
-version: 1.4.1
+version: 1.4.2
 ---
 
 # Writing Effective CLAUDE.md Files
@@ -49,6 +49,7 @@ This keeps your root CLAUDE.md focused on project-wide instructions while provid
 - **Use markdown headers and bullets.** Structure makes instructions scannable for both Claude and humans.
 - **Be specific and verifiable.** Write "Use 2-space indentation" not "Format code properly." Write "Run `npm test` to verify" not "Make sure it works."
 - **Avoid conflicting instructions.** If your CLAUDE.md says one thing and a rule file says another, Claude may follow either. Audit for contradictions.
+- **Prefer model-agnostic rules.** Write rules that hold regardless of which Claude model runs them. If a rule genuinely depends on model-specific behavior, name the model/version it targets and revisit it when `/audit` reports model drift — a broadly-worded instruction tuned to one model can degrade others (Anthropic's [Apr 2026 postmortem](https://www.anthropic.com/engineering/april-23-postmortem)).
 
 ## Identity-DNA
 

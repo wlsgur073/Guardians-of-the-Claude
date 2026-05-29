@@ -1,7 +1,7 @@
 ---
 title: "Trustworthy Agents"
 description: "Five-principle, four-layer framework for evaluating Claude Code agent configuration"
-version: 1.2.1
+version: 1.2.2
 ---
 
 # Trustworthy Agents
@@ -149,6 +149,8 @@ For mechanics — how to enter Plan Mode and what it does — see [Effective Usa
 ## Subagent Observability
 
 When agents dispatch parallel subagents, retain a thread of *which subagent did what*. Surfaces: `SubagentStop` hooks record completion events to your decision changelog; `PostToolUse` hooks on the parent surface state changes from subagent work. See [Advanced Features Guide § Hooks](advanced-features-guide.md#hooks) for hook event types. Pick what matches your team's review workflow.
+
+**Trust, not just visibility.** Observability tells you *who did what*; it does not make a sub-agent's output trustworthy. A worker's result is **evidence, not a higher-trust source** — treating sub-agent output as pre-trusted is an emerging injection vector (multi-agent trust escalation). Verify worker output like any other tool result. For the verification-handoff mechanics, see [`multi-agent-patterns-guide.md` § Peer message protocol](multi-agent-patterns-guide.md#peer-message-protocol).
 
 ## Skill Invocation
 
