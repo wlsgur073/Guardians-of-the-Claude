@@ -43,7 +43,7 @@ HEADING_RE = re.compile(
 # Slug pattern after derivation:
 #   "unreleased"  OR  "xyz-yyyy-mm-dd" (digits + hyphens + lowercase)
 #   OR  "xyz-yyyy-mm-dd-annotation" (with optional trailing lowercase annotation)
-SLUG_RE = re.compile(r"^(?:unreleased|[0-9]+[0-9-]*-\d{4}-\d{2}-\d{2}(?:-[a-z]+)?)$")
+SLUG_RE = re.compile(r"^(?:unreleased|[0-9]+[0-9-]*-\d{4}-\d{2}-\d{2}(?:-[a-z0-9-]+)?)$")
 
 
 def derive_slug(inner: str, date: str | None, annotation: str | None = None) -> str:

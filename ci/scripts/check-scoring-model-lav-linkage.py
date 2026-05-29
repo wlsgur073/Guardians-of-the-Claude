@@ -2,7 +2,7 @@
 
 Assertions:
     1. scoring-model.md contains `## LAV Axis Summary` heading with 6 table rows
-       covering L1 through L6 with numeric ranges matching lav.md:23-28.
+       covering L1 through L6 with numeric ranges matching plugin/skills/audit/references/checks/lav.md lines 25-30.
     2. scoring-model.md contains `### LAV/T3 Boundary Rule` heading with the 3 boundary
        pairs (T3.1<->L1, T3.3<->L2, T3.7<->L2).
     3. scoring-model.md count-source footnote declares profile count fields
@@ -30,9 +30,9 @@ SCORING_MODEL = ROOT / "plugin" / "references" / "scoring-model.md"
 # independent of line numbers.
 # This hash freezes the displayed formula block, including labels; update it only
 # with reviewed scoring-model.md changes.
-DS_SB_CAP_HASH = "a4b159b8d9262cb42cfe5842f60bca68e9da2e32e1b9c1faffe7896f74a79814"
+DS_SB_CAP_HASH = "4337c376ab27ef7918492407b70c268451153899ee85b0e75d540fceffb4637e"
 
-# L1-L6 axis names + numeric ranges as declared in lav.md:23-28.
+# L1-L6 axis names + numeric ranges as declared in plugin/skills/audit/references/checks/lav.md lines 25-30.
 # Each tuple: (axis_label_substring, range_substring)
 # Ranges use Unicode minus sign (U+2212, '\u2212') as written in scoring-model.md.
 # Note: lav.md uses ASCII hyphen-minus in its table; scoring-model.md intentionally

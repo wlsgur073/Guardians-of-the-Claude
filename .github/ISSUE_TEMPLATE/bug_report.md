@@ -10,7 +10,7 @@ What did you run, what did Claude do, what did you expect?
 
 ## Reproduction
 
-1. Install method: (DPT-style local marketplace / `--plugin-dir` / `@`-import / direct paste)
+1. Install method: (`/plugin marketplace add` / `--plugin-dir` / `@`-import / direct paste)
 2. Command run: `/guardians-of-the-claude:...`
 3. Project state at run time: (new project / existing project with no Claude config / existing with Claude config)
 

@@ -2,13 +2,13 @@
 
 **Status**: Active (discovery artifact informing later pilot proposals)
 **Created**: 2026-05-09
-**Scope**: Maps `/audit`'s 14 rules (Tiers 1–3) against the 8 `.github/scripts/check-*.py` CI validators to surface the upper bound of deterministic verifiability available from this repo's CI surface.
+**Scope**: Maps `/audit`'s 14 rules (Tiers 1–3) against the `.github/scripts/check-*.py` CI validators to surface the upper bound of deterministic verifiability available from this repo's CI surface.
 
 ---
 
 ## Summary Finding
 
-**Zero direct oracle coverage.** None of the 8 CI scripts oracles any of the 14 `/audit` rules, because the two sets target different domains:
+**Zero direct oracle coverage.** None of the CI scripts oracles any of the 14 `/audit` rules, because the two sets target different domains:
 
 - **CI scripts** validate this repository's own content (JSON schema conformance for our manifests, smoke fixtures byte-diff, README badge sync, etc.).
 - **`/audit` rules** evaluate user projects' Claude Code configurations (CLAUDE.md content quality, deny patterns, hook portability, agent diversity, etc.).
@@ -53,6 +53,7 @@ The deterministic portions of `/audit` rules are **rule-internal** (file existen
 | check-readme-badge-sync.py | `README.md` shields.io version badge ↔ `plugin.json` |
 | check-smoke-fixtures.py | `ci/golden/` byte-diff regression for plugin output |
 | check-tag-sha-propagation.py | annotated tag SHA matches origin after push |
+| check-hook-surface-sync.py | README hook-count claims ↔ `plugin/hooks/hooks.json` manifest |
 
 ---
 
@@ -81,4 +82,4 @@ These are the LLM-judge cluster's domain (tracked in `docs/ROADMAP.md` "Revisit 
 ## References
 
 - `checks/{t1-foundation,t2-protection,t3-optimization}.md` — full `/audit` rule definitions
-- `.github/scripts/check-*.py` — the 8 CI validators
+- `.github/scripts/check-*.py` — the CI validators

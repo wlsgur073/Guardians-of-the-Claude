@@ -63,7 +63,7 @@ If the user chooses (b) New/empty project:
 If the user chooses (a) Existing project:
 
 1. Read `references/best-practices.md` — common generation rules
-2. Read `templates/advanced.md` — follow the Advanced path instructions (references `../references/security-patterns.md` for security configuration)
+2. Read `templates/advanced.md` — follow the Advanced path instructions (references `../../references/security-patterns.md` for security configuration)
 
 After completing all generation steps from the path file, return here for Phase 4.
 

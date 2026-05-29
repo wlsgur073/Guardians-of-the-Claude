@@ -1,7 +1,7 @@
 ---
 title: Per-Skill Merge Rules
 description: Canonical merge rules for profile.json, recommendations.json, and config-changelog.md. Each skill's Final Phase references this file instead of duplicating the rules inline.
-version: 1.3.1
+version: 1.3.2
 ---
 
 # Per-Skill Merge Rules
@@ -73,7 +73,7 @@ Merge by canonical `id` (key). Never rewrite the whole array.
 
 **Entries not touched by this skill**: preserve exactly as-is. Never delete an entry unless this skill is explicitly marking it STALE per Learning Rule R3.
 
-**`metadata.last_updated`**: refreshed to the Final Phase's pinned-UTC timestamp on every atomic write, regardless of whether any recommendation entry changed. This keeps the payload's `metadata.last_updated` consistent with the file's mtime (since Task 4's Final Phase atomically writes all four canonical files). Individual entry timestamps (`first_seen`, `last_seen`) follow separate rules per entry.
+**`metadata.last_updated`**: refreshed to the Final Phase's pinned-UTC timestamp on every atomic write, regardless of whether any recommendation entry changed. This keeps the payload's `metadata.last_updated` consistent with the file's mtime (since the Final Phase atomically writes all four canonical files — see `final-phase.md` Step C). Individual entry timestamps (`first_seen`, `last_seen`) follow separate rules per entry.
 
 **`decline_count`** (added in schema 1.1.0): an integer field on each recommendation entry (minimum 0, default 0). Increment behavior:
 

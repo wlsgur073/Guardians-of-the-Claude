@@ -1,12 +1,12 @@
 ---
 title: Schema Evolution Policy & Recommendation Registry
 description: SemVer + base+versioned-wrapper schema evolution; recommendation ID registry; legacy MD project profile format (pre-v2.11.0).
-version: 1.1.0
+version: 1.1.1
 ---
 
 ## Legacy Project Profile Format (pre-v2.11.0)
 
-> **Note**: Current canonical format is `profile.json` — see `plugin/references/schemas/profile.schema.base.json` (shape) and `profile.schema.v1.0.0.json` / `profile.schema.v1.1.0.json` / `profile.schema.v1.2.0.json` / `profile.schema.v1.3.0.json` (versioned validators). This legacy MD format is still parsed by Phase 0.5 migration (Task 3) to convert existing installations.
+> **Note**: Current canonical format is `profile.json` — see `plugin/references/schemas/profile.schema.base.json` (shape) and `profile.schema.v1.0.0.json` / `profile.schema.v1.1.0.json` / `profile.schema.v1.2.0.json` / `profile.schema.v1.3.0.json` (versioned validators). This legacy MD format is still parsed by Phase 0.5 migration to convert existing installations.
 
 Frontmatter:
 
@@ -91,7 +91,7 @@ JSON files carry the canonical state machine; markdown views (`state-summary.md`
 
 ## Recommendation ID Registry
 
-The canonical registry is **`plugin/references/recommendation-registry.json`** — machine-readable, schema-validated, the single source of truth for recommendation identities, allowed issuers/resolvers, and aliases. See Task 2.5 for its schema and initial data.
+The canonical registry is **`plugin/references/recommendation-registry.json`** — machine-readable, schema-validated, the single source of truth for recommendation identities, allowed issuers/resolvers, and aliases. See `recommendation-registry.json` and its schema `recommendation-registry.schema.json` for the registry shape and data.
 
 **Identity model**: each recommendation has a stable `key` (lowercase kebab-case, e.g., `deny-env`) — independent of which skill issues or resolves it. The registry stores allowed `issuers[]` and `resolvers[]` per key; CI lints enforce that skill code emits only registered keys (or aliases) and only claims to issue/resolve where the registry authorizes.
 

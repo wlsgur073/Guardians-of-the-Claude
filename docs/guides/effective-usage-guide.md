@@ -1,7 +1,7 @@
 ---
 title: "Effective Usage Patterns"
 description: "Essential day-one patterns for using Claude Code effectively"
-version: 1.8.1
+version: 1.8.2
 ---
 
 # Effective Usage Patterns
@@ -30,8 +30,6 @@ npm run build        # verify TypeScript compiles
 ```
 
 When prompting, provide verification criteria: expected outputs, test cases, screenshots. Claude produces dramatically better results when it can verify its own work rather than relying on plausible-looking output.
-
-This is the single highest-leverage thing you can do, per the official best practices.
 
 ### Operational verification
 

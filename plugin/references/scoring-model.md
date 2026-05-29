@@ -1,7 +1,7 @@
 ---
 title: "Scoring Model"
 description: "Conservative scoring formula for /audit — LAV item-aware multiplier with cap tier {50, 60, 100}"
-version: "1.1.0"
+version: "1.1.1"
 scoring_contract_id: "audit-score-v4.2.0"
 ---
 
@@ -103,7 +103,7 @@ The `/audit` skill determines this at runtime by inspecting the project, not fro
    cap = 50  if L5 == −3 AND at least one other Li at its minimum (L1=−3, L2=−2, or L4=−1)
    cap = 100 otherwise
 
-   Real LAV maxima (lav.md:23-28): L1∈[−3,+2], L2∈[−2,+2], L3∈[0,+3], L4∈[−1,+1], L6∈[0,+1].
+   Real LAV maxima (lav.md:23-30): L1∈[−3,+2], L2∈[−2,+2], L3∈[0,+3], L4∈[−1,+1], L6∈[0,+1].
 
 5. Final Score
    Final = min(DS × (1 + LAV_nonL5 / 50) + SB, cap)
@@ -123,7 +123,7 @@ The `/audit` skill determines this at runtime by inspecting the project, not fro
 | L5 — Content Conciseness | −3 / 0 / +1 | Conciseness | **No** — routed via cap tier |
 | L6 — Actionability | 0 / +1 | Actionability | Yes |
 
-`LAV_nonL5` sum range: **−6 to +9** (excluding L5). Full axis definitions + scoring guidelines in `plugin/skills/audit/references/checks/lav.md` line 23-28 (ranges) and line 34-62 (per-axis guidance).
+`LAV_nonL5` sum range: **−6 to +9** (excluding L5). Full axis definitions + scoring guidelines in `plugin/skills/audit/references/checks/lav.md` line 23-30 (ranges) and line 34-62 (per-axis guidance).
 
 ### LAV/T3 Boundary Rule
 

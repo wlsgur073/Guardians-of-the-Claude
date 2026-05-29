@@ -1,7 +1,7 @@
 ---
 title: "scenario-contract"
 description: "Scripted two-shell contention scenario for the state-lock-concurrent fixture"
-version: "1.0.0"
+version: "1.0.1"
 ---
 
 # Scenario Contract — Concurrent-Shell Mutual Exclusion (OCC protocol + CI assertions)
@@ -10,7 +10,7 @@ This fixture proves issue #13 criterion 5: under genuine contention on a shared
 `local/`, the real short lock serializes commits and OCC forces the loser to
 retry-from-fresh — never a torn or lost write. It is a deliberate TDD red while
 `acquire_lock` is the documented stub (no contention detection); the real
-short-lock (Task 7) + OCC compare-and-commit (Task 8) make it pass.
+short-lock + OCC compare-and-commit make it pass.
 
 ## Pre-state (input/local/)
 
@@ -52,7 +52,7 @@ at `commit_id = commit-0003`. `config-changelog.md` shows B's `/audit` entry
 same-day entry), `entry_count` advanced by 2 from the pre-state. No torn set,
 no lost write: exactly B-then-A-retry, serialized.
 
-### Absolute post-state anchors (T8 implementer pin — not just relative deltas)
+### Absolute post-state anchors (implementer pin — not just relative deltas)
 
 The golden's exact values, so the OCC/short-lock implementation has a fixed
 target (relative "+2 from pre-state" alone underspecifies the absolute):

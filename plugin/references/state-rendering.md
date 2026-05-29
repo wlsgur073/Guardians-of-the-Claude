@@ -1,7 +1,7 @@
 ---
 title: State Rendering & Token Budget
 description: Derived state-summary.md layout, config-changelog.md format, per-invocation token costs.
-version: 1.2.0
+version: 1.2.1
 ---
 
 ## config-changelog.md Format
@@ -59,7 +59,7 @@ Skills write `profile.json` + `recommendations.json` as **canonical state**. The
 **Strict rules**:
 1. `state-summary.md` is read-only from the user's perspective. Skills never read it in any Phase (hot path or otherwise). Read `profile.json` and `recommendations.json` directly.
 2. **All canonical writes use atomic write** — See `plugin/references/lib/state_io.md` §atomic-write.
-3. **Stale vs tampered semantics**: `state-summary.md` freshness is compared against `max(mtime(profile.json), mtime(recommendations.json), mtime(config-changelog.md))` — the renderer reads from all three sources.
+3. **Stale vs tampered semantics**: `state-summary.md` freshness is compared against `max(mtime(profile.json), mtime(recommendations.json), mtime(config-changelog.md), mtime(drift-state.json))` — the renderer reads from all four sources.
    - If `state-summary.md` mtime ≥ max(source mtimes) → **fresh** (equal mtimes are safe for same-batch writes; `state-summary.md` is written LAST in the atomic batch per `final-phase.md` Step C write order — 4 source files first in any order, then `state-summary.md` last — so equal or greater mtime is the natural fresh state).
    - If `state-summary.md` mtime < max(source mtimes) → **stale**: skill's Phase 0 re-renders, prints per-stale-event message ("state-summary.md was stale. Regenerated from current JSON state.").
    - Tamper detection via mtime alone is known to be fragile (deferred state-summary tamper mechanism overhaul). The current rule retains "newer than sources → tampered" semantics, with the caveat that same-batch writes can produce equal mtimes which are now treated as fresh per the rule above.
