@@ -1,5 +1,5 @@
 # CLAUDE.md
-<!-- Last reviewed: 2026-05-26 -->
+<!-- Last reviewed: 2026-05-28 -->
 
 This is a documentation and template repository — no application source code and no runtime build system, but CI validates it via Python structural checks (JSON schemas, smoke fixtures, badge sync), shellcheck, and link checking. Its purpose is to teach developers how to configure Claude Code for their own projects.
 
@@ -22,7 +22,7 @@ This is a documentation and template repository — no application source code a
 ## Contribution Rules
 
 - Templates must all reference the fictional "TaskFlow" project — do not introduce other fictional projects
-- Templates (under `templates/`) and guides (under `docs/guides/`) use YAML frontmatter with `title`, `description`, and `version` fields — each file has its own independent semver starting from `1.0.0`; bump the version when modifying the file's content
+- Files carrying a `version` frontmatter field — templates (under `templates/`), guides (under `docs/guides/`), and most `plugin/references/*.md` — use `title`, `description`, and `version`; each has its own independent semver starting from `1.0.0`; bump it when modifying the file's content
 - Guides in `docs/guides/` should stay concise — most under ~130 lines, with named exceptions for content-heavy framework guides: `advanced-features-guide.md` under ~210 (3 topics with code examples), `trustworthy-agents-guide.md` under ~185 (5 principles × 4 architectural layers + self-audit checklist + cross-references), `settings-guide.md` under ~170 (settings.json keys + 6 permission modes + autoMode + sandbox, multiple JSON examples), `claude-md-guide.md` under ~165 (writing principles + hierarchy + @import + Identity-DNA framework + pruning patterns), `effective-usage-guide.md` under ~150 (day-one patterns + response discipline diagnostic vocabulary). Anthropic's 200-line target applies to CLAUDE.md, not guides.
 - This CLAUDE.md should stay under 200 lines, matching the repo's own recommendation in `docs/guides/claude-md-guide.md`
 - There is no application source code — primary content is Markdown, supported by JSON/YAML configs, shell scripts (`plugin/hooks/*.sh`, `templates/advanced/hooks/*.sh`), and Python CI validators in `.github/scripts/`. Review for clarity, accuracy, and consistency across files
@@ -41,6 +41,7 @@ A single change can ripple across the repo. When modifying any file, check downs
 - **Skill SKILL.md** (behavior change) → verify other skills' Phase 0 reading scope still covers the change; update `CHANGELOG.md`
 - **Deny pattern format change** → grep `Read\(.*secrets` or similar across all files to ensure consistency
 - **`templates/` path/structural rename** → grep `CLAUDE.md` `Repository Structure` for stale path mentions (`*.sh` lists, dir paths); CLAUDE.md is consistently missed as a cascade target
+- **`scoring-model.md` `## Formula` block edit** → `ci/scripts/check-scoring-model-lav-linkage.py` SHA256-freezes the fenced code block under `## Formula` (`DS_SB_CAP_HASH`); any change inside it — even a citation/comment — fails the validator. Recompute via the validator's own `## Formula` block extraction and update the constant.
 
 ### Verifying Changes Locally
 
