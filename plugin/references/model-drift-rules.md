@@ -1,7 +1,7 @@
 ---
 title: "Model Drift Rules"
 description: "4-axis capability fingerprint + normalization table for Claude model ID detection across Anthropic, Bedrock, and Vertex. Drives /audit drift advisory via normalize_model_id → fingerprint | null."
-version: "1.0.0"
+version: "1.1.0"
 fingerprint_space_version: "1.0.0"
 ---
 
@@ -111,7 +111,7 @@ Three providers are covered: **Anthropic**, **Bedrock**, and **Vertex**.
 
 Model IDs use the form `claude-{family}-{major}-{minor}` — no provider prefix. Pattern family: prefix `claude-` followed by family name.
 
-Examples: `claude-opus-4-7`, `claude-sonnet-4-6`, `claude-haiku-4-5`
+Examples: `claude-opus-4-8`, `claude-sonnet-4-6`, `claude-haiku-4-5`
 
 ### Bedrock
 
@@ -133,6 +133,9 @@ Matching policy: longest-match when multiple rules overlap (per the matching-pol
 
 | raw_pattern | normalized_id | family_tier | context_window_class | reasoning_class | context_management_class | evidence_status |
 |---|---|---|---|---|---|---|
+| `claude-opus-4-8@*` | `opus-4.8-vertex` | `opus` | `1M` | `extended_any` | `compaction_capable` | `observed` |
+| `claude-opus-4-8*` | `opus-4.8-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `observed` |
+| `anthropic.claude-opus-4-8*` | `opus-4.8-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `observed` |
 | `claude-opus-4-7@*` | `opus-4.7-vertex` | `opus` | `1M` | `extended_any` | `compaction_capable` | `observed` |
 | `claude-opus-4-7*` | `opus-4.7-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `observed` |
 | `anthropic.claude-opus-4-7*` | `opus-4.7-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `observed` |
@@ -153,6 +156,7 @@ Matching policy: longest-match when multiple rules overlap (per the matching-pol
 
 - Bedrock rows (`anthropic.claude-*`) MUST be matched before Anthropic-direct rows (`claude-*`) to prevent the shorter Anthropic pattern from matching a Bedrock prefix. Longest-match ordering in the runner handles this automatically.
 - Vertex rows (`claude-*@*`) MUST be matched before Anthropic-direct rows (`claude-*`) since the `@` suffix distinguishes them. Longest-match ordering handles this.
+- **Opus 4.8 (released 2026-05-28)**: all three variants (Anthropic direct, Bedrock, Vertex) normalize to `1M` context, mirroring the Opus 4.6/4.7 multi-provider pattern. Anthropic-direct and Bedrock are GA at launch (1M, standard pricing unchanged from 4.7); Vertex publisher-model exposure may lag the launch by a short window per Anthropic's Vertex guidance — the `claude-opus-4-8@*` row is included for parity and activates once Vertex exposes the model. Evidence: Anthropic Opus 4.8 model docs, AWS Claude Opus 4.8 model card (Bedrock).
 - All three `claude-opus-4-6` variants (Anthropic direct, Bedrock, Vertex) normalize to `1M` context as of 2026-04-20. Prior table revisions modeled Bedrock as `200k`; Bedrock has since upgraded Opus 4.6 to 1M per the AWS model card, and the table is aligned to current provider reality.
 - **Sonnet 4.5 post-retirement (as of 2026-04-30)**: Anthropic-direct (`claude-sonnet-4-5*`) is now `200k` — the `context-1m-2025-08-07` beta retired on April 30, 2026 per Anthropic release notes; requests exceeding 200k now return an error. Bedrock (`anthropic.claude-sonnet-4-5*`) was `200k` from launch. Vertex (`claude-sonnet-4-5@*`) remains `1M observed` — Vertex sets its own retirement schedule independently and 1M is preserved per the Vertex Sonnet 4.5 model card. For 1M context on Anthropic-direct, migrate to Sonnet 4.6 or Opus 4.6 (both 1M GA at standard pricing, no beta header). Evidence: AWS Claude Sonnet 4.5 model card (Bedrock), Vertex Claude Sonnet 4.5 model card (Vertex GA), Anthropic release notes 2026-04-30 (1M beta retirement).
 

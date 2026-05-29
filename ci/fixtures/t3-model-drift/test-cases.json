@@ -1,5 +1,35 @@
 [
   {
+    "input": "claude-opus-4-8",
+    "expected_fingerprint": {
+      "family_tier": "opus",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Anthropic direct — opus-4.8-anthropic, 1M context (released 2026-05-28)"
+  },
+  {
+    "input": "anthropic.claude-opus-4-8",
+    "expected_fingerprint": {
+      "family_tier": "opus",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Bedrock — opus-4.8-bedrock, 1M context (released 2026-05-28, AWS model card)"
+  },
+  {
+    "input": "claude-opus-4-8@20260528",
+    "expected_fingerprint": {
+      "family_tier": "opus",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Vertex — opus-4.8-vertex, 1M context (publisher-model exposure may lag launch; pattern row included for parity)"
+  },
+  {
     "input": "claude-opus-4-7",
     "expected_fingerprint": {
       "family_tier": "opus",

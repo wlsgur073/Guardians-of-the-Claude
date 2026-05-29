@@ -22,7 +22,7 @@ Canonical regression fixtures + golden snapshots for Guardians-of-the-Claude. CI
 
 For faster iteration during fixture development, individual fixtures can be exercised via dedicated runners instead of the full smoke run:
 
-- `scripts/t3_model_drift_check.py` — `t3-model-drift` (the 16-case model-fingerprint conformance suite over `test-cases.json`)
+- `scripts/t3_model_drift_check.py` — `t3-model-drift` (the 19-case model-fingerprint conformance suite over `test-cases.json`)
 - `scripts/t7_optimize_e2e_check.py` — `t7-optimize-e2e`
 - `scripts/t7_secure_counts_check.py` — `t7-secure-counts`
 - `scripts/t7_secure_e2e_check.py` — `t7-secure-e2e`
