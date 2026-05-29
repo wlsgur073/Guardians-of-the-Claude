@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- `docs/guides/settings-guide.md`, `plugin/references/security-patterns.md` — added Claude Opus 4.8 (released 2026-05-28) to the auto-mode supported-model lists (now Sonnet 4.6, Opus 4.6, Opus 4.7, or Opus 4.8). Bumped `settings-guide.md` frontmatter version 1.2.1 → 1.2.2.
 - `docs/guides/multi-agent-patterns-guide.md` — two new sections: `## Multi-surface identity invariance` (how identity DNA stays constant across CLI / mobile / document-embedded surfaces while output discipline shifts per surface) and `## Peer message protocol` (three load-bearing elements beyond the four Orchestrator-Worker prerequisites: return-format contract, verification handoff, inspectability invariant; concrete dispatch example).
 - `docs/guides/trustworthy-agents-guide.md` — new `## Skill Invocation` section between Subagent Observability and Cross-references. Names the three skill design declarations (trigger phrase, permission scope, verification handoff) that make a skill audit-able from outside.
 - `docs/guides/recommended-plugins-guide.md` — new `## Cross-plugin coordination` section between Project Setup table and How to Install. Documents three coordination patterns: skill-to-skill delegation via plugin cache, shared references with one-way dependency direction (skills consume references, not vice versa), and marketplace-name namespacing.

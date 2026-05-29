@@ -93,7 +93,7 @@ Permission modes (`permissions.defaultMode`) and sandboxing (`sandbox.enabled`) 
 - **Sensitive or unfamiliar code**: `default` (review every tool action)
 - **Iterating on changes you'll review via `git diff`**: `acceptEdits` (auto-approve file edits in working dir)
 - **Exploring before changing**: `plan` (no edits permitted)
-- **Long autonomous tasks within trusted infrastructure**: `auto` (classifier-based; requires Anthropic API on Max / Team / Enterprise / API plans — not Pro, not Bedrock / Vertex / Foundry; Claude Sonnet 4.6, Opus 4.6, or Opus 4.7 — Max plan: Opus 4.7 only; admin enablement on Team / Enterprise)
+- **Long autonomous tasks within trusted infrastructure**: `auto` (classifier-based; requires Anthropic API on Max / Team / Enterprise / API plans — not Pro, not Bedrock / Vertex / Foundry; Claude Sonnet 4.6, Opus 4.6, Opus 4.7, or Opus 4.8 — Max plan: Opus 4.7 only; admin enablement on Team / Enterprise)
 - **CI / locked-down scripts**: `dontAsk` (only pre-approved tools)
 - **Containerized or VM-only environments**: `bypassPermissions` (no checks; equivalent to `--dangerously-skip-permissions`)
 
