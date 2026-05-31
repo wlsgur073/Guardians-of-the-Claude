@@ -151,6 +151,12 @@ CI scripts in `.github/scripts/check-*.py` are NOT a usable oracle for `/audit` 
 
 Conditional recommendations and free-text remediation language (e.g., "consider extracting", "consider differentiating models") are surface-side text and do not require an oracle — they describe action paths, not deterministic facts.
 
+## Phase 3.8: Usage & Fitness Advisory (NON-SCORING)
+
+Read `references/checks/usage-fitness-advisory.md` and execute it. This phase is **non-scoring**: it MUST NOT alter any T1/T2/T3 item score, weight, or `scoring_contract_id` (`audit-score-v4.2.0`), and MUST NOT add a `qa-report.md` section. It runs regardless of the Phase 3 doc-only SKIP (usage/fitness analysis applies to any project).
+
+Outputs: (a) advisory lines appended to the Phase 4 **All Suggestions** block; (b) registered recommendation keys (`vessel-fit`, `mcp-unused`, `cache-stabilize`, `effort-downgrade`) emitted in Phase 5 with `issued_by:"audit"`.
+
 ## Phase 4: Summary
 
 Read `../../references/scoring-model.md` for the complete scoring formula, then calculate results.
@@ -201,7 +207,7 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
   - `Detected:` — project changes observed (framework/package manager/testing etc. diffs).
   - `Profile updated:` — sections refreshed this run (for `/audit`, always all owned sections; see below).
   - `Applied:` — always `(none)` for `/audit` (audit does not mutate user files).
-  - `Recommendations:` — all PENDING/DECLINED items emitted this run with appropriate status.
+  - `Recommendations:` — all PENDING/DECLINED items emitted this run with appropriate status. Plus any vessel-fit / mcp-unused / cache-stabilize / effort-downgrade keys emitted by Phase 3.8 (registered in recommendation-registry.json), with issued_by:"audit".
   For DECLINED items, increment `decline_count` per `plugin/references/lib/merge_rules.md §recommendations.json merge rules`: PENDING -> DECLINED sets `decline_count = 1`; DECLINED -> DECLINED re-record increments `decline_count++`. Monotonic — never decremented. Writes always emit schema 1.1.0; reading a 1.0.0 file performs lazy migration (inflate missing `decline_count` to 0). The repeated-decline trigger in `plugin/hooks/session-start.{sh,ps1}` reads this field after status==DECLINED filter and renders `"declined N times total"` for the rec with the highest `decline_count`.
 
   The score itself (`XX/100`, grade, maturity level) is a user-facing snapshot surfaced in the terminal output of Phase 4 and in `state-summary.md`'s Recent Skill Results section. It must NOT be written into the `config-changelog.md` entry as a field — the changelog is learning data, not a report ledger.
