@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- `/audit` now reports your token usage from local Claude Code transcripts and flags configuration that wastes tokens or sits in the wrong primitive (e.g. an always-loaded instruction that should be a hook, or an unused MCP server). These surface as non-scoring suggestions and as recommendations that `/optimize` can resolve. The audit score and its contract are unchanged.
+- `plugin/references/lib/usage-parser.sh` — a bundled bash+jq helper that summarizes `~/.claude/projects` token counts (counts and metadata only; never message content; no network).
+
 ## [3.0.2] - 2026-05-29
 
 ### Added
