@@ -10,17 +10,23 @@ set -uo pipefail   # NOTE: no -e — a single bad transcript line must not abort
 PROJECTS_DIR="${GUARDIANS_USAGE_PROJECTS_DIR:-${CLAUDE_CONFIG_DIR:-$HOME/.claude}/projects}"
 PRICES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/model-prices.json"
 
-# Deterministic "now" for fixture runs (matches session-start.sh convention).
-if [ -n "${SMOKE_PINNED_UTC:-}" ]; then
-  NOW_UTC=$(date -d "$SMOKE_PINNED_UTC" +%s 2>/dev/null \
-    || date -j -f "%Y-%m-%dT%H:%M:%SZ" "$SMOKE_PINNED_UTC" +%s 2>/dev/null || echo "")
-  [ -z "$NOW_UTC" ] && { echo "SMOKE_PINNED_UTC parse failed: $SMOKE_PINNED_UTC" >&2; exit 1; }
-else
-  NOW_UTC=$(date +%s)
-fi
-
 emit_empty() {
-  jq -n '{schema_version:"1.0.0", totals:{input:0,output:0,cache_read:0,cache_creation:0,est_cost_usd:0,cost_tier:"local-estimate"}, by_model:[], cache:{cache_read_ratio:0}, by_day:[], top_sessions:[], attribution:{method:"heuristic", by_tool:[], by_mcp_server:[], by_skill:[], main_vs_subagent:{main:0,subagent:0}}, window:{sessions:0}}'
+  jq -n '{
+    schema_version: "1.0.0",
+    window: { sessions: 0, first: null, last: null },
+    totals: { input: 0, output: 0, cache_read: 0, cache_creation: 0, est_cost_usd: 0, cost_tier: "local-estimate" },
+    by_model: [],
+    cache: { cache_read_ratio: 0 },
+    by_day: [],
+    top_sessions: [],
+    attribution: {
+      method: "heuristic",
+      by_tool: [],
+      by_mcp_server: [],
+      by_skill: [ { name: "Skill", invocations: 0 } ],
+      main_vs_subagent: { main: 0, subagent: 0 }
+    }
+  }'
 }
 
 if [ ! -d "$PROJECTS_DIR" ] || ! command -v jq >/dev/null 2>&1; then
@@ -85,6 +91,7 @@ printf '%s\n' "$records" | jq -s \
   | .totals.cost_tier = "local-estimate"
   | .attribution = { method:"heuristic",
       by_tool:( $toolarr | group_by(.name) | map({name:.[0].name, invocations:length}) | sort_by(-.invocations) ),
+      # capture the full server segment between the __ delimiters (mcp__plugin_github_github__x -> "plugin_github_github"; mcp__github__x -> "github")
       by_mcp_server:( $toolarr | map(.name) | map(select(startswith("mcp__")))
           | map(capture("^mcp__(?<s>[A-Za-z0-9_]+)__")?.s // empty) | group_by(.)
           | map({name:.[0], invocations:length}) | sort_by(-.invocations) ),
