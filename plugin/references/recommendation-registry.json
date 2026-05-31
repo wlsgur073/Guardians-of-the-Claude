@@ -56,6 +56,38 @@
       "resolvers": ["optimize", "secure"],
       "aliases": ["audit-hook-quality"],
       "introduced_in": "2.11.0"
+    },
+    {
+      "key": "vessel-fit",
+      "description": "Move an automation/instruction to the right primitive (hook/skill/agent/MCP/rule)",
+      "issuers": ["audit"],
+      "resolvers": ["optimize", "create"],
+      "aliases": [],
+      "introduced_in": "3.1.0"
+    },
+    {
+      "key": "mcp-unused",
+      "description": "Disable an MCP server with no invocations over the analyzed window",
+      "issuers": ["audit"],
+      "resolvers": ["optimize"],
+      "aliases": [],
+      "introduced_in": "3.1.0"
+    },
+    {
+      "key": "cache-stabilize",
+      "description": "Improve prompt-cache hit rate (stabilize system prompt / enable extended cache TTL)",
+      "issuers": ["audit"],
+      "resolvers": ["optimize"],
+      "aliases": [],
+      "introduced_in": "3.1.0"
+    },
+    {
+      "key": "effort-downgrade",
+      "description": "Downgrade agent/model effort tier for mechanical subagent work",
+      "issuers": ["audit"],
+      "resolvers": ["optimize"],
+      "aliases": [],
+      "introduced_in": "3.1.0"
     }
   ]
 }
