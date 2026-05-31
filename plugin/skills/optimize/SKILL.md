@@ -15,7 +15,7 @@ Follow these phases in order.
 
 Read `../../references/learning-system.md` and follow the **Common Phase 0** steps (including **Step 0.5 Migration & Stale Check**) with these optimize-specific overrides:
 
-- **Step 2 override:** When filtering `local/recommendations.json` for `issued_by == "audit"`, focus on T2.3 (hook quality) and T3 (optimization) recommendations. Also include `issued_by == "secure"` entries (to avoid re-suggesting items declined there).
+- **Step 2 override:** When filtering `local/recommendations.json` for `issued_by == "audit"`, focus on T2.3 (hook quality) and T3 (optimization) recommendations. Also include `issued_by == "secure"` entries (to avoid re-suggesting items declined there). Also pick up the Phase 3.8 usage/fitness advisory keys (vessel-fit, mcp-unused, cache-stabilize, effort-downgrade).
 
 After completing Common Phase 0:
 - Separately scan `recommendations.json` for entries with `issued_by == "optimize"` and `status == "DECLINED"` — these are previously declined `/optimize` suggestions and must not be re-suggested unless project scale/structure changed significantly (per Learning Rule 2 Preference Respect).
@@ -123,6 +123,17 @@ If selected:
 2. Change `exit 1` to `exit 2` in PreToolUse blocking hooks
 3. Add `matcher` to hooks that have none (ask user which tools to match)
 
+### Token Usage & Fitness Fixes
+
+If any of these `issued_by:"audit"` recommendations are present and the user selected them:
+
+- **`mcp-unused`**: remove or comment out the named server from `.mcp.json`. Confirm with the user first — a short analysis window may simply not have exercised a server the project still needs.
+- **`vessel-fit`**: move the misfiled automation to the right primitive — e.g., add a hook entry to `.claude/settings.json`, create a `.claude/skills/<name>/SKILL.md`, or add the MCP server — and remove the misfiled instruction from CLAUDE.md. Confirm the target primitive with the user before editing.
+- **`cache-stabilize`**: advise stabilizing the system prompt / enabling extended prompt-cache TTL. This is an advisory note, not a destructive edit.
+- **`effort-downgrade`**: lower the agent's model/effort tier in the relevant `.claude/agents/*.md` after confirming with the user.
+
+As with the other Phase 3 fixes, ask the user to confirm each change before applying it.
+
 ## Phase 4: Verify & Handoff
 
 ### 4.1 Verify Changes
@@ -141,7 +152,7 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
 - **Step 1 override (Skill-specific data in changelog entry):**
   The `config-changelog.md` entry for this skill must include:
   - `Applied:` — list of items improved (CLAUDE.md split, agent model diversification, MCP added, hook quality fixes).
-  - `Recommendations:` — items the user skipped this run marked as `DECLINED by user`; any previously PENDING recommendation from `/audit` that was addressed this run marked as `RESOLVED`.
+  - `Recommendations:` — items the user skipped this run marked as `DECLINED by user`; any previously PENDING recommendation from `/audit` that was addressed this run marked as `RESOLVED`. The usage/fitness keys (vessel-fit, mcp-unused, cache-stabilize, effort-downgrade) resolve through this same RESOLVED/DECLINED + decline_count machinery.
 
   For DECLINED items, increment `decline_count` per `plugin/references/lib/merge_rules.md §recommendations.json merge rules`: PENDING -> DECLINED sets `decline_count = 1`; DECLINED -> DECLINED re-record increments `decline_count++`. Monotonic — never decremented. Writes always emit schema 1.1.0; reading a 1.0.0 file performs lazy migration (inflate missing `decline_count` to 0). The repeated-decline trigger in `plugin/hooks/session-start.{sh,ps1}` reads this field after status==DECLINED filter and renders `"declined N times total"` for the rec with the highest `decline_count`.
 
