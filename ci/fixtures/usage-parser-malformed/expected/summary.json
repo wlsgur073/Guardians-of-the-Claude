@@ -1,30 +1,56 @@
 {
   "schema_version": "1.0.0",
+  "window": {
+    "sessions": 1,
+    "first": "2026-05-20T10:00:01Z",
+    "last": "2026-05-20T10:00:01Z"
+  },
   "totals": {
-    "input": 0,
-    "output": 0,
+    "input": 10,
+    "output": 5,
     "cache_read": 0,
     "cache_creation": 0,
     "est_cost_usd": 0,
     "cost_tier": "local-estimate"
   },
-  "by_model": [],
+  "by_model": [
+    {
+      "model": "claude-opus-4-8",
+      "input": 10,
+      "output": 5,
+      "cache_read": 0,
+      "cache_creation": 0
+    }
+  ],
+  "by_day": [
+    {
+      "date": "2026-05-20",
+      "input": 10,
+      "output": 5
+    }
+  ],
+  "top_sessions": [
+    {
+      "session": "chat",
+      "tokens": 15
+    }
+  ],
   "cache": {
     "cache_read_ratio": 0
   },
-  "by_day": [],
-  "top_sessions": [],
   "attribution": {
     "method": "heuristic",
     "by_tool": [],
     "by_mcp_server": [],
-    "by_skill": [],
+    "by_skill": [
+      {
+        "name": "Skill",
+        "invocations": 0
+      }
+    ],
     "main_vs_subagent": {
-      "main": 0,
+      "main": 1,
       "subagent": 0
     }
-  },
-  "window": {
-    "sessions": 0
   }
 }

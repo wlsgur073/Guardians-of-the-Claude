@@ -30,8 +30,9 @@ fi
 # Pass 1 — one usage record per assistant message (session = file basename).
 records=$(
   find "$PROJECTS_DIR" -type f -name '*.jsonl' 2>/dev/null | while IFS= read -r f; do
-    jq -c --arg session "$(basename "$f" .jsonl)" '
-      select(.type=="assistant" and (.message.usage != null))
+    jq -cR --arg session "$(basename "$f" .jsonl)" '
+      fromjson?
+      | select(.type=="assistant" and (.message.usage != null))
       | { session:$session, ts:(.timestamp // ""), model:(.message.model // "unknown"),
           sidechain:(.isSidechain // false),
           i:(.message.usage.input_tokens // 0), o:(.message.usage.output_tokens // 0),
@@ -44,7 +45,7 @@ records=$(
 # Pass 2 — tool/MCP/skill invocation counts (attribution, heuristic).
 tools=$(
   find "$PROJECTS_DIR" -type f -name '*.jsonl' 2>/dev/null | while IFS= read -r f; do
-    jq -c 'select(.type=="assistant") | .message.content[]?
+    jq -cR 'fromjson? | select(.type=="assistant") | .message.content[]?
            | select(.type=="tool_use") | {name:.name}' "$f" 2>/dev/null
   done
 )
