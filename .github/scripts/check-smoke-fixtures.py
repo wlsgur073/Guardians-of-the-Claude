@@ -4337,6 +4337,65 @@ def run_sessionstart_fixture(name: str) -> tuple[bool, str]:
     return False, f"diverged:\n  expected: {expected[:200]}\n  actual:   {actual[:200]}"
 
 
+def run_bash_helper_fixture(
+    name: str,
+    projects_subdir: str = "input",
+    privacy_forbidden: str | None = None,
+) -> tuple[bool, str]:
+    """Run plugin/references/lib/usage-parser.sh against a ci/fixtures/<name>/ fixture.
+
+    Sets GUARDIANS_USAGE_PROJECTS_DIR to ci/fixtures/<name>/<projects_subdir>,
+    SMOKE_PINNED_UTC to "2026-05-22T00:00:00Z", captures stdout and byte-compares
+    to ci/golden/<name>/summary.json. Line endings normalized (.replace("\\r\\n","\\n"))
+    on both sides before comparison (Git Bash emits CRLF on Windows; Path.read_text
+    uses universal newlines).
+
+    If privacy_forbidden is set, the helper's stdout MUST NOT contain that substring.
+    """
+    fixture_dir = FIXTURES_DIR / name
+    golden_path = GOLDEN_DIR / name / "summary.json"
+    projects_dir = fixture_dir / projects_subdir
+
+    if not projects_dir.is_dir():
+        return False, f"fixture input missing: {projects_dir}"
+    if not golden_path.is_file():
+        return False, f"golden missing: {golden_path}"
+
+    helper_path = ROOT / "plugin" / "references" / "lib" / "usage-parser.sh"
+    if not helper_path.is_file():
+        return False, f"helper script missing: {helper_path}"
+
+    bash_bin = _find_bash()
+    env = os.environ.copy()
+    env["GUARDIANS_USAGE_PROJECTS_DIR"] = str(projects_dir)
+    env["SMOKE_PINNED_UTC"] = "2026-05-22T00:00:00Z"
+
+    try:
+        proc = subprocess.run(
+            [bash_bin, str(helper_path)],
+            capture_output=True,
+            env=env,
+            timeout=30,
+        )
+    except subprocess.TimeoutExpired:
+        return False, "usage-parser timed out"
+
+    if proc.returncode != 0:
+        stderr_msg = proc.stderr.decode("utf-8", errors="replace") if proc.stderr else ""
+        return False, f"helper exited {proc.returncode}: {stderr_msg[:200]!r}"
+
+    actual = proc.stdout.decode("utf-8", errors="replace").replace("\r\n", "\n").strip()
+    expected = golden_path.read_text(encoding="utf-8").replace("\r\n", "\n").strip()
+
+    # Privacy assertion: helper stdout must not leak message text content.
+    if privacy_forbidden and privacy_forbidden in actual:
+        return False, f"privacy violation: stdout contains {privacy_forbidden!r}"
+
+    if actual == expected:
+        return True, "byte-equal"
+    return False, f"diverged:\n  expected: {expected[:200]}\n  actual:   {actual[:200]}"
+
+
 # ---------------------------------------------------------------------------
 # Entrypoint
 # ---------------------------------------------------------------------------
@@ -4479,6 +4538,24 @@ def main() -> int:
             msg = f"exception: {exc.__class__.__name__}: {exc}"
         tag = "PASS" if passed else "FAIL"
         print(f"[{tag}] sessionstart-bash/{name}: {msg}")
+        if not passed:
+            fail_count += 1
+
+    # Bash helper fixtures (usage-parser.sh): invoke the script directly,
+    # byte-compare stdout to golden/summary.json, assert privacy invariants.
+    bash_helper_fixtures = [
+        # name, projects_subdir, privacy_forbidden
+        ("usage-parser", "input", None),
+        ("usage-parser-malformed", "input", "SECRET_TOKEN_abc123"),
+    ]
+    for name, subdir, forbidden in bash_helper_fixtures:
+        try:
+            passed, msg = run_bash_helper_fixture(name, projects_subdir=subdir, privacy_forbidden=forbidden)
+        except Exception as exc:  # noqa: BLE001
+            passed = False
+            msg = f"exception: {exc.__class__.__name__}: {exc}"
+        tag = "PASS" if passed else "FAIL"
+        print(f"[{tag}] bash-helper/{name}: {msg}")
         if not passed:
             fail_count += 1
 

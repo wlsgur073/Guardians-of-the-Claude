@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0.0",
+  "window": {
+    "sessions": 1,
+    "first": "2026-05-20T10:00:01Z",
+    "last": "2026-05-21T09:00:00Z"
+  },
+  "totals": {
+    "input": 1500,
+    "output": 250,
+    "cache_read": 4000,
+    "cache_creation": 100,
+    "est_cost_usd": 0.04,
+    "cost_tier": "local-estimate"
+  },
+  "by_model": [
+    {
+      "model": "claude-haiku-4-5",
+      "input": 500,
+      "output": 50,
+      "cache_read": 0,
+      "cache_creation": 100
+    },
+    {
+      "model": "claude-opus-4-8",
+      "input": 1000,
+      "output": 200,
+      "cache_read": 4000,
+      "cache_creation": 0
+    }
+  ],
+  "by_day": [
+    {
+      "date": "2026-05-20",
+      "input": 1000,
+      "output": 200
+    },
+    {
+      "date": "2026-05-21",
+      "input": 500,
+      "output": 50
+    }
+  ],
+  "top_sessions": [
+    {
+      "session": "chat",
+      "tokens": 1750
+    }
+  ],
+  "cache": {
+    "cache_read_ratio": 0.72
+  },
+  "attribution": {
+    "method": "heuristic",
+    "by_tool": [
+      {
+        "name": "Grep",
+        "invocations": 1
+      },
+      {
+        "name": "Read",
+        "invocations": 1
+      },
+      {
+        "name": "mcp__github__get_issue",
+        "invocations": 1
+      }
+    ],
+    "by_mcp_server": [
+      {
+        "name": "github",
+        "invocations": 1
+      }
+    ],
+    "by_skill": [
+      {
+        "name": "Skill",
+        "invocations": 0
+      }
+    ],
+    "main_vs_subagent": {
+      "main": 1,
+      "subagent": 1
+    }
+  }
+}

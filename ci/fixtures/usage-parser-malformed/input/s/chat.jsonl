@@ -1,0 +1,4 @@
+{ this is not valid json
+{"type":"summary"}
+{"type":"user","message":{"content":"SECRET_TOKEN_abc123 do not leak"}}
+{"type":"assistant","timestamp":"2026-05-20T10:00:01Z","isSidechain":false,"message":{"model":"claude-opus-4-8","usage":{"input_tokens":10,"output_tokens":5,"cache_read_input_tokens":0,"cache_creation_input_tokens":0},"content":[{"type":"text","text":"SECRET_TOKEN_abc123"}]}}

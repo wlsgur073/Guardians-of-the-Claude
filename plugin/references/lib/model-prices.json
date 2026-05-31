@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0.0",
+  "note": "USD per 1,000,000 tokens. Local estimate only — not billing. Update on price changes.",
+  "prices": {
+    "claude-opus-4-8":   { "input": 15.0, "output": 75.0, "cache_read": 1.5,  "cache_creation": 18.75 },
+    "claude-sonnet-4-6": { "input": 3.0,  "output": 15.0, "cache_read": 0.3,  "cache_creation": 3.75 },
+    "claude-haiku-4-5":  { "input": 1.0,  "output": 5.0,  "cache_read": 0.1,  "cache_creation": 1.25 }
+  },
+  "default": { "input": 0.0, "output": 0.0, "cache_read": 0.0, "cache_creation": 0.0 }
+}
