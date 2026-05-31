@@ -157,6 +157,8 @@ Read `references/checks/usage-fitness-advisory.md` and execute it. This phase is
 
 Outputs: (a) advisory lines appended to the Phase 4 **All Suggestions** block; (b) registered recommendation keys (`vessel-fit`, `mcp-unused`, `cache-stabilize`, `effort-downgrade`) emitted in Phase 5 with `issued_by:"audit"`.
 
+The D1 portion invokes `plugin/references/lib/usage-parser.sh` and interprets its compact JSON summary; the skill reads ONLY that summary, never raw transcripts (token economy + privacy).
+
 ## Phase 4: Summary
 
 Read `../../references/scoring-model.md` for the complete scoring formula, then calculate results.
