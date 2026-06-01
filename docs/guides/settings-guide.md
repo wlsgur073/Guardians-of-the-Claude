@@ -1,7 +1,7 @@
 ---
 title: "Configuring settings.json"
 description: "How to configure Claude Code behavior with settings files"
-version: 1.2.3
+version: 1.2.4
 ---
 
 # Configuring settings.json
@@ -122,7 +122,7 @@ Sets the default mode for new sessions: `default` (reads only), `acceptEdits` (a
 { "permissions": { "defaultMode": "acceptEdits" } }
 ```
 
-Auto mode availability requires the Anthropic API on Max, Team, Enterprise, or API plans (not Pro; not Bedrock, Vertex, or Foundry); Claude Sonnet 4.6, Opus 4.6, Opus 4.7, or Opus 4.8 (Max plan: Opus 4.7 only); and admin enablement on Team and Enterprise. See the [permission modes documentation](https://code.claude.com/docs/en/permission-modes) for full requirements and the protected-paths list.
+Auto mode is available on all plans via the Anthropic API only (not Bedrock, Vertex, or Foundry); it needs a supported model — Claude Opus 4.6 or later, or Sonnet 4.6 (older models are not supported) — and admin enablement on Team and Enterprise. See the [permission modes documentation](https://code.claude.com/docs/en/permission-modes) for full requirements and the protected-paths list.
 
 ### autoMode
 
