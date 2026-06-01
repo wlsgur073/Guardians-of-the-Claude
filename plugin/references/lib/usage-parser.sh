@@ -99,7 +99,7 @@ printf '%s\n' "$records" | jq -s \
       by_tool:( $toolarr | group_by(.name) | map({name:.[0].name, invocations:length}) | sort_by(-.invocations) ),
       # capture the full server segment between the __ delimiters (mcp__plugin_github_github__x -> "plugin_github_github"; mcp__github__x -> "github")
       by_mcp_server:( $toolarr | map(.name) | map(select(startswith("mcp__")))
-          | map(capture("^mcp__(?<s>[A-Za-z0-9_]+)__")?.s // empty) | group_by(.)
+          | map(try (capture("^mcp__(?<s>[A-Za-z0-9_]+)__") | .s)) | group_by(.)
           | map({name:.[0], invocations:length}) | sort_by(-.invocations) ),
       by_skill:( $toolarr | map(select(.name=="Skill")) | {name:"Skill", invocations:length} | [.] ),
       main_vs_subagent:.main_vs_subagent }
