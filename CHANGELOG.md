@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.1.1] - 2026-06-01
+
+### Fixed
+
+- `docs/guides/settings-guide.md`, `plugin/references/security-patterns.md` — the auto-mode availability statement now matches the current canonical permission-modes documentation: auto mode is available on **all plans** (with admin enablement on Team and Enterprise), via the Anthropic API only (not Bedrock, Vertex, or Foundry), on Claude Opus 4.6 or later or Sonnet 4.6. The previous text restricted it to Max/Team/Enterprise/API and excluded Pro, and carried a stale "Max plan: Opus 4.7 only" note — both no longer accurate. Bumped `settings-guide.md` version 1.2.3 → 1.2.4.
+
 ## [3.1.0] - 2026-06-01
 
 ### Added
