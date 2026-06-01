@@ -22,7 +22,12 @@ except (AttributeError, OSError):
 
 # Ensure .github/scripts is on sys.path so "from lib.recommendation_registry import ..." works
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lib.recommendation_registry import load_registry, check_recommendations
+from lib.recommendation_registry import (
+    load_registry,
+    load_registry_rows,
+    check_recommendations,
+    check_registry_resolver_liveness,
+)
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 
@@ -45,6 +50,18 @@ NEGATIVE_PATHS: list[str] = [
 def main() -> int:
     registry = load_registry(ROOT / "plugin/references/recommendation-registry.json")
     total_failures = 0
+
+    # Registry-definition lint: forward-direction resolver liveness. Every declared
+    # resolver must be able to LOAD the key it resolves (per Phase-0 filters); the
+    # instance lints below only check the reverse direction (a persisted resolved_by
+    # must be a registered resolver), so they cannot catch a dead/unloadable resolver.
+    rows = load_registry_rows(ROOT / "plugin/references/recommendation-registry.json")
+    liveness_failures = check_registry_resolver_liveness(rows)
+    for msg in liveness_failures:
+        total_failures += 1
+        print(f"[FAIL] recommendation-registry.json: {msg}")
+    if not liveness_failures:
+        print("[OK] recommendation-registry.json: all declared resolvers are loadable (forward-direction)")
 
     # Positive fixtures: must pass all lints
     for pattern in POSITIVE_GLOBS:

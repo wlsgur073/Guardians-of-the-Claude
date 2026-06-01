@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `/audit` now reports your token usage from local Claude Code transcripts and flags configuration that wastes tokens or sits in the wrong primitive (e.g. an always-loaded instruction that should be a hook, or an unused MCP server). These surface as non-scoring suggestions and as recommendations that `/optimize` can resolve. The audit score and its contract are unchanged.
 - `plugin/references/lib/usage-parser.sh` — a bundled bash+jq helper that summarizes `~/.claude/projects` token counts (counts and metadata only; never message content; no network).
 
+### Fixed
+
+- `plugin/references/recommendation-registry.json` — removed the unreachable `create` resolver from the `security-rule` and `vessel-fit` recommendations. The `/create` skill only loads `secure`- and `optimize`-issued recommendations, so it could never resolve these audit-issued keys (`create` was a dead pointer that `security-rule` had carried since 2.11.0). `check-recommendation-registry.py` now also lints this forward direction — every declared resolver must be able to load the key it resolves — so a future unreachable resolver fails CI instead of shipping silently.
+
 ## [3.0.2] - 2026-05-29
 
 ### Added

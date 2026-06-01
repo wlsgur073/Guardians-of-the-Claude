@@ -19,6 +19,69 @@ def load_registry(path: Path = REGISTRY_PATH) -> dict:
     return by_key
 
 
+def load_registry_rows(path: Path = REGISTRY_PATH) -> list[dict]:
+    """Returns the raw registry array (one dict per recommendation key).
+
+    Unlike load_registry() — which maps every key AND alias to its row, so iterating its
+    values double-counts aliased rows — this returns each row exactly once, which is what
+    the registry-definition lint below needs.
+    """
+    return json.loads(path.read_text(encoding="utf-8"))["registry"]
+
+
+# Phase-0 recommendation load filters: the set of `issued_by` values each skill loads
+# when it reads recommendations.json. Mirror of plugin/references/phase-0.md Step 2
+# ("/secure: issued_by == audit"; "/optimize: audit or secure"; "/create: issued_by in
+# [secure, optimize]"; "/audit: all"). Keep in sync with that file. A resolver whose
+# accepted set shares no issuer with a key it resolves can never load that key.
+SKILL_LOAD_FILTERS: dict[str, set[str]] = {
+    "audit": {"audit", "secure", "optimize", "create"},  # /audit loads ALL recommendations
+    "secure": {"audit"},
+    "optimize": {"audit", "secure"},
+    "create": {"secure", "optimize"},
+}
+
+
+def check_registry_resolver_liveness(rows: list[dict]) -> list[str]:
+    """Forward-direction registry lint: every declared resolver must be able to LOAD
+    the key it resolves.
+
+    A resolver R can resolve key K only if R's Phase-0 load filter (SKILL_LOAD_FILTERS)
+    accepts at least one of K's `issuers`. If the intersection is empty, R never sees K,
+    so it can never set resolved_by=R — a dead pointer. The instance-level lints in
+    check_recommendations() only validate the REVERSE direction (a persisted resolved_by
+    must be a registered resolver), so they cannot catch a registered-but-unloadable
+    resolver. This closes that gap.
+
+    Args:
+        rows: the raw registry array (each row has "key", "issuers", "resolvers").
+    Returns:
+        Human-readable failure messages; empty list == every resolver is loadable.
+    """
+    failures: list[str] = []
+    for row in rows:
+        key = row["key"]
+        issuers = set(row.get("issuers", []))
+        for resolver in row.get("resolvers", []):
+            accepted = SKILL_LOAD_FILTERS.get(resolver)
+            if accepted is None:
+                failures.append(
+                    f"key '{key}' lists resolver '{resolver}', which is not a known "
+                    f"Phase-0 skill {sorted(SKILL_LOAD_FILTERS)}"
+                )
+            # "Dead" = the resolver can load NONE of this key's issuers (existential test).
+            # A multi-issuer key whose resolver loads only SOME of its issuers still resolves
+            # those instances, so it is intentionally not flagged; revisit if multi-issuer
+            # keys are ever introduced and stricter (universal) coverage is wanted.
+            elif issuers.isdisjoint(accepted):
+                failures.append(
+                    f"key '{key}' resolver '{resolver}' can never load it: "
+                    f"'{resolver}' loads issued_by in {sorted(accepted)}, "
+                    f"but key issuers are {sorted(issuers)}"
+                )
+    return failures
+
+
 def check_recommendations(instances: list[dict], registry_by_key: dict) -> list[str]:
     """Lints 1+2+3 on recommendation instances. Returns list of failure messages.
 
