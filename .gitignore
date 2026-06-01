@@ -21,6 +21,7 @@ Thumbs.db
 /test/
 docs/plans/
 docs/superpowers/
+PROGRESS.md
 
 # Node (if contributors install anything for tooling)
 node_modules/
