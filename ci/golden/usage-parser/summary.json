@@ -11,7 +11,8 @@
     "cache_read": 4000,
     "cache_creation": 100,
     "est_cost_usd": 0.04,
-    "cost_tier": "local-estimate"
+    "cost_tier": "local-estimate",
+    "unknown_models": []
   },
   "by_model": [
     {
@@ -48,7 +49,7 @@
     }
   ],
   "cache": {
-    "cache_read_ratio": 0.72
+    "cache_read_ratio": 0.71
   },
   "attribution": {
     "method": "heuristic",

@@ -127,7 +127,7 @@ If selected:
 
 If any of these `issued_by:"audit"` recommendations are present and the user selected them:
 
-- **`mcp-unused`**: remove or comment out the named server from `.mcp.json`. Confirm with the user first — a short analysis window may simply not have exercised a server the project still needs.
+- **`mcp-unused`**: **verify-only** — the absence signal is cross-project (the parser aggregates all of `~/.claude/projects`), so it shows the server was not observed across recent local usage, not that *this* project does not need it. Ask the user to confirm the server is genuinely unused **in this project** before removing or commenting it out from `.mcp.json`; never disable it on the global signal alone (a short or cross-project window may simply not have exercised a server the project still needs).
 - **`vessel-fit`**: move the misfiled automation to the right primitive — e.g., add a hook entry to `.claude/settings.json`, create a `.claude/skills/<name>/SKILL.md`, or add the MCP server — and remove the misfiled instruction from CLAUDE.md. Confirm the target primitive with the user before editing.
 - **`cache-stabilize`**: advise stabilizing the system prompt / enabling extended prompt-cache TTL. This is an advisory note, not a destructive edit.
 - **`effort-downgrade`**: lower the agent's model/effort tier in the relevant `.claude/agents/*.md` after confirming with the user.
