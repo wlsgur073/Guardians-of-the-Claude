@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- `docs/guides/claude-md-guide.md` — new bridge paragraph at the end of `## Pruning Your CLAUDE.md` reconciling the apparent conflict between appending a rule on every mistake and pruning aggressively. Introduces the missing *promote* step: when several appended rules share one root cause, consolidate them into a single rule at the right altitude (general enough to cover the cases, concrete enough to keep what still carries weight), then prune the duplicates — promoting on evidence of a shared cause rather than on a fixed schedule, and never generalizing away a hard threshold, safety constraint, or non-obvious exception. Cross-links the same append-then-roll-up shape the plugin's own learning-system uses. Bumped `claude-md-guide.md` version 1.4.3 → 1.4.4.
+
 ## [3.1.1] - 2026-06-01
 
 ### Fixed

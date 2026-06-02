@@ -1,7 +1,7 @@
 ---
 title: "Writing Effective CLAUDE.md Files"
 description: "How to write, organize, and maintain CLAUDE.md files for Claude Code"
-version: 1.4.3
+version: 1.4.4
 ---
 
 # Writing Effective CLAUDE.md Files
@@ -124,6 +124,8 @@ When a rule is critical, add emphasis to make it stand out:
 Reserve emphasis for rules that truly matter. If everything is marked IMPORTANT, nothing is.
 
 **Which rules earn that emphasis?** Match a rule's *form* to the cost of getting it wrong. When an error would be costly enough that you want guaranteed, predictable compliance rather than a judgment call -- deleting data, committing secrets, skipping tests before a release -- write the rule as a rigid directive (`IMPORTANT` / `YOU MUST` / `never`). Otherwise, prefer a rule that states the *why* and lets Claude's judgment adapt: rigid rules cannot anticipate every situation, and the rationale is what lets Claude apply the rule to a case you did not foresee. Anthropic's [constitution](https://www.anthropic.com/constitution) makes the same trade-off -- favoring "good values and judgment over strict rules," and reserving fixed rules for when "the costs of errors are severe enough that predictability and evaluability become critical." Either way, explain the rule (see the [Trustworthy Agents Guide](trustworthy-agents-guide.md)) -- even a rigid directive works better with its reason attached.
+
+**Append, promote, and prune are one maintenance loop -- not three rules fighting each other.** Each is a half-truth alone: append a rule on every mistake and the file bloats until Claude dilutes attention across too many instructions; prune to stay lean and you throw away lessons you paid for in real errors. Promote is the missing move that reconciles them: the two practices only conflict when applied at the same altitude. When several appended rules share one root cause, fold them into a single rule at the right altitude -- general enough to cover the cases, concrete enough to keep what still carries weight -- then prune the duplicates. Promote on evidence, not on a calendar: merge before the shared cause is clear and you lock in the wrong abstraction, costlier than the duplication it replaced; and never generalize away a hard threshold, a safety constraint, or a non-obvious exception. This is the same shape this plugin's own [learning-system](../../plugin/references/learning-system.md) uses: it appends every decision, then rolls older entries up into summaries that keep the load-bearing facts and compress the narrative.
 
 ## Updating Mid-Session
 
