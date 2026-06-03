@@ -1,7 +1,7 @@
 ---
 title: "TaskFlow CLAUDE.md (Advanced)"
 description: "Example root CLAUDE.md for a Node.js/Express REST API project"
-version: 1.5.0
+version: 1.5.1
 ---
 
 <!--
@@ -118,7 +118,7 @@ See [`plugin/references/verification-discipline.md`](../../plugin/references/ver
 - src/errors/      → Custom error types extending AppError
 - tests/           → Mirrors src/ structure
 - db/migrations/   → SQL migration files (run with npm run migrate)
-- .claude/rules/   → Detailed guidelines (code style, architecture, testing, workflow)
+- .claude/rules/   → Detailed guidelines (code style, architecture, testing, workflow, api endpoints)
 
 ## Available Skills
 

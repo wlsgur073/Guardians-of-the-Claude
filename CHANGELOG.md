@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- `templates/advanced/CLAUDE.md` — the `## Project Structure` listing for `.claude/rules/` enumerated four rule topics (code style, architecture, testing, workflow) but the directory ships five files; added `api endpoints` so the list matches `rules/api-endpoints.md`. Bumped `templates/advanced/CLAUDE.md` version 1.5.0 → 1.5.1.
+
 ## [3.1.2] - 2026-06-03
 
 ### Added
