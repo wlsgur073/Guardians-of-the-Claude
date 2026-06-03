@@ -41,6 +41,7 @@ type: short description
 | `fix` | Corrections to existing content |
 | `docs` | Documentation-only changes (README updates, cross-link fixes) |
 | `chore` | Maintenance tasks (.gitignore, file reorganization) |
+| `ops` | Tooling and automation maintenance (Dependabot config, CI/workflow ops) |
 | `refactor` | Restructuring without changing content meaning |
 
 Keep the subject line concise (under 72 characters). Use the commit body for additional context when needed.

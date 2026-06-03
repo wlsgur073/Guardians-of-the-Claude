@@ -1,7 +1,7 @@
 ---
 title: Drift Advisory Derivation (canonical via drift-state.json)
 description: Model bullet emission policy + drift advisory state machine reading drift-state.json (replaces the changelog scan, now removed).
-version: 2.0.3
+version: 2.0.4
 ---
 
 ## Model Bullet Emission (config-changelog.md)
@@ -21,7 +21,7 @@ The `- Model:` bullet captures the resolved Claude model ID at the top of each c
 - Model: {current_model}
 ```
 
-placed immediately before `- Detected:`. When `emit_bullet == False`, the bullet is **omitted entirely** — the literal `- Model: (none)` is forbidden (parser defense in `check-smoke-fixtures.py:870-873`).
+placed immediately before `- Detected:`. When `emit_bullet == False`, the bullet is **omitted entirely** — the literal `- Model: (none)` is forbidden (parser defense in `check-smoke-fixtures.py:1653-1657`).
 
 **Stateless mode** — when `local/` is unwritable, no changelog write occurs and no model bullet is emitted by any skill.
 

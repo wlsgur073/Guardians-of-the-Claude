@@ -11,7 +11,7 @@ Canonical regression fixtures + golden snapshots for Guardians-of-the-Claude. CI
 - `scripts/compare-golden.sh` — diff helper for local debugging
 - `scripts/build-manifest.sh` — generates eval-manifest.json
 
-**Verifier references (read-only)**: `plugin/references/schemas/*.schema.json`, `plugin/references/recommendation-registry.json` — the plugin's canonical schemas + registry. Fixtures exercise them but do not duplicate them.
+**Verifier references (read-only)**: `plugin/references/schemas/*.schema*.json`, `plugin/references/recommendation-registry.json` — the plugin's canonical schemas + registry. Fixtures exercise them but do not duplicate them.
 
 ## Out of scope
 
@@ -26,6 +26,7 @@ For faster iteration during fixture development, individual fixtures can be exer
 - `scripts/t7_optimize_e2e_check.py` — `t7-optimize-e2e`
 - `scripts/t7_secure_counts_check.py` — `t7-secure-counts`
 - `scripts/t7_secure_e2e_check.py` — `t7-secure-e2e`
+- `scripts/t8_usage_recs_e2e_check.py` — `t8-usage-recs-e2e`
 
 These runners are CI-gated by the `atomic-fixture-runners-check` job in `.github/workflows/docs-check.yml`, which runs them on every push to `main`, on pull requests, and on version tags. They remain runnable standalone for fast local iteration. Note the **smoke** lane (`run-smoke.sh`) still does **not** execute them: `check-smoke-fixtures.py` imports the t3 `model-drift-rules.md` parser for the drift-state fixtures but does not run `test-cases.json`, and the `t7-*` scenarios are not in the smoke fixture set — the docs-check job is their gate.
 

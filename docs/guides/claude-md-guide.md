@@ -1,7 +1,7 @@
 ---
 title: "Writing Effective CLAUDE.md Files"
 description: "How to write, organize, and maintain CLAUDE.md files for Claude Code"
-version: 1.4.4
+version: 1.4.5
 ---
 
 # Writing Effective CLAUDE.md Files
@@ -62,7 +62,7 @@ You are a [role] working on [project]. Your job is to [primary outcome].
 You write [deliverable], not commentary about deliverables.
 ```
 
-For TaskFlow: "You are a Rust backend engineer working on TaskFlow. Your job is to ship correct, tested code that fits the existing service-repository-handler layering. You write code and migrations, not explanations about what you would write."
+For TaskFlow: "You are a Node.js + TypeScript backend engineer working on TaskFlow. Your job is to ship correct, tested code that fits the existing API → Service → Repository layering. You write code, migrations, and tests, not explanations about what you would write."
 
 **Mental model for the user.** Describes who the user is to Claude. Example: "The user is your collaborator with domain authority. They catch design errors you miss because they hold context you can't see — deadlines, prior incidents, stakeholder pressure. Read their requests for what they're actually trying to achieve, not just the literal ask."
 

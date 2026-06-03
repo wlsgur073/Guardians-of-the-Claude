@@ -13,6 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - `docs/guides/claude-md-guide.md` — new bridge paragraph at the end of `## Pruning Your CLAUDE.md` reconciling the apparent conflict between appending a rule on every mistake and pruning aggressively. Introduces the missing *promote* step: when several appended rules share one root cause, consolidate them into a single rule at the right altitude (general enough to cover the cases, concrete enough to keep what still carries weight), then prune the duplicates — promoting on evidence of a shared cause rather than on a fixed schedule, and never generalizing away a hard threshold, safety constraint, or non-obvious exception. Cross-links the same append-then-roll-up shape the plugin's own learning-system uses. Bumped `claude-md-guide.md` version 1.4.3 → 1.4.4.
 
+### Fixed
+
+- `docs/guides/claude-md-guide.md` — the Identity-DNA role-declaration example for TaskFlow described it as a "Rust backend engineer" with "service-repository-handler" layering, contradicting the canonical TaskFlow stack (Node.js + TypeScript, API → Service → Repository) used by the filled templates and the rest of the guides. Aligned the example to the canonical stack so a developer copying it gets a consistent reference. Bumped `claude-md-guide.md` version 1.4.4 → 1.4.5.
+- `README.md` — removed two stale claims left over from the v3.0.x removals. The "Migrating from v2.x?" note promised Windows users without Git Bash/WSL a one-line onboarding message at session start, but that emitter (`session-start.cmd`) was removed in v3.0.2; the note now states the `bash` requirement and points to the migration path. The "CI smoke lane (transitional bridge)" section advertised its own removal once v3.0 shipped — v3.0 shipped on 2026-05-23, so the transitional framing was dropped and the section now describes the smoke lane plainly.
+- `docs/ROADMAP.md` — two backlog items carried post-v3.0 stale framing. The hook-dispatch item described `SessionStart` as having a Windows `.cmd` fallback (removed in v3.0.2); the translations item read "Expand beyond Korean" though the ko-KR/ja-JP mirrors were removed in v3.0.0 and EN is now the canonical single source. Reworded both to match current state.
+- `plugin/skills/audit/SKILL.md`, `plugin/skills/optimize/SKILL.md`, `plugin/skills/secure/SKILL.md` — the repeated-decline trigger reference pointed at `plugin/hooks/session-start.{sh,ps1}`, but the `.ps1` companion was removed in v3.0.0; corrected to `plugin/hooks/session-start.sh` in all three skills.
+- `.gitattributes` — removed the orphaned `*.cmd text eol=lf` rule and its comment; the only `.cmd` file was removed in v3.0.2 and the repository is bash-only.
+- `ci/README.md` — the Atomic fixture runners list omitted `t8_usage_recs_e2e_check.py` (the CI gate covers five runners, the doc listed four); added it. Corrected the verifier-references schema glob `*.schema.json` (which matches no files) to `*.schema*.json` to match the version-suffixed schema filenames.
+- `docs/CONTRIBUTING.md` — added the `ops` type to the commit-convention table; Dependabot is configured with `commit-message.prefix: "ops"` and the type was previously undocumented.
+- `docs/CODE_OF_CONDUCT.md` — the violation-reporting path instructed opening a public issue with a `[Code of Conduct]` prefix, but blank issues are disabled and no Code-of-Conduct issue template exists; reporting now routes to direct, private maintainer contact.
+- `plugin/references/drift-state.md` — corrected the parser-defense line citation for the forbidden `- Model: (none)` literal from `check-smoke-fixtures.py:870-873` to `check-smoke-fixtures.py:1653-1657`. Bumped `drift-state.md` version 2.0.3 → 2.0.4.
+
 ## [3.1.1] - 2026-06-01
 
 ### Fixed

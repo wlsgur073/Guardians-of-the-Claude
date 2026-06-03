@@ -29,7 +29,7 @@ Guardians-of-the-Claude requires `bash` to run its hook scripts (SessionStart) a
 
 `jq` is also required for SessionStart hook JSON parsing. **It is NOT bundled with Git for Windows** — install separately via `winget install jqlang.jq`, [download from jqlang.org](https://jqlang.org/download/), or use a package manager (Scoop: `scoop install jq`; Chocolatey: `choco install jq`). Linux/macOS: available via every major package manager (`apt`, `brew`, etc.).
 
-> **Migrating from v2.x?** v3.0.0 retired the `.ps1` companion scripts. Windows users without Git Bash or WSL will see a one-line onboarding message at session start pointing here — see [CHANGELOG v3.0.0](CHANGELOG.md#300---2026-05-23) for the full migration path.
+> **Migrating from v2.x?** v3.0.0 retired the `.ps1` companion scripts and made `bash` a hard requirement (Git Bash on Windows or WSL) — see [CHANGELOG v3.0.0](CHANGELOG.md#300---2026-05-23) for the full migration path.
 
 ## Philosophy
 
@@ -128,11 +128,9 @@ Over multiple skill runs, the plugin's **meta-system layer** fills out — persi
 
 **Report migration failures** at [GitHub Issues](https://github.com/wlsgur073/Guardians-of-the-Claude/issues) with the warning output and (if possible) a redacted snippet of the file that failed to parse. No telemetry is collected automatically.
 
-## CI smoke lane (transitional bridge)
+## CI smoke lane
 
-Until v3.0 ships or a second maintainer joins (whichever comes first), the CI smoke lane (`ci/fixtures/` + `ci/golden/`) validates a broad fixture set — the skill-flow, drift-state, state-lock concurrency, `audit_run_id`, and SessionStart hook-parity lanes — compared against frozen golden snapshots on pull requests that touch the plugin, template, or CI paths and on every version tag. The separate skill-output quality evaluation (the gitignored `test/` framework) is what remains maintainer-local.
-
-After the exit condition is met, the smoke lane will be promoted to cover all release-gate checks, and this transitional note will be removed from the README.
+The CI smoke lane (`ci/fixtures/` + `ci/golden/`) validates a broad fixture set — the skill-flow, drift-state, state-lock concurrency, `audit_run_id`, and SessionStart hook-parity lanes — against frozen golden snapshots on pull requests that touch the plugin, template, or CI paths and on every version tag. The separate skill-output quality evaluation (the gitignored `test/` framework) remains maintainer-local.
 
 ## What's Inside
 
