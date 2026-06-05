@@ -1,7 +1,7 @@
 ---
 title: "Multi-Agent Patterns"
 description: "Orchestrator-Worker, effort scaling, sub-agent context budget, breadth-first search, parallel dispatch — for Claude Code subagent workflows"
-version: 1.1.0
+version: 1.2.0
 ---
 
 # Multi-Agent Patterns
@@ -87,6 +87,16 @@ Going deep first wastes calls if you picked the wrong branch.
 For local parallel dispatch via `claude -p` loops, see [Workflow Patterns — Fan-out for batch tasks](workflow-patterns-guide.md#fan-out-for-batch-tasks) — includes cost and safety warnings; do not run a fan-out without reading them. For `git worktree` session isolation as a separate parallelism mechanism, see [Workflow Patterns — Worktrees and parallel sessions](workflow-patterns-guide.md#worktrees-and-parallel-sessions).
 
 For Claude Code's *built-in* subagent dispatch via the `Agent` tool, the orchestrator-worker pattern above maps directly — the parent session is the lead, each `Agent` invocation is a worker.
+
+## Plan dependency waves before dispatch
+
+Before firing parallel workers, sketch the task graph — even informally:
+
+1. **Parallel waves** — group tasks with no dependencies into wave 1; dependents into wave 2+.
+2. **Dependency matrix** — each later-wave task names the wave-1 task it depends on.
+3. **Per-task acceptance + verification owner** — each worker gets one acceptance criterion and a named verifier (the worker itself, or the orchestrator).
+
+Anti-pattern: firing every worker at once when task B consumes task A's output — B then races on stale or missing state. The [Effort scaling rules](#effort-scaling-rules) above tell you *how many* workers; this tells you *in what order*.
 
 ## Multi-surface identity invariance
 

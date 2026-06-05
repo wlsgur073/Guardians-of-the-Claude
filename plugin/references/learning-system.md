@@ -1,7 +1,7 @@
 ---
 title: Learning System (Orchestrator)
 description: Shared state management entrypoint for /create, /audit, /secure, /optimize. Subfile pointers preserve historical section anchors used by SKILL.md and CI scripts.
-version: 3.0.2
+version: 3.0.3
 ---
 
 # Learning System
@@ -29,6 +29,19 @@ Compaction periodically condenses the event log (entries >30 days roll up per-qu
 This system is *more rigorous than typical AI memory tools on the **deterministic state machine axis*** (schema versioning, provenance, recovery, concurrency safety), and *less rigorous on the **agentic memory axis*** (semantic retrieval, dynamic linking, adaptive activation). This trade-off is intentional for plugin state management.
 
 For the operational specs of each component, see the subfile pointers below.
+
+---
+
+## Manual-Only Operations (Never-Automate Policy)
+
+The learning system *surfaces* recommendations and drift advisories; it never mutates user-facing configuration without explicit user action. The following are manual-only by design:
+
+- **Recommendation application** — `/audit`, `/secure`, `/optimize` present recommendations; the user chooses which to apply. Skills never auto-apply. (See [learning-rules.md](learning-rules.md) Rules 1 & 3.)
+- **Declined recommendations** — never re-suggested unless project scale/structure changes significantly. (Rule 2.)
+- **Profile & score** — a snapshot of the user's current configuration, not training data. Never fed back as a learning signal, never logged as a deliverable in `config-changelog.md`.
+- **Drift advisories** — surfaced for user review; never auto-resolved.
+
+Why: human-in-the-loop oversight only holds while approvals carry signal. Auto-applying configuration changes would erode that and conflict with Preference Respect — see [security-patterns.md § Why fewer, higher-signal prompts beat more prompts](security-patterns.md#why-fewer-higher-signal-prompts-beat-more-prompts).
 
 ---
 

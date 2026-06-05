@@ -1,7 +1,7 @@
 ---
 title: "Writing Effective CLAUDE.md Files"
 description: "How to write, organize, and maintain CLAUDE.md files for Claude Code"
-version: 1.4.5
+version: 1.4.6
 ---
 
 # Writing Effective CLAUDE.md Files
@@ -85,6 +85,15 @@ This is the most important decision when writing your CLAUDE.md:
 | Common gotchas or non-obvious behaviors | Self-evident practices like "write clean code" |
 
 The rule of thumb: if Claude would make a mistake without this information, include it. If Claude would figure it out on its own, leave it out.
+
+## Declare Manual-Only Operations
+
+If your project has operations that must never be automated — production deploys, data migrations, search-index or embedding rebuilds, credential rotation — state them in CLAUDE.md so Claude does not "helpfully" run them:
+
+```markdown
+## Manual-Only Operations
+Never run `db:migrate`, `deploy`, or `reindex` automatically — always stop and ask. These have irreversible or production-visible effects.
+```
 
 ## The @import Syntax
 

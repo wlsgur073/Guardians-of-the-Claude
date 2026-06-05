@@ -1,7 +1,7 @@
 ---
 title: "Getting Started"
 description: "Step-by-step guide to set up Claude Code configuration for your project"
-version: 1.2.11
+version: 1.2.12
 ---
 
 # Getting Started
@@ -135,5 +135,6 @@ Once your basic configuration is working, explore hooks, agents, and skills for 
 - [Directory Structure Guide](directory-structure-guide.md) -- Understanding the .claude/ ecosystem
 - [Effective Usage Guide](effective-usage-guide.md) -- Day-one usage patterns and anti-patterns to avoid
 - [Advanced Features Guide](advanced-features-guide.md) -- Hooks, agents, and skills for teams
+- [Security Scanning Guide](security-scanning-guide.md) -- Pre-commit / PreToolUse secret & injection scanning
 - [MCP Integration Guide](mcp-guide.md) -- Connecting Claude to external tools and services
 - [Recommended Plugins Guide](recommended-plugins-guide.md) -- Curated plugins to extend Claude Code

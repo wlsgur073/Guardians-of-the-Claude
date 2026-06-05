@@ -1,7 +1,7 @@
 ---
 title: "Trustworthy Agents"
 description: "Five-principle, four-layer framework for evaluating Claude Code agent configuration"
-version: 1.2.3
+version: 1.2.4
 ---
 
 # Trustworthy Agents
@@ -96,6 +96,7 @@ What the agent can invoke and with what restrictions:
 - Skills (`.claude/skills/<name>/SKILL.md`) — see [Advanced Features § Skills](advanced-features-guide.md#skills)
 - MCP servers — see [MCP Guide](mcp-guide.md)
 - Per-tool granularity ("read calendar always; send invitations require approval")
+- For governing an integrated external capability end-to-end (scope, trust, freshness, safe-disable), see [external-integration-governance.md](../../plugin/references/external-integration-governance.md)
 
 Tools alone are insufficient: even narrow allows can be misused if the harness rules don't guide their use.
 

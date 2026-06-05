@@ -1,7 +1,7 @@
 ---
 title: "MCP Integration"
 description: "Connecting Claude Code to external tools and services via Model Context Protocol"
-version: 1.0.4
+version: 1.0.5
 ---
 
 # MCP Integration
@@ -130,3 +130,4 @@ With this configured, Claude can query the database directly — checking schema
 ## Further Reading
 
 - [Settings Guide](settings-guide.md) (permissions) and [Advanced Features Guide](advanced-features-guide.md) (hooks, agents, skills)
+- [External-Integration Capability Governance](../../plugin/references/external-integration-governance.md) -- governing what an integrated capability may read/write/return, and how to disable it

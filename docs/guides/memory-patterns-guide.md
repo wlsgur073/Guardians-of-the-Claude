@@ -1,7 +1,7 @@
 ---
 title: "Memory Patterns"
 description: "How Claude's persistent memory works — the four memory types, frontmatter schema, MEMORY.md index, what-NOT-to-save rules, and the boundary between memory, plan, and task."
-version: 1.0.0
+version: 1.0.1
 ---
 
 # Memory Patterns
@@ -87,3 +87,4 @@ Plugin compaction is a separate concern: it's the plugin's own internal-state su
 - [Getting Started](getting-started.md) — basic setup walkthrough
 - [CLAUDE.md Guide](claude-md-guide.md) — writing project instructions that complement memory
 - [Verification Discipline](../../plugin/references/verification-discipline.md) — verify-before-recommending applied operationally
+- [External-Integration Capability Governance](../../plugin/references/external-integration-governance.md) — governing an *external* retriever/memory connected alongside in-context memory

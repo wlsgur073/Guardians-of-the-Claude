@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `plugin/references/learning-system.md` (3.0.2 → 3.0.3) — an explicit **Manual-Only Operations** policy: the learning system surfaces recommendations and drift advisories but never mutates user configuration without explicit user action (recommendations are presented, not auto-applied; declines respected; profile/score is a snapshot, not training data; drift is advisory). Plus a **Declare Manual-Only Operations** note in `docs/guides/claude-md-guide.md` (1.4.5 → 1.4.6) for users' own CLAUDE.md files.
+- `plugin/references/security-patterns.md` — a **Hook Profiles (env-var gating)** section: a portable DIY convention (`PROJECT_HOOK_PROFILE=off|standard|strict`) for dialing hook strictness without editing schema-validated `settings.json`, framed explicitly as a convention (Claude Code has no native hook-profile feature).
+- New **Security Scanning** guide (`docs/guides/security-scanning-guide.md`, 1.0.0) teaching pre-commit / CI / PreToolUse scanning for committed secrets, encoded payloads, and prompt-injection strings (pointing to mature tools), plus a thin, replaceable scanner-wrapper hook template (`templates/advanced/hooks/secret-scan-hook.sh`) that delegates to the chosen tool and blocks with `exit 2`.
+- New **External-Integration Capability Governance** reference (`plugin/references/external-integration-governance.md`, 1.0.0) — a per-integration contract checklist (scope, side-effects, trust, provenance, freshness, conflict, privacy/egress, safe-disable, smoke-vetting) for external retrievers, memory stores, scanners, and MCP tools.
+- Cross-links to the two new files from Getting Started, Advanced Features, MCP, Trustworthy Agents, Memory Patterns, and the Security Patterns Defense Surfaces Catalog (patch-bumped: getting-started 1.2.12, advanced-features 1.3.5, mcp-guide 1.0.5, trustworthy-agents 1.2.4, memory-patterns 1.0.1).
+
+### Changed
+
+- `docs/guides/multi-agent-patterns-guide.md` (1.1.0 → 1.2.0) — added a **Plan dependency waves before dispatch** subsection (parallel waves, dependency matrix, per-task acceptance + verification owner).
+
 ### Fixed
 
 - `templates/advanced/CLAUDE.md` — the `## Project Structure` listing for `.claude/rules/` enumerated four rule topics (code style, architecture, testing, workflow) but the directory ships five files; added `api endpoints` so the list matches `rules/api-endpoints.md`. Bumped `templates/advanced/CLAUDE.md` version 1.5.0 → 1.5.1.
