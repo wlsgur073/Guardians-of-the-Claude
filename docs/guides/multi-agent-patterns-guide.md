@@ -1,7 +1,7 @@
 ---
 title: "Multi-Agent Patterns"
 description: "Orchestrator-Worker, effort scaling, sub-agent context budget, breadth-first search, parallel dispatch — for Claude Code subagent workflows"
-version: 1.2.0
+version: 1.2.1
 ---
 
 # Multi-Agent Patterns
@@ -31,6 +31,8 @@ For *every* worker, the lead specifies four things:
 2. **Output format** — what shape the return should take (e.g., "1–2k token summary of findings")
 3. **Tool guidance** — which tools to prefer or avoid
 4. **Boundaries** — what NOT to touch or explore
+
+When a worker maps to a defined `.claude/agents/<name>.md`, back its **Boundaries** with a hard `tools:` allow-list (the *Read-only agents* pattern in [Advanced Features — Agents](advanced-features-guide.md#agents): remove Edit/Write) — an enforced capability grant, not just a soft "avoid Bash" instruction the worker can ignore.
 
 Anthropic reports: "Without detailed task descriptions, agents duplicate work, leave gaps, or fail to find necessary information."
 

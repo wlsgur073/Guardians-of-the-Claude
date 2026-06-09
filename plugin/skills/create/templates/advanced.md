@@ -494,3 +494,5 @@ Common suggestions based on detected project:
 - Web fetching needed → suggest `mcp-server-fetch` (Python, via `uvx`)
 
 If the `.mcp.json` contains API keys or connection strings with credentials, add `.mcp.json` to `.gitignore` and note the required env vars in CLAUDE.md.
+
+For any MCP server (or other external capability) you add, also write a short **integration contract** into the generated CLAUDE.md so its *authority* is documented, not just its connection — covering **scope** (read vs write), **trust level**, **provenance**, **privacy boundary**, and a named **safe-disable path**. Route side-effecting calls through `permissions.ask[]`, not `allow[]`. This is an abridged form of the full per-integration contract in [`external-integration-governance.md` § The contract](../../../references/external-integration-governance.md#the-contract).

@@ -7,6 +7,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- `plugin/references/external-integration-governance.md` (1.0.0 → 1.1.0) — the per-integration contract now **scales scrutiny to delegated authority** (a read-only retriever needs light vetting; a write/side-effecting server needs the full contract plus version pinning and a contained dry-run; an installed skill/plugin is the highest-authority case) and adds a **graduated-admission ladder** — Admit / Mediate / Quarantine / Reject — for when the contract cannot be fully met. Installed skill/plugin added to the governed-capability list.
+- `plugin/references/security-patterns.md` — a **Defense Surfaces Catalog** row for a third-party skill/plugin at install. An installed skill/plugin arrives as one artifact carrying both a natural-language instruction body and bundled scripts, so its SKILL.md body is treated as evidence-not-instruction, its `scripts/` are reviewed like dependency installs (hidden installs, env/credential reads, outbound network, post-install execution), and its declared tool permissions are checked against least-privilege — cross-linked to the external-integration contract for the admission decision.
+- `plugin/skills/create/templates/advanced.md` — the `/create` MCP step now also writes a short integration contract (scope, trust level, provenance, privacy boundary, safe-disable path) into the generated CLAUDE.md, and `templates/advanced/CLAUDE.md` (1.5.1 → 1.5.2) gains a filled `## External Integrations` example documenting its MCP server against those fields.
+
+### Changed
+
+- `docs/guides/effective-usage-guide.md` (1.8.3 → 1.8.4) — the Context Window section now states the priority ordering: instruction wording is bounded by context quality, so context hygiene takes precedence over polishing CLAUDE.md/SKILL.md wording once the context itself is incomplete or skewed.
+- `docs/guides/multi-agent-patterns-guide.md` (1.2.0 → 1.2.1) — the Orchestrator-Worker pattern now distinguishes a worker's soft "tool guidance" prompt from an enforced `tools:` allow-list on a defined `.claude/agents/<name>.md`, pointing to the Read-only agents pattern as the hard-enforcement mechanism.
+
 ## [3.1.3] - 2026-06-05
 
 ### Added

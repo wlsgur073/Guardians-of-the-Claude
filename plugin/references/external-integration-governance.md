@@ -1,12 +1,12 @@
 ---
 title: External-Integration Capability Governance
-description: A per-integration contract checklist for any external capability Claude Code calls (retriever, memory store, scanner, MCP tool, subprocess) — declare scope, trust, provenance, freshness, privacy, disable, and smoke-vetting before enabling it.
-version: 1.0.0
+description: A per-integration contract checklist for any external capability Claude Code calls (retriever, memory store, scanner, MCP tool, installed skill/plugin, subprocess) — declare scope, trust, provenance, freshness, privacy, disable, and smoke-vetting before enabling it, scaling scrutiny to the authority delegated.
+version: 1.1.0
 ---
 
 # External-Integration Capability Governance
 
-For projects that connect Claude Code to an external capability — a retriever, memory store, scanner, MCP server, or subprocess. Claude Code ships no such engine; you *integrate* one (see [mcp-guide.md](../../docs/guides/mcp-guide.md)). This file governs that integration through configuration. It does **not** teach you to build a retriever or memory store.
+For projects that connect Claude Code to an external capability — a retriever, memory store, scanner, MCP server, installed skill/plugin, or subprocess. Claude Code ships no such engine; you *integrate* one (see [mcp-guide.md](../../docs/guides/mcp-guide.md)). This file governs that integration through configuration. It does **not** teach you to build a retriever or memory store.
 
 Most of the underlying rules already live elsewhere; this is the one place that forces them into a single declaration per integration.
 
@@ -15,6 +15,10 @@ Most of the underlying rules already live elsewhere; this is the one place that 
 Before enabling any external integration, write down its contract (in CLAUDE.md, a rule file, or beside the `.mcp.json` entry):
 
 > **scope · side-effects · trust level · provenance · freshness · conflict behavior · privacy boundary · disable path · smoke-vetting**
+
+### Scrutiny scales with authority
+
+The depth required for provenance, freshness/revocation, and smoke-vetting rises with what the integration may *do*. A read-only docs retriever needs light vetting; a write or side-effecting server (database writes, file writes, outbound network) needs the full contract plus version pinning ([mcp-guide.md § Security Considerations](../../docs/guides/mcp-guide.md#security-considerations)) and a contained dry-run. The highest-authority case is an **installed skill/plugin** — it ships executable scripts *and* a natural-language instruction body that becomes agent context — so it gets the most scrutiny; its per-invocation surface is catalogued in [security-patterns.md Defense Surfaces Catalog](security-patterns.md#defense-surfaces-catalog).
 
 ## 1. Capability scope & side-effect gates
 
@@ -43,6 +47,15 @@ Before enabling any external integration, write down its contract (in CLAUDE.md,
 ## 5. Pre-enable smoke-vetting
 
 A quick smoke check before trusting an integration — not an exhaustive evaluation: a few **seed queries** with **expected results/citations**, known **failure cases**, a **privacy review** (what got indexed/sent), and an **injection check** (hostile content in returned data).
+
+## When the contract can't be fully met — graduated admission
+
+When you cannot fully satisfy the contract, don't default to enable-anyway. Step down the ladder to the first rung you *can* honor:
+
+1. **Admit** — read-only, identity pinned, revocable → enable directly.
+2. **Mediate** — side-effecting → wrap behind a permission/egress layer: route calls to `permissions.ask:[]`, scope `autoMode.environment`, prefer per-function tool schemas.
+3. **Quarantine** — trust unproven → enable only under sandbox + throwaway data + minimal scope until trust is established (see [security-patterns.md § Sandboxing by blast radius](security-patterns.md#sandboxing-by-blast-radius)).
+4. **Reject / defer** — identity cannot be pinned (e.g. `npx -y` with no version) or revocation has no [safe-disable path](security-patterns.md#hook-profiles-env-var-gating) → do not enable.
 
 ## Out of scope
 

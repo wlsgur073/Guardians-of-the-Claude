@@ -1,7 +1,7 @@
 ---
 title: "Effective Usage Patterns"
 description: "Essential day-one patterns for using Claude Code effectively"
-version: 1.8.3
+version: 1.8.4
 ---
 
 # Effective Usage Patterns
@@ -10,7 +10,7 @@ This guide covers the essential patterns every Claude Code user should know from
 
 ## The #1 Constraint: Context Window
 
-Claude's context window holds your conversation, file contents, command outputs, CLAUDE.md, and system instructions. It fills up fast, and performance degrades as it fills -- Claude may "forget" earlier instructions or make more mistakes.
+Claude's context window holds your conversation, file contents, command outputs, CLAUDE.md, and system instructions. It fills up fast, and performance degrades as it fills — Claude may "forget" earlier instructions or make more mistakes — and no amount of CLAUDE.md or SKILL.md polish recovers correct behavior once the context itself is incomplete or skewed, so context hygiene takes precedence over instruction wording.
 
 This is why configuration matters:
 

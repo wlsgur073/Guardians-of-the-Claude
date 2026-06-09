@@ -1,7 +1,7 @@
 ---
 title: "TaskFlow CLAUDE.md (Advanced)"
 description: "Example root CLAUDE.md for a Node.js/Express REST API project"
-version: 1.5.1
+version: 1.5.2
 ---
 
 <!--
@@ -141,6 +141,17 @@ See [`plugin/references/verification-discipline.md`](../../plugin/references/ver
 - All API responses follow the envelope format in src/api/response.ts
 - Rate limiting is configured per-route in src/api/middleware/rateLimit.ts
 - Environment variables are validated at startup via src/config.ts
+
+## External Integrations
+
+This project connects one external capability via MCP. Per the integration contract ([`external-integration-governance.md`](../../plugin/references/external-integration-governance.md#the-contract)):
+
+### postgres (MCP server)
+
+- **Scope:** read + write — executes SQL; route side-effecting use through review
+- **Trust level / provenance:** official `@modelcontextprotocol/server-postgres`; pin the version
+- **Privacy boundary:** queries can carry table data — never put secrets or PII in a prompt to it
+- **Safe-disable path:** remove the server from `.mcp.json`, or unset `POSTGRES_CONNECTION_STRING`
 
 ## References
 
