@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - `docs/guides/effective-usage-guide.md` (1.8.3 → 1.8.4) — the Context Window section now states the priority ordering: instruction wording is bounded by context quality, so context hygiene takes precedence over polishing CLAUDE.md/SKILL.md wording once the context itself is incomplete or skewed.
 - `docs/guides/multi-agent-patterns-guide.md` (1.2.0 → 1.2.1) — the Orchestrator-Worker pattern now distinguishes a worker's soft "tool guidance" prompt from an enforced `tools:` allow-list on a defined `.claude/agents/<name>.md`, pointing to the Read-only agents pattern as the hard-enforcement mechanism.
+- `plugin/references/lib/state_io.md` (1.1.1 → 1.2.0) — made the owner-only (`0o600`) permission of state files an explicit contract. `atomic_write` now sets the mode on the temp file descriptor *before* `os.replace` publishes it (POSIX-guarded `os.fchmod`), the state-mutation lock directory is created `0o700`, and a new **State-file permissions (POSIX 0600)** section documents why the temp-file-then-rename idiom already yields `0o600` (the mkstemp creation mode is preserved across the inode-swapping rename), why no migration is needed, the Windows no-op, and the limits of file-mode hardening (same-UID / root / backups / ACLs). No change to which files are written.
 
 ## [3.1.3] - 2026-06-05
 

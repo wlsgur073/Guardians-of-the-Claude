@@ -1,7 +1,7 @@
 ---
 title: State I/O Primitives
 description: Skill-facing spec for atomic write, state-mutation lock, and deterministic I/O. Skills reference this file instead of restating rules inline.
-version: 1.1.1
+version: 1.2.0
 ---
 
 # State I/O Primitives
@@ -27,6 +27,16 @@ def atomic_write(path: Path, content: str) -> None:
     dir_ = path.parent
     with tempfile.NamedTemporaryFile("w", dir=dir_, encoding="utf-8",
                                      newline="\n", delete=False) as tmp:
+        # Owner-only mode, set on the temp fd BEFORE os.replace publishes the file.
+        # NamedTemporaryFile (mkstemp) already creates at 0o600, so this line is
+        # redundant under the current mechanism — it is kept explicit so the guarantee
+        # survives a future change to the temp mechanism and never opens a window where
+        # the real path is briefly visible with a laxer mode. Setting it before the
+        # rename (not after) is what closes that window. The os.name guard skips Windows,
+        # where these bits are not enforced (os.chmod/os.fchmod there only toggles the
+        # read-only attribute, not an owner-only ACL). See "State-file permissions".
+        if os.name == "posix":
+            os.fchmod(tmp.fileno(), 0o600)
         tmp.write(content)
         tmp_path = tmp.name
     os.replace(tmp_path, path)
@@ -46,13 +56,32 @@ This is a general principle. The concrete order for the current canonical state 
 
 ---
 
+## State-file permissions (POSIX 0600)
+
+State files hold project-derived data (scores, recommendations, model/config snapshots) that should not be readable by other *local* users on a shared host (multi-user dev box, CI runner, jumphost). The atomic-write idiom already provides this property; the explicit `fchmod` in `atomic_write` keeps it a stated contract rather than an incidental side effect.
+
+**Why state files are already owner-only:**
+
+1. `tempfile.NamedTemporaryFile` (via `mkstemp`) creates the temp file readable/writable by the creating user only — `os.open(..., 0o600)`, then filtered by the process umask (`0o600 & ~umask`). A normal umask never *adds* group/other bits, so the temp is never group/world-readable; only a pathological umask that masks *owner* bits could make it stricter than `0o600` (never laxer).
+2. `os.replace` is `rename(2)`: the destination name ends up backed by the temp file's inode, so the published file carries the temp's mode. This holds whether the target is new or overwrites a pre-existing file — a prior `0644` file's inode is discarded by the rename and does **not** carry over.
+
+**No migration needed.** Because every state write goes through this idiom, files are owner-only from creation. Any file left at a laxer mode by an out-of-spec write is normalized on its next atomic write (the inode is replaced); there is no separate migration pass.
+
+**Directories.** Create the per-user cache directory and the lock directory with `0o700` on POSIX (`os.mkdir(path, 0o700)` — itself umask-filtered) so directory listings don't expose state filenames to other local users. Lower-sensitivity than file contents (the filenames are documented), but `0o700` is the cleaner posture for a per-user cache.
+
+**Windows.** POSIX permission bits are not enforced: on Windows `os.chmod`/`os.fchmod` at most toggles the read-only attribute, not an owner-only ACL (`os.fchmod` itself exists on Windows since Python 3.13; before that it was Unix-only). The `os.name == "posix"` guard skips these steps there since they cannot deliver owner-only privacy. Owner-only privacy on Windows would require an ACL API and is out of scope.
+
+**What `0o600` does NOT protect against:** other processes running as the same user, `root`/Administrator, backups and snapshots, permissive filesystem ACLs or security policy, and content already copied elsewhere. File-mode hardening is access control for *other local users*, not confidentiality against a privileged or same-UID adversary. (Durability is a separate axis — see the `fsync` note above; this idiom is not crash-durable.)
+
+---
+
 ## State-mutation lock
 
 A single lock object (`local/.state.lock/`, a directory) serializes all state mutations. **Both** Step 0.5 (migration) and the Final Phase (merge + write) share this one lock. Never use separate lock objects per phase — that introduces ordering and deadlock risk. The lock is a *short* lock: it is held only across a bounded burst of `os.replace` calls with **no LLM work under the lock**, so the held window is sub-second.
 
 **Lock object**: a directory `local/.state.lock/`. Owner metadata lives in `local/.state.lock/owner.json = {"token": <random nonce>, "started_at": "<ISO-8601 UTC>"}` where `token` is a fresh random acquisition nonce generated per acquire — **not** the pid (pid is unsound across hosts on a network mount: pids collide between machines, so a pid-based liveness or ownership test is meaningless on NFS).
 
-**Acquire gate**: `os.mkdir("local/.state.lock")` — atomic create-or-fail on POSIX, Windows, Git Bash, and NFS. `FileExistsError` ⇒ contention (an existing lock dir). There is no "test then create" step; the directory create *is* the test.
+**Acquire gate**: `os.mkdir("local/.state.lock", 0o700)` — atomic create-or-fail on POSIX, Windows, Git Bash, and NFS (the `0o700` mode is umask-filtered and POSIX-only; see "State-file permissions"). `FileExistsError` ⇒ contention (an existing lock dir). There is no "test then create" step; the directory create *is* the test.
 
 **owner.json write**: write `owner.json` via a unique tempfile that is a **sibling under `local/`** (same filesystem) then `os.replace` it into `local/.state.lock/owner.json`. Never place the tempfile inside the lock dir — a stranded temp file there would break the `os.rmdir` on release.
 
@@ -113,7 +142,7 @@ def acquire() -> str:
     token = secrets.token_hex(16)
     while True:
         try:
-            os.mkdir(LOCK_DIR)            # atomic create-or-fail = the test
+            os.mkdir(LOCK_DIR, 0o700)    # atomic create-or-fail = the test; owner-only dir (umask-filtered, POSIX)
             _write_owner(token)
             return token
         except FileExistsError:
