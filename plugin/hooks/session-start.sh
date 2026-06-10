@@ -73,7 +73,14 @@ check_drift_family() {
   local other_count=0
 
   # Reason 1 (highest priority): legacy_mtime — any monitored manifest newer than profile.
-  # Manifest list (23 paths) preserved from the pre-rewrite hook.
+  # Manifest list (23 paths). Every path here — the build/dependency manifests plus
+  # .claude/settings.json and .mcp.json — is part of what /audit scores (project state
+  # plus T2 protection/permission policy), so its staleness invalidates the profile
+  # snapshot. Routing to /audit is by-design: the trigger means "profile is stale,
+  # re-audit to refresh", independent of which skill edits the file. /secure and
+  # /optimize re-write profile.json at the end of their run, so their own edits don't
+  # leave a path newer than the profile — this signal fires for edits outside the
+  # skill flow (hand-edit, external tooling, /create).
   for f in package.json package-lock.json pnpm-lock.yaml yarn.lock \
            pnpm-workspace.yaml lerna.json nx.json turbo.json rush.json \
            tsconfig.json \
