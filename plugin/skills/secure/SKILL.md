@@ -19,6 +19,7 @@ Read `../../references/learning-system.md` and follow the **Common Phase 0** ste
 
 After completing Common Phase 0:
 - Separately scan `recommendations.json` for entries with `issued_by == "secure"` and `status == "DECLINED"` — these are previously declined `/secure` suggestions and must not be re-suggested unless project scale/structure changed significantly (per Learning Rule 2 Preference Respect).
+- **Resolve effective config:** If `~/.claude/guardians/config.json` OR `<project>/.claude/guardians/config.json` exists, run `bash plugin/references/lib/config-resolve.sh "<project-dir>"` and read `.config.secure` plus `.overrides` / `.warnings` from its JSON. If neither file exists, skip the helper and use no extra patterns (zero added cost). If the helper exits non-zero (invalid config JSON), report `config at <path> is invalid — overrides NOT applied` and proceed with no extra patterns. Honor ONLY `config.secure.*`.
 
 ## Phase 1: Scan Protection State
 
@@ -117,6 +118,8 @@ Add or update `.claude/settings.json` deny patterns using the Essential patterns
 
 Merge with existing deny patterns — do not overwrite.
 
+Also merge `config.secure.additional_deny_patterns` (from Phase 0) into the deny set, treated as user-authored data. These are additive only — config can never remove an existing deny entry (security is tighten-only). The pattern format is guaranteed by the config schema at authoring time; if the helper reported any `.warnings` (unknown config keys), surface them in the report rather than dropping them silently.
+
 ### Security Rule File
 
 1. Scan the project for auth middleware, validation libraries, and secrets management patterns
@@ -189,7 +192,7 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
 
 - **Step 1 override (Skill-specific data in changelog entry):**
   The `config-changelog.md` entry for this skill must include:
-  - `Applied:` — list of items fixed (deny patterns added, security rule file created, file protection hooks added).
+  - `Applied:` — list of items fixed (deny patterns added, security rule file created, file protection hooks added). If `config.secure.additional_deny_patterns` contributed any patterns, also state "Added N deny patterns from <tier> config"; if the helper emitted `.warnings`, list them so config typos are visible.
   - `Recommendations:` — items the user skipped this run marked as `DECLINED by user`; any previously PENDING recommendation from `/audit` that was addressed this run marked as `RESOLVED`.
 
   For DECLINED items, increment `decline_count` per `plugin/references/lib/merge_rules.md §recommendations.json merge rules`: PENDING -> DECLINED sets `decline_count = 1`; DECLINED -> DECLINED re-record increments `decline_count++`. Monotonic — never decremented. Writes always emit schema 1.1.0; reading a 1.0.0 file performs lazy migration (inflate missing `decline_count` to 0). The repeated-decline trigger in `plugin/hooks/session-start.sh` reads this field after status==DECLINED filter and renders `"declined N times total"` for the rec with the highest `decline_count`.
