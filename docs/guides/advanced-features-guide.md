@@ -1,7 +1,7 @@
 ---
 title: "Advanced Features"
 description: "Hooks, agents, and skills -- extending Claude Code beyond basic configuration"
-version: 1.3.5
+version: 1.4.0
 ---
 
 # Advanced Features
@@ -199,6 +199,26 @@ The `guardians-of-the-claude` plugin demonstrates a skill-per-role workflow with
 | `/guardians-of-the-claude:optimize` | Improves config quality -- rules splitting, agent diversity, MCP, hook quality |
 
 **Recommended workflow:** `/create` → `/audit` → `/secure` or `/optimize` → `/audit` (re-verify). Each skill hands off to the next, and they share state via timestamped files in `.claude/.plugin-cache/`.
+
+## Customizing Guardians (optional config)
+
+Power users can tune two skills without forking, via an optional `guardians/config.json` resolved from three tiers (later wins):
+
+1. plugin defaults (bundled)
+2. user-global — `~/.claude/guardians/config.json`
+3. per-project — `<project>/.claude/guardians/config.json`
+
+```json
+{
+  "secure":   { "additional_deny_patterns": ["Read(./vault/**)"] },
+  "optimize": { "skip": ["vessel-fit"] }
+}
+```
+
+- `secure.additional_deny_patterns` — extra deny rules, **added** to (never removed from) what `/secure` already applies. Security is tighten-only.
+- `optimize.skip` — optimization categories `/optimize` should not propose (registry keys, e.g. `split-rules`, `mcp-config`, `vessel-fit`).
+
+With no config file, behavior is exactly the default. Any config effect is reported in the skill's output — nothing changes silently. Deny lists union across tiers; scalars take the most specific (project) tier.
 
 ## Further Reading
 
