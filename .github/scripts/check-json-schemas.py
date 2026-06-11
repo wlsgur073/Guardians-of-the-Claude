@@ -74,12 +74,29 @@ LOCAL_SCHEMAS: list[tuple[str, str]] = [
         "plugin/references/recommendation-registry.schema.json",
         "plugin/references/recommendation-registry.json",
     ),
+    (
+        "plugin/references/schemas/guardians-config.schema.v1.0.0.json",
+        "plugin/references/schemas/examples/guardians-config.example.json",
+    ),
 ]
 
 # Negative fixtures: (schema_path, negative_example_path) — each MUST be rejected.
 # Profile and recommendations negative fixtures are handled by their respective
 # dispatcher-aware validators below.
-NEGATIVE_LOCAL_SCHEMAS: list[tuple[str, str]] = []
+NEGATIVE_LOCAL_SCHEMAS: list[tuple[str, str]] = [
+    (
+        "plugin/references/schemas/guardians-config.schema.v1.0.0.json",
+        "plugin/references/schemas/examples/negative/guardians-config.unknown-key.example.json",
+    ),
+    (
+        "plugin/references/schemas/guardians-config.schema.v1.0.0.json",
+        "plugin/references/schemas/examples/negative/guardians-config.deny-not-array.example.json",
+    ),
+    (
+        "plugin/references/schemas/guardians-config.schema.v1.0.0.json",
+        "plugin/references/schemas/examples/negative/guardians-config.invalid-skip-enum.example.json",
+    ),
+]
 
 # Profile positive examples — dispatcher selects wrapper by schema_version literal.
 PROFILE_POSITIVE_EXAMPLES: list[str] = [

@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "guardians-config.schema.v1.0.0.json",
+  "title": "Guardians of the Claude — user config (v1.0.0)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "version": { "type": "string", "enum": ["1.0.0"] },
+    "secure": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "additional_deny_patterns": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(Read|Write|Edit|MultiEdit|Bash|WebFetch|WebSearch|Glob|Grep)\\("
+          }
+        }
+      }
+    },
+    "optimize": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "skip": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["split-rules", "agent-diversity", "mcp-config", "hook-quality",
+                     "vessel-fit", "mcp-unused", "cache-stabilize", "effort-downgrade"]
+          }
+        }
+      }
+    }
+  }
+}
