@@ -1,0 +1,15 @@
+{
+  "config": {
+    "version": "1.0.0",
+    "secure": { "additional_deny_patterns": ["Read(./user-secrets/**)", "Read(./vault/**)"] },
+    "optimize": { "skip": ["mcp-unused", "vessel-fit"] },
+    "secrue": { "typo": true }
+  },
+  "overrides": [
+    { "key": "optimize.skip", "tiers": ["project", "user"] },
+    { "key": "secure.additional_deny_patterns", "tiers": ["project", "user"] }
+  ],
+  "warnings": [
+    { "key": "secrue.typo", "warning": "unknown key (not in defaults); ignored" }
+  ]
+}
