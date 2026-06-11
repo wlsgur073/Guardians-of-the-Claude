@@ -516,6 +516,43 @@ def validate_negative_fixtures(errors: list[str]) -> None:
             pass  # expected: fixture correctly rejected
 
 
+def check_optimize_skip_enum_matches_registry(errors: list[str]) -> None:
+    """The guardians-config optimize.skip enum must equal the optimize categories in
+    the recommendation registry (entries whose resolvers include "optimize").
+
+    Prevents silent drift between the config schema's skip enum and the registry that
+    defines which /optimize recommendation categories actually exist.
+    """
+    try:
+        schema = json.loads(
+            (ROOT / "plugin/references/schemas/guardians-config.schema.v1.0.0.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        registry = json.loads(
+            (ROOT / "plugin/references/recommendation-registry.json").read_text(encoding="utf-8")
+        )
+    except (OSError, json.JSONDecodeError) as exc:
+        errors.append(f"[enum-sync load error] {exc}")
+        return
+    try:
+        enum = set(schema["properties"]["optimize"]["properties"]["skip"]["items"]["enum"])
+    except (KeyError, TypeError) as exc:
+        errors.append(f"[enum-sync] guardians-config optimize.skip enum not found: {exc}")
+        return
+    optimize_keys = {
+        r["key"]
+        for r in registry.get("registry", [])
+        if "optimize" in r.get("resolvers", [])
+    }
+    missing = optimize_keys - enum
+    extra = enum - optimize_keys
+    if missing:
+        errors.append(f"optimize.skip enum missing registry keys: {sorted(missing)}")
+    if extra:
+        errors.append(f"optimize.skip enum has keys not in registry: {sorted(extra)}")
+
+
 def fetch_schema(url: str) -> dict | None:
     """Fetch schema with graceful degradation. Returns None on failure."""
     try:
@@ -577,6 +614,7 @@ def main() -> int:
     validate_negative_fixtures(errors)
     validate_profile_negative_examples(errors)
     validate_recommendations_negative_examples(errors)
+    check_optimize_skip_enum_matches_registry(errors)
 
     if errors:
         print("JSON schema errors:")

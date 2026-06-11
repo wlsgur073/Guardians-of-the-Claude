@@ -20,6 +20,7 @@ Read `../../references/learning-system.md` and follow the **Common Phase 0** ste
 After completing Common Phase 0:
 - Separately scan `recommendations.json` for entries with `issued_by == "optimize"` and `status == "DECLINED"` — these are previously declined `/optimize` suggestions and must not be re-suggested unless project scale/structure changed significantly (per Learning Rule 2 Preference Respect).
 - Separately scan `recommendations.json` for entries with `issued_by == "secure"` and `status == "DECLINED"` — if hook-related items are declined there, do not suggest hook quality fixes.
+- **Resolve effective config:** If `~/.claude/guardians/config.json` OR `<project>/.claude/guardians/config.json` exists, run `bash plugin/references/lib/config-resolve.sh "<project-dir>"` and read `.config.optimize.skip` plus `.overrides` / `.warnings`. If neither file exists, skip the helper (zero added cost). Honor ONLY `config.optimize.*`. If the helper exits non-zero (invalid config JSON), report `config at <path> is invalid — skips NOT applied` and proceed with no skips.
 
 ## Phase 1: Scan Optimization State
 
@@ -71,7 +72,7 @@ Present the optimization opportunities found:
 >
 > "Which items would you like to improve? (pick all that apply)"
 
-Only show items that actually need improvement. If audit history exists, pre-highlight items flagged there. If optimize history exists, exclude previously declined items.
+Only show items that actually need improvement. If audit history exists, pre-highlight items flagged there. If optimize history exists, exclude previously declined items. Also exclude any optimization category listed in `config.optimize.skip` (from Phase 0) from the proposals shown this run — this suppresses suggestions by the user's explicit choice; report it (Phase 4.2), do not hide it silently.
 
 If nothing needs improvement:
 > "Your configuration is well-organized. No optimizations needed. Run `/guardians-of-the-claude:audit` for a full evaluation."
@@ -153,6 +154,7 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
   The `config-changelog.md` entry for this skill must include:
   - `Applied:` — list of items improved (CLAUDE.md split, agent model diversification, MCP added, hook quality fixes).
   - `Recommendations:` — items the user skipped this run marked as `DECLINED by user`; any previously PENDING recommendation from `/audit` that was addressed this run marked as `RESOLVED`. The usage/fitness keys (vessel-fit, mcp-unused, cache-stabilize, effort-downgrade) resolve through this same RESOLVED/DECLINED + decline_count machinery.
+  - `Config skips:` — if `config.optimize.skip` suppressed any category this run, record "Skipped N categories per config (<names>)" so the suppression is transparent in the changelog and summary, not a silent omission.
 
   For DECLINED items, increment `decline_count` per `plugin/references/lib/merge_rules.md §recommendations.json merge rules`: PENDING -> DECLINED sets `decline_count = 1`; DECLINED -> DECLINED re-record increments `decline_count++`. Monotonic — never decremented. Writes always emit schema 1.1.0; reading a 1.0.0 file performs lazy migration (inflate missing `decline_count` to 0). The repeated-decline trigger in `plugin/hooks/session-start.sh` reads this field after status==DECLINED filter and renders `"declined N times total"` for the rec with the highest `decline_count`.
 
