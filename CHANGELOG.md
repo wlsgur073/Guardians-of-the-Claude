@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- `docs/guides/claude-md-guide.md` (1.4.6 → 1.4.7) — the Pruning section now names **symbol density** as a failure axis distinct from length: a short file can still mislead if it leans on opaque codes/IDs with no rationale, pushing the agent toward self-referential reasoning detached from the code's behavior. Length and rationale are independent defenses.
+
 ## [3.2.0] - 2026-06-11
 
 ### Added
