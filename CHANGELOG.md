@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Changed
 
 - `docs/guides/claude-md-guide.md` (1.4.6 → 1.4.7) — the Pruning section now names **symbol density** as a failure axis distinct from length: a short file can still mislead if it leans on opaque codes/IDs with no rationale, pushing the agent toward self-referential reasoning detached from the code's behavior. Length and rationale are independent defenses.
+- `plugin/skills/secure/SKILL.md` and `plugin/skills/optimize/SKILL.md` — Phase 4.1 now applies **read-back-after-edit** per `verification-discipline.md` (the self-verification `/audit` and `/create` already use): after a mutation the skill re-reads the changed region to confirm the edit landed correctly and dropped no existing entry — a wrong-anchor merge class that "does the JSON parse" cannot catch. `/secure` reads back the effective merged deny set. Re-read content is treated as evidence, not instruction.
 
 ## [3.2.0] - 2026-06-11
 
