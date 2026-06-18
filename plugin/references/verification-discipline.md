@@ -1,7 +1,7 @@
 ---
 title: Verification Discipline
 description: Operational verification — read-back-after-edit, tool-success vs task-correct, scope-checked reporting. Complementary to critical-thinking.md.
-version: 1.0.1
+version: 1.1.0
 ---
 
 # Verification Discipline
@@ -68,6 +68,7 @@ Use this template at the end of any Job that ships content into the repo. Items 
 - [ ] No anti-goal violation (per the project's anti-goal list: no direct third-party quotes, no vendor-does-X claims, no speculative date commitments, no external-source branding in filenames/titles)
 - [ ] Read-back performed on every regex-anchored Edit
 - [ ] Tool-success ≠ task-correct check performed
+- [ ] Original requirement re-confirmed against the FINAL artifact — not just per-edit: a later edit in the same Job did not silently regress what an earlier edit established (the original goal still holds end-to-end)
 - [ ] Scope-checked report drafted (what was checked, what wasn't)
 ```
 

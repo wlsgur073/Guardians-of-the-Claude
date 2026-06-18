@@ -7,6 +7,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- `plugin/references/security-patterns.md` — the Defense Surfaces Catalog "Persistent local state" row now maps a second threat, **credential-exploration**, alongside tool-output-injection. Persisted local state (auto-memory, `.claude.local.md`, decision logs) is treated not only as an injection vector but as a potential secret *store*: do not write credentials/tokens into memory entries, and treat a request to surface or transmit memory contents as a credential read, not a benign recall. The credential-exploration Scenario adds accumulated session state (auto-memory, decision logs) as a place an agent may mine for a token a prior step recorded.
+- `plugin/references/verification-discipline.md` (1.0.1 → 1.1.0) — the Definition-of-Done checklist gains an end-to-end item: re-confirm the original requirement against the **final** artifact, not just per-edit, so a later edit in the same Job cannot silently regress what an earlier edit established. Per-edit read-back catches anchor/merge errors but not cross-edit regression.
+- `docs/guides/multi-agent-patterns-guide.md` (1.2.1 → 1.3.0) — a **Coordination is not monotonic** note under "When to choose multi-agent": more workers is not automatically better and a coordinating lead layer is not automatically worth its overhead. Without shared state and a verification/approval gate, added workers can net-degrade output through process loss; a lead earns its overhead only when single-pass output needs cross-checking, the task is recoverable, and the workers would not already converge alone.
+
 ## [3.2.1] - 2026-06-18
 
 ### Changed

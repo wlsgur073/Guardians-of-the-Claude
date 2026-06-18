@@ -1,7 +1,7 @@
 ---
 title: "Multi-Agent Patterns"
 description: "Orchestrator-Worker, effort scaling, sub-agent context budget, breadth-first search, parallel dispatch — for Claude Code subagent workflows"
-version: 1.2.1
+version: 1.3.0
 ---
 
 # Multi-Agent Patterns
@@ -20,6 +20,8 @@ This guide covers the patterns Anthropic and others have found effective when di
 | Simple bug fix in a known file | Single agent — multi-agent overhead is wasted |
 
 Cost note: multi-agent runs typically use about 15× the tokens of a single chat session. Justify the spend before scaling: latency, parallelism, or quality must outweigh cost.
+
+**Coordination is not monotonic.** More workers is not automatically better, nor is a coordinating lead layer automatically worth its overhead. Without shared state and a verification/approval gate, added workers cause duplicated work and process loss that can *net-degrade* output — not merely cost more tokens; [Peer message protocol](#peer-message-protocol) and [Plan dependency waves before dispatch](#plan-dependency-waves-before-dispatch) are the structure that converts added workers into gains. A lead earns its overhead only when single-pass output needs cross-checking, the task is recoverable, and the workers would not already converge alone; otherwise prefer a single agent or uncoordinated parallel dispatch.
 
 ## Pattern: Orchestrator-Worker
 
