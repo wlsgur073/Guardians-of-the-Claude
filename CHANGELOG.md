@@ -7,13 +7,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [3.2.2] - 2026-08-10
+
+### Added
+
+- `plugin/references/model-drift-rules.md` (1.1.0 → 1.2.0) — the normalization table now recognizes the **Claude 5 family**: `claude-opus-5` / `anthropic.claude-opus-5` and `claude-sonnet-5` / `anthropic.claude-sonnet-5` rows (all `1M` / `extended_any` / `compaction_capable`, `observed`), with provider evidence cited in the table notes. No separate Vertex rows: current-generation models on Vertex use the bare first-party ID (no `@YYYYMMDD` suffix), so the Anthropic-direct patterns cover Vertex usage — documented in the Provider Coverage section. Claude Fable 5 is intentionally **not** registered yet: `fable` sits outside the closed `family_tier` enumeration, so its row requires a fingerprint-space extension; until then Fable IDs return `null` (advisory silence — the fail-safe behavior). The provider evidence for that future row is recorded in the table notes.
+- `plugin/references/model-drift-rules.md` — a new per-row **`lifecycle` column** (`current` / `legacy`), orthogonal to evidence status: it follows the vendor catalog's placement and never deactivates a row. Legacy rows (currently Sonnet 4.5) remain active recognition entries — the table is a dictionary for model IDs that exist in real user configs, not an endorsement list — and `/audit` advice for a legacy-model configuration should recommend evaluating a migration to a current model.
 
 ### Changed
 
+- `docs/guides/settings-guide.md` (1.2.4 → 1.3.0) — corrected two auto-mode statements that had inverted: auto mode is now **available on every provider** (Anthropic API, Claude Platform on AWS, Bedrock, Google Cloud's Agent Platform, Foundry, gateway — the env-var opt-in was removed), and the classifier reads `autoMode` from **user + managed settings and the `--settings` flag only** — `.claude/settings.local.json` is no longer read (either project file could be written by a checked-in repo or build step). Also added: the August 14, 2026 auto-default for new Pro/Max/Team sessions, per-provider supported models (including Fable 5), the any-branch push boundary with content checks, the **Manual** display label / `manual` alias for `default`, a corrected **fast mode** paragraph (a separate Opus 5 / Opus 4.8-only speed configuration at premium pricing — not an effort dial; `fastMode`, `fastModePerSessionOptIn`), a model-governance line (`availableModels`, `enforceAvailableModels`, `fallbackModel`), `disableAllHooks`, and one-line pointers for `workflowSizeGuideline` / `disableWorkflows`.
+- `plugin/references/security-patterns.md` — the permission-mode selection bullet for `auto` now carries the same corrected provider availability and per-provider supported-model facts as the settings guide (was: "Anthropic API only — not Bedrock / Vertex / Foundry").
+- `plugin/references/model-drift-rules.md` — `anthropic.claude-sonnet-4-6*` context window class updated `200k` → `1M`: Anthropic's Bedrock documentation now lists Sonnet 4.6 among the 1M-context models on Bedrock, mirroring the earlier Opus 4.6 Bedrock upgrade. The Sonnet 4.5 table note's migration recommendation now points at current-generation models.
 - `plugin/references/security-patterns.md` — the Defense Surfaces Catalog "Persistent local state" row now maps a second threat, **credential-exploration**, alongside tool-output-injection. Persisted local state (auto-memory, `.claude.local.md`, decision logs) is treated not only as an injection vector but as a potential secret *store*: do not write credentials/tokens into memory entries, and treat a request to surface or transmit memory contents as a credential read, not a benign recall. The credential-exploration Scenario adds accumulated session state (auto-memory, decision logs) as a place an agent may mine for a token a prior step recorded.
 - `plugin/references/verification-discipline.md` (1.0.1 → 1.1.0) — the Definition-of-Done checklist gains an end-to-end item: re-confirm the original requirement against the **final** artifact, not just per-edit, so a later edit in the same Job cannot silently regress what an earlier edit established. Per-edit read-back catches anchor/merge errors but not cross-edit regression.
 - `docs/guides/multi-agent-patterns-guide.md` (1.2.1 → 1.3.0) — a **Coordination is not monotonic** note under "When to choose multi-agent": more workers is not automatically better and a coordinating lead layer is not automatically worth its overhead. Without shared state and a verification/approval gate, added workers can net-degrade output through process loss; a lead earns its overhead only when single-pass output needs cross-checking, the task is recoverable, and the workers would not already converge alone.
+
+### Fixed
+
+- `plugin/skills/audit/references/output-format.md` — the drift-advisory example was internally inconsistent with the normalization table (baseline `claude-opus-4-6` shown with a `200k → 1M` transition, but Opus 4.6 normalizes to `1M` on every provider). Replaced with a table-consistent example: baseline `claude-sonnet-4-5` (`sonnet` / `200k`) drifting to a current 1M Opus model.
 
 ## [3.2.1] - 2026-06-18
 

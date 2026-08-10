@@ -11,8 +11,8 @@ Configuration Audit Results
 Quality Gate: READY    (CLAUDE.md OK, test command OK)
 Score: 60/100 (Grade: B)  |  Maturity: Level 3 — Optimized
 
-⚠ Model drift detected (audit baseline: claude-opus-4-6, first observed 2026-04-15):
-  family_tier:          opus  →  sonnet
+⚠ Model drift detected (audit baseline: claude-sonnet-4-5, first observed 2026-04-15):
+  family_tier:          sonnet  →  opus
   context_window_class: 200k  →  1M
 
 ★ Most impactful: [Highest-impact change and why it matters]

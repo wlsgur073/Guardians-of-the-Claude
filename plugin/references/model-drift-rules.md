@@ -1,7 +1,7 @@
 ---
 title: "Model Drift Rules"
 description: "4-axis capability fingerprint + normalization table for Claude model ID detection across Anthropic, Bedrock, and Vertex. Drives /audit drift advisory via normalize_model_id → fingerprint | null."
-version: "1.1.0"
+version: "1.2.0"
 fingerprint_space_version: "1.0.0"
 ---
 
@@ -121,44 +121,52 @@ Examples: `anthropic.claude-opus-4-6`, `anthropic.claude-sonnet-4-6`
 
 ### Vertex
 
-Model IDs use a date-version suffix: `claude-{family}-{major}-{minor}@{YYYYMMDD}`. The `@YYYYMMDD` suffix is stripped during normalization; the remainder follows the Anthropic pattern family. Note: context window class for Vertex model IDs may differ from the Anthropic-direct equivalent (see Normalization Table).
+Dated-snapshot model IDs use a date-version suffix: `claude-{family}-{major}-{minor}@{YYYYMMDD}`. The `@YYYYMMDD` suffix is stripped during normalization; the remainder follows the Anthropic pattern family. Note: context window class for Vertex model IDs may differ from the Anthropic-direct equivalent (see Normalization Table). **Current-generation models on Vertex use the bare first-party ID with no `@` suffix**, so they are matched by the Anthropic-direct patterns — pattern-indistinguishable by design (see Table notes).
 
-Examples: `claude-opus-4-6@20241022`, `claude-sonnet-4-6@20240901`
+Examples: `claude-opus-4-6@20241022`, `claude-sonnet-4-6@20240901` (dated snapshots); `claude-opus-5` (current-generation, bare)
 
 ## Normalization Table
 
-Raw pattern → normalized ID → 4-axis fingerprint. Evidence-status column: `observed` / `hypothesized` / `extrapolated` (see Evidence Status Labels). Only `observed` rows are active in v2.12.0.
+Raw pattern → normalized ID → 4-axis fingerprint. Evidence-status column: `observed` / `hypothesized` / `extrapolated` (see Evidence Status Labels). Only `observed` rows are active in v2.12.0. Lifecycle column: `current` / `legacy` (see Lifecycle Status Labels) — orthogonal to evidence status and never deactivates a row.
 
 Matching policy: longest-match when multiple rules overlap (per the matching-policy contract below). The `raw_pattern` column uses suffix-wildcard notation: `claude-opus-4-7*` matches `claude-opus-4-7` and any trailing date-less variant (e.g., `-latest`).
 
-| raw_pattern | normalized_id | family_tier | context_window_class | reasoning_class | context_management_class | evidence_status |
-|---|---|---|---|---|---|---|
-| `claude-opus-4-8@*` | `opus-4.8-vertex` | `opus` | `1M` | `extended_any` | `compaction_capable` | `observed` |
-| `claude-opus-4-8*` | `opus-4.8-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `observed` |
-| `anthropic.claude-opus-4-8*` | `opus-4.8-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `observed` |
-| `claude-opus-4-7@*` | `opus-4.7-vertex` | `opus` | `1M` | `extended_any` | `compaction_capable` | `observed` |
-| `claude-opus-4-7*` | `opus-4.7-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `observed` |
-| `anthropic.claude-opus-4-7*` | `opus-4.7-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `observed` |
-| `claude-opus-4-6@*` | `opus-4.6-vertex` | `opus` | `1M` | `extended_any` | `compaction_capable` | `observed` |
-| `claude-opus-4-6*` | `opus-4.6-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `observed` |
-| `anthropic.claude-opus-4-6*` | `opus-4.6-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `observed` |
-| `claude-sonnet-4-6@*` | `sonnet-4.6-vertex` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `observed` |
-| `claude-sonnet-4-6*` | `sonnet-4.6-anthropic` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `observed` |
-| `anthropic.claude-sonnet-4-6*` | `sonnet-4.6-bedrock` | `sonnet` | `200k` | `extended_any` | `compaction_capable` | `observed` |
-| `claude-sonnet-4-5@*` | `sonnet-4.5-vertex` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `observed` |
-| `claude-sonnet-4-5*` | `sonnet-4.5-anthropic` | `sonnet` | `200k` | `extended_any` | `compaction_capable` | `observed` |
-| `anthropic.claude-sonnet-4-5*` | `sonnet-4.5-bedrock` | `sonnet` | `200k` | `extended_any` | `compaction_capable` | `observed` |
-| `claude-haiku-4-5@*` | `haiku-4.5-vertex` | `haiku` | `200k` | `extended_any` | `compaction_capable` | `observed` |
-| `claude-haiku-4-5*` | `haiku-4.5-anthropic` | `haiku` | `200k` | `extended_any` | `compaction_capable` | `observed` |
-| `anthropic.claude-haiku-4-5*` | `haiku-4.5-bedrock` | `haiku` | `200k` | `extended_any` | `compaction_capable` | `observed` |
+| raw_pattern | normalized_id | family_tier | context_window_class | reasoning_class | context_management_class | lifecycle | evidence_status |
+|---|---|---|---|---|---|---|---|
+| `claude-opus-5*` | `opus-5-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `anthropic.claude-opus-5*` | `opus-5-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `claude-opus-4-8@*` | `opus-4.8-vertex` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `claude-opus-4-8*` | `opus-4.8-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `anthropic.claude-opus-4-8*` | `opus-4.8-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `claude-opus-4-7@*` | `opus-4.7-vertex` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `claude-opus-4-7*` | `opus-4.7-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `anthropic.claude-opus-4-7*` | `opus-4.7-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `claude-opus-4-6@*` | `opus-4.6-vertex` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `claude-opus-4-6*` | `opus-4.6-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `anthropic.claude-opus-4-6*` | `opus-4.6-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `claude-sonnet-5*` | `sonnet-5-anthropic` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `anthropic.claude-sonnet-5*` | `sonnet-5-bedrock` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `claude-sonnet-4-6@*` | `sonnet-4.6-vertex` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `claude-sonnet-4-6*` | `sonnet-4.6-anthropic` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `anthropic.claude-sonnet-4-6*` | `sonnet-4.6-bedrock` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `claude-sonnet-4-5@*` | `sonnet-4.5-vertex` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
+| `claude-sonnet-4-5*` | `sonnet-4.5-anthropic` | `sonnet` | `200k` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
+| `anthropic.claude-sonnet-4-5*` | `sonnet-4.5-bedrock` | `sonnet` | `200k` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
+| `claude-haiku-4-5@*` | `haiku-4.5-vertex` | `haiku` | `200k` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `claude-haiku-4-5*` | `haiku-4.5-anthropic` | `haiku` | `200k` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `anthropic.claude-haiku-4-5*` | `haiku-4.5-bedrock` | `haiku` | `200k` | `extended_any` | `compaction_capable` | `current` | `observed` |
 
 **Table notes**:
 
 - Bedrock rows (`anthropic.claude-*`) MUST be matched before Anthropic-direct rows (`claude-*`) to prevent the shorter Anthropic pattern from matching a Bedrock prefix. Longest-match ordering in the runner handles this automatically.
 - Vertex rows (`claude-*@*`) MUST be matched before Anthropic-direct rows (`claude-*`) since the `@` suffix distinguishes them. Longest-match ordering handles this.
+- **Claude 5 family (Opus 5, Sonnet 5; added 2026-08-10)**: Sonnet 5 shipped 2026-07-01, Opus 5 2026-07-24. Both normalize to `1M` on Anthropic-direct and Bedrock. Evidence: Anthropic model catalog (both models "1M context window, 128K max output"), Anthropic Bedrock docs context-window statement ("Claude Fable 5, Claude Opus 5, Claude Opus 4.8, Claude Opus 4.7, Claude Opus 4.6, Claude Sonnet 5, and Claude Sonnet 4.6 have a 1M-token context window on Amazon Bedrock").
+- **No Vertex (`@*`) rows for the Claude 5 family**: current-generation models on Vertex use the **bare first-party ID** (no `@YYYYMMDD` suffix), so the Anthropic-direct patterns (`claude-opus-5*`, `claude-sonnet-5*`) also match Vertex usage — a separate Vertex row is unrepresentable by pattern. The `@*` rows remain for dated-snapshot IDs of older models. Evidence: Anthropic SDK Vertex client docs ("current-generation models use the bare first-party ID; dated-snapshot models use an `@` version separator").
+- **Claude Fable 5 is intentionally NOT registered yet**: `fable` is outside the closed `family_tier` enumeration `{opus, sonnet, haiku}`, so adding it requires a fingerprint-space extension (`fingerprint_space_version` 1.0.0 → 1.1.0, 24-combo → 32-combo re-enumeration) and contract review. Until then `claude-fable-5` inputs return `null` per fail-safe semantics — the drift advisory stays silent, which is the safe behavior. Provider evidence for the future row is already on file: 1M on Anthropic-direct per the Anthropic model catalog, and 1M on Bedrock per the Bedrock docs statement above.
+- **Sonnet 4.6 Bedrock upgraded to `1M` (as of 2026-08-10 verification)**: prior table revisions modeled `anthropic.claude-sonnet-4-6*` as `200k`; Anthropic's Bedrock docs now list Sonnet 4.6 among the 1M-context models on Bedrock (same upgrade pattern as Opus 4.6 Bedrock, note below). Evidence: Anthropic Bedrock docs context-window statement.
 - **Opus 4.8 (released 2026-05-28)**: all three variants (Anthropic direct, Bedrock, Vertex) normalize to `1M` context, mirroring the Opus 4.6/4.7 multi-provider pattern. Anthropic-direct and Bedrock are GA at launch (1M, standard pricing unchanged from 4.7); Vertex publisher-model exposure may lag the launch by a short window per Anthropic's Vertex guidance — the `claude-opus-4-8@*` row is included for parity and activates once Vertex exposes the model. Evidence: Anthropic Opus 4.8 model docs, AWS Claude Opus 4.8 model card (Bedrock).
 - All three `claude-opus-4-6` variants (Anthropic direct, Bedrock, Vertex) normalize to `1M` context as of 2026-04-20. Prior table revisions modeled Bedrock as `200k`; Bedrock has since upgraded Opus 4.6 to 1M per the AWS model card, and the table is aligned to current provider reality.
-- **Sonnet 4.5 post-retirement (as of 2026-04-30)**: Anthropic-direct (`claude-sonnet-4-5*`) is now `200k` — the `context-1m-2025-08-07` beta retired on April 30, 2026 per Anthropic release notes; requests exceeding 200k now return an error. Bedrock (`anthropic.claude-sonnet-4-5*`) was `200k` from launch. Vertex (`claude-sonnet-4-5@*`) remains `1M observed` — Vertex sets its own retirement schedule independently and 1M is preserved per the Vertex Sonnet 4.5 model card. For 1M context on Anthropic-direct, migrate to Sonnet 4.6 or Opus 4.6 (both 1M GA at standard pricing, no beta header). Evidence: AWS Claude Sonnet 4.5 model card (Bedrock), Vertex Claude Sonnet 4.5 model card (Vertex GA), Anthropic release notes 2026-04-30 (1M beta retirement).
+- **Sonnet 4.5 post-retirement (as of 2026-04-30)**: Anthropic-direct (`claude-sonnet-4-5*`) is now `200k` — the `context-1m-2025-08-07` beta retired on April 30, 2026 per Anthropic release notes; requests exceeding 200k now return an error. Bedrock (`anthropic.claude-sonnet-4-5*`) was `200k` from launch. Vertex (`claude-sonnet-4-5@*`) remains `1M observed` — Vertex sets its own retirement schedule independently and 1M is preserved per the Vertex Sonnet 4.5 model card. For 1M context on Anthropic-direct, migrate to a current model — Sonnet 5 or Opus 5 (both 1M by default, no beta header). Evidence: AWS Claude Sonnet 4.5 model card (Bedrock), Vertex Claude Sonnet 4.5 model card (Vertex GA), Anthropic release notes 2026-04-30 (1M beta retirement).
 
 ## Evidence Status Labels
 
@@ -173,6 +181,18 @@ Inferred from pattern-matching adjacent observed entries; flagged for future ver
 ### extrapolated
 
 Extended from adjacent observed patterns with lowest confidence; requires independent primary-source verification before activation. **NOT active**. Subject to removal if primary sources contradict the extrapolation.
+
+## Lifecycle Status Labels
+
+The `lifecycle` column is orthogonal to evidence status: evidence status says how well-sourced a row is; lifecycle says where the model stands in the vendor lineup. Both `current` and `legacy` rows are **active recognition entries** — a legacy row still normalizes, because the table's function is to recognize model IDs that exist in real user configs, not to endorse them.
+
+### current
+
+The vendor's model catalog lists the model in its **current** (recommended) section. Multiple generations can be current at once — the label follows the vendor's own catalog placement, not release recency. No advisory beyond normal drift handling.
+
+### legacy
+
+The vendor's model catalog lists the model outside its current section (legacy, deprecated, or retiring). The model is still served and the row still normalizes; when `/audit` surfaces a legacy-model configuration, its advice SHOULD note that a current-generation model is available and recommend evaluating a migration. Legacy rows are never deleted while the ID remains recognizable in the wild — deleting them would silently disable recognition for exactly the configurations that most need the migration advice.
 
 ## Non-Covered Providers
 

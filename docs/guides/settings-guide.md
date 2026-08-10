@@ -1,7 +1,7 @@
 ---
 title: "Configuring settings.json"
 description: "How to configure Claude Code behavior with settings files"
-version: 1.2.4
+version: 1.3.0
 ---
 
 # Configuring settings.json
@@ -108,7 +108,7 @@ See the [memory documentation](https://code.claude.com/docs/en/memory#exclude-sp
 
 ### hooks, env, enabledPlugins (Advanced)
 
-The `hooks` key runs shell commands before/after tool use (e.g., auto-linting). The `env` key sets environment variables for Claude's commands. The `enabledPlugins` key lists official plugins. See the [Advanced Features Guide](advanced-features-guide.md) for details and examples.
+The `hooks` key runs shell commands before/after tool use (e.g., auto-linting); `disableAllHooks` turns every hook off globally. The `env` key sets environment variables for Claude's commands. The `enabledPlugins` key lists official plugins. See the [Advanced Features Guide](advanced-features-guide.md) for details and examples.
 
 ## Permission Modes and Safety (Advanced)
 
@@ -116,17 +116,17 @@ Claude Code offers six permission modes (prompt cadence) and an OS-level sandbox
 
 ### permissions.defaultMode
 
-Sets the default mode for new sessions: `default` (reads only), `acceptEdits` (auto-approve edits + common filesystem commands), `plan` (read-only research), `auto` (classifier-based autonomous), `dontAsk` (only pre-approved tools), `bypassPermissions` (no checks; isolated environments only). Cycle modes with `Shift+Tab` in the CLI.
+Sets the default mode for new sessions: `default` (reads only; displayed as **Manual** — `manual` is accepted as an alias in the CLI and settings, but prefer the canonical `default`), `acceptEdits` (auto-approve edits + common filesystem commands), `plan` (read-only research), `auto` (classifier-based autonomous), `dontAsk` (only pre-approved tools), `bypassPermissions` (no checks; isolated environments only). Cycle modes with `Shift+Tab` in the CLI.
 
 ```json
 { "permissions": { "defaultMode": "acceptEdits" } }
 ```
 
-Auto mode is available on all plans via the Anthropic API only (not Bedrock, Vertex, or Foundry); it needs a supported model — Claude Opus 4.6 or later, or Sonnet 4.6 (older models are not supported) — and admin enablement on Team and Enterprise. See the [permission modes documentation](https://code.claude.com/docs/en/permission-modes) for full requirements and the protected-paths list.
+Auto mode is available to all users on every provider (Anthropic API, Claude Platform on AWS, Bedrock, Google Cloud's Agent Platform, Foundry, and gateway sessions). Starting August 14, 2026, it is the default permission mode for **new** sessions on Pro, Max, and Team plans — a default you set yourself stays in place unless you accept the one-time switch prompt, and org-managed defaults are unchanged. Supported models: on the Anthropic API and Claude Platform on AWS, Claude Opus 4.6+, Sonnet 4.6+, or Fable 5; on the other providers, only Sonnet 5, Opus 4.7+, and Fable 5. By default the classifier allows pushes to any branch of the working repo — deploy-named branches like `production` are judged separately and push *content* is still checked — add `permissions.ask` rules for a human checkpoint before pushes. See the [permission modes documentation](https://code.claude.com/docs/en/permission-modes) for full requirements and the protected-paths list.
 
 ### autoMode
 
-When `defaultMode` is `auto`, a classifier evaluates each action against your declared trusted infrastructure. Configure with `autoMode.environment` (and optionally `allow`, `soft_deny`, `hard_deny`). The classifier reads `autoMode` from user, local, and managed scopes only — it deliberately ignores `autoMode` in shared `.claude/settings.json` so a checked-in repo cannot inject its own allow rules.
+When `defaultMode` is `auto`, a classifier evaluates each action against your declared trusted infrastructure. Configure with `autoMode.environment` (and optionally `allow`, `soft_deny`, `hard_deny`). The classifier reads `autoMode` from user (`~/.claude/settings.json`) and managed scopes, plus the `--settings` flag, only — it deliberately ignores **both** project files, `.claude/settings.json` and `.claude/settings.local.json`, since either could be written by a checked-in repo or a build step to inject allow rules. (Older versions read `settings.local.json`; move any `autoMode` block there to user settings.)
 
 ```json
 {
@@ -156,7 +156,9 @@ OS-level isolation for Bash subprocesses (Seatbelt on macOS, bubblewrap on Linux
 
 Linux/WSL2 require `bubblewrap` and `socat` packages. Sandboxing lets safe commands run inside defined boundaries without per-command approval — reducing permission prompts. Effective sandboxing requires both filesystem and network isolation. See the [sandboxing documentation](https://code.claude.com/docs/en/sandboxing) for `denyWrite`/`denyRead`, custom proxies, and security limitations.
 
-**Reasoning effort** is a separate quality↔latency dial, set at runtime (e.g., fast mode via `/fast`) rather than in `settings.json`. Lower effort trades response depth for speed and cost; for hard, security-sensitive, or long-running coding work, prefer higher effort. These controls and their supported models evolve — verify specifics against the current canonical docs.
+**Fast mode** (`/fast`, or `"fastMode": true` in user settings) serves the same Opus model with faster output at separate premium pricing — it is not a smaller model and not an effort setting. As of August 2026 it covers Opus 5 / Opus 4.8 only, on the Anthropic API and on subscription plans with usage credits enabled; set `fastModePerSessionOptIn` to require an explicit `/fast` each session for cost control. **Reasoning effort** is an independent quality↔latency dial set at runtime: lower effort trades response depth for speed and cost, so prefer higher effort for hard, security-sensitive, or long-running coding work. The two dials combine. Both evolve quickly — verify specifics against the current canonical docs.
+
+**Model governance**: `availableModels` restricts which models users can select (pair with `enforceAvailableModels` to cover the default model), and `fallbackModel` lists substitutes when the primary is unavailable. **Workflows**: `workflowSizeGuideline` and `disableWorkflows` govern the dynamic-workflows feature — see the [official workflows documentation](https://code.claude.com/docs/en/workflows).
 
 ## What NOT to Put in Project Settings
 
