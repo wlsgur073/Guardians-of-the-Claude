@@ -226,7 +226,22 @@
   },
   {
     "input": "claude-fable-5",
-    "expected_fingerprint": null,
-    "notes": "Fable 5 deliberately unregistered (family_tier enum extension pending) — fail-safe null, advisory silence"
+    "expected_fingerprint": {
+      "family_tier": "fable",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Anthropic direct / Vertex bare current-gen ID — fable-5-anthropic, 1M context (fable family tier added in fingerprint space 1.1.0)"
+  },
+  {
+    "input": "anthropic.claude-fable-5",
+    "expected_fingerprint": {
+      "family_tier": "fable",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Bedrock — fable-5-bedrock, 1M context (Anthropic Bedrock docs name Fable 5 among 1M-context models)"
   }
 ]

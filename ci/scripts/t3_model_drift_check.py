@@ -23,7 +23,7 @@ TESTS_FILE = ROOT / "ci" / "fixtures" / "t3-model-drift" / "test-cases.json"
 
 # Canonical axis value sets (closed enumerations).
 # Used for post-match validation (canonicalization guard).
-VALID_FAMILY_TIER = {"opus", "sonnet", "haiku"}
+VALID_FAMILY_TIER = {"opus", "sonnet", "haiku", "fable"}
 VALID_CONTEXT_WINDOW = {"200k", "1M"}
 VALID_REASONING = {"none", "extended_any"}
 VALID_CONTEXT_MGMT = {"manual", "compaction_capable"}

@@ -1,14 +1,14 @@
 ---
 title: "Workflow Patterns"
 description: "Interview-first specs, Writer/Reviewer, test-first multi-Claude, fan-out (with cost/safety warnings), worktrees and parallel sessions"
-version: 1.0.2
+version: 1.0.3
 ---
 
 # Workflow Patterns
 
 How you structure your time with Claude Code matters as much as what you ask. These patterns appear repeatedly in Anthropic's internal teams and external engineering reports.
 
-For *multi-agent dispatch* (an orchestrator coordinating workers), see [Multi-Agent Patterns Guide](multi-agent-patterns-guide.md). This guide is about how *you, the human*, organize sessions and batches.
+For *multi-agent dispatch* (an orchestrator coordinating workers), see [Multi-Agent Patterns Guide](multi-agent-patterns-guide.md). This guide is about how *you, the human*, organize sessions and batches. It is also distinct from Claude Code's **dynamic workflows** feature (Claude-authored orchestration scripts) — that's the [Dynamic Workflows Guide](workflows-guide.md).
 
 ## Let Claude interview you with `AskUserQuestion`
 

@@ -1,8 +1,8 @@
 ---
 title: "Model Drift Rules"
 description: "4-axis capability fingerprint + normalization table for Claude model ID detection across Anthropic, Bedrock, and Vertex. Drives /audit drift advisory via normalize_model_id → fingerprint | null."
-version: "1.2.0"
-fingerprint_space_version: "1.0.0"
+version: "1.3.0"
+fingerprint_space_version: "1.1.0"
 ---
 
 # Model Drift Rules
@@ -19,7 +19,7 @@ normalize_model_id(model_id: string) → fingerprint | null
 
 **Role in drift SM**: this file is the normalization table authority. The algorithm specification carries the 5 behavior contracts (see § Behavior Contracts below). The two sources do not duplicate each other.
 
-**Fingerprint space version**: `1.0.0` — any axis addition or per-axis enumeration extension that alters drift-comparison semantics increments this version independently of the file `version` field.
+**Fingerprint space version**: `1.1.0` — any axis addition or per-axis enumeration extension that alters drift-comparison semantics increments this version independently of the file `version` field. (1.0.0 → 1.1.0: `family_tier` enumeration extended with `fable`; purely additive — every 1.0.0 fingerprint remains valid and compares unchanged.)
 
 ## 4-Axis Fingerprint Schema
 
@@ -31,11 +31,12 @@ Identifies the capability tier of the Claude model family.
 
 | Value | Meaning |
 |---|---|
-| `opus` | High-capability tier — maximum reasoning depth, largest context options |
+| `opus` | High-capability tier — deep reasoning, largest context options (topped by `fable` since fingerprint space 1.1.0) |
 | `sonnet` | Mid-capability tier — balanced performance and throughput |
 | `haiku` | Fast tier — optimized for latency-sensitive workloads |
+| `fable` | Frontier tier — above `opus` in capability (Claude Fable 5 line; added in fingerprint space 1.1.0) |
 
-**Enumeration** (closed): `{opus, sonnet, haiku}`
+**Enumeration** (closed): `{opus, sonnet, haiku, fable}`
 
 ### context_window_class
 
@@ -70,9 +71,9 @@ Classifies how the model handles long-context management.
 
 **Enumeration** (closed): `{manual, compaction_capable}`
 
-## 24-Combo Enumeration
+## 32-Combo Enumeration
 
-All 24 valid fingerprint combinations from the fingerprint space (3 × 2 × 2 × 2 = 24). Every fingerprint returned by `normalize_model_id` (non-null branch) MUST hold an in-set value at every axis; tuples with out-of-set values return `null` instead.
+All 32 valid fingerprint combinations from the fingerprint space (4 × 2 × 2 × 2 = 32). Every fingerprint returned by `normalize_model_id` (non-null branch) MUST hold an in-set value at every axis; tuples with out-of-set values return `null` instead. Combos 1–24 are unchanged from fingerprint space 1.0.0; combos 25–32 were added with the `fable` family tier in 1.1.0.
 
 | # | family_tier | context_window_class | reasoning_class | context_management_class |
 |---|---|---|---|---|
@@ -100,8 +101,16 @@ All 24 valid fingerprint combinations from the fingerprint space (3 × 2 × 2 ×
 | 22 | `haiku` | `1M` | `none` | `compaction_capable` |
 | 23 | `haiku` | `1M` | `extended_any` | `manual` |
 | 24 | `haiku` | `1M` | `extended_any` | `compaction_capable` |
+| 25 | `fable` | `200k` | `none` | `manual` |
+| 26 | `fable` | `200k` | `none` | `compaction_capable` |
+| 27 | `fable` | `200k` | `extended_any` | `manual` |
+| 28 | `fable` | `200k` | `extended_any` | `compaction_capable` |
+| 29 | `fable` | `1M` | `none` | `manual` |
+| 30 | `fable` | `1M` | `none` | `compaction_capable` |
+| 31 | `fable` | `1M` | `extended_any` | `manual` |
+| 32 | `fable` | `1M` | `extended_any` | `compaction_capable` |
 
-Not all 24 combinations are currently occupied by known model IDs. Unoccupied combinations remain valid fingerprint tuples (representable) but produce `null` from the normalization table if no matching raw pattern exists.
+Not all 32 combinations are currently occupied by known model IDs. Unoccupied combinations remain valid fingerprint tuples (representable) but produce `null` from the normalization table if no matching raw pattern exists.
 
 ## Provider Coverage
 
@@ -133,6 +142,8 @@ Matching policy: longest-match when multiple rules overlap (per the matching-pol
 
 | raw_pattern | normalized_id | family_tier | context_window_class | reasoning_class | context_management_class | lifecycle | evidence_status |
 |---|---|---|---|---|---|---|---|
+| `claude-fable-5*` | `fable-5-anthropic` | `fable` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `anthropic.claude-fable-5*` | `fable-5-bedrock` | `fable` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
 | `claude-opus-5*` | `opus-5-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
 | `anthropic.claude-opus-5*` | `opus-5-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
 | `claude-opus-4-8@*` | `opus-4.8-vertex` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
@@ -161,8 +172,8 @@ Matching policy: longest-match when multiple rules overlap (per the matching-pol
 - Bedrock rows (`anthropic.claude-*`) MUST be matched before Anthropic-direct rows (`claude-*`) to prevent the shorter Anthropic pattern from matching a Bedrock prefix. Longest-match ordering in the runner handles this automatically.
 - Vertex rows (`claude-*@*`) MUST be matched before Anthropic-direct rows (`claude-*`) since the `@` suffix distinguishes them. Longest-match ordering handles this.
 - **Claude 5 family (Opus 5, Sonnet 5; added 2026-08-10)**: Sonnet 5 shipped 2026-07-01, Opus 5 2026-07-24. Both normalize to `1M` on Anthropic-direct and Bedrock. Evidence: Anthropic model catalog (both models "1M context window, 128K max output"), Anthropic Bedrock docs context-window statement ("Claude Fable 5, Claude Opus 5, Claude Opus 4.8, Claude Opus 4.7, Claude Opus 4.6, Claude Sonnet 5, and Claude Sonnet 4.6 have a 1M-token context window on Amazon Bedrock").
-- **No Vertex (`@*`) rows for the Claude 5 family**: current-generation models on Vertex use the **bare first-party ID** (no `@YYYYMMDD` suffix), so the Anthropic-direct patterns (`claude-opus-5*`, `claude-sonnet-5*`) also match Vertex usage — a separate Vertex row is unrepresentable by pattern. The `@*` rows remain for dated-snapshot IDs of older models. Evidence: Anthropic SDK Vertex client docs ("current-generation models use the bare first-party ID; dated-snapshot models use an `@` version separator").
-- **Claude Fable 5 is intentionally NOT registered yet**: `fable` is outside the closed `family_tier` enumeration `{opus, sonnet, haiku}`, so adding it requires a fingerprint-space extension (`fingerprint_space_version` 1.0.0 → 1.1.0, 24-combo → 32-combo re-enumeration) and contract review. Until then `claude-fable-5` inputs return `null` per fail-safe semantics — the drift advisory stays silent, which is the safe behavior. Provider evidence for the future row is already on file: 1M on Anthropic-direct per the Anthropic model catalog, and 1M on Bedrock per the Bedrock docs statement above.
+- **No Vertex (`@*`) rows for the Claude 5 family**: current-generation models on Vertex use the **bare first-party ID** (no `@YYYYMMDD` suffix), so the Anthropic-direct patterns (`claude-fable-5*`, `claude-opus-5*`, `claude-sonnet-5*`) also match Vertex usage — a separate Vertex row is unrepresentable by pattern. The `@*` rows remain for dated-snapshot IDs of older models. Evidence: Anthropic SDK Vertex client docs ("current-generation models use the bare first-party ID; dated-snapshot models use an `@` version separator").
+- **Claude Fable 5 (registered with fingerprint space 1.1.0)**: the `fable` family tier was added as a purely additive enumeration extension — no 1.0.0 fingerprint changes meaning, and stored baselines compare unchanged. Both variants normalize to `1M`. Evidence: Anthropic model catalog (Fable 5 "1M context window, 128K max output"; adaptive thinking always on; compaction supported) for Anthropic-direct, and the Bedrock docs context-window statement above (which names Claude Fable 5 explicitly) for Bedrock. As with the rest of the Claude 5 family, Vertex current-generation usage is matched by the bare Anthropic-direct pattern.
 - **Sonnet 4.6 Bedrock upgraded to `1M` (as of 2026-08-10 verification)**: prior table revisions modeled `anthropic.claude-sonnet-4-6*` as `200k`; Anthropic's Bedrock docs now list Sonnet 4.6 among the 1M-context models on Bedrock (same upgrade pattern as Opus 4.6 Bedrock, note below). Evidence: Anthropic Bedrock docs context-window statement.
 - **Opus 4.8 (released 2026-05-28)**: all three variants (Anthropic direct, Bedrock, Vertex) normalize to `1M` context, mirroring the Opus 4.6/4.7 multi-provider pattern. Anthropic-direct and Bedrock are GA at launch (1M, standard pricing unchanged from 4.7); Vertex publisher-model exposure may lag the launch by a short window per Anthropic's Vertex guidance — the `claude-opus-4-8@*` row is included for parity and activates once Vertex exposes the model. Evidence: Anthropic Opus 4.8 model docs, AWS Claude Opus 4.8 model card (Bedrock).
 - All three `claude-opus-4-6` variants (Anthropic direct, Bedrock, Vertex) normalize to `1M` context as of 2026-04-20. Prior table revisions modeled Bedrock as `200k`; Bedrock has since upgraded Opus 4.6 to 1M per the AWS model card, and the table is aligned to current provider reality.

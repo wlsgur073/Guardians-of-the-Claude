@@ -1,7 +1,7 @@
 ---
 title: "Recommended Plugins"
 description: "Curated list of Claude Code plugins organized by category"
-version: 1.1.0
+version: 1.2.0
 ---
 
 # Recommended Plugins
@@ -49,6 +49,8 @@ Plugins that ship into the same marketplace can compose — one plugin's skill c
 - **Marketplace name as namespace.** Skills install as `<plugin>@<marketplace>` (e.g., `guardians-of-the-claude@guardians`). The marketplace name namespaces a coherent set of related plugins; cross-marketplace coordination is intentionally NOT supported.
 
 For shipping a plugin into a multi-plugin marketplace: declare which references it owns vs which it consumes; document the read/write contract in `plugin/references/`; avoid skill-to-skill cycles (always one-direction dependency).
+
+**What a plugin can ship** goes beyond skills, agents, and hooks: `.lsp.json` (language-server config for real-time code intelligence), `monitors/monitors.json` (background watchers whose stdout reaches Claude as notifications), `workflows/` (saved [dynamic workflows](workflows-guide.md), namespaced `/plugin-name:workflow-name`), `bin/` (executables added to the Bash tool's PATH while enabled), and a plugin-root `settings.json` (currently the `agent` and `subagentStatusLine` keys). Scaffold with `claude plugin init <name>` (creates the plugin in your skills directory, auto-loading as `<name>@skills-dir`) and check structure with `claude plugin validate <path>` (add `--strict` to treat warnings as errors). Monitors and LSP servers run automatically while the plugin is enabled; workflows and `bin/` executables extend what can be invoked — review all of them at install with the same scrutiny as hook scripts.
 
 ## How to Install
 

@@ -1,7 +1,7 @@
 ---
 title: "Configuring settings.json"
 description: "How to configure Claude Code behavior with settings files"
-version: 1.3.0
+version: 1.3.1
 ---
 
 # Configuring settings.json
@@ -158,7 +158,7 @@ Linux/WSL2 require `bubblewrap` and `socat` packages. Sandboxing lets safe comma
 
 **Fast mode** (`/fast`, or `"fastMode": true` in user settings) serves the same Opus model with faster output at separate premium pricing — it is not a smaller model and not an effort setting. As of August 2026 it covers Opus 5 / Opus 4.8 only, on the Anthropic API and on subscription plans with usage credits enabled; set `fastModePerSessionOptIn` to require an explicit `/fast` each session for cost control. **Reasoning effort** is an independent quality↔latency dial set at runtime: lower effort trades response depth for speed and cost, so prefer higher effort for hard, security-sensitive, or long-running coding work. The two dials combine. Both evolve quickly — verify specifics against the current canonical docs.
 
-**Model governance**: `availableModels` restricts which models users can select (pair with `enforceAvailableModels` to cover the default model), and `fallbackModel` lists substitutes when the primary is unavailable. **Workflows**: `workflowSizeGuideline` and `disableWorkflows` govern the dynamic-workflows feature — see the [official workflows documentation](https://code.claude.com/docs/en/workflows).
+**Model governance**: `availableModels` restricts which models users can select (pair with `enforceAvailableModels` to cover the default model), and `fallbackModel` lists substitutes when the primary is unavailable. **Workflows**: `workflowSizeGuideline` and `disableWorkflows` govern the dynamic-workflows feature — see the [Dynamic Workflows Guide](workflows-guide.md).
 
 ## What NOT to Put in Project Settings
 

@@ -1,7 +1,7 @@
 ---
 title: "Advanced Features"
 description: "Hooks, agents, and skills -- extending Claude Code beyond basic configuration"
-version: 1.4.0
+version: 1.4.1
 ---
 
 # Advanced Features
@@ -55,9 +55,9 @@ Key concepts:
 - **`PreToolUse` + `exit 2`** blocks the action and tells Claude why -- use for protecting sensitive files like `.env` or migration directories
 - **`PostToolUse` + `|| true`** runs after the action completes -- use for auto-linting or formatting
 - **`UserPromptSubmit`** runs before Claude processes user input -- use for keyword detection or automatic context injection
-- Other events: `Notification`, `Stop`, `SessionStart`, `SessionEnd`, `SubagentStop`, `PreCompact` -- see [hooks docs](https://code.claude.com/docs/en/hooks) for all event types
-- **Practical combinations:** `SessionStart` for project context injection at startup, `PreCompact` for preserving critical notes before auto-compaction, `SubagentStop` for validating agent output before returning to the parent session
-- **Hook types:** `"type": "command"` (shell) or `"type": "prompt"` (LLM-driven, for `PreToolUse`, `Stop`, `SubagentStop`, `UserPromptSubmit`)
+- Other events: the surface has grown past 30 — lifecycle (`SessionStart`/`SessionEnd`, `Stop`/`StopFailure`, `SubagentStart`/`SubagentStop`, `PreCompact`/`PostCompact`), governance (`PermissionRequest`, `PermissionDenied`, `InstructionsLoaded`, `ConfigChange`), and environment (`Notification`, `FileChanged`, `WorktreeCreate`/`WorktreeRemove`, `TaskCreated`/`TaskCompleted`) among them -- see [hooks docs](https://code.claude.com/docs/en/hooks) for the authoritative list
+- **Practical combinations:** `SessionStart` for project context injection at startup, `PreCompact` for preserving critical notes before auto-compaction, `SubagentStop` for validating agent output before returning to the parent session, `PermissionDenied` for reacting programmatically when a tool call is denied
+- **Hook types:** `"type": "command"` (shell) is the workhorse; `"type": "prompt"` (LLM yes/no evaluation), `"http"`, `"mcp_tool"`, and `"agent"` (experimental) handlers also exist -- see the hooks docs for per-type configuration
 
 ### Script-Based Hooks
 

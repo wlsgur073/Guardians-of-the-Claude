@@ -1,7 +1,7 @@
 ---
 title: "Getting Started"
 description: "Step-by-step guide to set up Claude Code configuration for your project"
-version: 1.2.12
+version: 1.2.13
 ---
 
 # Getting Started
@@ -132,6 +132,7 @@ Once your basic configuration is working, explore hooks, agents, and skills for 
 - [Trustworthy Agents Guide](trustworthy-agents-guide.md) -- Five-principle framework for evaluating agent configuration
 - [Multi-Agent Patterns Guide](multi-agent-patterns-guide.md) -- Orchestrator-Worker, sub-agent budget, parallel dispatch
 - [Workflow Patterns Guide](workflow-patterns-guide.md) -- Interview-first specs, Writer/Reviewer, fan-out, worktrees
+- [Dynamic Workflows Guide](workflows-guide.md) -- Claude-authored orchestration scripts: approval gate, saving, governance
 - [Directory Structure Guide](directory-structure-guide.md) -- Understanding the .claude/ ecosystem
 - [Effective Usage Guide](effective-usage-guide.md) -- Day-one usage patterns and anti-patterns to avoid
 - [Advanced Features Guide](advanced-features-guide.md) -- Hooks, agents, and skills for teams

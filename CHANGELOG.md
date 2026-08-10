@@ -7,6 +7,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.2.3] - 2026-08-10
+
+### Added
+
+- `docs/guides/workflows-guide.md` (new, 1.0.0) — a guide to Claude Code's **dynamic workflows** feature: what a Claude-authored orchestration script is and when it beats a subagent, the four ways to start a run (`ultracode` keyword / natural-language opt-in, `/effort ultracode`, `/deep-research`, saved commands), the approval gate per permission mode with its trust facts (workflow subagents always run in `acceptEdits` and inherit your tool allowlist; the keyword triggers only from human-typed prompts, never from `-p`, scheduled tasks, or relayed webhook/PR content), save locations and name-precedence rules (project beats personal; monorepo closest-wins; plugin workflows namespaced), and the governance surface (`workflowSizeGuideline`, `disableWorkflows`, runtime caps, large-run warning). Cross-linked from `getting-started.md` (1.2.12 → 1.2.13), `settings-guide.md` (1.3.0 → 1.3.1, workflow keys now point here), and `workflow-patterns-guide.md` (1.0.2 → 1.0.3, disambiguation pointer: human session patterns vs. the feature).
+- `plugin/references/model-drift-rules.md` (1.2.0 → 1.3.0) — **Claude Fable 5 registered**: the `family_tier` enumeration gains `fable` (fingerprint space 1.0.0 → 1.1.0, a purely additive extension — every stored baseline compares unchanged; the combo enumeration grows 24 → 32). New `claude-fable-5*` / `anthropic.claude-fable-5*` rows normalize to `1M` (`observed`; Anthropic model catalog + Bedrock docs). `ci/scripts/t3_model_drift_check.py` accepts the new tier and `ci/fixtures/t3-model-drift/test-cases.json` replaces the previous fable-returns-`null` case with real fingerprint cases for both providers.
+
+### Changed
+
+- `docs/guides/advanced-features-guide.md` (1.4.0 → 1.4.1) — the hooks section reflects the grown event surface (30+ events, grouped as lifecycle / governance / environment examples with the official docs as the authoritative list), adds `PermissionDenied` to the practical combinations, and corrects the handler-type list: beyond `command` and `prompt`, the `http`, `mcp_tool`, and (experimental) `agent` handler types exist.
+- `docs/guides/recommended-plugins-guide.md` (1.1.0 → 1.2.0) — a **What a plugin can ship** note: `.lsp.json`, `monitors/monitors.json`, `workflows/`, `bin/`, and plugin-root `settings.json` (`agent`, `subagentStatusLine`), with `claude plugin init` / `claude plugin validate --strict` for scaffolding and structure checks, and an install-time review stance (monitors and LSP servers run automatically while enabled; workflows and `bin/` executables extend what can be invoked).
+
 ## [3.2.2] - 2026-08-10
 
 ### Added

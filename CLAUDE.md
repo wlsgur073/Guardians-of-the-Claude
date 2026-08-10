@@ -98,7 +98,7 @@ Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetc
 ## Plugin Development Rules
 
 - Skills go in `plugin/skills/<name>/SKILL.md` — do NOT use `commands/` (legacy)
-- Each skill must have YAML frontmatter with `name` and `description` fields
+- Each skill must have YAML frontmatter with `name` and `description` fields (this repo's convention — upstream treats `name` as optional/folder-derived); the optional `disable-model-invocation: true` field makes a skill user-invocable only
 - `allowed-tools` is no longer supported in skill frontmatter; agents use `tools` for tool restriction
 - Plugin version is managed in `plugin/.claude-plugin/plugin.json` only — do NOT duplicate version in `.claude-plugin/marketplace.json`
 - Marketplace name (`guardians`) must NOT match the GitHub repo name case pattern to avoid Windows NTFS rename failures
