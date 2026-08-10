@@ -43,6 +43,7 @@ A single change can ripple across the repo. When modifying any file, check downs
 - **Deny pattern format change** → grep `Read\(.*secrets` or similar across all files to ensure consistency
 - **`templates/` path/structural rename** → grep `CLAUDE.md` `Repository Structure` for stale path mentions (`*.sh` lists, dir paths); CLAUDE.md is consistently missed as a cascade target
 - **`scoring-model.md` `## Formula` block edit** → `ci/scripts/check-scoring-model-lav-linkage.py` SHA256-freezes the fenced code block under `## Formula` (`DS_SB_CAP_HASH`); any change inside it — even a citation/comment — fails the validator. Recompute via the validator's own `## Formula` block extraction and update the constant.
+- **`model-drift-rules.md` normalization-table edit** → `ci/fixtures/t3-model-drift/test-cases.json` encodes expected fingerprints per model ID; a table fact change (context class, new rows) fails `atomic-fixture-runners-check` until the fixture tracks it. The 8-validator pre-push sweep does NOT cover this — run `ci/scripts/t3_model_drift_check.py` locally after any table edit (caught post-push in v3.2.2's first tag).
 
 ### Verifying Changes Locally
 

@@ -83,11 +83,11 @@
     "input": "anthropic.claude-sonnet-4-6",
     "expected_fingerprint": {
       "family_tier": "sonnet",
-      "context_window_class": "200k",
+      "context_window_class": "1M",
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Bedrock — sonnet-4.6-bedrock, 200k context (the model-drift rules codified 2026-04-20)"
+    "notes": "Bedrock — sonnet-4.6-bedrock, 1M context (Bedrock upgraded Sonnet 4.6 to 1M; the model-drift rules updated 2026-08-10)"
   },
   {
     "input": "claude-sonnet-4-6@20240901",
@@ -183,5 +183,50 @@
     "input": "gpt-4o-azure-deployment-custom-name",
     "expected_fingerprint": null,
     "notes": "Unrecognized provider — fail-safe null per the normalization rules"
+  },
+  {
+    "input": "claude-opus-5",
+    "expected_fingerprint": {
+      "family_tier": "opus",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Anthropic direct / Vertex bare current-gen ID — opus-5-anthropic, 1M context (Claude 5 family rows added 2026-08-10)"
+  },
+  {
+    "input": "anthropic.claude-opus-5",
+    "expected_fingerprint": {
+      "family_tier": "opus",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Bedrock — opus-5-bedrock, 1M context (Claude 5 family rows added 2026-08-10)"
+  },
+  {
+    "input": "claude-sonnet-5",
+    "expected_fingerprint": {
+      "family_tier": "sonnet",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Anthropic direct / Vertex bare current-gen ID — sonnet-5-anthropic, 1M context (Claude 5 family rows added 2026-08-10)"
+  },
+  {
+    "input": "anthropic.claude-sonnet-5",
+    "expected_fingerprint": {
+      "family_tier": "sonnet",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Bedrock — sonnet-5-bedrock, 1M context (Claude 5 family rows added 2026-08-10)"
+  },
+  {
+    "input": "claude-fable-5",
+    "expected_fingerprint": null,
+    "notes": "Fable 5 deliberately unregistered (family_tier enum extension pending) — fail-safe null, advisory silence"
   }
 ]
