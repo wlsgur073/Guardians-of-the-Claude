@@ -10,7 +10,7 @@
     "output": 250,
     "cache_read": 4000,
     "cache_creation": 100,
-    "est_cost_usd": 0.04,
+    "est_cost_usd": 0.01,
     "cost_tier": "local-estimate",
     "unknown_models": []
   },

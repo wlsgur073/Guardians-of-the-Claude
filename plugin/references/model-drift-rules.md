@@ -1,7 +1,7 @@
 ---
 title: "Model Drift Rules"
 description: "4-axis capability fingerprint + normalization table for Claude model ID detection across Anthropic, Bedrock, and Vertex. Drives /audit drift advisory via normalize_model_id → fingerprint | null."
-version: "1.3.0"
+version: "1.4.0"
 fingerprint_space_version: "1.1.0"
 ---
 
@@ -132,7 +132,7 @@ Examples: `anthropic.claude-opus-4-6`, `anthropic.claude-sonnet-4-6`
 
 Dated-snapshot model IDs use a date-version suffix: `claude-{family}-{major}-{minor}@{YYYYMMDD}`. The `@YYYYMMDD` suffix is stripped during normalization; the remainder follows the Anthropic pattern family. Note: context window class for Vertex model IDs may differ from the Anthropic-direct equivalent (see Normalization Table). **Current-generation models on Vertex use the bare first-party ID with no `@` suffix**, so they are matched by the Anthropic-direct patterns — pattern-indistinguishable by design (see Table notes).
 
-Examples: `claude-opus-4-6@20241022`, `claude-sonnet-4-6@20240901` (dated snapshots); `claude-opus-5` (current-generation, bare)
+Examples: `claude-sonnet-4-5@20250929`, `claude-haiku-4-5@20251001` (dated snapshots); `claude-opus-5` (current-generation, bare)
 
 ## Normalization Table
 
@@ -146,20 +146,19 @@ Matching policy: longest-match when multiple rules overlap (per the matching-pol
 | `anthropic.claude-fable-5*` | `fable-5-bedrock` | `fable` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
 | `claude-opus-5*` | `opus-5-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
 | `anthropic.claude-opus-5*` | `opus-5-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
-| `claude-opus-4-8@*` | `opus-4.8-vertex` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
-| `claude-opus-4-8*` | `opus-4.8-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
-| `anthropic.claude-opus-4-8*` | `opus-4.8-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
-| `claude-opus-4-7@*` | `opus-4.7-vertex` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
-| `claude-opus-4-7*` | `opus-4.7-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
-| `anthropic.claude-opus-4-7*` | `opus-4.7-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
-| `claude-opus-4-6@*` | `opus-4.6-vertex` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
-| `claude-opus-4-6*` | `opus-4.6-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
-| `anthropic.claude-opus-4-6*` | `opus-4.6-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `claude-opus-4-8*` | `opus-4.8-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
+| `anthropic.claude-opus-4-8*` | `opus-4.8-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
+| `claude-opus-4-7@*` | `opus-4.7-vertex` | `opus` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
+| `claude-opus-4-7*` | `opus-4.7-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
+| `anthropic.claude-opus-4-7*` | `opus-4.7-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
+| `claude-opus-4-6@*` | `opus-4.6-vertex` | `opus` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
+| `claude-opus-4-6*` | `opus-4.6-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
+| `anthropic.claude-opus-4-6*` | `opus-4.6-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
 | `claude-sonnet-5*` | `sonnet-5-anthropic` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
 | `anthropic.claude-sonnet-5*` | `sonnet-5-bedrock` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
-| `claude-sonnet-4-6@*` | `sonnet-4.6-vertex` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
-| `claude-sonnet-4-6*` | `sonnet-4.6-anthropic` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
-| `anthropic.claude-sonnet-4-6*` | `sonnet-4.6-bedrock` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `claude-sonnet-4-6@*` | `sonnet-4.6-vertex` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
+| `claude-sonnet-4-6*` | `sonnet-4.6-anthropic` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
+| `anthropic.claude-sonnet-4-6*` | `sonnet-4.6-bedrock` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
 | `claude-sonnet-4-5@*` | `sonnet-4.5-vertex` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
 | `claude-sonnet-4-5*` | `sonnet-4.5-anthropic` | `sonnet` | `200k` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
 | `anthropic.claude-sonnet-4-5*` | `sonnet-4.5-bedrock` | `sonnet` | `200k` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
@@ -175,7 +174,8 @@ Matching policy: longest-match when multiple rules overlap (per the matching-pol
 - **No Vertex (`@*`) rows for the Claude 5 family**: current-generation models on Vertex use the **bare first-party ID** (no `@YYYYMMDD` suffix), so the Anthropic-direct patterns (`claude-fable-5*`, `claude-opus-5*`, `claude-sonnet-5*`) also match Vertex usage — a separate Vertex row is unrepresentable by pattern. The `@*` rows remain for dated-snapshot IDs of older models. Evidence: Anthropic SDK Vertex client docs ("current-generation models use the bare first-party ID; dated-snapshot models use an `@` version separator").
 - **Claude Fable 5 (registered with fingerprint space 1.1.0)**: the `fable` family tier was added as a purely additive enumeration extension — no 1.0.0 fingerprint changes meaning, and stored baselines compare unchanged. Both variants normalize to `1M`. Evidence: Anthropic model catalog (Fable 5 "1M context window, 128K max output"; adaptive thinking always on; compaction supported) for Anthropic-direct, and the Bedrock docs context-window statement above (which names Claude Fable 5 explicitly) for Bedrock. As with the rest of the Claude 5 family, Vertex current-generation usage is matched by the bare Anthropic-direct pattern.
 - **Sonnet 4.6 Bedrock upgraded to `1M` (as of 2026-08-10 verification)**: prior table revisions modeled `anthropic.claude-sonnet-4-6*` as `200k`; Anthropic's Bedrock docs now list Sonnet 4.6 among the 1M-context models on Bedrock (same upgrade pattern as Opus 4.6 Bedrock, note below). Evidence: Anthropic Bedrock docs context-window statement.
-- **Opus 4.8 (released 2026-05-28)**: all three variants (Anthropic direct, Bedrock, Vertex) normalize to `1M` context, mirroring the Opus 4.6/4.7 multi-provider pattern. Anthropic-direct and Bedrock are GA at launch (1M, standard pricing unchanged from 4.7); Vertex publisher-model exposure may lag the launch by a short window per Anthropic's Vertex guidance — the `claude-opus-4-8@*` row is included for parity and activates once Vertex exposes the model. Evidence: Anthropic Opus 4.8 model docs, AWS Claude Opus 4.8 model card (Bedrock).
+- **Opus 4.8 (released 2026-05-28; provider set re-verified 2026-08-10)**: both rows normalize to `1M` context, and the fingerprint holds on all three providers. Bedrock ID is `anthropic.claude-opus-4-8` (no ARN version suffix, per the AWS model card). On Google Cloud (current docs brand the offering "Agent Platform", formerly Vertex AI), Opus 4.8 is exposed with the **bare first-party ID** `claude-opus-4-8` — no `@YYYYMMDD` form ever shipped for it — so Google Cloud usage is matched by the Anthropic-direct pattern exactly as with the Claude 5 family; a former `@*` parity row was removed as an ID shape that never existed. Newer models on Google Cloud are served via global and multi-region endpoints only. Evidence: Anthropic Claude-on-Google-Cloud model-ID table and context-window statement, AWS Claude Opus 4.8 model card (Bedrock).
+- **Lifecycle relabels (2026-08-10)**: Anthropic's model catalog now lists Opus 4.8, Opus 4.7, Opus 4.6, and Sonnet 4.6 in its **Legacy models** table ("still available … consider migrating" — distinct from retired). The corresponding rows are relabeled `legacy`; per the Lifecycle Status Labels contract this changes advisory wording only — recognition and normalization output are unchanged.
 - All three `claude-opus-4-6` variants (Anthropic direct, Bedrock, Vertex) normalize to `1M` context as of 2026-04-20. Prior table revisions modeled Bedrock as `200k`; Bedrock has since upgraded Opus 4.6 to 1M per the AWS model card, and the table is aligned to current provider reality.
 - **Sonnet 4.5 post-retirement (as of 2026-04-30)**: Anthropic-direct (`claude-sonnet-4-5*`) is now `200k` — the `context-1m-2025-08-07` beta retired on April 30, 2026 per Anthropic release notes; requests exceeding 200k now return an error. Bedrock (`anthropic.claude-sonnet-4-5*`) was `200k` from launch. Vertex (`claude-sonnet-4-5@*`) remains `1M observed` — Vertex sets its own retirement schedule independently and 1M is preserved per the Vertex Sonnet 4.5 model card. For 1M context on Anthropic-direct, migrate to a current model — Sonnet 5 or Opus 5 (both 1M by default, no beta header). Evidence: AWS Claude Sonnet 4.5 model card (Bedrock), Vertex Claude Sonnet 4.5 model card (Vertex GA), Anthropic release notes 2026-04-30 (1M beta retirement).
 

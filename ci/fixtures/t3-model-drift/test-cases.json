@@ -27,7 +27,7 @@
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Vertex — opus-4.8-vertex, 1M context (publisher-model exposure may lag launch; pattern row included for parity)"
+    "notes": "Wildcard robustness — no @-dated Opus 4.8 ID ever shipped (Google Cloud exposes the bare ID); input normalizes via the claude-opus-4-8* Anthropic-direct row, same fingerprint"
   },
   {
     "input": "claude-opus-4-7",

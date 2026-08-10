@@ -7,6 +7,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- `plugin/references/lib/model-prices.json` — corrected the Claude Opus 4.8 price row against Anthropic's published pricing (verified 2026-08-10): `$15/$75` per MTok input/output (cache read `$1.50`, cache write `$18.75`) → `$5/$25` (cache read `$0.50`, cache write `$6.25`). The old row overestimated Opus 4.8 usage-cost estimates 3x. The usage-parser smoke goldens re-freeze accordingly (`ci/golden/usage-parser/summary.json` and the fixture `expected/` copy: `est_cost_usd` 0.04 → 0.01); the malformed-lane golden is byte-identical under both price sets and is unchanged.
+
+### Changed
+
+- `plugin/references/model-drift-rules.md` (1.3.0 → 1.4.0) — Opus 4.8 provider facts re-verified 2026-08-10 against Anthropic's Google Cloud model-ID table, the AWS model card, and the model catalog. Google Cloud (docs now brand the offering "Agent Platform", formerly Vertex AI) exposes Opus 4.8 with the **bare first-party ID**, so the `claude-opus-4-8@*` parity row — an ID shape that never shipped — is removed (24 → 23 rows; a dated input still normalizes via `claude-opus-4-8*` to the same fingerprint) and the launch note is rewritten to the verified reality, including the global/multi-region endpoint restriction for newer models. Lifecycle relabels `current` → `legacy` for the Opus 4.8, Opus 4.7, Opus 4.6, and Sonnet 4.6 rows, matching the catalog's Legacy-models placement (advisory wording only — recognition unchanged). Anachronistic Vertex example IDs replaced with real dated snapshots (`claude-sonnet-4-5@20250929`, `claude-haiku-4-5@20251001`). `fingerprint_space_version` stays 1.1.0. `ci/fixtures/t3-model-drift/test-cases.json` notes updated; all 25 conformance cases still pass with unchanged expected fingerprints.
+- `plugin/references/lib/model-prices.json` — added current-generation price rows so local estimates stop falling through to the $0 default: `claude-fable-5` ($10/$50), `claude-opus-5` ($5/$25), `claude-sonnet-5` ($3/$15 standard, effective 2026-09-01; the intro price $2/$10 through 2026-08-31 is recorded in the file note). Sonnet 4.6 and Haiku 4.5 rows verified correct and unchanged.
+
 ## [3.2.3] - 2026-08-10
 
 ### Added
