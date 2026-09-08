@@ -1,7 +1,7 @@
 ---
 title: "Model Drift Rules"
 description: "4-axis capability fingerprint + normalization table for Claude model ID detection across Anthropic, Bedrock, and Vertex. Drives /audit drift advisory via normalize_model_id → fingerprint | null."
-version: "1.4.0"
+version: "1.5.0"
 fingerprint_space_version: "1.1.0"
 ---
 
@@ -34,7 +34,7 @@ Identifies the capability tier of the Claude model family.
 | `opus` | High-capability tier — deep reasoning, largest context options (topped by `fable` since fingerprint space 1.1.0) |
 | `sonnet` | Mid-capability tier — balanced performance and throughput |
 | `haiku` | Fast tier — optimized for latency-sensitive workloads |
-| `fable` | Frontier tier — above `opus` in capability (Claude Fable 5 line; added in fingerprint space 1.1.0) |
+| `fable` | Frontier tier — above `opus` in capability (Claude Fable 5 / 5.1 line; added in fingerprint space 1.1.0) |
 
 **Enumeration** (closed): `{opus, sonnet, haiku, fable}`
 
@@ -118,21 +118,21 @@ Three providers are covered: **Anthropic**, **Bedrock**, and **Vertex**.
 
 ### Anthropic
 
-Model IDs use the form `claude-{family}-{major}-{minor}` — no provider prefix. Pattern family: prefix `claude-` followed by family name.
+Model IDs use the form `claude-{family}-{major}[-{minor}]` — no provider prefix; the minor segment is absent on the dateless `.0` releases of the Claude 5 generation (`claude-opus-5`, `claude-sonnet-5`, `claude-fable-5`). Pattern family: prefix `claude-` followed by family name.
 
-Examples: `claude-opus-4-8`, `claude-sonnet-4-6`, `claude-haiku-4-5`
+Examples: `claude-fable-5-1`, `claude-opus-5`, `claude-sonnet-5`, `claude-haiku-4-5` (current); `claude-opus-4-8`, `claude-sonnet-4-6` (legacy)
 
 ### Bedrock
 
-Model IDs are prefixed with `anthropic.` — e.g., `anthropic.claude-{family}-{major}-{minor}`. The `anthropic.` prefix is stripped during normalization; the remainder follows the Anthropic pattern family.
+Model IDs are prefixed with `anthropic.` — e.g., `anthropic.claude-{family}-{major}[-{minor}]`. The `anthropic.` prefix is stripped during normalization; the remainder follows the Anthropic pattern family (minor segment optional as above).
 
-Examples: `anthropic.claude-opus-4-6`, `anthropic.claude-sonnet-4-6`
+Examples: `anthropic.claude-fable-5-1`, `anthropic.claude-opus-5`, `anthropic.claude-sonnet-4-6`
 
 ### Vertex
 
-Dated-snapshot model IDs use a date-version suffix: `claude-{family}-{major}-{minor}@{YYYYMMDD}`. The `@YYYYMMDD` suffix is stripped during normalization; the remainder follows the Anthropic pattern family. Note: context window class for Vertex model IDs may differ from the Anthropic-direct equivalent (see Normalization Table). **Current-generation models on Vertex use the bare first-party ID with no `@` suffix**, so they are matched by the Anthropic-direct patterns — pattern-indistinguishable by design (see Table notes).
+Dated-snapshot model IDs use a date-version suffix: `claude-{family}-{major}-{minor}@{YYYYMMDD}`. The `@YYYYMMDD` suffix is stripped during normalization; the remainder follows the Anthropic pattern family. Note: a dated-snapshot row may carry its own context window class because Google Cloud sets lifecycle and context independently — as of 2026-09-08 the Sonnet 4.5 row does (Google still offers the 1M Preview that the Anthropic API retired; see Normalization Table). **Every model from the 4.6 generation on (Opus 4.6+, Sonnet 4.6+, the Claude 5 family) uses the bare first-party ID with no `@` suffix on Google Cloud**, so those are matched by the Anthropic-direct patterns — pattern-indistinguishable by design (see Table notes). Dated `@YYYYMMDD` IDs exist only for the 4.5 generation and earlier (Sonnet 4.5, Opus 4.5, Haiku 4.5, and older models); the table registers `@*` rows only for Sonnet 4.5 and Haiku 4.5.
 
-Examples: `claude-sonnet-4-5@20250929`, `claude-haiku-4-5@20251001` (dated snapshots); `claude-opus-5` (current-generation, bare)
+Examples: `claude-sonnet-4-5@20250929`, `claude-haiku-4-5@20251001` (dated snapshots); `claude-fable-5-1`, `claude-opus-5` (current-generation, bare)
 
 ## Normalization Table
 
@@ -142,21 +142,20 @@ Matching policy: longest-match when multiple rules overlap (per the matching-pol
 
 | raw_pattern | normalized_id | family_tier | context_window_class | reasoning_class | context_management_class | lifecycle | evidence_status |
 |---|---|---|---|---|---|---|---|
-| `claude-fable-5*` | `fable-5-anthropic` | `fable` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
-| `anthropic.claude-fable-5*` | `fable-5-bedrock` | `fable` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `claude-fable-5-1*` | `fable-5.1-anthropic` | `fable` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `anthropic.claude-fable-5-1*` | `fable-5.1-bedrock` | `fable` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
+| `claude-fable-5*` | `fable-5-anthropic` | `fable` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
+| `anthropic.claude-fable-5*` | `fable-5-bedrock` | `fable` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
 | `claude-opus-5*` | `opus-5-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
 | `anthropic.claude-opus-5*` | `opus-5-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
 | `claude-opus-4-8*` | `opus-4.8-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
 | `anthropic.claude-opus-4-8*` | `opus-4.8-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
-| `claude-opus-4-7@*` | `opus-4.7-vertex` | `opus` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
 | `claude-opus-4-7*` | `opus-4.7-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
 | `anthropic.claude-opus-4-7*` | `opus-4.7-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
-| `claude-opus-4-6@*` | `opus-4.6-vertex` | `opus` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
 | `claude-opus-4-6*` | `opus-4.6-anthropic` | `opus` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
 | `anthropic.claude-opus-4-6*` | `opus-4.6-bedrock` | `opus` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
 | `claude-sonnet-5*` | `sonnet-5-anthropic` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
 | `anthropic.claude-sonnet-5*` | `sonnet-5-bedrock` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `current` | `observed` |
-| `claude-sonnet-4-6@*` | `sonnet-4.6-vertex` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
 | `claude-sonnet-4-6*` | `sonnet-4.6-anthropic` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
 | `anthropic.claude-sonnet-4-6*` | `sonnet-4.6-bedrock` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
 | `claude-sonnet-4-5@*` | `sonnet-4.5-vertex` | `sonnet` | `1M` | `extended_any` | `compaction_capable` | `legacy` | `observed` |
@@ -170,14 +169,15 @@ Matching policy: longest-match when multiple rules overlap (per the matching-pol
 
 - Bedrock rows (`anthropic.claude-*`) MUST be matched before Anthropic-direct rows (`claude-*`) to prevent the shorter Anthropic pattern from matching a Bedrock prefix. Longest-match ordering in the runner handles this automatically.
 - Vertex rows (`claude-*@*`) MUST be matched before Anthropic-direct rows (`claude-*`) since the `@` suffix distinguishes them. Longest-match ordering handles this.
-- **Claude 5 family (Opus 5, Sonnet 5; added 2026-08-10)**: Sonnet 5 shipped 2026-07-01, Opus 5 2026-07-24. Both normalize to `1M` on Anthropic-direct and Bedrock. Evidence: Anthropic model catalog (both models "1M context window, 128K max output"), Anthropic Bedrock docs context-window statement ("Claude Fable 5, Claude Opus 5, Claude Opus 4.8, Claude Opus 4.7, Claude Opus 4.6, Claude Sonnet 5, and Claude Sonnet 4.6 have a 1M-token context window on Amazon Bedrock").
-- **No Vertex (`@*`) rows for the Claude 5 family**: current-generation models on Vertex use the **bare first-party ID** (no `@YYYYMMDD` suffix), so the Anthropic-direct patterns (`claude-fable-5*`, `claude-opus-5*`, `claude-sonnet-5*`) also match Vertex usage — a separate Vertex row is unrepresentable by pattern. The `@*` rows remain for dated-snapshot IDs of older models. Evidence: Anthropic SDK Vertex client docs ("current-generation models use the bare first-party ID; dated-snapshot models use an `@` version separator").
-- **Claude Fable 5 (registered with fingerprint space 1.1.0)**: the `fable` family tier was added as a purely additive enumeration extension — no 1.0.0 fingerprint changes meaning, and stored baselines compare unchanged. Both variants normalize to `1M`. Evidence: Anthropic model catalog (Fable 5 "1M context window, 128K max output"; adaptive thinking always on; compaction supported) for Anthropic-direct, and the Bedrock docs context-window statement above (which names Claude Fable 5 explicitly) for Bedrock. As with the rest of the Claude 5 family, Vertex current-generation usage is matched by the bare Anthropic-direct pattern.
+- **Claude 5 family (Opus 5, Sonnet 5; added 2026-08-10)**: Sonnet 5 shipped 2026-06-30 (date corrected 2026-09-08 from the catalog's release/retirement record), Opus 5 2026-07-24. Both normalize to `1M` on Anthropic-direct and Bedrock. Evidence: Anthropic model catalog (both models "1M context window, 128K max output"), Anthropic Bedrock docs context-window statement ("Claude Fable 5.1, Claude Fable 5, Claude Opus 5, Claude Opus 4.8, Claude Opus 4.7, Claude Opus 4.6, Claude Sonnet 5, and Claude Sonnet 4.6 have a 1M-token context window on Amazon Bedrock" — wording as re-verified 2026-09-08; the Google Cloud page carries the same list).
+- **No Vertex (`@*`) rows from the 4.6 generation on**: Opus 4.6+, Sonnet 4.6+, and the Claude 5 family use the **bare first-party ID** on Google Cloud (no `@YYYYMMDD` suffix), so the Anthropic-direct patterns (`claude-fable-5-1*`, `claude-fable-5*`, `claude-opus-5*`, `claude-sonnet-5*`, `claude-opus-4-8*`, `claude-opus-4-7*`, `claude-opus-4-6*`, `claude-sonnet-4-6*`) also match Google Cloud usage — a separate Vertex row is unrepresentable by pattern, and the former `claude-opus-4-7@*` / `claude-opus-4-6@*` / `claude-sonnet-4-6@*` rows were removed on 2026-09-08 as ID shapes that never shipped (a dated input still normalizes through the wildcard row to the same fingerprint). The `@*` rows remain only for Sonnet 4.5 and Haiku 4.5 — dated Google Cloud IDs exist for the 4.5 generation and earlier (Opus 4.5 too, but it has no row). Evidence: Anthropic model catalog ("every Claude model ID is a pinned snapshot, including the dateless IDs used from the 4.6 generation on"), Anthropic's Google Cloud model-ID table (bare `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6`; dated `claude-sonnet-4-5@20250929`, `claude-haiku-4-5@20251001`), Anthropic SDK Vertex client docs.
+- **Claude Fable 5 (registered with fingerprint space 1.1.0)**: the `fable` family tier was added as a purely additive enumeration extension — no 1.0.0 fingerprint changes meaning, and stored baselines compare unchanged. Both variants normalize to `1M`. Evidence: Anthropic model catalog (Fable 5 "1M context window, 128K max output"; adaptive thinking always on; compaction supported) for Anthropic-direct, and the Bedrock docs context-window statement above (which names Claude Fable 5 explicitly) for Bedrock. As with the rest of the Claude 5 family, Vertex current-generation usage is matched by the bare Anthropic-direct pattern. **Relabeled `legacy` 2026-09-08**: once Fable 5.1 shipped, the catalog moved Fable 5 to its Legacy-models list (still available; retirement not sooner than 2027-06-09) — recognition and normalization output are unchanged.
+- **Claude Fable 5.1 (released 2026-09-01; rows added 2026-09-08)**: `claude-fable-5-1` / `anthropic.claude-fable-5-1` normalize to `fable` / `1M` / `extended_any` / `compaction_capable` — the same fingerprint as Fable 5, so a Fable 5 → Fable 5.1 upgrade is *not* reported as drift (the advisory compares fingerprints, not IDs). Longest-match routes `claude-fable-5-1` to its own row rather than the shorter `claude-fable-5*` wildcard. Google Cloud, Microsoft Foundry, and Claude Platform on AWS all expose the bare first-party ID `claude-fable-5-1`, so those are matched by the Anthropic-direct row. Fable 5.1 and Mythos 5.1 are the same model under different safeguards; Mythos IDs are limited-availability and intentionally unregistered (fail-safe `null`). Evidence: Anthropic model catalog (Fable 5.1 "1M context window, 128K max output"; adaptive thinking always on), Bedrock and Google Cloud docs context-window statements (both name Claude Fable 5.1), Claude Code model-config docs (`fable` alias resolves to Fable 5.1 from v2.1.255).
 - **Sonnet 4.6 Bedrock upgraded to `1M` (as of 2026-08-10 verification)**: prior table revisions modeled `anthropic.claude-sonnet-4-6*` as `200k`; Anthropic's Bedrock docs now list Sonnet 4.6 among the 1M-context models on Bedrock (same upgrade pattern as Opus 4.6 Bedrock, note below). Evidence: Anthropic Bedrock docs context-window statement.
-- **Opus 4.8 (released 2026-05-28; provider set re-verified 2026-08-10)**: both rows normalize to `1M` context, and the fingerprint holds on all three providers. Bedrock ID is `anthropic.claude-opus-4-8` (no ARN version suffix, per the AWS model card). On Google Cloud (current docs brand the offering "Agent Platform", formerly Vertex AI), Opus 4.8 is exposed with the **bare first-party ID** `claude-opus-4-8` — no `@YYYYMMDD` form ever shipped for it — so Google Cloud usage is matched by the Anthropic-direct pattern exactly as with the Claude 5 family; a former `@*` parity row was removed as an ID shape that never existed. Newer models on Google Cloud are served via global and multi-region endpoints only. Evidence: Anthropic Claude-on-Google-Cloud model-ID table and context-window statement, AWS Claude Opus 4.8 model card (Bedrock).
-- **Lifecycle relabels (2026-08-10)**: Anthropic's model catalog now lists Opus 4.8, Opus 4.7, Opus 4.6, and Sonnet 4.6 in its **Legacy models** table ("still available … consider migrating" — distinct from retired). The corresponding rows are relabeled `legacy`; per the Lifecycle Status Labels contract this changes advisory wording only — recognition and normalization output are unchanged.
-- All three `claude-opus-4-6` variants (Anthropic direct, Bedrock, Vertex) normalize to `1M` context as of 2026-04-20. Prior table revisions modeled Bedrock as `200k`; Bedrock has since upgraded Opus 4.6 to 1M per the AWS model card, and the table is aligned to current provider reality.
-- **Sonnet 4.5 post-retirement (as of 2026-04-30)**: Anthropic-direct (`claude-sonnet-4-5*`) is now `200k` — the `context-1m-2025-08-07` beta retired on April 30, 2026 per Anthropic release notes; requests exceeding 200k now return an error. Bedrock (`anthropic.claude-sonnet-4-5*`) was `200k` from launch. Vertex (`claude-sonnet-4-5@*`) remains `1M observed` — Vertex sets its own retirement schedule independently and 1M is preserved per the Vertex Sonnet 4.5 model card. For 1M context on Anthropic-direct, migrate to a current model — Sonnet 5 or Opus 5 (both 1M by default, no beta header). Evidence: AWS Claude Sonnet 4.5 model card (Bedrock), Vertex Claude Sonnet 4.5 model card (Vertex GA), Anthropic release notes 2026-04-30 (1M beta retirement).
+- **Opus 4.8 (released 2026-05-28; provider set re-verified 2026-08-10)**: both rows normalize to `1M` context, and the fingerprint holds on all three providers. Bedrock ID is `anthropic.claude-opus-4-8` (no ARN version suffix, per the AWS model card). On Google Cloud (current docs brand the offering "Agent Platform", formerly Vertex AI), Opus 4.8 is exposed with the **bare first-party ID** `claude-opus-4-8` — no `@YYYYMMDD` form ever shipped for it — so Google Cloud usage is matched by the Anthropic-direct pattern exactly as with the Claude 5 family; a former `@*` parity row was removed as an ID shape that never existed (the Opus 4.7, Opus 4.6, and Sonnet 4.6 `@*` rows followed on 2026-09-08 for the same reason). Newer models on Google Cloud are served via global and multi-region endpoints only. Evidence: Anthropic Claude-on-Google-Cloud model-ID table and context-window statement, AWS Claude Opus 4.8 model card (Bedrock).
+- **Lifecycle relabels (2026-08-10)**: Anthropic's model catalog now lists Opus 4.8, Opus 4.7, Opus 4.6, and Sonnet 4.6 in its **Legacy models** table ("still available … consider migrating" — distinct from retired). The corresponding rows are relabeled `legacy`; per the Lifecycle Status Labels contract this changes advisory wording only — recognition and normalization output are unchanged. Fable 5 followed on 2026-09-08 (see the Fable 5 note above).
+- Both `claude-opus-4-6` variants (Anthropic direct — which also covers the bare Google Cloud ID — and Bedrock) normalize to `1M` context as of 2026-04-20. Prior table revisions modeled Bedrock as `200k`; Bedrock has since upgraded Opus 4.6 to 1M per the AWS model card, and the table is aligned to current provider reality.
+- **Sonnet 4.5 post-retirement (as of 2026-04-30; Google Cloud re-verified 2026-09-08)**: Anthropic-direct (`claude-sonnet-4-5*`) is `200k` — the `context-1m-2025-08-07` beta retired on April 30, 2026 per Anthropic release notes; requests exceeding 200k now return an error. Bedrock (`anthropic.claude-sonnet-4-5*`) was `200k` from launch. Google Cloud (`claude-sonnet-4-5@*`) stays `1M observed`: Google's Sonnet 4.5 model card still lists "Maximum input tokens: 1M (Preview), 200,000 (GA)", and this table counts a provider preview until the provider retires it (the same rule that kept Anthropic-direct at `1M` until 2026-04-30). Anthropic's own Google Cloud page lists Sonnet 4.5 among the 200k-context models on Agent Platform — that statement describes the GA limit; if Google retires the Preview, flip this row to `200k` and update the t3 fixture. For 1M context without a preview, migrate to a current model — Sonnet 5, Opus 5, or Fable 5.1 (all 1M by default, no beta header). Evidence: AWS Claude Sonnet 4.5 model card (Bedrock), Google Cloud Claude Sonnet 4.5 model card (1M Preview / 200k GA, read 2026-09-08), Anthropic Claude-on-Google-Cloud context-window statement, Anthropic release notes 2026-04-30 (1M beta retirement).
 
 ## Evidence Status Labels
 
@@ -209,9 +209,9 @@ The vendor's model catalog lists the model outside its current section (legacy, 
 
 ### Microsoft Foundry
 
-Microsoft Foundry was evaluated for inclusion in the normalization provider set and dropped during design closure (2026-04-18). Rationale: Foundry uses operator-chosen deployment names rather than provider-stable model IDs, making normalization infeasible without an additional deployment-naming convention contract. Any Foundry deployment-name input returns `null` from the fail-safe semantics; the `/audit` drift advisory is suppressed via the `normalization_null` silence condition.
+Microsoft Foundry was evaluated for inclusion in the normalization provider set and dropped during design closure (2026-04-18): what a Foundry request sends is an operator-chosen deployment name, not a provider-stable model ID, so Foundry has no pattern family of its own. Revisited 2026-09-08: Foundry deployments now *default* to the first-party model ID as the deployment name (e.g. `claude-fable-5-1`, `claude-opus-5`, `claude-opus-4-6` — per Anthropic's model catalog), and such a name is matched by the Anthropic-direct rows like any other bare ID. Only a deployment name that does not carry the model ID returns `null` from the fail-safe semantics; for those the `/audit` drift advisory is suppressed via the `normalization_null` silence condition.
 
-**Future Foundry patch**: if a Foundry deployment-naming convention emerges (enabling stable model ID inference), a future patch release may add Foundry to the provider set. Such an extension would shift previously-`null` Foundry IDs to `match`/`drift` state — a contract-significant change requiring contract-extension review.
+**Future Foundry patch**: if Foundry ever exposes a stable, ID-bearing convention for renamed deployments (enabling model-ID inference from the name), a future patch release may add Foundry to the provider set. Such an extension would shift previously-`null` Foundry names to `match`/`drift` state — a contract-significant change requiring contract-extension review.
 
 ### Future / Unknown Providers
 

@@ -103,6 +103,7 @@ If selected:
    - Exploration/search agents: `haiku` (speed over depth)
    - Implementation/debugging: `sonnet` (balanced)
    - Architecture review/security: `opus` (deep reasoning)
+   - Frontier-tier escalation only: `fable` (about 2x `opus` cost) — suggest solely where `opus` at high effort demonstrably falls short
 3. Ask the user to confirm each change
 4. Update `model:` field with a YAML comment explaining the choice
 

@@ -57,7 +57,7 @@
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Vertex — opus-4.7-vertex, 1M context (current baseline 2026-04-20)"
+    "notes": "Wildcard robustness — no @-dated Opus 4.7 ID ever shipped (Google Cloud exposes the bare ID; the claude-opus-4-7@* row was removed 2026-09-08); input normalizes via the claude-opus-4-7* Anthropic-direct row, same fingerprint"
   },
   {
     "input": "claude-opus-4-6",
@@ -97,7 +97,7 @@
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Vertex — sonnet-4.6-vertex, 1M context"
+    "notes": "Wildcard robustness — no @-dated Sonnet 4.6 ID ever shipped (Google Cloud exposes the bare ID; the claude-sonnet-4-6@* row was removed 2026-09-08); input normalizes via the claude-sonnet-4-6* Anthropic-direct row, same fingerprint"
   },
   {
     "input": "claude-haiku-4-5",
@@ -147,7 +147,7 @@
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Vertex — opus-4.6-vertex, 1M context (the model-drift rules)"
+    "notes": "Wildcard robustness — no @-dated Opus 4.6 ID ever shipped (Google Cloud exposes the bare ID; the claude-opus-4-6@* row was removed 2026-09-08); input normalizes via the claude-opus-4-6* Anthropic-direct row, same fingerprint"
   },
   {
     "input": "claude-sonnet-4-5",
@@ -177,7 +177,7 @@
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Vertex — sonnet-4.5-vertex, 1M context (Vertex GA)"
+    "notes": "Google Cloud dated snapshot — sonnet-4.5-vertex, 1M context (Google's model card still lists 1M (Preview) beside 200k GA; Anthropic's Google Cloud page lists Sonnet 4.5 as 200k — the table counts the provider preview until Google retires it; re-verified 2026-09-08)"
   },
   {
     "input": "gpt-4o-azure-deployment-custom-name",
@@ -232,7 +232,7 @@
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Anthropic direct / Vertex bare current-gen ID — fable-5-anthropic, 1M context (fable family tier added in fingerprint space 1.1.0)"
+    "notes": "Anthropic direct / Vertex bare ID — fable-5-anthropic, 1M context (fable family tier added in fingerprint space 1.1.0; row relabeled legacy 2026-09-08 after Fable 5.1 shipped — recognition unchanged)"
   },
   {
     "input": "anthropic.claude-fable-5",
@@ -242,6 +242,26 @@
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Bedrock — fable-5-bedrock, 1M context (Anthropic Bedrock docs name Fable 5 among 1M-context models)"
+    "notes": "Bedrock — fable-5-bedrock, 1M context (Anthropic Bedrock docs name Fable 5 among 1M-context models; row relabeled legacy 2026-09-08 — recognition unchanged)"
+  },
+  {
+    "input": "claude-fable-5-1",
+    "expected_fingerprint": {
+      "family_tier": "fable",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Anthropic direct / Google Cloud / Foundry bare current-gen ID — fable-5.1-anthropic, 1M context (Fable 5.1 released 2026-09-01; rows added 2026-09-08). Longest-match: the claude-fable-5-1* row wins over the shorter claude-fable-5* wildcard; both yield the same fingerprint, so Fable 5 → 5.1 is not drift"
+  },
+  {
+    "input": "anthropic.claude-fable-5-1",
+    "expected_fingerprint": {
+      "family_tier": "fable",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Bedrock — fable-5.1-bedrock, 1M context (Anthropic Bedrock docs name Claude Fable 5.1 among 1M-context models)"
   }
 ]

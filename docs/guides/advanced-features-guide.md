@@ -1,7 +1,7 @@
 ---
 title: "Advanced Features"
 description: "Hooks, agents, and skills -- extending Claude Code beyond basic configuration"
-version: 1.4.1
+version: 1.4.2
 ---
 
 # Advanced Features
@@ -111,10 +111,11 @@ Four sections keep agent prompts focused: **Scope** defines what the agent can t
 | `haiku` | Fast lookup, file search, exploration | explorer, linter |
 | `sonnet` | Implementation, debugging, test writing | backend-dev, debugger |
 | `opus` | Architecture review, deep analysis | code-reviewer, architect |
+| `fable` | Hardest, longest-running autonomous work — when `opus` at high effort falls short | migration-planner, incident-investigator |
 
 Use `"inherit"` to match the parent session's model. Put the reasoning in a YAML comment (`# opus: needs deep analysis for security review`) so the choice is self-documenting.
 
-**Cost tradeoff:** `haiku` is ~60x cheaper than `opus`. Default to `sonnet`; use `haiku` for high-volume read-only tasks, `opus` only when a single mistake is expensive (security review, architecture decisions).
+**Cost tradeoff:** at list prices `haiku` is ~5x cheaper than `opus` and ~10x cheaper than `fable` (Haiku 4.5 $1/$5, Opus 5 $5/$25, Fable 5.1 $10/$50 per MTok in/out). Default to `sonnet`; use `haiku` for high-volume read-only tasks, `opus` only when a single mistake is expensive (security review, architecture decisions), and `fable` only where `opus` demonstrably falls short.
 
 ### Agent Design Patterns
 

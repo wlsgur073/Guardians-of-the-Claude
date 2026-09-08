@@ -113,7 +113,7 @@ Permission modes (`permissions.defaultMode`) and sandboxing (`sandbox.enabled`) 
 - **Sensitive or unfamiliar code**: `default` (review every tool action)
 - **Iterating on changes you'll review via `git diff`**: `acceptEdits` (auto-approve file edits in working dir)
 - **Exploring before changing**: `plan` (no edits permitted)
-- **Long autonomous tasks within trusted infrastructure**: `auto` (classifier-based; available to all users on every provider — Anthropic API, Claude Platform on AWS, Bedrock, Google Cloud's Agent Platform, Foundry, gateway. Supported models: Claude Opus 4.6+, Sonnet 4.6+, or Fable 5 on the Anthropic API and Claude Platform on AWS; only Sonnet 5, Opus 4.7+, and Fable 5 on the other providers. Org-level control on Team / Enterprise)
+- **Long autonomous tasks within trusted infrastructure**: `auto` (classifier-based; available to all users on every provider — Anthropic API, Claude Platform on AWS, Bedrock, Google Cloud's Agent Platform, Foundry, gateway. Supported models: Claude Opus 4.6+, Sonnet 4.6+, or any Fable model (Fable 5.1 / Fable 5) on the Anthropic API and Claude Platform on AWS; only Sonnet 5, Opus 4.7+, and the Fable models on the other providers. Org-level control on Team / Enterprise)
 - **CI / locked-down scripts**: `dontAsk` (only pre-approved tools)
 - **Containerized or VM-only environments**: `bypassPermissions` (no checks; equivalent to `--dangerously-skip-permissions`)
 

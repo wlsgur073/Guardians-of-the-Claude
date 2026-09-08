@@ -408,7 +408,8 @@ After creating the agent body, ask about model selection:
 > - (a) **haiku** — fastest, cheapest. Best for read-only exploration and file search
 > - (b) **sonnet** — balanced. Best for implementation, debugging, and testing (recommended)
 > - (c) **opus** — deepest reasoning. Best for architecture review and security analysis
-> - (d) **inherit** — use the parent session's model
+> - (d) **fable** — frontier tier (Fable 5.1), about 2x the cost of opus. Only for the hardest, longest-running autonomous work where opus at high effort falls short
+> - (e) **inherit** — use the parent session's model
 
 Use the selection in the agent's `model:` field with a YAML comment explaining the choice:
 `# haiku: read-only exploration, speed over depth`
