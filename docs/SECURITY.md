@@ -2,7 +2,7 @@
 
 ## About This Repository
 
-This repository contains documentation, templates, and examples for configuring Claude Code — **it does not contain executable source code**. There are no running services, APIs, or user data to compromise.
+This repository contains documentation, templates, and examples for configuring Claude Code, plus the `guardians-of-the-claude` plugin. There are no running services, APIs, or hosted user data to compromise. It does ship executable code: the plugin's `SessionStart` hook (`plugin/hooks/session-start.sh`) runs automatically when a Claude Code session starts, resumes, or forks, the skills run helper scripts in `plugin/references/lib/`, and `templates/advanced/hooks/*.sh` are example hooks that adopters copy. Claude Code runs plugin hooks as shell commands with your full user permissions and outside the sandbox.
 
 However, security concerns still apply: templates and examples that teach insecure practices can propagate vulnerabilities into projects that adopt them.
 
@@ -14,12 +14,15 @@ The following are considered security issues in this repository:
 - **Security anti-patterns** in example code snippets (e.g., SQL injection, XSS, command injection, hardcoded credentials)
 - **Exposed sensitive information** accidentally included in any file (API keys, tokens, secrets, internal URLs)
 - **Misleading security guidance** in guides that could lead developers to adopt unsafe practices
+- **Unsafe plugin or hook code** — command injection, unsafe handling of hook input JSON, or file reads/writes beyond what the plugin documents (its state directory under `.claude/.plugin-cache/guardians-of-the-claude/local/`, the read-only transcript and `guardians/config.json` reads) in `plugin/hooks/*.sh`, `plugin/references/lib/*.sh`, or `templates/advanced/hooks/*.sh`, or skill instructions that could steer Claude into unsafe actions
 
 The following are **not** security issues (please open a regular issue instead):
 
 - Typos or formatting errors
 - Outdated but non-harmful information
 - Feature requests or general improvements
+
+Vulnerabilities in Claude Code itself (as opposed to this repository's content) are out of scope here. Do not open an issue or advisory for them in this repository; report them privately to Anthropic as described under [Reporting security issues](https://code.claude.com/docs/en/security#reporting-security-issues) in the Claude Code security docs.
 
 ## Reporting
 

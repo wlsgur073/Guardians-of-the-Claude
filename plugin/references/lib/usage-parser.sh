@@ -6,8 +6,16 @@
 # (matches plugin/hooks/session-start.sh). Fails open: bad lines are skipped, missing
 # fields default to 0/empty, a missing/unreadable projects dir yields an empty-but-valid summary.
 # jq absence is a hard-dependency error (nonzero exit), NOT a fail-open case (see guard below).
+# Caveat: the transcript entry format is internal to Claude Code and can change on any
+# release (code.claude.com/docs/en/sessions#where-transcripts-are-stored). Treat every
+# figure as a heuristic estimate, and re-check the field paths read below (.type,
+# .timestamp, .isSidechain, .message.model, .message.usage.*, .message.content[].type/.name)
+# after Claude Code upgrades.
 set -uo pipefail   # NOTE: no -e — a single bad transcript line must not abort the run.
 
+# Note: with CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1, Claude Code strips CLAUDE_CONFIG_DIR from
+# Bash-tool and hook subprocesses, so a custom config dir falls back to ~/.claude here;
+# set GUARDIANS_USAGE_PROJECTS_DIR explicitly in that case.
 PROJECTS_DIR="${GUARDIANS_USAGE_PROJECTS_DIR:-${CLAUDE_CONFIG_DIR:-${HOME:-}/.claude}/projects}"
 PRICES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/model-prices.json"
 
@@ -38,10 +46,16 @@ if [ ! -d "$PROJECTS_DIR" ]; then
   emit_empty; exit 0
 fi
 
-# Pass 1 — one usage record per assistant message (session = file basename).
+# Pass 1 — one usage record per assistant message. Session id = the top-level
+# transcript basename (<session>.jsonl); a subagent transcript stored under
+# <session>/subagents/ is attributed to that parent <session> directory.
 records=$(
   find "$PROJECTS_DIR" -type f -name '*.jsonl' 2>/dev/null | while IFS= read -r f; do
-    jq -cR --arg session "$(basename "$f" .jsonl)" '
+    case "$f" in
+      */subagents/*) sess="${f%/subagents/*}"; sess="${sess##*/}" ;;
+      *)             sess="$(basename "$f" .jsonl)"; sess="${sess%%.orphaned-*}" ;;
+    esac
+    jq -cR --arg session "$sess" '
       fromjson?
       | select(.type=="assistant" and (.message.usage != null))
       | { session:$session, ts:(.timestamp // ""), model:(.message.model | strings // "unknown"),

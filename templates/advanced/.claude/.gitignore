@@ -1,2 +1,3 @@
-# Claude Code local-only artifacts (skill state + hook outputs)
+# Claude Code local-only artifacts (personal settings, skill state, hook outputs)
+settings.local.json
 local/

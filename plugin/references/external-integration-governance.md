@@ -1,12 +1,12 @@
 ---
 title: External-Integration Capability Governance
 description: A per-integration contract checklist for any external capability Claude Code calls (retriever, memory store, scanner, MCP tool, installed skill/plugin, subprocess) — declare scope, trust, provenance, freshness, privacy, disable, and smoke-vetting before enabling it, scaling scrutiny to the authority delegated.
-version: 1.1.0
+version: 1.1.1
 ---
 
 # External-Integration Capability Governance
 
-For projects that connect Claude Code to an external capability — a retriever, memory store, scanner, MCP server, installed skill/plugin, or subprocess. Claude Code ships no such engine; you *integrate* one (see [mcp-guide.md](../../docs/guides/mcp-guide.md)). This file governs that integration through configuration. It does **not** teach you to build a retriever or memory store.
+For projects that connect Claude Code to an external capability — a retriever, memory store, scanner, MCP server, installed skill/plugin, or subprocess. Claude Code ships no semantic-search or vector-retrieval engine. Its built-in memory (CLAUDE.md files and auto memory's `MEMORY.md` index plus topic files) is plain Markdown that Claude loads or reads directly, so you *integrate* such an engine (see [mcp-guide.md](../../docs/guides/mcp-guide.md)). This file governs that integration through configuration. It does **not** teach you to build a retriever or memory store.
 
 Most of the underlying rules already live elsewhere; this is the one place that forces them into a single declaration per integration.
 
@@ -24,7 +24,7 @@ The depth required for provenance, freshness/revocation, and smoke-vetting rises
 
 - State what the integration may **read** vs **write** (a docs server is read-only; a database server is read + write).
 - Side-effecting calls go in `permissions.ask:[]`, not `allow:[]`.
-- Define a **safe-disable path** — an env var or feature flag that turns it off with graceful degradation (the env-var convention in [security-patterns.md § Hook Profiles](security-patterns.md#hook-profiles-env-var-gating)).
+- Define a **safe-disable path** — an env var or feature flag that turns it off with graceful degradation (the env-var convention in [security-patterns.md § Hook Profiles](security-patterns.md#hook-profiles-env-var-gating)). For MCP servers, Claude Code also has native off-switches that keep the config: toggle the server off in `/mcp`, reject a `.mcp.json` server with `disabledMcpjsonServers`, or block it everywhere with a `deniedMcpServers` entry matched by `serverUrl` or `serverCommand`. Deploy that entry in managed settings to enforce it; `serverName` matches only the user-chosen label and is not a security control.
 
 ## 2. Output trust & provenance
 
@@ -54,7 +54,7 @@ When you cannot fully satisfy the contract, don't default to enable-anyway. Step
 
 1. **Admit** — read-only, identity pinned, revocable → enable directly.
 2. **Mediate** — side-effecting → wrap behind a permission/egress layer: route calls to `permissions.ask:[]`, scope `autoMode.environment`, prefer per-function tool schemas.
-3. **Quarantine** — trust unproven → enable only under sandbox + throwaway data + minimal scope until trust is established (see [security-patterns.md § Sandboxing by blast radius](security-patterns.md#sandboxing-by-blast-radius)).
+3. **Quarantine** — trust unproven → enable only inside an isolated container or VM, with throwaway data and minimal scope, until trust is established. Claude Code's built-in sandbox is not that boundary: it wraps only the shell commands Claude runs (Bash, PowerShell, and Monitor commands and their child processes), while local MCP servers, hooks, plugin monitors, and LSP servers run outside it with your full access (see [security-patterns.md § Sandboxing by blast radius](security-patterns.md#sandboxing-by-blast-radius) for what it does cover).
 4. **Reject / defer** — identity cannot be pinned (e.g. `npx -y` with no version) or revocation has no [safe-disable path](security-patterns.md#hook-profiles-env-var-gating) → do not enable.
 
 ## Out of scope

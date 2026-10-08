@@ -1,7 +1,7 @@
 ---
 title: "Multi-Agent Patterns"
 description: "Orchestrator-Worker, effort scaling, sub-agent context budget, breadth-first search, parallel dispatch — for Claude Code subagent workflows"
-version: 1.3.0
+version: 1.3.1
 ---
 
 # Multi-Agent Patterns
@@ -34,7 +34,7 @@ For *every* worker, the lead specifies four things:
 3. **Tool guidance** — which tools to prefer or avoid
 4. **Boundaries** — what NOT to touch or explore
 
-When a worker maps to a defined `.claude/agents/<name>.md`, back its **Boundaries** with a hard `tools:` allow-list (the *Read-only agents* pattern in [Advanced Features — Agents](advanced-features-guide.md#agents): remove Edit/Write) — an enforced capability grant, not just a soft "avoid Bash" instruction the worker can ignore.
+When a worker maps to a defined `.claude/agents/<name>.md`, back its **Boundaries** with a hard `tools:` allow-list. Use the *Read-only agents* pattern in [Advanced Features — Agents](advanced-features-guide.md#agents): remove Edit/Write. Also leave out `Agent` unless the worker should fan out further, since subagents can spawn their own subagents by default. The allow-list is an enforced capability grant, not just a soft "avoid Bash" instruction the worker can ignore.
 
 Anthropic reports: "Without detailed task descriptions, agents duplicate work, leave gaps, or fail to find necessary information."
 
@@ -90,7 +90,7 @@ Going deep first wastes calls if you picked the wrong branch.
 
 For local parallel dispatch via `claude -p` loops, see [Workflow Patterns — Fan-out for batch tasks](workflow-patterns-guide.md#fan-out-for-batch-tasks) — includes cost and safety warnings; do not run a fan-out without reading them. For `git worktree` session isolation as a separate parallelism mechanism, see [Workflow Patterns — Worktrees and parallel sessions](workflow-patterns-guide.md#worktrees-and-parallel-sessions).
 
-For Claude Code's *built-in* subagent dispatch via the `Agent` tool, the orchestrator-worker pattern above maps directly — the parent session is the lead, each `Agent` invocation is a worker.
+Claude Code's *built-in* mechanisms map onto orchestrator-worker directly: with **subagents** (the `Agent` tool) the parent session is the lead and each invocation is a worker; subagents can nest up to three layers and at most 20 run at once by default (`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`, `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`). **Agent teams** (experimental; `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`) add a shared task list and direct teammate messaging under a lead, **dynamic workflows** move the lead's plan into a script for dozens to hundreds of workers ([Dynamic Workflows Guide](workflows-guide.md)), and `/batch` packages a 5–30-worker worktree fan-out. See [Run agents in parallel](https://code.claude.com/docs/en/agents) to compare them.
 
 ## Plan dependency waves before dispatch
 
@@ -128,7 +128,7 @@ When an orchestrator delegates work to a worker (subagent), the inter-agent prot
 
 - Return-format: one-line verdict ("MATCH" / "MISMATCH: [reason]") plus the byte-compared lines.
 - Verification handoff: worker performs read-back; orchestrator treats verdict as evidence (still subject to tool-success ≠ task-correct).
-- Inspectability: `SubagentStop` hook records the worker's verdict in the decision changelog.
+- Inspectability: a `SubagentStop` hook logs the worker's completion and reads its verdict from `last_assistant_message`. In auto mode (v2.1.271+), the report goes through the `SubagentHandback` tool instead, so capture it with a `PostToolUse` hook matched on `SubagentHandback` (`tool_input.message`).
 
 These elements are not tools — they are disciplines encoded in how peers prompt each other. State them explicitly in each dispatch.
 

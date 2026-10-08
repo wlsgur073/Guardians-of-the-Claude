@@ -1,7 +1,7 @@
 ---
 title: Verification Discipline
 description: Operational verification — read-back-after-edit, tool-success vs task-correct, scope-checked reporting. Complementary to critical-thinking.md.
-version: 1.1.0
+version: 1.1.1
 ---
 
 # Verification Discipline
@@ -20,13 +20,13 @@ Three named concepts shape verification practice.
 
 ## Read-Back-After-Edit
 
-After any Edit that lands a regex-anchored change, re-read the surrounding lines. Tool-level "Edit succeeded" means the regex matched and a replacement happened — not that the right region was matched.
+After any non-trivial Edit, re-read the surrounding lines. Claude Code's Edit tool does exact string replacement, not regex: a tool-level "Edit succeeded" means `old_string` matched exactly once (or at every occurrence, with `replace_all: true`) and was replaced. It does not mean the matched text was the region you intended. It also does not mean the rest of the file is as you last saw it, because since v2.1.208 an edit can apply to a file that changed on disk after your last read.
 
 **Example.** Adding a deny pattern to `templates/advanced/.claude/settings.json`:
 
 1. Edit lands: `"deny": ["Read(./.env)"]` becomes `"deny": ["Read(./.env)", "Bash(rm -rf *)"]`.
 2. Read back lines 8-15 of `settings.json`. Confirm the new pattern appears AND the JSON is still valid (closing bracket, no trailing comma where there shouldn't be one).
-3. If the regex matched something unexpected (e.g., a `"deny"` key in an unrelated nested object), the read-back surfaces it; the Edit exit code does not.
+3. If `old_string` matched somewhere unexpected (e.g., its only exact match is a `"deny"` array in an unrelated nested object, or `replace_all` rewrote more occurrences than intended), the read-back surfaces it; the Edit result does not.
 
 Skip read-back only for truly trivial changes (typos, whitespace) where the failure mode is visible at the same level the edit happened.
 
@@ -66,7 +66,7 @@ Use this template at the end of any Job that ships content into the repo. Items 
 - [ ] Cross-references resolve (target files exist; anchor slugs match GitHub-flavored markdown slugification)
 - [ ] Evidence label assigned (one of: public-doc-backed, repo-derived, generalized-pattern, speculative); any within-Job claim of different evidence class locally marked
 - [ ] No anti-goal violation (per the project's anti-goal list: no direct third-party quotes, no vendor-does-X claims, no speculative date commitments, no external-source branding in filenames/titles)
-- [ ] Read-back performed on every regex-anchored Edit
+- [ ] Read-back performed on every non-trivial Edit (exact-string `old_string` match confirmed in the intended region)
 - [ ] Tool-success ≠ task-correct check performed
 - [ ] Original requirement re-confirmed against the FINAL artifact — not just per-edit: a later edit in the same Job did not silently regress what an earlier edit established (the original goal still holds end-to-end)
 - [ ] Scope-checked report drafted (what was checked, what wasn't)

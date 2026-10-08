@@ -1,12 +1,14 @@
 ---
 title: "Skill & Tool Description Quality"
 description: "Domain expert framing, dual-format responses, error message design, evaluation-driven iteration"
-version: 1.1.0
+version: 1.1.1
 ---
 
 # Skill & Tool Description Quality
 
-Skill `description` fields are pre-loaded into the system prompt at session start. Claude reads them to decide whether to trigger the skill. Poorly written descriptions mean skills never fire when relevant — well-tuned ones beat raw functionality. Apply these principles when authoring or reviewing any skill, tool, or hook description.
+Skill `description` fields, plus the optional `when_to_use` field that Claude Code appends to them, are loaded into a skill listing in Claude's context at session start; a skill with `disable-model-invocation: true` keeps its description out of that listing. Claude reads the listing to decide whether to trigger a skill. Each entry's combined text is cut at 1,536 characters, and the whole listing is capped at about 1% of the context window; on overflow the least-used skills lose their descriptions first, so put the key use case and trigger phrase first in `description`. Poorly written descriptions mean skills never fire when relevant — well-tuned ones beat raw functionality. Apply these principles when authoring or reviewing any skill, tool, or hook description.
+
+For MCP tools, Claude Code truncates each tool description and each server's instructions at 2,048 characters by default (`CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH` changes it), so put critical details first. With tool search on (the default), Claude initially sees only tool names and server instructions. Write the instructions to say what tasks the tools handle and when Claude should search for them.
 
 ## Principles
 
@@ -38,7 +40,7 @@ Support a `response_format` enum with at least two modes:
 | `"concise"` | Quick lookup / chained tool calls — return only the minimum fields the caller needs |
 | `"detailed"` | Full record / human-readable output |
 
-This saves context when many tools chain together. Anthropic's [writing-tools-for-agents](https://www.anthropic.com/engineering/writing-tools-for-agents) article specifies the *dual-mode contract*; specific token counts are not prescribed — tune each tool to the caller's typical pipeline.
+This saves context when many tools chain together. Anthropic's [writing-tools-for-agents](https://www.anthropic.com/engineering/writing-tools-for-agents) article specifies the *dual-mode contract*; specific token counts are not prescribed — tune each tool to the caller's typical pipeline. Claude Code enforces its own ceiling on MCP results. A successful text result over 50,000 characters, or over `MAX_MCP_OUTPUT_TOKENS` (default 25,000 tokens), is saved to a file and Claude gets only the path. A tool that legitimately returns large output, such as a schema dump, can raise its own threshold with `_meta["anthropic/maxResultSizeChars"]` in its `tools/list` entry (up to 500,000 characters).
 
 ### 4. Meaningful error messages
 
@@ -64,6 +66,8 @@ Description quality is rarely right on the first draft. Use evaluation-driven it
 2. Have Claude analyze where the skill should have triggered but did not, or triggered when it should not have.
 3. Propose description refinements based on observed failure modes.
 4. Re-run a small eval set; measure trigger rate and parameter-error rate.
+
+Claude Code ships tooling for this loop. For a plugin skill, write eval cases with a `tool_used: Skill` grader and run `claude plugin eval` after each description change (see [Test plugins with evals](https://code.claude.com/docs/en/plugin-evals)). The `skill-creator` plugin's description tuning generates should-trigger and should-not-trigger prompts and reports the hit rate.
 
 Refinement cycles regularly improve trigger accuracy and reduce parameter errors over time. The cadence (how many invocations to gather before each refinement pass) depends on your invocation volume — tune to your eval signal.
 

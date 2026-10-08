@@ -1,14 +1,14 @@
 ---
 title: "Memory Patterns"
 description: "How Claude's persistent memory works — the four memory types, frontmatter schema, MEMORY.md index, what-NOT-to-save rules, and the boundary between memory, plan, and task."
-version: 1.0.1
+version: 1.0.2
 ---
 
 # Memory Patterns
 
 Claude Code's auto-memory system gives Claude persistent context across sessions — who you are, how you prefer to work, what the project is about, where related resources live. This guide covers the schema your project should expect, what does and doesn't belong in memory, and how memory differs from in-conversation state.
 
-Auto-memory is enabled by default (`autoMemoryEnabled: true` in `settings.json`); see the [official memory documentation](https://code.claude.com/docs/en/memory) for storage location and toggle. This guide documents the *patterns* — not the toggle mechanics.
+Auto-memory is on by default in local sessions; outside Claude Tag sessions, a session in a self-hosted environment defaults to off. Turn it off with `"autoMemoryEnabled": false` in settings or the `/memory` toggle; see the [official memory documentation](https://code.claude.com/docs/en/memory) for storage location and toggle. This guide documents the *patterns* — not the toggle mechanics.
 
 ## The four memory types
 
@@ -41,7 +41,7 @@ Link related memories with `[[their-name]]` references. A `[[name]]` that doesn'
 
 ## The MEMORY.md index
 
-`MEMORY.md` is the index, not a memory itself. Each entry is one line under ~150 characters: `- [Title](file.md) — one-line hook`. No frontmatter. Lines past 200 are truncated when loaded into Claude's context, so keep the index concise.
+`MEMORY.md` is the index, not a memory itself. Each entry is one line under ~150 characters: `- [Title](file.md) — one-line hook`. No frontmatter. Only the first 200 lines or 25KB of `MEMORY.md`, whichever comes first, load at session start; Claude Code reminds Claude to shorten the index as it nears either limit and returns an error on a write that leaves it over, so keep the index concise. Topic files are not loaded at startup -- Claude reads them on demand.
 
 Organize semantically by topic, not chronologically. Update or remove entries that turn out to be wrong or outdated. Never write duplicate memories — check the existing index first.
 
@@ -59,7 +59,7 @@ These exclusions apply even when the user asks. If asked to save a PR list or ac
 
 ## Verify before recommending
 
-Memory records become stale over time. A memory naming a specific function, file, or flag is a claim that it existed *when the memory was written*. Before recommending it:
+Memory records become stale over time. A memory naming a specific function, file, or flag is a claim that it existed *when the memory was written*. Claude Code (v2.1.214+) stamps a `modified` ISO 8601 timestamp into a memory file's frontmatter each time Claude writes it, so check that first to judge how old the claim is. Before recommending it:
 
 - If the memory names a file path: check the file exists.
 - If the memory names a function or flag: grep for it.
@@ -74,11 +74,12 @@ Memory is one of several persistence mechanisms. Use the right one:
 | Mechanism | Scope | When to use |
 |---|---|---|
 | **Memory** (auto-memory files) | Cross-conversation | Facts that should apply in future sessions: user identity, feedback rules, project state, external references |
-| **Plan** (in-conversation plan from `/superpowers:writing-plans` or `EnterPlanMode`) | Current conversation | Multi-step approach the user has approved before implementation |
-| **Task** (`TaskCreate` / `TaskUpdate` / `TaskList`) | Current conversation | Tracking discrete steps within the current implementation |
+| **Subagent memory** (`memory: user`, `project`, or `local` in agent frontmatter) | Cross-conversation, per subagent | A subagent's own learnings, kept in `~/.claude/agent-memory/`, `.claude/agent-memory/`, or `.claude/agent-memory-local/`; separate from the main auto memory, which subagents don't load |
+| **Plan** (plan mode: `Shift+Tab`, a `/plan` prefix, or `--permission-mode plan`) | Current task -- the plan file is saved under `~/.claude/plans/` (or `plansDirectory`) and re-injected after compaction | Multi-step approach the user has approved before implementation |
+| **Task list** (`TaskCreate` / `TaskUpdate` / `TaskList`) | Current session (survives compaction) | Tracking discrete steps within the current implementation. Provided by default only on older models (Claude 3.x, Opus 4–4.7, Sonnet 4–4.6, Haiku 4.5) and in background and cloud sessions; elsewhere, such as on Opus 5.5, opt in with `CLAUDE_CODE_ENABLE_TODO_TOOLS=1` |
 | **Plugin compaction** ([`plugin/references/compaction.md`](../../plugin/references/compaction.md)) | Plugin-internal state | Plugin's own summarization of its state — distinct from agent memory; do not modify from outside the plugin |
 
-If you're tempted to save in-conversation state to memory, use Tasks. If you're tempted to save planning decisions to memory, use a Plan. Memory is the slow-and-durable mechanism; tasks and plans are the fast-and-ephemeral mechanisms.
+If you're tempted to save in-conversation state to memory, keep it in the conversation (or the task list, where your session has the task tools). If you're tempted to save planning decisions to memory, use a Plan. Memory is the slow-and-durable mechanism; tasks and plans are the fast-and-ephemeral mechanisms.
 
 Plugin compaction is a separate concern: it's the plugin's own internal-state summarization, not agent memory, and follows its own rules.
 

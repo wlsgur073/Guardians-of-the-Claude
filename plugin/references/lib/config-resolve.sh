@@ -15,6 +15,9 @@ set -uo pipefail
 PROJECT_DIR="${1:-.}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEFAULTS="${GUARDIANS_CONFIG_DEFAULTS:-$SCRIPT_DIR/guardians-config.defaults.json}"
+# Note: with CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1 (Claude Code v2.1.251+), Claude Code strips
+# CLAUDE_CONFIG_DIR from Bash-tool subprocesses, so a user tier under a custom config dir is
+# not found and the path falls back to ~/.claude; GUARDIANS_USER_CONFIG can point at it explicitly.
 USER_CONFIG="${GUARDIANS_USER_CONFIG:-${CLAUDE_CONFIG_DIR:-${HOME:-}/.claude}/guardians/config.json}"
 PROJECT_CONFIG="$PROJECT_DIR/.claude/guardians/config.json"
 

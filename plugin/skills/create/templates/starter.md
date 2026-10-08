@@ -55,6 +55,7 @@ Before writing any files, silently scan the project to ground your output in rea
 1. List all files and directories in the project (use `find . -maxdepth 3 -not -path './.git/*'` or equivalent)
 2. Read the dependency manifest (requirements.txt, package.json, Cargo.toml, go.mod, pom.xml) to know exactly what packages are available
 3. Skim the main source file(s) to note actual endpoints, routes, commands, or entry points
+4. Check for an `AGENTS.md` (or `.claude/AGENTS.md`) at the project root. If one exists, make an import of it (`@AGENTS.md` or `@.claude/AGENTS.md`) the first line of the generated `CLAUDE.md`, above `# Project Overview`, and do not repeat its content in the 7 sections. By default, Claude Code stops reading `AGENTS.md` on its own once a `CLAUDE.md` exists. The import keeps it loaded and never loads it twice.
 
 Use these findings in Phase 3S — reference only directories that exist, suggest only commands for installed packages, and mention at least one concrete detail from the actual code.
 
@@ -111,7 +112,7 @@ The **Development Approach** section must include these rules:
 ```
 
 - `allow`: add test, lint, and build commands from Q3 (e.g., `"Bash(npm test)"`, `"Bash(npm run lint)"`)
-- `deny`: add Essential deny patterns as sensible defaults: `"Read(./.env)"`, `"Read(./.env.*)"`, `"Edit(./.env)"`, `"Edit(./.env.*)"`, `"Write(./.env)"`, `"Write(./.env.*)"`, `"Read(./secrets/)"`, `"Edit(./secrets/)"`, `"Write(./secrets/)"`
+- `deny`: add Essential deny patterns as sensible defaults: `"Read(./.env)"`, `"Read(./.env.*)"`, `"Edit(./.env)"`, `"Edit(./.env.*)"`, `"Read(./secrets/)"`, `"Edit(./secrets/)"`. `Edit` rules cover every file-editing tool, Write included. Do not add `Write(path)` rules: Claude Code never checks them and warns about them at startup.
 
 **`.gitignore`** — if `.gitignore` exists, append this line if not already present. If `.gitignore` does not exist, create it with this line:
 

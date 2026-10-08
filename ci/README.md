@@ -22,11 +22,12 @@ Canonical regression fixtures + golden snapshots for `guardians-of-the-claude`. 
 
 For faster iteration during fixture development, individual fixtures can be exercised via dedicated runners instead of the full smoke run:
 
-- `scripts/t3_model_drift_check.py` — `t3-model-drift` (the 19-case model-fingerprint conformance suite over `test-cases.json`)
+- `scripts/t3_model_drift_check.py` — `t3-model-drift` (the model-fingerprint conformance suite over `test-cases.json`; the runner prints the current case count)
 - `scripts/t7_optimize_e2e_check.py` — `t7-optimize-e2e`
 - `scripts/t7_secure_counts_check.py` — `t7-secure-counts`
 - `scripts/t7_secure_e2e_check.py` — `t7-secure-e2e`
 - `scripts/t8_usage_recs_e2e_check.py` — `t8-usage-recs-e2e`
+- `scripts/config_resolve_check.py` — `config-resolve` (the `guardians/config.json` tier-merge helper)
 
 These runners are CI-gated by the `atomic-fixture-runners-check` job in `.github/workflows/docs-check.yml`, which runs them on every push to `main`, on pull requests, and on version tags. They remain runnable standalone for fast local iteration. Note the **smoke** lane (`run-smoke.sh`) still does **not** execute them: `check-smoke-fixtures.py` imports the t3 `model-drift-rules.md` parser for the drift-state fixtures but does not run `test-cases.json`, and the `t7-*` scenarios are not in the smoke fixture set — the docs-check job is their gate.
 

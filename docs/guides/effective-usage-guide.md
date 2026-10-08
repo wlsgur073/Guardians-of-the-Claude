@@ -1,7 +1,7 @@
 ---
 title: "Effective Usage Patterns"
 description: "Essential day-one patterns for using Claude Code effectively"
-version: 1.8.4
+version: 1.8.5
 ---
 
 # Effective Usage Patterns
@@ -29,7 +29,7 @@ npm run lint         # check for style issues
 npm run build        # verify TypeScript compiles
 ```
 
-When prompting, provide verification criteria: expected outputs, test cases, screenshots. Claude produces dramatically better results when it can verify its own work rather than relying on plausible-looking output.
+When prompting, provide verification criteria: expected outputs, test cases, screenshots. Claude produces dramatically better results when it can verify its own work rather than relying on plausible-looking output. To keep Claude iterating across turns until a check passes, set it as a goal (`/goal all tests in test/auth pass`); a separate evaluator re-checks the condition after every turn.
 
 ### Operational verification
 
@@ -41,10 +41,10 @@ For non-trivial tasks, follow this cycle:
 
 1. **Explore** -- Ask Claude to read relevant files and understand the current state
 2. **Plan** -- Use Plan Mode to create a plan before coding
-3. **Implement** -- Switch to Normal Mode and execute the plan
+3. **Implement** -- Approve the plan (or press `Shift+Tab` to leave Plan Mode) and let Claude execute it, verifying against the plan
 4. **Commit** -- Review changes and commit
 
-**Plan Mode:** Press `Shift+Tab` twice to enter Plan Mode. Claude uses read-only tools to explore and creates an implementation plan for your approval. Review the plan, then switch back to Normal Mode for execution. For the strategic significance of Plan Mode, see the [Trustworthy Agents Guide § Plan Mode as Strategy-Level Oversight](trustworthy-agents-guide.md#plan-mode-as-strategy-level-oversight).
+**Plan Mode:** Press `Shift+Tab` until the status bar shows `⏸ plan mode on`, prefix a prompt with `/plan`, or launch with `claude --permission-mode plan`. Claude explores without editing your source and presents an implementation plan. Approving it exits Plan Mode into the mode you choose (for example **Yes, and use auto mode** or **Yes, manually approve edits**). For the strategic significance of Plan Mode, see the [Trustworthy Agents Guide § Plan Mode as Strategy-Level Oversight](trustworthy-agents-guide.md#plan-mode-as-strategy-level-oversight).
 
 **Skip planning for trivial tasks** -- typo fixes, log line additions, simple renames. Planning adds overhead that is not worth it for small changes.
 
@@ -53,30 +53,30 @@ For non-trivial tasks, follow this cycle:
 | Command | What it does |
 | --------- | ------------- |
 | `Esc` | Interrupt Claude mid-action. Context is preserved. |
-| `Esc` twice / `/rewind` | Open the rewind menu — restore conversation, code, or both to a checkpoint |
+| `Esc` twice (empty prompt) / `/rewind` | Open the rewind menu: restore conversation, code, or both to a checkpoint, or **Summarize from here** / **Summarize up to here** to compact only part of the conversation. With text in the prompt, `Esc` twice clears the draft instead. |
 | `/clear` | Reset context between unrelated tasks. **Use frequently.** |
 | `/compact` | Summarize conversation to free context. Add focus: `/compact focus on the API changes` |
-| `/memory` | Browse and edit memory files. To add a learning mid-session, ask Claude: `add this to CLAUDE.md` or `remember this`. |
+| `/memory` | Open and edit CLAUDE.md files, toggle auto memory, browse what Claude saved. Mid-session, `add this to CLAUDE.md` writes to the shared CLAUDE.md; `remember this` saves to machine-local auto memory. |
 | `/context` | See what is using space in your context window. Diagnose when context is getting full. |
-| `--continue` / `--resume` | Resume your most recent conversation (`--continue`) or pick one (`--resume`) — launch flags. |
+| `--continue` / `--resume` · `/rename` | Resume your most recent conversation (`--continue`) or pick one (`--resume`); name sessions with `/rename` so the picker shows meaningful labels. |
 | `/btw` | Side question — answer renders in a dismissible overlay and does NOT enter conversation history. |
-| `/rename` | Name the current session. Helps `claude --resume` show meaningful labels. |
+| `/effort` | Set reasoning depth (`low` to `xhigh`, `max`). The 5.5 models default to `medium`; raise it for hard debugging, or add `ultrathink` to a single prompt for a one-off deeper pass. |
 | `Ctrl+G` (in plan mode) | Open the current plan in your text editor for direct edits. |
-| `Esc + Esc` → **Summarize from here** | Partial compaction — pick a checkpoint and condense forward while keeping earlier context intact. |
 
 **The most underused command is `/clear`.** When you finish one task and start another, clear the context. Leftover context from the previous task confuses Claude and wastes space.
 
 ## Permission Modes
 
-`Shift+Tab` cycles through three modes:
+New terminal and VS Code sessions start in **Auto** mode (Claude Code v2.1.283+, when auto mode is available for your model and organization). `Shift+Tab` cycles Auto → Manual → Accept edits → Plan → Auto, and the status bar shows the active mode:
 
-| Mode | Behavior |
+| Mode (config value) | Behavior |
 | ------ | ---------- |
-| **Default** | Claude asks before edits and commands |
-| **Auto-accept edits** | Claude edits files freely, still asks for commands |
-| **Plan mode** | Read-only tools only. Creates a plan you approve before execution. |
+| **Auto** (`auto`) | Runs without routine prompts; a classifier model blocks out-of-scope or risky actions. Explicit `ask` rules still prompt |
+| **Manual** (`default`) | Asks before most edits, shell commands, and network access |
+| **Accept edits** (`acceptEdits`) | Edits files and runs common filesystem commands (`mkdir`, `mv`, `cp`, ...) in the working directory; asks for other commands |
+| **Plan** (`plan`) | Researches and writes a plan; no source edits until you approve it |
 
-Start with Default mode. Move to Auto-accept when you trust the task is low-risk. Use Plan mode for complex tasks where you want to review the approach first.
+Switch to Manual for sensitive work or unfamiliar code, or make it your default with `"permissions": { "defaultMode": "default" }` in `~/.claude/settings.json`. Use Plan for complex tasks where you want to review the approach first. See the [Settings Guide](settings-guide.md) for `dontAsk` and `bypassPermissions`.
 
 ## Output Discipline
 
@@ -89,13 +89,13 @@ Quality output is short, direct, and free of agent-side framing. Encode these in
 
 ## Tool Hierarchy
 
-Within any given task, multiple tools could accomplish the same thing. Pick the surgical tool — reaches the result with less context AND respects permission scopes (`Read` honors `permissions.deny:[]`; Bash equivalents bypass tool-level rules):
+Within any given task, multiple tools could accomplish the same thing. Pick the surgical tool — reaches the result with less context AND respects permission scopes (`Read`/`Edit` deny rules cover the file tools and the Bash file commands Claude Code recognizes, such as `cat`, `sed`, and `> file`, but not commands that read files without naming them, like `grep -r pattern .`, or scripts that open files themselves):
 
-- **Surgical > generic.** Glob/Grep over `find`/`ls`/shell `grep`; Read over `cat`/`head`/`tail`; Edit over `sed`/`awk`.
+- **Surgical > generic.** Read over `cat`/`head`/`tail`; Edit over `sed`/`awk`. For search, Glob/Grep are used where the session has them (native Windows, or when named in `--tools`/`--allowedTools`); on macOS, Linux, and WSL Claude Code searches with `find`/`grep` through Bash (embedded `bfs`/`ugrep`), and that is expected.
 - **Surgical edits > batched edits.** One Edit per logical change beats Bash sequences. Easier to review, roll back, and verify with read-back-after-edit (see [`verification-discipline.md`](../../plugin/references/verification-discipline.md)).
 - **Structured tool calls > free-form scripts.** Multi-line transformations: prefer tool sequences over one-off scripts. Scripts hide intent; tool calls preserve it.
 
-Encode as a CLAUDE.md rule: "Prefer surgical tools (Edit, Grep, Read) over Bash equivalents (sed, grep, cat)." Shifts the burden from per-action review to one explicit rule.
+Encode as a CLAUDE.md rule: "Prefer Read and Edit over Bash equivalents (cat, sed)." Shifts the burden from per-action review to one explicit rule.
 
 ## Writing Effective Prompts
 
@@ -108,7 +108,7 @@ from src/api/middleware.ts. Follow the pattern in src/api/users.ts.
 
 **Delegate, don't dictate.** Give context and direction, let Claude figure out the implementation details. Over-specifying every step wastes your time and Claude's context.
 
-**Provide rich content.** Use `@` to reference files, paste images of errors or designs, pipe data with `cat error.log | claude`. The more relevant context Claude has upfront, the fewer back-and-forth corrections needed.
+**Provide rich content.** Use `@` to reference files, paste images of errors or designs, pipe data with `cat error.log | claude -p "explain this error"`. The more relevant context Claude has upfront, the fewer back-and-forth corrections needed.
 
 ## What Good Claude Responses Look Like
 
@@ -125,12 +125,12 @@ A diagnostic vocabulary for when responses drift — knowing what good looks lik
 | Hide tool calls and file-path scaffolding; report results, not how results were obtained | "Report results; don't expose plumbing" |
 | Use sizing language (small/large) instead of calendar predictions (2 weeks, by Friday) | "No date commitments" |
 
-Reference: Anthropic [Claude Code system prompt release notes](https://platform.claude.com/docs/en/release-notes/system-prompts).
+Reference: Anthropic's published [system prompt release notes](https://platform.claude.com/docs/en/release-notes/system-prompts/overview) (these cover the claude.ai web and mobile apps, not Claude Code).
 
 ## Adopting Claude Code in Existing Projects
 
 1. **Explore existing tooling first** -- Check for linter configs, test frameworks, and build tools. Add their commands to your CLAUDE.md.
-2. **Use `/init` or `/guardians-of-the-claude:create`** -- Both detect existing project structure. Choose "Existing project" when prompted.
+2. **Use `/init` or `/guardians-of-the-claude:create`** -- Both detect existing project structure. `/init` suggests improvements to an existing CLAUDE.md rather than overwriting it; with `/create`, choose "Existing project" when prompted.
 3. **Grow incrementally** -- Start with `CLAUDE.md` + `settings.json`. Add rules, hooks, agents, and skills only when you encounter a repeatable need.
 
 ## Common Failure Patterns

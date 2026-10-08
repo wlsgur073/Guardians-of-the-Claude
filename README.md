@@ -40,7 +40,7 @@ A meta-system for Claude Code configuration. Start with a 2-minute guided setup,
 
 ## Trust Model
 
-This plugin generates configuration files and runs one Claude Code hook (`SessionStart`) with your full shell privileges — same as any other Claude Code plugin. The hook reads project state files (e.g., `profile.json`, `recommendations.json`) and emits a short digest if attention is needed; it does not modify your project. The plugin also does **not** call external LLMs, send telemetry, or write outside your project (`.claude/`, `CLAUDE.md`) and the plugin cache (`.claude/.plugin-cache/<plugin>/local/`). Skills are markdown instructions Claude Code reads — there is no separate runtime executing on your machine.
+This plugin generates configuration files and runs one Claude Code hook (`SessionStart`) with your full shell privileges — same as any other Claude Code plugin. The hook reads project state files (e.g., `profile.json`, `recommendations.json`) and emits a short digest if attention is needed; it does not modify your project. The plugin also does **not** call external LLMs, send telemetry, or write outside your project (`.claude/`, `CLAUDE.md`) and the plugin cache (`.claude/.plugin-cache/<plugin>/local/`). Skills are markdown instructions Claude Code reads; `/audit`, `/secure`, and `/optimize` also have Claude run small read-only helper scripts from `plugin/references/lib/` through the Bash tool. `/audit`'s usage report aggregates token counts and metadata (never message text) from the session transcripts under `~/.claude/projects/` for all your local projects, and `/secure` and `/optimize` read `~/.claude/guardians/config.json` when it exists — see [PRIVACY.md](docs/PRIVACY.md) for exactly what is read.
 
 For vulnerability reports, see [SECURITY.md](docs/SECURITY.md). For per-skill privilege scope, see each `plugin/skills/<name>/SKILL.md`.
 
@@ -54,10 +54,11 @@ For vulnerability reports, see [SECURITY.md](docs/SECURITY.md). For per-skill pr
    claude
    > /plugin marketplace add wlsgur073/guardians-of-the-claude
    > /plugin install guardians-of-the-claude@guardians-of-the-claude
-   > /reload-plugins
    ```
 
-   > **Installed before the marketplace rename (`guardians-of-the-claude@guardians`)?** That install keeps working under its old ID. To move to the new ID, run `/plugin marketplace remove guardians`, then the three commands above. Project state in `.claude/.plugin-cache/guardians-of-the-claude/` is not affected.
+   The install command opens the plugin's details: choose a scope (user, project, or local). Claude Code activates the plugin itself, reloading plugins when you close the panel. If it warns that the reload would invalidate the prompt cache and leaves the plugin pending, run `/reload-plugins --force` (or start a new session).
+
+   > **Installed before the marketplace rename (`guardians-of-the-claude@guardians`)?** That install keeps working under its old ID. To move to the new ID, run `/plugin marketplace remove guardians`, then the two commands above. Project state in `.claude/.plugin-cache/guardians-of-the-claude/` is not affected.
 
 2. **Run the setup command** in your project:
 
@@ -87,7 +88,7 @@ For vulnerability reports, see [SECURITY.md](docs/SECURITY.md). For per-skill pr
    > **Picked the wrong path?** No worries — Claude detects mismatches and suggests switching automatically.
 
 4. **Done** — Claude generates all configuration files and prints a summary table.
-   Run `/memory` to verify everything loaded correctly.
+   Start a new session, run `/context`, and check **Memory files** to verify the generated CLAUDE.md and rules loaded (use `/memory` to open and edit them).
 
 5. **Next step (optional)** — Install the `claude-code-setup` plugin to get
    tailored recommendations for MCP servers, hooks, and skills based on your stack.
@@ -170,7 +171,7 @@ guardians-of-the-claude/
 
 ## How Claude Code Memory Works
 
-Claude Code uses a layered memory system: CLAUDE.md (your instructions), `.claude/rules/` (modular rule files), auto memory (Claude's own notes), and plugin cache (plugin-managed state). See the [Directory Structure Guide](docs/guides/directory-structure-guide.md) for details.
+Claude Code carries knowledge across sessions with CLAUDE.md files (your instructions; when a repository has no CLAUDE.md, Claude Code can read its `AGENTS.md` instead), `.claude/rules/` (modular, optionally path-scoped rule files), and auto memory (notes Claude writes itself). This plugin keeps its own state separately in `.claude/.plugin-cache/guardians-of-the-claude/local/`, which its SessionStart hook and skills read; Claude Code does not load that directory as memory. See the [Directory Structure Guide](docs/guides/directory-structure-guide.md) for details.
 
 > **The #1 Rule:** Give Claude a way to verify its work — include test commands,
 > lint commands, and build commands in your CLAUDE.md. This is the single
@@ -194,9 +195,9 @@ Start here, then follow the path that matches your level:
 
 ## Recommended Plugins
 
-Claude Code supports both official (Anthropic-maintained) and community plugins that extend its capabilities — from full dev workflows to code intelligence. See the **[Recommended Plugins Guide](docs/guides/recommended-plugins-guide.md)** for the full curated list organized by category.
+Claude Code installs plugins from marketplaces: Anthropic's official `claude-plugins-official` (added automatically; plugins Anthropic maintains plus partner and third-party ones), its community marketplace `claude-community`, and third-party marketplaces like this repo's. They cover everything from full dev workflows to code intelligence. See the **[Recommended Plugins Guide](docs/guides/recommended-plugins-guide.md)** for the full curated list organized by category.
 
-Browse available plugins with `/plugin` in Claude Code, or see [Plugin docs](https://code.claude.com/docs/en/discover-plugins) for details.
+Browse available plugins with `/plugin` in Claude Code, or see [Plugin docs](https://code.claude.com/docs/en/plugins/install) for details.
 
 ## Contributing
 

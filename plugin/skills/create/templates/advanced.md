@@ -57,7 +57,7 @@ Scan the project silently, checking for **actual source code and dependency mani
 1. Search for dependency manifests: `package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `pom.xml`, `Gemfile`, etc.
 2. Search for source code files: `*.ts`, `*.js`, `*.py`, `*.go`, `*.rs`, `*.java`, etc.
 3. If manifests or code found: identify language, framework, project type, directory structure, test frameworks, linters, and formatters
-4. Check for existing `CLAUDE.md`, `.claude/` directory, or `.claude/rules/`
+4. Check for existing `CLAUDE.md`, `AGENTS.md`, `.claude/` directory, or `.claude/rules/`. If `AGENTS.md` exists, make `@AGENTS.md` the first line of the generated CLAUDE.md and do not repeat its content in the sections: once a CLAUDE.md exists, Claude Code stops reading AGENTS.md on its own.
 
 CRITICAL — Config files are NOT evidence of a project:
 
@@ -196,7 +196,7 @@ Create all files based on user answers. Follow the generation rules in `referenc
 ## Workflow               ← branch/commit conventions, pre-dev checklist
 ## Project Structure      ← key directories and purposes (from your analysis)
 ## Important Context      ← non-obvious things discovered during analysis
-## References             ← @import links to relevant docs if they exist
+## References             ← links to relevant docs; @import only short files every session needs (imports load in full at launch)
 ```
 
 The **Trust Boundary** section must contain this exact text:
@@ -232,7 +232,7 @@ The **Development Approach** section must include these rules:
 ```
 
 - `allow`: add test, lint, and build commands (e.g., `"Bash(npm test)"`, `"Bash(npm run lint)"`)
-- `deny`: add Essential deny patterns: `"Read(./.env)"`, `"Read(./.env.*)"`, `"Edit(./.env)"`, `"Edit(./.env.*)"`, `"Write(./.env)"`, `"Write(./.env.*)"`, `"Read(./secrets/)"`, `"Edit(./secrets/)"`, `"Write(./secrets/)"`
+- `deny`: add Essential deny patterns: `"Read(./.env)"`, `"Read(./.env.*)"`, `"Edit(./.env)"`, `"Edit(./.env.*)"`, `"Read(./secrets/)"`, `"Edit(./secrets/)"` (`Edit` rules cover every file-editing tool, including Write; Claude Code ignores path rules written for `Write` and warns at startup)
 
 **`.claude/rules/code-style.md`**:
 
@@ -357,7 +357,7 @@ Replace `[detected-linter-command]` with the actual linter (e.g., `npx eslint`, 
     "hooks": [
       {
         "type": "command",
-        "command": "jq -r '.tool_input.file_path // empty' | grep -qE '\\.(env|pem|key)$' && { echo 'BLOCK: Protected file'; exit 2; } || exit 0",
+        "command": "jq -r '.tool_input.file_path // empty' | grep -qE '\\.(env|pem|key)$' && { echo 'BLOCK: Protected file' >&2; exit 2; } || exit 0",
         "timeout": 5,
         "statusMessage": "Checking for protected files"
       }
@@ -366,12 +366,12 @@ Replace `[detected-linter-command]` with the actual linter (e.g., `npx eslint`, 
 ]
 ```
 
-**Agent roles** — ask user for role name and scope, then create `.claude/agents/<name>.md`:
+**Agent roles** — ask user for role name and scope, then create `.claude/agents/<name>.md`. Write the name as a lowercase, hyphenated identifier (e.g. `backend-developer`, not "Backend Developer"): it is what `claude --agent`, `@agent-<name>`, and hooks' `agent_type` use, and it must not contain `:`.
 
 ```markdown
 ---
-name: "[Role Name]"
-description: "[Specialization]"
+name: "[role-name]"
+description: "[When Claude should delegate to this agent, e.g. 'Use for changes under src/api/']"
 tools:
   - Read
   - Edit
@@ -399,7 +399,9 @@ color: "blue"
 
 Not every agent needs all four sections — scale to complexity. **Scope** and **Rules** are essential; add **Constraints** when the agent could cause damage, and **Verification** when quality checks are available.
 
-Available `color` values: `blue`, `cyan`, `green`, `yellow`, `magenta`, `red`.
+On macOS, Linux, and WSL, `Grep` and `Glob` are not in Claude Code's default tool set. Unless the session itself has them (for example, started with `--allowedTools Grep`), a subagent gets them only when its `tools` list names them and leaves out `Bash`; with `Bash` listed, it searches with `find`/`grep` through Bash. For a read-only agent, list `Read`, `Grep`, `Glob` without `Bash`.
+
+Available `color` values: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`.
 
 After creating the agent body, ask about model selection:
 
@@ -407,8 +409,8 @@ After creating the agent body, ask about model selection:
 >
 > - (a) **haiku** — fastest, cheapest. Best for read-only exploration and file search
 > - (b) **sonnet** — balanced. Best for implementation, debugging, and testing (recommended)
-> - (c) **opus** — deepest reasoning. Best for architecture review and security analysis
-> - (d) **fable** — frontier tier (Fable 5.1), about 2x the cost of opus. Only for the hardest, longest-running autonomous work where opus at high effort falls short
+> - (c) **opus** — deep reasoning for complex work. Best for architecture review and security analysis
+> - (d) **fable** — most capable tier (Fable 5.1), about 2.5x opus's per-token price, and on some plans billed to usage credits. Only for the hardest, longest-running autonomous work where opus at high effort falls short
 > - (e) **inherit** — use the parent session's model
 
 Use the selection in the agent's `model:` field with a YAML comment explaining the choice:
@@ -425,7 +427,7 @@ Repeat until the user says to move on.
 ```markdown
 ---
 name: "[skill-name]"
-description: "[What this skill automates]"
+description: "[What this skill automates, key use case first]. Use when [trigger condition]."
 argument-hint: "<required-arg> [optional-arg]"
 ---
 
@@ -489,11 +491,13 @@ Repeat until the user says to move on.
 }
 ```
 
-Common suggestions based on detected project:
-- PostgreSQL detected (`pg`, `prisma`, `knex` in dependencies) → suggest `@modelcontextprotocol/server-postgres`
-- File access needed → suggest `@modelcontextprotocol/server-filesystem`
-- Web fetching needed → suggest `mcp-server-fetch` (Python, via `uvx`)
+For a hosted service that publishes a remote MCP endpoint, use the HTTP form instead: `"[server-name]": { "type": "http", "url": "[https://host/mcp]" }`. HTTP is the recommended transport for remote servers; SSE is deprecated, and an entry without `type` is treated as stdio.
 
-If the `.mcp.json` contains API keys or connection strings with credentials, add `.mcp.json` to `.gitignore` and note the required env vars in CLAUDE.md.
+Common suggestions based on detected project:
+- PostgreSQL detected (`pg`, `prisma`, `knex` in dependencies) → suggest DBHub (`"command": "npx"`, `"args": ["-y", "@bytebase/dbhub@<version>"]`, `"env": { "DSN": "${DATABASE_READONLY_URL}" }`), where the connection string uses a read-only database user. Pin the exact version the user reviewed (`npm view @bytebase/dbhub version` shows the current release); an unpinned `npx -y` package can pull new code on any run. Passing the DSN through `env` rather than a `--dsn` argument keeps the credential out of the process's command line
+- Files outside the project needed → don't add a filesystem MCP server, which bypasses the deny rules above; add the directory with `--add-dir` or `permissions.additionalDirectories` (in `.claude/settings.local.json` for machine-specific paths) so Claude's built-in file tools and deny rules still apply
+- Web fetching needed → prefer Claude Code's built-in `WebFetch` tool, governed by `WebFetch(domain:...)` permission rules; add a fetch MCP server only when raw (unsummarized) pages or localhost access are required, since it bypasses those rules — route it through `permissions.ask[]`
+
+Never write API keys or credentialed connection strings into `.mcp.json` as literals. Reference them as `${VAR}` (or `${VAR:-default}`) in `command`, `args`, `env`, `url`, or `headers`; Claude Code expands them at load time, so `.mcp.json` stays committed for the team. In CLAUDE.md, list the required env vars and note that each developer supplies them from their shell environment or a secrets vault, never from a committed file.
 
 For any MCP server (or other external capability) you add, also write a short **integration contract** into the generated CLAUDE.md so its *authority* is documented, not just its connection — covering **scope** (read vs write), **trust level**, **provenance**, **privacy boundary**, and a named **safe-disable path**. Route side-effecting calls through `permissions.ask[]`, not `allow[]`. This is an abridged form of the full per-integration contract in [`external-integration-governance.md` § The contract](../../../references/external-integration-governance.md#the-contract).

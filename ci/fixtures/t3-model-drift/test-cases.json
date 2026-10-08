@@ -120,14 +120,14 @@
     "notes": "Bedrock — haiku-4.5-bedrock, 200k context (the model-drift rules codified 2026-04-20)"
   },
   {
-    "input": "claude-haiku-4-5@20241022",
+    "input": "claude-haiku-4-5@20251001",
     "expected_fingerprint": {
       "family_tier": "haiku",
       "context_window_class": "200k",
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Vertex — haiku-4.5-vertex, 200k context"
+    "notes": "Google Cloud dated snapshot — haiku-4.5-vertex, 200k context (row relabeled legacy 2026-10-08 — recognition unchanged)"
   },
   {
     "input": "anthropic.claude-opus-4-6",
@@ -170,7 +170,7 @@
     "notes": "Bedrock — sonnet-4.5-bedrock, 200k context (stable, AWS model card)"
   },
   {
-    "input": "claude-sonnet-4-5@20240929",
+    "input": "claude-sonnet-4-5@20250929",
     "expected_fingerprint": {
       "family_tier": "sonnet",
       "context_window_class": "1M",
@@ -192,7 +192,7 @@
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Anthropic direct / Vertex bare current-gen ID — opus-5-anthropic, 1M context (Claude 5 family rows added 2026-08-10)"
+    "notes": "Anthropic direct / Vertex bare ID — opus-5-anthropic, 1M context (Claude 5 family rows added 2026-08-10; relabeled legacy 2026-10-08 — recognition unchanged)"
   },
   {
     "input": "anthropic.claude-opus-5",
@@ -212,7 +212,7 @@
       "reasoning_class": "extended_any",
       "context_management_class": "compaction_capable"
     },
-    "notes": "Anthropic direct / Vertex bare current-gen ID — sonnet-5-anthropic, 1M context (Claude 5 family rows added 2026-08-10)"
+    "notes": "Anthropic direct / Vertex bare ID — sonnet-5-anthropic, 1M context (Claude 5 family rows added 2026-08-10; relabeled legacy 2026-10-08 — recognition unchanged)"
   },
   {
     "input": "anthropic.claude-sonnet-5",
@@ -263,5 +263,75 @@
       "context_management_class": "compaction_capable"
     },
     "notes": "Bedrock — fable-5.1-bedrock, 1M context (Anthropic Bedrock docs name Claude Fable 5.1 among 1M-context models)"
+  },
+  {
+    "input": "claude-opus-5-5",
+    "expected_fingerprint": {
+      "family_tier": "opus",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Anthropic direct / Google Cloud / Foundry bare current-gen ID — opus-5.5-anthropic, 1M context (Opus 5.5 released 2026-09-22; rows added 2026-10-08). Longest-match: claude-opus-5-5* wins over the shorter claude-opus-5* (legacy) wildcard; same fingerprint, so Opus 5 → 5.5 is not drift"
+  },
+  {
+    "input": "anthropic.claude-opus-5-5",
+    "expected_fingerprint": {
+      "family_tier": "opus",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Bedrock — opus-5.5-bedrock, 1M context (Anthropic Bedrock docs name Claude Opus 5.5 among 1M-context models)"
+  },
+  {
+    "input": "claude-sonnet-5-5",
+    "expected_fingerprint": {
+      "family_tier": "sonnet",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Anthropic direct / Google Cloud / Foundry bare current-gen ID — sonnet-5.5-anthropic, 1M context (Sonnet 5.5 released 2026-09-28; rows added 2026-10-08). Longest-match: claude-sonnet-5-5* wins over the shorter claude-sonnet-5* (legacy) wildcard"
+  },
+  {
+    "input": "anthropic.claude-sonnet-5-5",
+    "expected_fingerprint": {
+      "family_tier": "sonnet",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Bedrock — sonnet-5.5-bedrock, 1M context (Anthropic Bedrock docs name Claude Sonnet 5.5 among 1M-context models)"
+  },
+  {
+    "input": "claude-haiku-5-5",
+    "expected_fingerprint": {
+      "family_tier": "haiku",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Anthropic direct / Google Cloud / Foundry bare current-gen ID — haiku-5.5-anthropic, 1M context (Haiku 5.5 released 2026-10-07; rows added 2026-10-08; first 1M Haiku — combo 24, no fingerprint-space bump; previously null)"
+  },
+  {
+    "input": "anthropic.claude-haiku-5-5",
+    "expected_fingerprint": {
+      "family_tier": "haiku",
+      "context_window_class": "1M",
+      "reasoning_class": "extended_any",
+      "context_management_class": "compaction_capable"
+    },
+    "notes": "Bedrock — haiku-5.5-bedrock, 1M context (Anthropic Bedrock docs name Claude Haiku 5.5 among 1M-context models)"
+  },
+  {
+    "input": "claude-mythos-5-1",
+    "expected_fingerprint": null,
+    "notes": "Limited-availability Project Glasswing model — intentionally unregistered (fail-safe null per the model-drift rules)"
+  },
+  {
+    "input": "us.anthropic.claude-opus-5-5",
+    "expected_fingerprint": null,
+    "notes": "Bedrock cross-region inference profile ID (Claude Code's default form on Bedrock) — no prefixed rows, fail-safe null per the model-drift rules"
   }
 ]

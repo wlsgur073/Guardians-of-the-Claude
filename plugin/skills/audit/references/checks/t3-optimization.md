@@ -133,7 +133,7 @@ If environment variable references are found, check if CLAUDE.md documents setup
 
 This advisory check inspects `.claude/skills/*/SKILL.md` files in the project and surfaces description-quality issues in Phase 4 "All Suggestions" output. Results do NOT affect the score — scoring contract `audit-score-v4.2.0` is unchanged.
 
-For each skill SKILL.md found, evaluate the `description` field:
+For each skill SKILL.md found, evaluate the `description` field together with the optional `when_to_use` field (Claude Code appends `when_to_use` to `description` in the skill listing, so a trigger phrase in either counts; the combined text is truncated at 1,536 characters by default). If `description` is omitted, Claude Code uses the first non-empty line of the SKILL.md body — evaluate that line instead:
 
 | Check | Heuristic | Suggestion if failing |
 |---|---|---|

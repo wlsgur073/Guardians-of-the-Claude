@@ -15,7 +15,7 @@ Before Phase 0 (below) and before any state mutation or lock acquisition, verify
 
 **Steps:**
 
-1. Extract `scoring_contract_id` from `plugin/references/scoring-model.md` **frontmatter only** — use a targeted read (`Grep` the `scoring_contract_id:` line, or a `Read` bounded to the `---`-delimited header). Do NOT load the full file at this step; Phase 4 reads it in full for the scoring formula.
+1. Extract `scoring_contract_id` from `plugin/references/scoring-model.md` **frontmatter only** — use a targeted read (a `grep` for the `scoring_contract_id:` line — the `Grep` tool where available, otherwise `grep` via Bash — or a `Read` bounded to the `---`-delimited header). Do NOT load the full file at this step; Phase 4 reads it in full for the scoring formula.
 2. Compare with the expected canonical value `audit-score-v4.2.0` (the contract `/audit` was authored against).
 3. If the two values differ, **abort the run immediately** with a fatal diagnostic:
 
@@ -58,7 +58,7 @@ This phase performs both subpackage `CLAUDE.md` disclosure and monorepo classifi
 
 ### Subpackage CLAUDE.md disclosure walk (4-layer filter)
 
-Walk the project for additional `CLAUDE.md` files that represent true subpackage configs in a monorepo. Use `Glob` with pattern `**/CLAUDE.md`, then apply all filter layers below in order — a candidate must pass every layer to be reported.
+Walk the project for additional `CLAUDE.md` files that represent true subpackage configs in a monorepo. Find candidate files matching `**/CLAUDE.md` (the `Glob` tool where available, as on Windows by default; on macOS/Linux/WSL, `find . -name CLAUDE.md` via Bash), then apply all filter layers below in order — a candidate must pass every layer to be reported.
 
 **Layer 1 — Root exclusion:** Exclude the root `CLAUDE.md` and the root `.claude/CLAUDE.md` (both already counted in T1.1).
 
@@ -139,7 +139,7 @@ If `monorepo_detection.detected != true` OR `package_roots_for_scoring[]` is emp
 
 ## Phase 3.7: Output Validation (Oracle Check)
 
-Between Phase 3.6 and Phase 4, every finding produced by Phase 1 through 3.6 must be traceable to a deterministic primitive that was actually invoked against project state. This blocks the failure mode where an agent infers a result ("CLAUDE.md probably exists") without running the rule's primitive (`Read`, `Grep`, `Glob`, line count, or JSON parse).
+Between Phase 3.6 and Phase 4, every finding produced by Phase 1 through 3.6 must be traceable to a deterministic primitive that was actually invoked against project state. This blocks the failure mode where an agent infers a result ("CLAUDE.md probably exists") without running the rule's primitive (`Read`, a content or file-name search — the `Grep`/`Glob` tools where available, otherwise `grep`/`find` via Bash — line count, or JSON parse).
 
 **Per finding, validate**:
 

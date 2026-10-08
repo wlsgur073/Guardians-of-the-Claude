@@ -1,7 +1,7 @@
 ---
 title: "Advanced Features"
 description: "Hooks, agents, and skills -- extending Claude Code beyond basic configuration"
-version: 1.4.2
+version: 1.4.3
 ---
 
 # Advanced Features
@@ -10,7 +10,7 @@ Three features for teams that have outgrown basic CLAUDE.md + rules. Start with 
 
 ## Hooks
 
-Hooks are shell commands that run automatically before or after Claude uses a tool. Define them in `settings.json` under the `hooks` key. Use them for auto-linting, auto-formatting, file protection, or type checking.
+Hooks are handlers — usually shell commands — that run automatically at specific points in Claude Code's lifecycle, most often before or after Claude uses a tool. Define them in `settings.json` under the `hooks` key. Use them for auto-linting, auto-formatting, file protection, or type checking.
 
 ### Hook Configuration
 
@@ -23,7 +23,7 @@ Hooks are shell commands that run automatically before or after Claude uses a to
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path // empty' | grep -qE '(package-lock\\.json|\\.env|migrations/)' && { echo 'Protected file'; exit 2; } || exit 0",
+            "command": "jq -r '.tool_input.file_path // empty' | tr '\\\\' '/' | grep -qE '(package-lock\\.json|\\.env|migrations/)' && { echo 'Protected file' >&2; exit 2; } || exit 0",
             "timeout": 5,
             "statusMessage": "Checking for protected files"
           }
@@ -50,18 +50,18 @@ Hooks are shell commands that run automatically before or after Claude uses a to
 Key concepts:
 
 - **`matcher`** -- pipe-separated tool names or regex (e.g., `"Edit|Write"`, `"mcp__.*"`)
-- **Hook input via stdin** -- hooks receive event JSON on stdin (e.g., `{"tool_input": {"file_path": "..."}}`); parse with `jq -r '.tool_input.file_path // empty'`. The only path-related env var is **`$CLAUDE_PROJECT_DIR`** (project root) — file paths are NOT exposed as env vars
+- **Hook input via stdin** -- hooks receive event JSON on stdin (e.g., `{"tool_input": {"file_path": "..."}}`); parse with `jq -r '.tool_input.file_path // empty'`. Tool file paths are NOT exposed as env vars. Path env vars include **`$CLAUDE_PROJECT_DIR`** (the project root where the session started; it stays put when Claude enters a worktree, so read `cwd` from the input for Claude's current directory), `$CLAUDE_PLUGIN_ROOT` / `$CLAUDE_PLUGIN_DATA` for plugin hooks, and `$CLAUDE_ENV_FILE` on `SessionStart`
 - **`statusMessage`** -- text shown in the UI while the hook runs
-- **`PreToolUse` + `exit 2`** blocks the action and tells Claude why -- use for protecting sensitive files like `.env` or migration directories
+- **`PreToolUse` + `exit 2`** blocks the action, and Claude sees the hook's **stderr** as the reason (write the message with `>&2`; plain-text stdout isn't shown) -- use for protecting sensitive files like `.env` or migration directories
 - **`PostToolUse` + `|| true`** runs after the action completes -- use for auto-linting or formatting
 - **`UserPromptSubmit`** runs before Claude processes user input -- use for keyword detection or automatic context injection
 - Other events: the surface has grown past 30 — lifecycle (`SessionStart`/`SessionEnd`, `Stop`/`StopFailure`, `SubagentStart`/`SubagentStop`, `PreCompact`/`PostCompact`), governance (`PermissionRequest`, `PermissionDenied`, `InstructionsLoaded`, `ConfigChange`), and environment (`Notification`, `FileChanged`, `WorktreeCreate`/`WorktreeRemove`, `TaskCreated`/`TaskCompleted`) among them -- see [hooks docs](https://code.claude.com/docs/en/hooks) for the authoritative list
-- **Practical combinations:** `SessionStart` for project context injection at startup, `PreCompact` for preserving critical notes before auto-compaction, `SubagentStop` for validating agent output before returning to the parent session, `PermissionDenied` for reacting programmatically when a tool call is denied
+- **Practical combinations:** `SessionStart` for project context injection at startup, `PreCompact` for snapshotting state to a file before compaction (it can block compaction but can't add context — re-inject critical notes with a `SessionStart` hook matching `compact`), `SubagentStop` for validating agent output before returning to the parent session, `PermissionDenied` for logging or retry hints (`retry: true`) when **auto mode** denies a tool call (it doesn't fire for manual denials, deny rules, or PreToolUse blocks)
 - **Hook types:** `"type": "command"` (shell) is the workhorse; `"type": "prompt"` (LLM yes/no evaluation), `"http"`, `"mcp_tool"`, and `"agent"` (experimental) handlers also exist -- see the hooks docs for per-type configuration
 
 ### Script-Based Hooks
 
-For complex logic, use external scripts: `"command": "bash \"${CLAUDE_PROJECT_DIR}/scripts/my-hook.sh\""`. Scripts are testable, version-controlled, and easier to maintain. See `templates/advanced/.claude/settings.json` for a complete example. Always set `timeout` explicitly — input validation 3-5s, lint/format 10-15s, build/test 30s+.
+For complex logic, use external scripts: `"command": "bash \"${CLAUDE_PROJECT_DIR}/scripts/my-hook.sh\""` (keep placeholders double-quoted in this shell form, or use exec form with an `"args"` array, which needs no quoting). On tool events, add `"if": "Edit(*.ts)"` (permission-rule syntax) so the hook spawns only for matching calls. Scripts are testable, version-controlled, and easier to maintain. See `templates/advanced/.claude/settings.json` for a complete example. Always set `timeout` explicitly — input validation 3-5s, lint/format 10-15s, build/test 30s+.
 
 ## Agents
 
@@ -73,7 +73,7 @@ Create `.claude/agents/<name>.md` with YAML frontmatter:
 
 ```markdown
 ---
-name: "Backend Developer"
+name: "backend-developer"
 description: "Specializes in API layer, services, and database access"
 tools:
   - Read
@@ -113,9 +113,9 @@ Four sections keep agent prompts focused: **Scope** defines what the agent can t
 | `opus` | Architecture review, deep analysis | code-reviewer, architect |
 | `fable` | Hardest, longest-running autonomous work — when `opus` at high effort falls short | migration-planner, incident-investigator |
 
-Use `"inherit"` to match the parent session's model. Put the reasoning in a YAML comment (`# opus: needs deep analysis for security review`) so the choice is self-documenting.
+Use `"inherit"` to match the parent session's model, and add `effort` (`low`–`max`) to set reasoning depth per agent. Put the reasoning in a YAML comment (`# opus: needs deep analysis for security review`) so the choice is self-documenting. Other optional fields (camelCase, unknown ones are silently ignored): `disallowedTools`, `permissionMode`, `maxTurns`, `skills`, `mcpServers`, `hooks`, `memory`, `isolation: worktree`, `background`.
 
-**Cost tradeoff:** at list prices `haiku` is ~5x cheaper than `opus` and ~10x cheaper than `fable` (Haiku 4.5 $1/$5, Opus 5 $5/$25, Fable 5.1 $10/$50 per MTok in/out). Default to `sonnet`; use `haiku` for high-volume read-only tasks, `opus` only when a single mistake is expensive (security review, architecture decisions), and `fable` only where `opus` demonstrably falls short.
+**Cost tradeoff:** on the Anthropic API, `haiku` (Haiku 5.5: $0.10/$0.50 per MTok in/out for prompts up to 100K tokens, $0.50/$2.50 above) is ~40x cheaper than `opus` (Opus 5.5, $4/$20) and ~100x cheaper than `fable` (Fable 5.1, $10/$50); `sonnet` (Sonnet 5.5) is $2/$10. On Bedrock, Google Cloud's Agent Platform, Foundry, and Claude Platform on AWS, `haiku` still resolves to Haiku 4.5 ($1/$5). Default to `sonnet`; use `haiku` for high-volume read-only tasks, `opus` only when a single mistake is expensive (security review, architecture decisions), and `fable` only where `opus` demonstrably falls short (depending on plan and seat tier, Fable usage can bill to usage credits).
 
 ### Agent Design Patterns
 
@@ -129,7 +129,7 @@ For multi-agent dispatch patterns (Orchestrator-Worker, sub-agent context budget
 
 ## Skills
 
-Skills are reusable multi-step workflows in `.claude/skills/`. Each becomes a slash command that automates repeatable processes like scaffolding features or adding components.
+Skills are reusable multi-step workflows in `.claude/skills/`. Each is available as a slash command (unless `user-invocable: false`) and can be loaded by Claude automatically, which suits repeatable processes like scaffolding features or adding components.
 
 ### Skill Configuration
 
@@ -164,9 +164,11 @@ Key fields:
 - **`argument-hint`** -- usage hint for slash command menu (e.g., `"<resource> [operations]"`)
 - **`user-invocable`** -- show in slash command menu (default: `true`)
 - **`disable-model-invocation`** -- prevent Claude from auto-triggering (default: `false`)
-- **`model`** -- override model when skill is active
+- **`model`** / **`effort`** -- override the model (for the rest of the current turn) or effort level while the skill is active
+- **`allowed-tools`** -- tools Claude may use without a permission prompt during the turn that invokes the skill (a grant, not a restriction; it clears on your next message)
+- **`context: fork`** + **`agent`** -- run the skill in a forked subagent; **`paths`** -- globs limiting automatic activation to matching files; **`when_to_use`** -- extra trigger phrases appended to `description` (combined text is truncated at 1,536 characters)
 
-Skills come in two types: **user-invoked** (slash command) and **model-invoked** (auto-triggered by Claude). Model-invoked descriptions should include trigger phrases: `"Use when the user asks to 'do X' or 'do Y'."` Skills can include supporting files alongside SKILL.md: `references/`, `examples/`, `scripts/`.
+By default both you (`/name`) and Claude (automatically, when the description matches) can invoke a skill; `disable-model-invocation: true` makes it user-only and `user-invocable: false` makes it Claude-only (hidden from the `/` menu). Descriptions for skills Claude should trigger need trigger phrases: `"Use when the user asks to 'do X' or 'do Y'."` Skills can include supporting files alongside SKILL.md: `references/`, `examples/`, `scripts/`.
 
 ### Progressive Disclosure
 
@@ -186,7 +188,7 @@ Skills load context in three levels — skill **metadata** (first, for trigger d
 
 **Security:** Skills are executable instructions — install only from trusted sources, and audit unfamiliar SKILL.md files before invoking. Review them the way you'd review a script before running it.
 
-> **Note:** The legacy `commands/` directory is deprecated. Use `skills/<name>/SKILL.md` for all skill types.
+> **Note:** `.claude/commands/<name>.md` files are the older format and still work (same frontmatter except `name` and `paths`), but prefer `skills/<name>/SKILL.md` for new work, since skills also support supporting files.
 
 ### Plugin Skills in Practice
 
@@ -199,7 +201,7 @@ The `guardians-of-the-claude` plugin demonstrates a skill-per-role workflow with
 | `/guardians-of-the-claude:secure` | Fixes security gaps -- deny patterns, security rules, file protection hooks |
 | `/guardians-of-the-claude:optimize` | Improves config quality -- rules splitting, agent diversity, MCP, hook quality |
 
-**Recommended workflow:** `/create` → `/audit` → `/secure` or `/optimize` → `/audit` (re-verify). Each skill hands off to the next, and they share state via timestamped files in `.claude/.plugin-cache/`.
+**Recommended workflow:** `/create` → `/audit` → `/secure` or `/optimize` → `/audit` (re-verify). Each skill hands off to the next, and they share state through `profile.json`, `recommendations.json`, and the `config-changelog.md` decision journal in `.claude/.plugin-cache/guardians-of-the-claude/local/`.
 
 ## Customizing Guardians (optional config)
 

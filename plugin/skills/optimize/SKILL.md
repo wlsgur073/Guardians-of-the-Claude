@@ -52,8 +52,8 @@ Check if `.mcp.json` exists. If the project uses databases (`pg`, `prisma`, `kne
 
 If `.claude/settings.json` has a `hooks` section:
 1. Check that every hook has a `statusMessage` field
-2. Check that `PreToolUse` hooks use `exit 2` (not `exit 1`) for blocking
-3. Check for hooks with no `matcher` (runs on every tool use — usually unintentional)
+2. Check that `PreToolUse` hooks use `exit 2` (not `exit 1`) for blocking, and that the block message is written to stderr (unless the hook prints a JSON decision with its own reason, Claude sees stderr, not plain stdout, as the reason)
+3. Check for tool-event hooks (`PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`, `PermissionDenied`) with no `matcher` (omitted or empty) and no per-handler `if` condition (runs on every tool call — usually unintentional). A handler whose `if` holds a permission rule such as `"Bash(git *)"` already runs only for matching tool calls, so do not flag it. Do not flag other events: `UserPromptSubmit`, `Stop`, `PostToolBatch`, `TeammateIdle`, `TaskCreated`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`, `MessageDisplay`, and `CwdChanged` have no matcher support (a matcher there is silently ignored), and on events such as `SessionStart` or `PreCompact` an omitted matcher simply fires on every occurrence.
 
 Do NOT output your scan results yet — use them to inform Phase 2.
 
@@ -86,10 +86,12 @@ Then skip to **Write History** (Phase 4.2) to record the result (Fixed: none, De
 If selected:
 1. Identify sections in CLAUDE.md that belong in rule files (Code Style, Testing, Architecture, Workflow)
 2. Create `.claude/rules/` directory if it doesn't exist
-3. Move each section to a dedicated rule file with YAML frontmatter:
+3. Move each section to a dedicated rule file. Claude Code reads only the `paths` field from rule frontmatter (`description` is a human-facing note it ignores), and a rule without `paths` still loads in every session like CLAUDE.md. For sections that apply only to certain files (for example testing rules → `**/*.test.ts`), add `paths` globs so they load only when Claude works with matching files:
    ```yaml
    ---
-   description: "[section purpose]"
+   description: "[section purpose]"   # human-facing note; ignored by Claude Code
+   paths:                             # optional; omit for rules that apply everywhere
+     - "src/**/*.ts"
    ---
    ```
 4. Remove the moved sections from CLAUDE.md
@@ -103,7 +105,7 @@ If selected:
    - Exploration/search agents: `haiku` (speed over depth)
    - Implementation/debugging: `sonnet` (balanced)
    - Architecture review/security: `opus` (deep reasoning)
-   - Frontier-tier escalation only: `fable` (about 2x `opus` cost) — suggest solely where `opus` at high effort demonstrably falls short
+   - Frontier-tier escalation only: `fable` (about 2.5x the per-token price of `opus` on the Anthropic API — Fable 5.1 at $10/$50 vs Opus 5.5 at $4/$20 per MTok; on some plans Fable usage bills to usage credits) — suggest solely where `opus` at high effort demonstrably falls short
 3. Ask the user to confirm each change
 4. Update `model:` field with a YAML comment explaining the choice
 
@@ -113,26 +115,26 @@ If selected:
 1. Ask the user what external tools Claude should connect to
 2. Create `.mcp.json` at project root
 3. Common suggestions based on detected dependencies:
-   - PostgreSQL (`pg`, `prisma`, `knex`): `@modelcontextprotocol/server-postgres`
-   - File access: `@modelcontextprotocol/server-filesystem`
-   - Web fetching: `mcp-server-fetch` (Python, via `uvx`)
-4. If `.mcp.json` contains credentials, add it to `.gitignore`
+   - PostgreSQL / relational databases (`pg`, `prisma`, `knex`): `@bytebase/dbhub` (DBHub; pass a read-only database user in `--dsn`)
+   - Files outside the project: don't add a filesystem MCP server, since it bypasses the project's `Read`/`Edit` deny rules; add the directory with `--add-dir` or `permissions.additionalDirectories` (in `.claude/settings.local.json` for machine-specific paths) so built-in file tools and deny rules still apply
+   - Web fetching: prefer the built-in `WebFetch` tool governed by `WebFetch(domain:...)` rules; add a fetch MCP server (e.g. `mcp-server-fetch` via `uvx`) only when raw, unsummarized pages or localhost access are required, and route it through `permissions.ask[]`
+4. Never write literal credentials into `.mcp.json`, which is meant to be committed. Reference them with `${VAR}` expansion (for example `"Authorization": "Bearer ${API_KEY}"`). For a server whose credentials must stay private, add it at local scope (`claude mcp add --scope local`, stored in `~/.claude.json`) instead of gitignoring `.mcp.json`
 
 ### Hook Quality Fixes
 
 If selected:
 1. Add missing `statusMessage` to hooks that lack it
-2. Change `exit 1` to `exit 2` in PreToolUse blocking hooks
-3. Add `matcher` to hooks that have none (ask user which tools to match)
+2. Change `exit 1` to `exit 2` in PreToolUse blocking hooks, and make sure the block message goes to stderr (`echo '...' >&2`). On `exit 2`, Claude sees stderr as the reason, not stdout, so a hook such as `{ echo 'blocked'; exit 2; }` blocks without telling Claude why
+3. Add a tool-name `matcher` to tool-event hooks (`PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`, `PermissionDenied`) that have none (ask user which tools to match). Skip groups whose handlers all have an `if` condition, which already narrows each handler to matching tool calls. Never add a tool-name matcher to other events: `Stop`, `UserPromptSubmit` and similar events ignore matchers, and on `SessionStart`, `Notification`, `PreCompact`, `SubagentStop` and similar events the matcher filters a different field (for example `startup`/`resume` for `SessionStart`), so a tool name would stop the hook from ever firing.
 
 ### Token Usage & Fitness Fixes
 
 If any of these `issued_by:"audit"` recommendations are present and the user selected them:
 
-- **`mcp-unused`**: **verify-only** — the absence signal is cross-project (the parser aggregates all of `~/.claude/projects`), so it shows the server was not observed across recent local usage, not that *this* project does not need it. Ask the user to confirm the server is genuinely unused **in this project** before removing or commenting it out from `.mcp.json`; never disable it on the global signal alone (a short or cross-project window may simply not have exercised a server the project still needs).
+- **`mcp-unused`**: **verify-only** — the absence signal is cross-project (the parser aggregates all of `~/.claude/projects`), so it shows the server was not observed across recent local usage, not that *this* project does not need it. Ask the user to confirm the server is genuinely unused **in this project** before removing it from `.mcp.json` or toggling it off in `/mcp`, which keeps its configuration and records the choice per project in `~/.claude.json`. Never comment an entry out, because JSON has no comment syntax; never disable it on the global signal alone (a short or cross-project window may simply not have exercised a server the project still needs).
 - **`vessel-fit`**: move the misfiled automation to the right primitive — e.g., add a hook entry to `.claude/settings.json`, create a `.claude/skills/<name>/SKILL.md`, or add the MCP server — and remove the misfiled instruction from CLAUDE.md. Confirm the target primitive with the user before editing.
-- **`cache-stabilize`**: advise stabilizing the system prompt / enabling extended prompt-cache TTL. This is an advisory note, not a destructive edit.
-- **`effort-downgrade`**: lower the agent's model/effort tier in the relevant `.claude/agents/*.md` after confirming with the user.
+- **`cache-stabilize`**: advise stabilizing the system prompt. Where sessions idle longer than five minutes, suggest the one-hour cache TTL: set `promptCacheTtl` (main conversation) and/or `subagentPromptCacheTtl` (subagents and other requests) to `"1h"` in settings (Claude Code v2.1.242+). A Claude subscription within plan usage already gets one hour for the main conversation, and one-hour cache writes cost more. This is an advisory note, not a destructive edit.
+- **`effort-downgrade`**: after confirming with the user, lower the agent's `model:` (for example `opus` → `sonnet`) or its `effort:` frontmatter level (`low`, `medium`, `high`, `xhigh`, `max`; available levels depend on the model) in the relevant `.claude/agents/*.md`. A `CLAUDE_CODE_EFFORT_LEVEL` environment variable overrides the frontmatter `effort`.
 
 As with the other Phase 3 fixes, ask the user to confirm each change before applying it.
 

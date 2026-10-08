@@ -1,7 +1,7 @@
 ---
 title: "Workflow Patterns"
 description: "Interview-first specs, Writer/Reviewer, test-first multi-Claude, fan-out (with cost/safety warnings), worktrees and parallel sessions"
-version: 1.0.3
+version: 1.0.4
 ---
 
 # Workflow Patterns
@@ -54,14 +54,14 @@ Forces acceptance criteria to crystallize before implementation. Works inside on
 
 ## Fan-out for batch tasks
 
-For large migrations or analyses, distribute work across many `claude -p` invocations. The bash loop below dispatches them sequentially; add `xargs -P` or `ForEach-Object -Parallel` if you want bounded concurrency.
+For large migrations or analyses, distribute work across many Claude invocations. Try the built-in options first. `/batch <instruction>` plans the change, splits it into 5–30 units and, once you approve the plan, runs one worktree-isolated subagent per unit. A [dynamic workflow](workflows-guide.md) scripts larger or cross-checked fan-outs. To drive the fan-out from your own script, loop over `claude -p`. The bash loop below dispatches calls sequentially; add `xargs -P` or `ForEach-Object -Parallel` if you want bounded concurrency.
 
 > **⚠️ Cost and safety warning**
 >
 > - `claude -p` in a loop incurs token cost per invocation. A multi-thousand-file migration can run for hours and accumulate substantial cost — always estimate with your model's per-token pricing before scaling.
 > - Always dry-run on 2–3 files first; verify outputs before scaling.
-> - Use `--allowedTools` to scope permissions for unattended runs: `claude -p "..." --allowedTools "Edit,Bash(git commit *)"`
-> - Auto mode aborts after repeated classifier denials in `-p` runs — there is no human to fall back to. See [Claude Code auto mode](https://www.anthropic.com/engineering/claude-code-auto-mode) for thresholds.
+> - Use `--allowedTools` to pre-approve what the run needs and `--permission-mode dontAsk` to deny everything else: `claude -p "..." --allowedTools "Edit,Bash(git commit *)" --permission-mode dontAsk`. Without `--permission-mode` or a `defaultMode` setting, `-p` starts in `default`, or in `auto` in sessions that don't fetch feature flags, such as on third-party providers or with telemetry off (v2.1.285+).
+> - In auto mode, repeated classifier blocks do **not** stop a `-p` run. The blocked action is skipped and Claude keeps working, so review each run's output instead of counting on an abort. See [When auto mode falls back](https://code.claude.com/docs/en/permission-modes#when-auto-mode-falls-back) for the thresholds.
 
 Pattern:
 
@@ -72,53 +72,46 @@ Pattern:
    # Sequential (one at a time)
    for file in $(cat files.txt); do
      claude -p "Migrate $file from React to Vue. Return OK or FAIL." \
-       --allowedTools "Edit,Bash(git commit *)"
+       --allowedTools "Edit,Bash(git commit *)" --permission-mode dontAsk
    done
 
    # Bounded parallel (4 workers at a time)
    cat files.txt | xargs -I {} -P 4 \
      claude -p "Migrate {} from React to Vue. Return OK or FAIL." \
-       --allowedTools "Edit,Bash(git commit *)"
+       --allowedTools "Edit,Bash(git commit *)" --permission-mode dontAsk
    ```
 
 **PowerShell equivalents (Windows):**
 
 ```powershell
 # Sequential
-Get-Content files.txt | ForEach-Object { claude -p "Migrate $_ from React to Vue. Return OK or FAIL." --allowedTools "Edit,Bash(git commit *)" }
+Get-Content files.txt | ForEach-Object { claude -p "Migrate $_ from React to Vue. Return OK or FAIL." --allowedTools "Edit,Bash(git commit *)" --permission-mode dontAsk }
 
 # Bounded parallel (4 workers; requires PowerShell 7+)
-Get-Content files.txt | ForEach-Object -Parallel { claude -p "Migrate $_ from React to Vue. Return OK or FAIL." --allowedTools "Edit,Bash(git commit *)" } -ThrottleLimit 4
+Get-Content files.txt | ForEach-Object -Parallel { claude -p "Migrate $_ from React to Vue. Return OK or FAIL." --allowedTools "Edit,Bash(git commit *)" --permission-mode dontAsk } -ThrottleLimit 4
 ```
 
 3. **Refine on first 2–3, then scale**: catch broken prompts early; only run on the full set after you have seen the output shape.
 
-For JSON-structured output (parsing in your script), add `--output-format json`. For streaming, `--output-format stream-json`.
+For JSON-structured output (parsing in your script), add `--output-format json`. For streaming, add `--output-format stream-json --verbose`.
 
 ## Worktrees and parallel sessions
 
-When you need genuinely isolated parallel work (e.g., experimenting on a risky refactor while continuing main-line work), use `git worktree`:
+When you need genuinely isolated parallel work (e.g., experimenting on a risky refactor while continuing main-line work), start Claude in its own git worktree:
 
 ```bash
-git worktree add ../feature-x feature-x
-cd ../feature-x
-claude  # this session works on feature-x branch only; main worktree is untouched
+claude --worktree feature-x   # or -w; creates .claude/worktrees/feature-x/ on new branch worktree-feature-x
 ```
 
-When done with a worktree, remove it cleanly:
-
-```bash
-git worktree remove ../feature-x
-git worktree list  # confirm it's gone
-```
-
-Stale worktree registrations accumulate if you only delete the directory without `git worktree remove`. Run `git worktree prune` to clean up orphaned entries.
+The new branch starts from the repository's default branch on the remote (set `worktree.baseRef` to `"head"` to branch from your current `HEAD`); to work on an existing branch, create the worktree yourself with `git worktree add ../feature-x feature-x` and run `claude` there. Run `claude -w` with another name in a second terminal for a second isolated session, and add `.claude/worktrees/` to `.gitignore`. On exit, Claude removes a clean worktree automatically (a named session asks first) and asks whether to keep or remove one that has changes. `claude -p --worktree` runs have no exit prompt: remove those with `git worktree remove`, running `git worktree unlock` first if git refuses. Remove worktrees you created with `git worktree add` the same way, and run `git worktree prune` for orphaned entries.
 
 | Option | Best for |
 |---|---|
-| `git worktree` (CLI) | Same machine, full isolation, manual coordination |
-| Desktop app multi-session | Visual session management |
-| Claude Code on the web | Anthropic-hosted, isolated VMs |
+| `claude --worktree <name>` (CLI) | Same machine, full isolation, manual coordination |
+| Agent view (`claude agents`, research preview) | Dispatching background sessions and watching them from one screen; each moves into its own worktree before editing |
+| Desktop app parallel sessions | Visual session management, optionally one worktree per session |
+| Claude Code on the web | Anthropic-managed cloud sessions |
+| Cross-session messaging | Letting sessions you run yourself pass findings to each other |
 
 When *not* to multi-session: small focused tasks. Switching context between sessions has overhead — you lose more than you gain unless the tasks are truly independent.
 

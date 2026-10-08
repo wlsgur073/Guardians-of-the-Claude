@@ -1,7 +1,7 @@
 ---
 title: "Getting Started"
 description: "Step-by-step guide to set up Claude Code configuration for your project"
-version: 1.2.14
+version: 1.2.15
 ---
 
 # Getting Started
@@ -28,7 +28,7 @@ claude
 > /init
 ```
 
-**`/guardians-of-the-claude:create`** runs `/init`-style analysis plus generates rules, permissions, and optional advanced features. Install the plugin first (`/plugin marketplace add wlsgur073/guardians-of-the-claude`, then `/plugin install guardians-of-the-claude@guardians-of-the-claude`, then `/reload-plugins`). **Using both?** Run `/init` first, then `/guardians-of-the-claude:create` choosing "Existing project" -- it detects your existing CLAUDE.md and merges rather than overwrites.
+**`/guardians-of-the-claude:create`** runs `/init`-style analysis plus generates rules, permissions, and optional advanced features. Install the plugin first (`/plugin marketplace add wlsgur073/guardians-of-the-claude`, then `/plugin install guardians-of-the-claude@guardians-of-the-claude` and choose an install scope; Claude Code activates the plugin or runs `/reload-plugins` for you, so no restart is needed). **Using both?** Run `/init` first, then `/guardians-of-the-claude:create` choosing "Existing project" -- it detects your existing CLAUDE.md and merges rather than overwrites.
 
 ## Step 2: Copy the Templates (Manual Alternative)
 
@@ -36,27 +36,16 @@ If you used `/guardians-of-the-claude:create` in Step 1, skip this step -- your 
 
 If you prefer to reference templates manually, see `templates/starter/` and `templates/advanced/` for filled examples (fictional "TaskFlow" project). These show what a completed configuration looks like for each path:
 
+- **Starter** (recommended for beginners): `templates/starter/CLAUDE.md` and `templates/starter/.claude/settings.json`
+- **Advanced** (for full configuration): `templates/advanced/CLAUDE.md` and `templates/advanced/.claude/`
+
 > **Note on the TaskFlow example stack:** The current filled templates use Node.js/Express/TypeScript/PostgreSQL as a concrete illustration. TaskFlow itself is a fictional reference project (see [`templates/README.md`](../../templates/README.md)). `/create` does **not** require your project to be Node/Express — it detects your actual manifest (`package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `pom.xml`, `Gemfile`) or asks stack questions for empty projects, then generates equivalent commands.
-
-**Starter** (recommended for beginners):
-
-```bash
-# Use the starter example as reference
-# See templates/starter/CLAUDE.md and templates/starter/.claude/settings.json
-```
-
-**Advanced** (for full configuration):
-
-```bash
-# Use the advanced example as reference
-# See templates/advanced/CLAUDE.md and templates/advanced/.claude/
-```
 
 If `/init` already created a CLAUDE.md, merge the template sections into it. The template provides a consistent section structure; `/init` provides project-specific content. Combine the best of both.
 
 ## Step 3: Fill in Your CLAUDE.md
 
-If you used `/guardians-of-the-claude:create` in Step 1, skip this step -- the seven canonical sections are already generated. Run `/memory` to confirm your CLAUDE.md is loaded, then jump to Step 4.
+If you used `/guardians-of-the-claude:create` in Step 1, skip this step -- the seven canonical sections are already generated. Run `/context` and check **Memory files** to confirm your CLAUDE.md is loaded, then jump to Step 4.
 
 If you are writing CLAUDE.md by hand, work through the sections below. Keep the same structure so `/audit` can grade it against the same rubric:
 
@@ -83,7 +72,7 @@ If your CLAUDE.md is growing past 200 lines, or you have instructions that only 
 Use rules when you want:
 
 - **Modular organization** -- one topic per file (e.g., `testing.md`, `code-style.md`)
-- **Path-scoping** -- rules that load only when Claude reads matching files
+- **Path-scoping** -- rules that load only when Claude reads, writes, or edits matching files
 - **Team collaboration** -- different team members own different rule files
 
 Keep core instructions that every session needs in CLAUDE.md. See the [Rules Guide](rules-guide.md) for the full walkthrough.
@@ -112,7 +101,7 @@ The `allow` list uses `Tool(specifier)` syntax. Start with your test and build c
 
 Launch Claude Code in your project and confirm everything is loaded:
 
-1. Run `/memory` -- this shows all loaded CLAUDE.md files and rules. Confirm your files appear.
+1. Run `/context` -- the **Memory files** list shows the CLAUDE.md files and unscoped rules that loaded at launch (path-scoped rules print a `Loaded` line when Claude first touches a matching file). Confirm your files appear; use `/memory` to open and edit them.
 2. Try a simple task -- ask Claude to explain your project structure or run your test suite.
 3. Check that Claude follows your instructions -- if it ignores a rule, the CLAUDE.md may be too long or the instruction may be too vague.
 

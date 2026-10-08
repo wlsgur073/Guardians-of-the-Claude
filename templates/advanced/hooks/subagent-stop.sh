@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # SubagentStop hook -- appends one JSONL line per subagent completion.
+# Also fires for Claude Code's internal agents (prompt suggestions, /btw); those rows log
+# "agent_type":null unless the session runs as an agent (--agent or the `agent` setting).
 # Always exits 0 -- observability hook does not block.
 
 set -e
@@ -12,7 +14,8 @@ mkdir -p "$OUT_DIR"
 STDIN_JSON=$(cat)
 
 extract() {
-  printf '%s' "$STDIN_JSON" | grep -oE "\"$1\"[[:space:]]*:[[:space:]]*\"[^\"]*\"" | sed -E 's/.*"([^"]*)"$/\1/' || true
+  # First match only: background_tasks[] entries for subagent tasks also carry "agent_type".
+  printf '%s' "$STDIN_JSON" | grep -oE "\"$1\"[[:space:]]*:[[:space:]]*\"[^\"]*\"" | head -n 1 | sed -E 's/.*"([^"]*)"$/\1/' || true
 }
 
 SESSION_ID=$(extract "session_id")

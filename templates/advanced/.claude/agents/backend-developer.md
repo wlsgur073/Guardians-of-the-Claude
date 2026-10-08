@@ -1,5 +1,5 @@
 ---
-name: "Backend Developer"
+name: "backend-developer"
 description: "Specializes in TaskFlow's Express API layer, services, and database access"
 tools:
   - Read

@@ -1,12 +1,12 @@
 ---
 title: "Security Scanning"
 description: "Catch secrets, encoded payloads, and prompt-injection strings before they land — wiring a replaceable scanner as a pre-commit / PreToolUse gate"
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Security Scanning
 
-Deny patterns in `settings.json` stop Claude from *reading* secret files (`.env`, `*.pem`). They do **not** catch secrets, base64-encoded payloads, or prompt-injection strings that are *already committed* to the repository. Content scanning closes that gap — and wired as a hook, it runs without you having to remember.
+Deny patterns in `settings.json` stop Claude's file tools and recognized shell commands (`cat`, `head`, …) from *reading* secret files (`.env`, `*.pem`). A script that opens the file itself isn't covered unless the sandbox blocks it. They do **not** catch secrets, base64-encoded payloads, or prompt-injection strings that are *already committed* to the repository. Content scanning closes that gap — and wired as a hook, it runs without you having to remember.
 
 This guide teaches the *pattern*. It deliberately does **not** ship a scanner: a hand-rolled regex scanner gives false confidence — a weak scanner that misses a live key is worse than no scanner, because people trust it. Use a maintained tool; the template here is a thin, replaceable wrapper around one.
 
@@ -28,6 +28,17 @@ Run the scan at the cheapest gate that still blocks the bad outcome — they are
 - **CI** — backstop for commits that skipped the local hook; blocks the merge.
 - **Claude Code `PreToolUse` hook** — blocks Claude from running `git commit` on a finding mid-session; use `exit 2` so the reason surfaces.
 
+## Claude Code's security review tools
+
+These review code for vulnerabilities and complement a secret scanner. None of them blocks a commit:
+
+- **Security guidance plugin** (`/plugin install security-guidance@claude-plugins-official`): reviews Claude's own edits, turns, and the commits and pushes Claude makes, in-session. Add secret prefixes such as `AKIA` or `sk_live_` to `.claude/security-patterns.yaml` (or `.json` if PyYAML isn't installed) for its per-edit check. Findings go back to Claude; nothing is blocked.
+- **`/security-review`**: a one-off security pass over your branch's diff against origin's default branch.
+- **Claude Security plugin** (`/plugin install claude-security@claude-plugins-official`): an on-demand multi-agent scan of a repository or a diff.
+- **Code Review** (Team and Enterprise): multi-agent PR review. Findings don't approve or block the PR.
+
+Keep the `exit 2` scanner gate for anything that must hard-block.
+
 ## Use a mature scanner
 
 Pick a maintained tool rather than rolling your own:
@@ -42,7 +53,7 @@ The advanced template ships a thin wrapper — `templates/advanced/hooks/secret-
 SECRET_SCANNER=trufflehog   # default is gitleaks
 ```
 
-Wire it as a `PreToolUse` hook on `Bash(git commit*)`, or call it from your `.git/hooks/pre-commit`.
+Wire it as a `PreToolUse` hook with `"matcher": "Bash"` and `"if": "Bash(git commit *)"` on the handler (the matcher takes a tool name; `if` takes permission-rule syntax), or call it from your `.git/hooks/pre-commit`.
 
 ## Ignorelists and failure behavior
 

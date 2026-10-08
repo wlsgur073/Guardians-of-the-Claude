@@ -1,7 +1,7 @@
 ---
 title: "Scoring Model"
 description: "Conservative scoring formula for /audit — LAV item-aware multiplier with cap tier {50, 60, 100}"
-version: "1.1.1"
+version: "1.1.2"
 scoring_contract_id: "audit-score-v4.2.0"
 ---
 
@@ -163,8 +163,8 @@ The Quality Gate is a **display-only label** independent of the score calculatio
 
 Conditions (ALL applicable must be met for READY):
 
-- CLAUDE.md exists (root or `.claude/CLAUDE.md`) — always required
-- Test command is present in CLAUDE.md — waived if test command is SKIP
+- CLAUDE.md exists (root or `.claude/CLAUDE.md`), or, when none exists, `AGENTS.md` (root or `.claude/AGENTS.md`) — always required (same condition as T1.1)
+- Test command is present in that file — waived if test command is SKIP
 
 Display: **"Gate: READY"** or **"Gate: NOT READY"**
 

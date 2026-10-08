@@ -103,7 +103,7 @@ After generating all files:
 
 1. Print a summary table listing every created/modified file and what it contains
 2. If you merged into existing files, explain what was added
-3. Tell the user: "Run `/memory` to verify all configuration files are loaded"
+3. Tell the user: "Start a new Claude Code session (CLAUDE.md and rules load at launch), run `/context`, and check **Memory files** to confirm CLAUDE.md and your rule files loaded; use `/memory` to open and edit them"
 4. Suggest trying a simple task to test the configuration works
 
 5. Suggest: "Run `/guardians-of-the-claude:audit` to evaluate your new configuration."

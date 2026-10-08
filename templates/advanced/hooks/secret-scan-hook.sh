@@ -8,7 +8,17 @@ set -u
 
 SCANNER="${SECRET_SCANNER:-gitleaks}"
 command -v "$SCANNER" >/dev/null 2>&1 || {
-  echo "secret-scan-hook: '$SCANNER' not found — install it or set SECRET_SCANNER. Skipping (non-blocking)." >&2
+  msg="secret-scan-hook: '$SCANNER' not found — install it or set SECRET_SCANNER. Skipping (non-blocking)."
+  echo "$msg" >&2
+  # As a Claude Code hook, stderr on exit 0 reaches only the debug log; systemMessage is shown to the user.
+  # $msg embeds SECRET_SCANNER, so JSON-escape it (jq if present, else strip control chars + escape \ and ").
+  if [ -n "${CLAUDE_PROJECT_DIR:-}" ]; then
+    if command -v jq >/dev/null 2>&1; then
+      jq -cn --arg m "$msg" '{systemMessage: $m}'
+    else
+      printf '{"systemMessage":"%s"}\n' "$(printf '%s' "$msg" | tr -d '\000-\037' | sed 's/\\/\\\\/g; s/"/\\"/g')"
+    fi
+  fi
   exit 0
 }
 

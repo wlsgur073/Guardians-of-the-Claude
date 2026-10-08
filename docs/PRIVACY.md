@@ -2,13 +2,14 @@
 
 ## guardians-of-the-claude plugin
 
-This plugin does not transmit any data outside your project. It does write local state files inside your project directory to support cross-skill learning (recommendation history, decision journal, derived state snapshot). All storage is local; no remote endpoints are contacted.
+The plugin's own code (skills, hook, and helper scripts) contacts no remote endpoints. It does write local state files inside your project directory to support cross-skill learning (recommendation history, decision journal, derived state snapshot). Because the plugin runs inside Claude Code, everything that enters the conversation (your prompts, the project files Claude reads while running the skills, the `SessionStart` hook's short state digest, and Claude's outputs) goes to your configured model provider like any other Claude Code conversation, under Claude Code's [data usage](https://code.claude.com/docs/en/data-usage) policies.
 
 ### What this plugin does
 
 - Runs an interactive interview inside Claude Code
 - Generates configuration files (CLAUDE.md, settings.json, rules, hooks, agents, skills) locally in your project directory
 - Writes local state files under `<project-root>/.claude/.plugin-cache/guardians-of-the-claude/local/` — `profile.json`, `recommendations.json`, `config-changelog.md`, `state-summary.md`, `qa-report.md`, and (during legacy-format migration) `legacy-backup/<ISO-8601-UTC>/`. These files contain detected project metadata (language/framework/tooling), recommendation history with PENDING/RESOLVED/DECLINED statuses, and a decision journal of skill runs
+- Reads some local Claude Code data outside the project, read-only: `/audit`'s usage report runs `plugin/references/lib/usage-parser.sh`, which aggregates token counts and metadata (model, timestamps, session IDs, tool names; never message text) from the session transcripts Claude Code keeps under `~/.claude/projects/` (or `$CLAUDE_CONFIG_DIR/projects/`) for **all** your local projects; `/secure` and `/optimize` read `~/.claude/guardians/config.json` (or `$CLAUDE_CONFIG_DIR/guardians/config.json`) when it exists; and `/secure` checks your user-level `~/.claude/settings.json` and managed settings for `autoMode.environment`
 
 ### What this plugin does NOT do
 

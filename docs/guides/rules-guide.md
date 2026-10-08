@@ -1,7 +1,7 @@
 ---
 title: "Using .claude/rules/"
 description: "How to organize project instructions into modular, path-scoped rule files"
-version: 1.0.1
+version: 1.0.2
 ---
 
 # Using .claude/rules/
@@ -19,7 +19,7 @@ Rule files let you break your project instructions into focused, single-topic mo
 - Different team members own different areas (frontend rules, backend rules, testing rules)
 - You want to add or remove a topic without editing a monolithic file
 
-A good split: CLAUDE.md holds the essentials (under 200 lines), and rule files hold the details.
+A good split: CLAUDE.md holds the essentials (under 200 lines), and rule files hold the details. For task-specific procedures that don't need to be in context every session, use a skill instead -- skills load only when invoked or when Claude judges them relevant.
 
 ## File Structure
 
@@ -54,7 +54,7 @@ Rule files without `paths` frontmatter are loaded every session, just like CLAUD
 
 ## Path-Scoping
 
-Add a `paths` frontmatter block to make a rule file load only when Claude reads files matching the specified patterns:
+Add a `paths` frontmatter block to make a rule file load only when Claude reads, writes, or edits a file matching the specified patterns:
 
 ```markdown
 ---
@@ -66,7 +66,7 @@ paths:
 - Use the asyncHandler wrapper for all route handlers
 ```
 
-Path-scoped rules are loaded on demand, not every session. This keeps context clean -- Claude only sees API rules when working on API files.
+Path-scoped rules are loaded on demand, not every session. This keeps context clean -- Claude only sees API rules when working on API files. Run `/context` to see which rules loaded at launch; an `InstructionsLoaded` hook can log each on-demand load (`load_reason: path_glob_match`) along with the rule's `paths` globs and the file that triggered it.
 
 ### Glob Pattern Reference
 
@@ -88,6 +88,8 @@ paths:
 ---
 ```
 
+`paths` is the only frontmatter field Claude Code reads from a rule. Other fields are silently ignored, and `paths` accepts a YAML list or a comma-separated string. If the frontmatter YAML doesn't parse, the rule loads every session as if it had no `paths`; run `claude --debug` to see the parse error.
+
 See `templates/advanced/.claude/rules/api-endpoints.md` for a complete path-scoped rule example.
 
 ## User-Level Rules
@@ -100,9 +102,7 @@ Place personal rule files in `~/.claude/rules/` to apply them across all your pr
   git-workflow.md        # Your commit message and branching preferences
 ```
 
-User-level rules are loaded before project rules. When they conflict, **project rules take higher priority** -- the team's conventions override your personal preferences.
-
-This is useful for preferences that are truly personal (editor-like settings, preferred comment style) rather than project-specific.
+User-level rules load before project rules, so a project rule appears later in Claude's context. Neither set overrides the other: if a user rule and a project rule conflict, Claude may follow either one. Keep personal rules to truly personal preferences (comment style, commit message format) that don't contradict your team's conventions.
 
 ## Sharing Rules Across Projects
 
@@ -116,9 +116,9 @@ ln -s ~/shared-claude-rules .claude/rules/shared
 ln -s ~/company-standards/security.md .claude/rules/security.md
 ```
 
-This pattern works well for organization-wide standards. Maintain a central repository of rule files and symlink them into each project. When the central rules update, every project picks up the changes automatically.
+This pattern works well for organization-wide standards: maintain a central repository of rule files and symlink them into each project, so every project picks up updates automatically. Make sure the symlink targets exist on every developer's machine, or use a setup script to create them.
 
-**Note:** Symlinked rules are resolved at read time. Make sure the symlink targets exist on every developer's machine, or use a setup script to create them.
+**Note:** A symlink whose target is outside the project is treated like an external `@import`. Its rules don't load until you approve external imports in the one-time dialog at session start, and even then only rules **without** `paths` frontmatter load. Symlinks to network paths (UNC shares, `/net`, `/Network`) are not followed. To share personal rules without the approval step, keep them in `~/.claude/rules/`.
 
 ## Further Reading
 

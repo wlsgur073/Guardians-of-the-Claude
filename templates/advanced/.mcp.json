@@ -2,9 +2,9 @@
   "mcpServers": {
     "postgres": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "args": ["-y", "@bytebase/dbhub@1.4.0"],
       "env": {
-        "POSTGRES_CONNECTION_STRING": "${POSTGRES_CONNECTION_STRING}"
+        "DSN": "${POSTGRES_CONNECTION_STRING}"
       }
     }
   }

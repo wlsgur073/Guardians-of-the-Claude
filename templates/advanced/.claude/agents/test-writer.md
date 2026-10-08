@@ -1,5 +1,5 @@
 ---
-name: "Test Writer"
+name: "test-writer"
 description: "Generates tests following project conventions — Jest, Supertest, factories"
 tools:
   - Read

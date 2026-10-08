@@ -21,20 +21,17 @@
       "Read(./.env.*)",
       "Edit(./.env)",
       "Edit(./.env.*)",
-      "Write(./.env)",
-      "Write(./.env.*)",
       "Read(./secrets/)",
       "Edit(./secrets/)",
-      "Write(./secrets/)",
       "Bash(rm -rf *)",
-      "Bash(git push --delete *)",
-      "Bash(git commit --no-verify *)",
-      "Bash(git push --no-verify *)"
+      "Bash(git push *--delete*)",
+      "Bash(git commit *--no-verify*)",
+      "Bash(git push *--no-verify*)"
     ]
   },
   "sandbox": {
     "enabled": true,
-    "excludedCommands": ["docker *"],
+    "excludedCommands": ["docker compose *"],
     "filesystem": {
       "allowWrite": ["~/.npm", "/tmp/jest"]
     }
@@ -46,7 +43,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path // empty' | grep -qE '(package-lock\\.json|\\.env|migrations/)' && { echo 'Protected file'; exit 2; } || exit 0",
+            "command": "jq -r '.tool_input.file_path // empty' | tr '\\\\' '/' | grep -qE '(package-lock\\.json|\\.env|migrations/)' && { echo 'Protected file' >&2; exit 2; } || exit 0",
             "timeout": 5,
             "statusMessage": "Checking for protected files"
           }

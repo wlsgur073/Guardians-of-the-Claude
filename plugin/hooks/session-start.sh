@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # plugin/hooks/session-start.sh — SessionStart state-aware re-entry digest.
-# Read-only over canonical state. Source filter narrows execution to startup|resume.
-# Sole SessionStart emitter: bash is a hard requirement (CHANGELOG v3.0.0),
-# and Claude Code's hook executor launches commands via bash on every platform.
+# Read-only over canonical state. Source filter narrows execution to startup|resume|fork.
+# Sole SessionStart emitter: bash is a hard requirement (CHANGELOG v3.0.0).
+# hooks.json invokes this script with an explicit `bash`; Claude Code runs that
+# shell-form command via sh on macOS/Linux and Git Bash on Windows (PowerShell
+# when Git Bash isn't installed, where `bash` must then resolve on PATH).
 # Bootstrap cases (no config / no profile) early-return with the existing prompts;
 # after profile exists, three trigger families (drift / unresolved / repeated-decline)
 # stack into a capped multi-line digest in fixed priority order.
@@ -40,7 +42,11 @@ case "$SOURCE" in
 esac
 
 # Case 1: No Claude Code configuration at all (PRESERVED VERBATIM)
-if [ ! -f "CLAUDE.md" ] && [ ! -f ".claude/settings.json" ]; then
+# AGENTS.md / .claude/AGENTS.md count as project instructions (Claude Code reads
+# them when no CLAUDE.md exists; /audit T1.1 passes on them too).
+if [ ! -f "CLAUDE.md" ] && [ ! -f ".claude/CLAUDE.md" ] \
+   && [ ! -f "AGENTS.md" ] && [ ! -f ".claude/AGENTS.md" ] \
+   && [ ! -f ".claude/settings.json" ]; then
   cat << 'EOF'
 {
   "hookSpecificOutput": {

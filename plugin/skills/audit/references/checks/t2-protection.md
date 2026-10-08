@@ -22,7 +22,7 @@ Check for these patterns:
 - `secrets/` or similar in deny list
 
 Additionally, check for **operation coverage gaps** in deny patterns:
-- If deny patterns use operation-specific syntax (e.g., `Read(file_path=**/*.pem)`), verify that all three operation types (Read, Edit, Write) are covered for each sensitive file pattern
+- If deny patterns use path-specific rules (e.g., `Read(./**/*.pem)`), verify that both operations Claude Code checks file paths against — `Read` and `Edit` — are covered for each sensitive file pattern. `Edit` rules cover every built-in file-editing tool; a `Write(path)` rule is accepted but never consulted (Claude Code warns at startup), so it neither counts toward nor is required for coverage. A `Read` deny alone also blocks Edit and Write on that path (Claude Code v2.1.228+) but not NotebookEdit, so a missing `Edit` deny is still a gap.
 - Common sensitive file extensions to check beyond `.env`: `*.pem`, `*.key`, `*.p12`, `*.pfx`, `*.cert`, `*.jks`
 - If a sensitive file type is covered by deny for some operations but relies on hooks for others, note this as weaker protection — hook failures (see T2.3 check 4-5) would leave those operations unprotected
 
@@ -53,8 +53,8 @@ If `.claude/settings.json` has a `hooks` section:
 **If settings.json cannot be parsed as valid JSON**, the hooks section cannot be assessed → **SKIP** (the malformed JSON is already flagged in T2.1).
 
 1. Check that every hook entry has a `statusMessage` field
-2. Check that `PreToolUse` hooks use `exit 2` (not `exit 1`) for blocking — `exit 1` causes a generic error, `exit 2` provides Claude with the reason
-3. Check for hooks with no `matcher` (runs on every tool use — usually unintentional)
+2. Check that `PreToolUse` `command` hooks that block do so with `exit 2` (not `exit 1`) — `exit 1` is a non-blocking error, so the tool call still proceeds and only a hook-error notice appears; `exit 2` blocks the call and feeds stderr to Claude as the reason. A hook that exits 0 and prints JSON with `hookSpecificOutput.permissionDecision: "deny"` also blocks correctly — do not flag it.
+3. Check for tool-event hooks (`PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`, `PermissionDenied`) with no `matcher` (omitted or empty) and no per-handler `if` condition — these run on every tool call, which is usually unintentional. Do not flag a missing matcher on events without matcher support (`UserPromptSubmit`, `Stop`, `PostToolBatch`, `TeammateIdle`, `TaskCreated`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`, `CwdChanged`, `MessageDisplay`) or on other non-tool events, where omitting it is normal.
 4. **Portability check:** Flag known non-portable patterns in hook commands that silently fail on some platforms:
    - `grep -P` or `grep -oP` → PCRE not available on macOS/Windows Git Bash; use `grep -E` (extended regex) or `sed` instead
    - `readlink -f` → not supported on macOS; use `realpath` or `cd "$(dirname "$0")" && pwd` instead
@@ -94,11 +94,12 @@ Each violation records: `(sub-check ID, evidence path:line, catalog incident ID 
 ### Sub-check 4a — Wildcard allow
 
 Detect entries in `permissions.allow[]` matching any of:
-- `Bash(*)`
+- `Bash(*)` or bare `Bash` (equivalent — both match every command)
 - `Bash(python*)`, `Bash(node*)`, `Bash(ruby*)`, `Bash(perl*)`, `Bash(deno*)`, `Bash(bun*)` (and other wildcarded interpreters)
 - `Bash(npm run *)`, `Bash(pnpm run *)`, `Bash(yarn run *)` (package manager run commands)
-- `Agent(*)` or `Agent(<any-name>*)` patterns
-- `PowerShell(*)` (when PowerShell tool enabled)
+- bare `Agent`, `Agent(*)`, or `Agent(<any-name>*)` patterns
+- `PowerShell(*)` or bare `PowerShell` (when PowerShell tool enabled)
+- bare `Monitor` or `Monitor(*)` (Monitor runs its commands through the shell)
 
 These rules grant arbitrary code execution. Note that auto mode automatically drops these rules at runtime per docs `/en/permission-modes`; the audit fires regardless because users frequently operate in default/acceptEdits modes where these allows are live.
 
@@ -108,25 +109,27 @@ These rules grant arbitrary code execution. Note that auto mode automatically dr
 
 Detect when `permissions.defaultMode == "bypassPermissions"` AND `.claude/settings.json` is the source (project-shared, version-controlled), AND CLAUDE.md does NOT contain any of: "disposable", "VM only", "VM-only", "container only", "container-only", "isolated environment", "sandbox only".
 
-Local-scope `settings.local.json` is exempt — local sessions are user-chosen risk.
+Claude Code v2.1.257 and later ignore `bypassPermissions` in `.claude/settings.json` and `.claude/settings.local.json` (the session starts in Manual mode), so on current versions this entry is dead config; it still puts collaborators running older Claude Code versions into bypass mode. Remediation: remove it from project settings; for a genuinely isolated environment, set it in user (`~/.claude/settings.json`) or managed settings, or pass `--permission-mode bypassPermissions` for the session.
+
+Local-scope `settings.local.json` is exempt — it is not shared through version control (and Claude Code v2.1.257+ ignores the value there too).
 
 **Citations:** `safety-bypass`.
 
 ### Sub-check 4c — autoMode environment (advisory only)
 
-When `permissions.defaultMode == "auto"` AND `autoMode.environment` is not defined: emit advisory in suggestions section only, **DO NOT** score against T2.4. Rationale: per Claude Code docs `/en/permission-modes`, omitting `autoMode.environment` yields the strictest default trust boundary (working directory + repo remotes only). Penalizing the strict default is incorrect.
+When `permissions.defaultMode == "auto"` or an `autoMode` block appears in `.claude/settings.json` or `.claude/settings.local.json`: emit advisory in suggestions section only, **DO NOT** score against T2.4. Rationale: per Claude Code docs `/en/permission-modes` and `/en/auto-mode-config`, `defaultMode: "auto"` doesn't take effect from project or local settings (the session falls back to the built-in default, which is itself `auto` for terminal sessions on v2.1.283+), and the auto mode classifier reads `autoMode` only from `~/.claude/settings.json`, managed settings, or `--settings`. Without `autoMode.environment` the classifier trusts only the working directory and the repo's configured remotes — the strict default, which is not penalized.
 
-Advisory wording: "auto mode is active without a custom `autoMode.environment`. This is the strict default. If routine actions are blocked frequently, see https://code.claude.com/docs/en/auto-mode-config for extending trusted infrastructure."
+Advisory wording: "`defaultMode: "auto"` and `autoMode` in project settings are ignored — Claude Code reads them only from `~/.claude/settings.json` or managed settings (or `--permission-mode auto` for one session). Move them there; `/auto-mode-setup` can draft `autoMode.environment` entries. See https://code.claude.com/docs/en/auto-mode-config."
 
 **Citations:** `data-exfiltration`, `credential-exploration` (advisory context only).
 
 ### Sub-check 4d — MCP credential exposure
 
-Read `.mcp.json` at project root. For each `mcpServers[*].env` entry, classify:
+Read `.mcp.json` at project root. For each `mcpServers[*].env` entry — and, for remote (`http`/`sse`/`ws`) servers, each `mcpServers[*].headers` value — classify (for a remote server's `url`, apply only the 4d-i literal-token test, and only to embedded credentials such as `user:pass@` userinfo or token-bearing query parameters, not to the URL as a whole):
 
 - **4d-i (MINIMAL):** Value is a literal secret-looking string OR a defaulted secret `${VAR:-actual-secret-value}` where the default contains a token pattern (`sk-`, `ghp_`, `xox[bp]-`, base64 string ≥40 chars, or any string ≥20 chars with mixed case + digits).
 - **4d-ii (PARTIAL):** Value is a `${VAR}` placeholder (no default) in a project-scope `.mcp.json` AND CLAUDE.md does not contain a phrase pointing to user-scope migration or vault pattern (search for: "user-scope", "~/.claude.json", "vault", "OAuth", "credential rotation").
-- **SKIP:** `.mcp.json` absent, or all `env` entries are placeholders AND a migration note exists.
+- **SKIP:** `.mcp.json` absent, or all scanned `env`/`headers` values are placeholders AND a migration note exists.
 
 User-scope `~/.claude.json` is out of audit scope — that file is per-user and not in the audited project tree.
 

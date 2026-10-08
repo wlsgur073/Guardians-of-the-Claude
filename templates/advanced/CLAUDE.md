@@ -1,11 +1,11 @@
 ---
 title: "TaskFlow CLAUDE.md (Advanced)"
 description: "Example root CLAUDE.md for a Node.js/Express REST API project"
-version: 1.5.2
+version: 1.5.3
 ---
 
 <!--
-  EXAMPLE STACK NOTE (visible in source, hidden in GitHub render)
+  EXAMPLE STACK NOTE (visible in source and via the Read tool; hidden in GitHub render and stripped from Claude's context when Claude Code auto-loads this CLAUDE.md)
 
   This template illustrates TaskFlow implemented with Node.js + Express +
   TypeScript + PostgreSQL. TaskFlow is a fictional reference project; the
@@ -148,10 +148,10 @@ This project connects one external capability via MCP. Per the integration contr
 
 ### postgres (MCP server)
 
-- **Scope:** read + write — executes SQL; route side-effecting use through review
-- **Trust level / provenance:** official `@modelcontextprotocol/server-postgres`; pin the version
+- **Scope:** runs SQL with the privileges of the database user in `POSTGRES_CONNECTION_STRING` — connect as a read-only user; route any side-effecting SQL through review
+- **Trust level / provenance:** third-party DBHub (`@bytebase/dbhub`, by Bytebase), the server the Claude Code MCP docs use for PostgreSQL; pin the version
 - **Privacy boundary:** queries can carry table data — never put secrets or PII in a prompt to it
-- **Safe-disable path:** remove the server from `.mcp.json`, or unset `POSTGRES_CONNECTION_STRING`
+- **Safe-disable path:** remove the server from `.mcp.json`, or add `"postgres"` to `disabledMcpjsonServers` in `.claude/settings.local.json`
 
 ## References
 

@@ -1,9 +1,9 @@
 {
-  "description": "Read-only state-aware re-entry digest on session start (startup + resume sources only via matcher: \"startup|resume\" first-line filter, with script-side parser as defense-in-depth; clear and compact suppressed). Bootstrap cases (no config / no profile) early-return with the same prompts as before. After profile exists, stacks up to 3 trigger families -- drift (manifest staleness, schema mismatch, ecosystem change, scoring contract bump), unresolved recommendations, repeated declines -- into a capped 2000-char multi-line digest in fixed priority order.",
+  "description": "Read-only state-aware re-entry digest on session start (startup, resume, and fork sources only via matcher: \"startup|resume|fork\" first-line filter, with script-side parser as defense-in-depth; clear and compact suppressed). Bootstrap cases (no config / no profile) early-return with the same prompts as before. After profile exists, stacks up to 3 trigger families -- drift (manifest staleness, schema mismatch, ecosystem change, scoring contract bump), unresolved recommendations, repeated declines -- into a capped 2000-char multi-line digest in fixed priority order.",
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "startup|resume",
+        "matcher": "startup|resume|fork",
         "hooks": [
           {
             "type": "command",

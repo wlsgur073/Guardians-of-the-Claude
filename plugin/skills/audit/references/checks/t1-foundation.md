@@ -16,7 +16,7 @@ These checks form the **Foundation Gate** — they trigger early halt when CLAUD
 Check if `CLAUDE.md` exists at the project root or `.claude/CLAUDE.md`.
 
 - Found → **PASS**
-- Neither exists → **FAIL** — stop and recommend running `/guardians-of-the-claude:create` first. Do NOT proceed to T1.2 or any subsequent phase. Use the Early Halt output format (see output-format.md)
+- Neither exists → **FAIL** — stop and recommend running `/guardians-of-the-claude:create` first. Do NOT proceed to T1.2 or any subsequent phase. Use the Early Halt output format (see output-format.md). If `AGENTS.md` or `.claude/AGENTS.md` exists, add a note to the Early Halt output (it does not change this FAIL): "AGENTS.md found — Claude Code v2.1.277+ reads it when no CLAUDE.md exists, but /audit requires a CLAUDE.md. Run /guardians-of-the-claude:create to add one that imports @AGENTS.md."
 
 ## T1.2 Test Command
 

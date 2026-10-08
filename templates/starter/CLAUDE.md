@@ -1,11 +1,11 @@
 ---
 title: "TaskFlow CLAUDE.md (Starter)"
 description: "Minimal 7-section example for a Node.js/Express REST API project"
-version: 1.1.2
+version: 1.1.3
 ---
 
 <!--
-  EXAMPLE STACK NOTE (visible in source, hidden in GitHub render)
+  EXAMPLE STACK NOTE (visible in source and via the Read tool; hidden in GitHub render and stripped from Claude's context when Claude Code auto-loads this CLAUDE.md)
 
   This template illustrates TaskFlow implemented with Node.js + Express +
   TypeScript + PostgreSQL. TaskFlow is a fictional reference project; the

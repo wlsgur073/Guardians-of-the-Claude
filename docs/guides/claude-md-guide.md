@@ -1,7 +1,7 @@
 ---
 title: "Writing Effective CLAUDE.md Files"
 description: "How to write, organize, and maintain CLAUDE.md files for Claude Code"
-version: 1.4.7
+version: 1.4.8
 ---
 
 # Writing Effective CLAUDE.md Files
@@ -12,15 +12,16 @@ CLAUDE.md is a markdown file containing persistent instructions that Claude read
 
 ## The Hierarchy
 
-Claude loads instructions from multiple locations, with more specific scopes taking precedence over broader ones:
+Claude loads instructions from several locations. Files are concatenated into context rather than overriding each other; the table lists them in load order, broadest first:
 
 | Scope | Location | Purpose |
 | ------- | ---------- | --------- |
-| Managed policy | Platform-specific system paths | Organization-wide instructions set by admins |
-| Project | `./CLAUDE.md` or `./.claude/CLAUDE.md` | Team-shared project instructions (committed to git) |
+| Managed policy | macOS `/Library/Application Support/ClaudeCode/CLAUDE.md`, Linux/WSL `/etc/claude-code/CLAUDE.md`, Windows `C:\Program Files\ClaudeCode\CLAUDE.md` | Organization-wide instructions set by admins; cannot be excluded |
 | User | `~/.claude/CLAUDE.md` | Personal preferences applied to all projects |
+| Project | `./CLAUDE.md` or `./.claude/CLAUDE.md` | Team-shared project instructions (committed to git) |
+| Local | `./CLAUDE.local.md` | Your private notes for this project (add it to `.gitignore`) |
 
-When instructions conflict, more specific locations win. A project-level rule overrides a user-level preference. Managed policies set by your organization take highest priority.
+Files in your working directory and every directory above it load at launch, ordered from the filesystem root down, so instructions closer to where you launched Claude are read last. Files are concatenated, not merged, so load order is not a reliable tie-breaker: when two instructions contradict each other, Claude may pick one arbitrarily. Remove the contradiction instead of relying on precedence.
 
 ## Two Locations for Project Instructions
 
@@ -30,6 +31,8 @@ You can place your project CLAUDE.md in either of two locations:
 - **`./.claude/CLAUDE.md`** -- Keeps your project root cleaner. Good for repos that already have many root-level config files.
 
 **Pick one, not both.** Claude loads both if they exist, and instructions may conflict. The root location is more common and what `/init` generates.
+
+**Already have an `AGENTS.md`?** Claude Code v2.1.277+ (v2.1.281+ on Amazon Bedrock, Vertex AI, Microsoft Foundry, LLM gateways, or with telemetry off) reads it as your project instructions when there is no `CLAUDE.md`, `.claude/CLAUDE.md`, or `CLAUDE.local.md` in your working directory or above it; once one of those exists, only the CLAUDE.md files load. To keep one shared file and add Claude-specific rules, put `@AGENTS.md` at the top of your `CLAUDE.md` (prefer the import over a symlink if anyone clones on Windows). Change the default under **Project instructions** in `/config`.
 
 ## Folder-Level CLAUDE.md
 
@@ -45,10 +48,10 @@ This keeps your root CLAUDE.md focused on project-wide instructions while provid
 
 ## Writing Principles
 
-- **Target under 200 lines.** This is a soft guideline, not a hard cap. Claude loads the entire file regardless of length, but shorter files produce better adherence to your instructions. Long contexts also interact with a documented phenomenon ("context rot") in which model recall from long contexts degrades as context fills — keeping CLAUDE.md short reduces unnecessary context pressure.
-- **Use markdown headers and bullets.** Structure makes instructions scannable for both Claude and humans.
+- **Target under 200 lines.** This is a soft guideline, not a hard cap. Claude Code loads a CLAUDE.md in full up to 4 MiB (a larger file is skipped) and warns at startup and in `/status` when a file is over the recommended length, and at session start when your instruction files together pass a combined limit; shorter files produce better adherence to your instructions. Long contexts also interact with a documented phenomenon ("context rot") in which model recall from long contexts degrades as context fills — keeping CLAUDE.md short reduces unnecessary context pressure.
+- **Use markdown headers and bullets.** Structure makes instructions scannable for both Claude and humans. Block-level HTML comments (`<!-- ... -->`) are stripped before CLAUDE.md reaches Claude's context, so use them for maintainer notes that cost no tokens.
 - **Be specific and verifiable.** Write "Use 2-space indentation" not "Format code properly." Write "Run `npm test` to verify" not "Make sure it works."
-- **Avoid conflicting instructions.** If your CLAUDE.md says one thing and a rule file says another, Claude may follow either. Audit for contradictions.
+- **Avoid conflicting instructions.** If your CLAUDE.md says one thing and a rule file says another, Claude may follow either. Audit for contradictions -- `/doctor prompt-audit` (Claude Code v2.1.283+) reports conflicting files, references to files or commands that no longer exist, and instructions written for older models, and changes nothing until you approve its edits.
 - **Prefer model-agnostic rules.** Write rules that hold regardless of which Claude model runs them. If a rule genuinely depends on model-specific behavior, name the model/version it targets and revisit it when `/audit` reports model drift — a broadly-worded instruction tuned to one model can degrade others (Anthropic's [Apr 2026 postmortem](https://www.anthropic.com/engineering/april-23-postmortem)).
 
 ## Identity-DNA
@@ -97,7 +100,7 @@ Never run `db:migrate`, `deploy`, or `reindex` automatically — always stop and
 
 ## The @import Syntax
 
-Reference external files to keep your CLAUDE.md focused while linking to deeper context:
+Reference external files to keep your CLAUDE.md organized. Imported files are expanded into context at launch alongside the file that imports them, so imports tidy a long file but don't reduce its context cost:
 
 ```markdown
 ## References
@@ -110,8 +113,9 @@ Key details:
 
 - **Relative paths** resolve from the file containing the `@import`: `@docs/guide.md`
 - **Absolute paths** start from the filesystem root: `@/home/user/notes.md`
-- **Personal imports** reference your home directory: `@~/.claude/my-project-instructions.md`
-- **Max depth** is 5 hops -- an imported file can import another, up to 5 levels deep.
+- **Personal imports** reference your home directory: `@~/.claude/my-project-instructions.md`. An import in a project file that resolves outside the working directory triggers a one-time approval dialog; if you decline, those imports stay disabled.
+- **Code spans and fenced blocks are skipped** -- wrap a path in backticks (`` `@README` ``) to mention it without importing it.
+- **Max depth** is 4 hops -- an imported file can import another, up to four levels below the CLAUDE.md that starts the chain.
 
 Use `@import` to point Claude at existing documentation rather than duplicating content in your CLAUDE.md.
 
@@ -123,16 +127,16 @@ When your project has multiple skills and agents, add quick-reference tables to 
 
 Treat your CLAUDE.md like code -- review it regularly and prune aggressively.
 
-For each line, ask: **"Would removing this cause Claude to make mistakes?"** If the answer is no, cut it. A bloated CLAUDE.md causes Claude to dilute attention across too many instructions, and important rules get lost in the noise.
+For each line, ask: **"Would removing this cause Claude to make mistakes?"** If the answer is no, cut it. A bloated CLAUDE.md causes Claude to dilute attention across too many instructions, and important rules get lost in the noise. For a checked-in CLAUDE.md, `/doctor` also proposes cuts for content Claude can derive from the codebase.
 
-When a rule is critical, add emphasis to make it stand out:
+Emphasis is a targeted fix: if Claude keeps skipping one instruction, add emphasis such as `IMPORTANT` to that line alone:
 
 - "IMPORTANT: Never commit directly to main"
 - "YOU MUST run the test suite before committing"
 
 Reserve emphasis for rules that truly matter. If everything is marked IMPORTANT, nothing is.
 
-**Which rules earn that emphasis?** Match a rule's *form* to the cost of getting it wrong. When an error would be costly enough that you want guaranteed, predictable compliance rather than a judgment call -- deleting data, committing secrets, skipping tests before a release -- write the rule as a rigid directive (`IMPORTANT` / `YOU MUST` / `never`). Otherwise, prefer a rule that states the *why* and lets Claude's judgment adapt: rigid rules cannot anticipate every situation, and the rationale is what lets Claude apply the rule to a case you did not foresee. Anthropic's [constitution](https://www.anthropic.com/constitution) makes the same trade-off -- favoring "good values and judgment over strict rules," and reserving fixed rules for when "the costs of errors are severe enough that predictability and evaluability become critical." Either way, explain the rule (see the [Trustworthy Agents Guide](trustworthy-agents-guide.md)) -- even a rigid directive works better with its reason attached.
+**Which rules should be rigid?** Match a rule's *form* to the cost of getting it wrong. When an error would be costly enough that you want guaranteed, predictable compliance rather than a judgment call -- deleting data, committing secrets, skipping tests before a release -- write the rule as an unconditional directive (`never` / `always`), and add emphasis only if Claude still skips it. Otherwise, prefer a rule that states the *why* and lets Claude's judgment adapt: rigid rules cannot anticipate every situation, and the rationale is what lets Claude apply the rule to a case you did not foresee. Anthropic's [constitution](https://www.anthropic.com/constitution) makes the same trade-off -- favoring "good values and judgment over strict rules," and reserving fixed rules for when "the costs of errors are severe enough that predictability and evaluability become critical." Either way, explain the rule (see the [Trustworthy Agents Guide](trustworthy-agents-guide.md)) -- even a rigid directive works better with its reason attached.
 
 **Append, promote, and prune are one maintenance loop -- not three rules fighting each other.** Each is a half-truth alone: append a rule on every mistake and the file bloats until Claude dilutes attention across too many instructions; prune to stay lean and you throw away lessons you paid for in real errors. Promote is the missing move that reconciles them: the two practices only conflict when applied at the same altitude. When several appended rules share one root cause, fold them into a single rule at the right altitude -- general enough to cover the cases, concrete enough to keep what still carries weight -- then prune the duplicates. Promote on evidence, not on a calendar: merge before the shared cause is clear and you lock in the wrong abstraction, costlier than the duplication it replaced; and never generalize away a hard threshold, a safety constraint, or a non-obvious exception. This is the same shape this plugin's own [learning-system](../../plugin/references/learning-system.md) uses: it appends every decision, then rolls older entries up into summaries that keep the load-bearing facts and compress the narrative.
 
@@ -140,9 +144,9 @@ Reserve emphasis for rules that truly matter. If everything is marked IMPORTANT,
 
 ## Updating Mid-Session
 
-Two mechanisms keep CLAUDE.md responsive to what you learn during a session:
+Two mechanisms capture what you learn during a session:
 
-- **Direct prompt + `/memory`** — When you discover a rule mid-session (e.g., "always run `npm run typecheck` after edits"), tell Claude directly: `"add this to CLAUDE.md"` or `"remember this"`. Claude saves to CLAUDE.md or auto memory as appropriate. Run `/memory` to browse, open, and edit memory files. For the auto-memory entry schema — four types, frontmatter, `MEMORY.md` index format, and verify-before-recommending discipline — see the [Memory Patterns Guide](memory-patterns-guide.md). See also the [official memory docs](https://code.claude.com/docs/en/memory) for auto memory's storage location and toggle.
+- **Direct prompt + `/memory`** — When you discover a rule mid-session (e.g., "always run `npm run typecheck` after edits"), say `"add this to CLAUDE.md"` to have Claude write it into CLAUDE.md, or `"remember this"` to have Claude save it to auto memory. Edits to the project-root or user CLAUDE.md don't change the instructions the running session already loaded — the new content loads on the next `/clear`, `/compact`, or restart. Run `/memory` to browse, open, and edit memory files and to toggle auto memory. For the auto-memory entry schema — four types, frontmatter, `MEMORY.md` index format, and verify-before-recommending discipline — see the [Memory Patterns Guide](memory-patterns-guide.md). See also the [official memory docs](https://code.claude.com/docs/en/memory) for auto memory's storage location and toggle.
 - **Custom compaction directives** — Embed instructions inside CLAUDE.md that survive auto-compaction. Example: `"When compacting, always preserve the full list of modified files and any test commands."` Because the directive lives in CLAUDE.md, it reloads every session and applies whenever compaction triggers.
 
 ## Common Mistakes
@@ -154,4 +158,4 @@ Two mechanisms keep CLAUDE.md responsive to what you learn during a session:
 
 ## The /init Shortcut
 
-If you are starting from scratch, run `/init` inside Claude Code. Claude analyzes your codebase and produces a starting CLAUDE.md. This is the officially recommended starting point per [best practices](https://code.claude.com/docs/en/best-practices). Treat the output as a draft -- review it, merge in sections from our templates, and prune anything unnecessary.
+Run `/init` inside Claude Code to generate a starting CLAUDE.md: Claude analyzes your codebase and folds in existing Cursor (`.cursor/rules/`, `.cursorrules`) and Copilot (`.github/copilot-instructions.md`) rules, and if a CLAUDE.md already exists, `/init` suggests improvements instead of overwriting it. Set `CLAUDE_CODE_NEW_INIT=1` for an interactive flow that can also set up skills, hooks, and a personal `CLAUDE.local.md`, and shows a reviewable proposal before writing files. This is the officially recommended starting point per [best practices](https://code.claude.com/docs/en/best-practices). Treat the output as a draft -- review it, merge in sections from our templates, and prune anything unnecessary.

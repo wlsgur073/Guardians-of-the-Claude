@@ -19,7 +19,7 @@ Read `../../references/learning-system.md` and follow the **Common Phase 0** ste
 
 After completing Common Phase 0:
 - Separately scan `recommendations.json` for entries with `issued_by == "secure"` and `status == "DECLINED"` — these are previously declined `/secure` suggestions and must not be re-suggested unless project scale/structure changed significantly (per Learning Rule 2 Preference Respect).
-- **Resolve effective config:** If `~/.claude/guardians/config.json` OR `<project>/.claude/guardians/config.json` exists, run `bash plugin/references/lib/config-resolve.sh "<project-dir>"` and read `.config.secure` plus `.overrides` / `.warnings` from its JSON. If neither file exists, skip the helper and use no extra patterns (zero added cost). If the helper exits non-zero (invalid config JSON), report `config at <path> is invalid — overrides NOT applied` and proceed with no extra patterns. Honor ONLY `config.secure.*`.
+- **Resolve effective config:** If `~/.claude/guardians/config.json` OR `<project>/.claude/guardians/config.json` exists, run `bash "${CLAUDE_PLUGIN_ROOT}/references/lib/config-resolve.sh" "<project-dir>"` and read `.config.secure` plus `.overrides` / `.warnings` from its JSON. (Claude Code replaces `${CLAUDE_PLUGIN_ROOT}` with the plugin's installation directory; if the placeholder appears unreplaced because this file was loaded outside a plugin, use `plugin/references/lib/config-resolve.sh` from the guardians-of-the-claude repository.) If neither file exists, skip the helper and use no extra patterns (zero added cost). If the helper exits non-zero (invalid config JSON), report `config at <path> is invalid — overrides NOT applied` and proceed with no extra patterns. Honor ONLY `config.secure.*`.
 
 ## Phase 1: Scan Protection State
 
@@ -31,6 +31,7 @@ Check if `.claude/settings.json` exists and has `deny` patterns covering sensiti
 - `.env` or `.env.*` patterns
 - `secrets/` or similar
 - `.pem`, `.key` file patterns
+- A `.claudeignore` file, if present: Claude Code ignores it, so count any of its entries not already covered by a `Read(...)` deny rule as missing deny patterns
 
 ### 1.2 Security Rules
 
@@ -47,9 +48,9 @@ The `allow` / `ask` / `deny` entries this skill scans and mutates correspond to 
 
 Read `.claude/settings.json` (and `.claude/settings.local.json` if present) and `.mcp.json` (project-scope only). Apply the 5 sub-checks defined in `plugin/skills/audit/references/checks/t2-protection.md` §T2.4:
 
-- 4a wildcard allow: `permissions.allow[]` entries matching `Bash(*)`, `Bash(python*)`, `Bash(node*)`, `Bash(npm run *)`, `Agent(*)`, `PowerShell(*)`
+- 4a wildcard allow: `permissions.allow[]` entries matching `Bash(*)` or bare `Bash`, `Bash(python*)`, `Bash(node*)`, `Bash(npm run *)`, bare `Agent` or `Agent(*)`, `PowerShell(*)` or bare `PowerShell`, bare `Monitor` or `Monitor(*)`
 - 4b bypassPermissions: `defaultMode == "bypassPermissions"` in `.claude/settings.json` without CLAUDE.md isolation note
-- 4d-i / 4d-ii: `.mcp.json` `mcpServers[*].env` with literal secret (4d-i) or placeholder without migration note (4d-ii)
+- 4d-i / 4d-ii: `.mcp.json` `mcpServers[*].env` (and, for `http`/`sse`/`ws` servers, `headers` values and credentials embedded in `url`) with literal secret (4d-i) or placeholder without migration note (4d-ii)
 - 4e scoped destructive Bash: allow entries matching `git push -f`, `rm -rf`, `curl|bash`, `gh api * DELETE`, etc.
 
 Skip 4c (advisory-only in `/audit`; `/secure` does not surface it).
@@ -58,7 +59,7 @@ For each violation, record `(sub-check ID, evidence path:line, catalog incident 
 
 ### 1.5 Permission Mode
 
-Read `.claude/settings.json` and record the value of `permissions.defaultMode` (or note its absence — Claude Code defaults to `default` mode when unset).
+Read `.claude/settings.json` and record the value of `permissions.defaultMode`, or note that it is absent. When no settings file sets it, interactive terminal and VS Code sessions on Claude Code v2.1.283+ start in the built-in `auto` mode, or in Manual (`default`) when auto mode is unavailable. `claude -p` and Agent SDK runs follow a separate rule. `auto` and `bypassPermissions` don't take effect from `.claude/settings.json` or `.claude/settings.local.json`, so record such a value as ignored.
 
 ### 1.6 Sandbox State
 
@@ -66,7 +67,7 @@ Check whether `sandbox.enabled` is `true` in `.claude/settings.json` (project sc
 
 ### 1.7 Auto Mode Trust Environment
 
-Check whether `autoMode.environment` is configured in user (`~/.claude/settings.json`), local (`.claude/settings.local.json`), or managed scopes. The classifier ignores `autoMode` in shared project settings (`.claude/settings.json`).
+Check whether `autoMode.environment` is configured in user (`~/.claude/settings.json`) or managed settings; the classifier also reads `autoMode` passed with `--settings` or through the Agent SDK. The classifier doesn't read `autoMode` from `.claude/settings.json` or `.claude/settings.local.json`. If either file holds an `autoMode` block, report it as ignored and suggest moving it to `~/.claude/settings.json` (on Pro, Max, and Team plans, `/auto-mode-setup` can draft the entries and writes them there).
 
 Do NOT output your scan results yet — use them to inform Phase 2.
 
@@ -100,11 +101,11 @@ Then skip to **Write History** (Phase 4.2) to record the result (Fixed: none, De
 
 After the checklist above (regardless of which items were selected), also report the current permission and safety state from Phase 1.5–1.7:
 
-> Permission mode (`defaultMode`): `<value>` (or "not set — defaults to `default`")
+> Permission mode (`defaultMode`): `<value>` (or "not set — sessions start in the built-in default: `auto` in interactive terminal and VS Code sessions on Claude Code v2.1.283+, Manual (`default`) where auto mode is unavailable"; append "— ignored in project settings" when the value is `auto` or `bypassPermissions`)
 > Sandboxing: enabled / disabled / not configured
 > Auto Mode trust environment: configured / not configured
 
-If any are not set and the user wants guidance, point to `docs/guides/settings-guide.md` § "Permission Modes and Safety (Advanced)" plus the canonical [permission modes](https://code.claude.com/docs/en/permission-modes), [auto mode configuration](https://code.claude.com/docs/en/auto-mode-config), and [sandboxing](https://code.claude.com/docs/en/sandboxing) documentation. These are decision points (plan tier, platform prerequisites, trust model) — `/secure` does not auto-configure them.
+If any are not set and the user wants guidance, point to `docs/guides/settings-guide.md` § "Permission Modes and Safety (Advanced)" plus the canonical [permission modes](https://code.claude.com/docs/en/permission-modes), [auto mode configuration](https://code.claude.com/docs/en/auto-mode-config), and [sandboxing](https://code.claude.com/docs/en/sandboxing) documentation. These are decision points (model support, organization policy, platform prerequisites, trust model) — `/secure` does not auto-configure them.
 
 For decision principles when choosing among modes and whether to enable sandboxing, see `../../references/security-patterns.md` § "Permission and Safety Decision Principles".
 
@@ -117,6 +118,8 @@ Read `../../references/security-patterns.md` for templates and patterns. For eac
 Add or update `.claude/settings.json` deny patterns using the Essential patterns from the security-patterns reference. Add Extended patterns if matching files/directories are detected.
 
 Merge with existing deny patterns — do not overwrite.
+
+If the project has a `.claudeignore` file, convert its entries into `Read(...)` deny rules (merged like the others) and tell the user the file has no effect in Claude Code.
 
 Also merge `config.secure.additional_deny_patterns` (from Phase 0) into the deny set, treated as user-authored data. These are additive only — config can never remove an existing deny entry (security is tighten-only). The pattern format is guaranteed by the config schema at authoring time; if the helper reported any `.warnings` (unknown config keys), surface them in the report rather than dropping them silently.
 
@@ -143,10 +146,12 @@ For each user-confirmed sub-check from the scan (1.4), the fix strategy differs 
 1. Parse `.claude/settings.json` `permissions.allow[]`.
 2. For each violating entry:
    - **4a wildcard**: replace with narrower allows OR move to `permissions.ask[]`.
-     - `Bash(*)` → `ask:["Bash(*)"]`
+     - `Bash(*)` → `ask:["Bash(*)"]`; bare `Bash` → `ask:["Bash"]`
      - `Bash(python*)` → if project has `pyproject.toml` or `setup.py`, narrow to `allow:["Bash(python -m pytest:*)", "Bash(python -m ruff:*)"]`; else `ask:["Bash(python*)"]`
      - `Bash(npm run *)` → if `package.json` `scripts` detected, narrow to per-script allows (e.g., `Bash(npm run test:*)`, `Bash(npm run lint:*)`); else `ask:["Bash(npm run *)"]`
-     - `Agent(*)` → `ask:["Agent(*)"]`
+     - `Agent(*)` → `ask:["Agent(*)"]`; bare `Agent` → `ask:["Agent"]`
+     - `PowerShell(*)` → `ask:["PowerShell(*)"]`; bare `PowerShell` → `ask:["PowerShell"]`
+     - `Monitor` / `Monitor(*)` → move unchanged to `ask:[]` (Monitor runs its commands through the shell)
    - **4e scoped destructive**: move entry from `allow:[]` to `ask:[]` unchanged.
 3. Atomic write back. Preserve existing JSON indentation (read first character of any nested array for indent detection — default 2-space).
 4. Print unified diff to user.
@@ -155,8 +160,8 @@ For each user-confirmed sub-check from the scan (1.4), the fix strategy differs 
 
 Print a suggestion block. Do NOT mutate user files.
 
-- **4b**: "`.claude/settings.json` sets `defaultMode: \"bypassPermissions\"` (line N) but CLAUDE.md has no disposable-environment note. Either remove the default mode from project-shared settings (recommended — move to `settings.local.json` so each user opts in) or add a note to CLAUDE.md explaining this is for a disposable VM/container. Threat: safety-bypass. See security-patterns.md#safety-bypass."
-- **4d-i**: "`.mcp.json` line N contains what appears to be a literal credential in `<server>.env.<key>`. Do NOT remove it via this skill — that could expose the value in git history. Recommended manual steps: (1) rotate the credential, (2) move the MCP server config to `~/.claude.json` (user-scope), (3) re-add via `${ENV_VAR}` placeholder. Threat: credential-exploration. See security-patterns.md#credential-exploration."
+- **4b**: "`.claude/settings.json` sets `defaultMode: \"bypassPermissions\"` (line N) but CLAUDE.md has no disposable-environment note. Claude Code v2.1.257+ ignores `bypassPermissions` in project and local settings (`.claude/settings.json`, `.claude/settings.local.json`) and starts the session in Manual mode, while older versions still honor it. Remove the entry from project-shared settings. For a disposable VM/container, enable the mode on that machine with `claude --permission-mode bypassPermissions` (or `--dangerously-skip-permissions`) or in its `~/.claude/settings.json`, and add a CLAUDE.md note explaining the isolation requirement. Threat: safety-bypass. See security-patterns.md#safety-bypass."
+- **4d-i**: "`.mcp.json` line N contains what appears to be a literal credential in `<server>.env.<key>`, `<server>.headers.<key>`, or `<server>.url`. Do NOT remove it via this skill — that could expose the value in git history. Recommended manual steps: (1) rotate the credential, then (2) either keep the server in `.mcp.json` and reference the secret with a `${ENV_VAR}` placeholder that each teammate sets outside the repo, or, if the server should not be shared, move it to local scope (`claude mcp add --scope local`, stored privately in `~/.claude.json` for this project only). In a remote server's `url`/`headers`, use a variable name of your own: Claude Code reads credential variables such as `ANTHROPIC_API_KEY`, `AWS_BEARER_TOKEN_BEDROCK`, and `NPM_TOKEN` as empty there. Threat: credential-exploration. See security-patterns.md#credential-exploration."
 - **4d-ii**: "`.mcp.json` line N uses `${VAR}` placeholder in project-scope. This is acceptable but undocumented. Recommended: add a CLAUDE.md note pointing to how teammates supply the env var (vault, dotenv pattern, OAuth flow). Threat: credential-exploration (low). See security-patterns.md#credential-exploration."
 
 Always merge — never overwrite existing `allow:[]` / `ask:[]` / `deny:[]` entries unrelated to the violation being fixed.
@@ -168,7 +173,7 @@ Anthropic's claude.ai conversational layer fires reminder messages (observed in 
 | Reminder type | Surface(s) | `/secure` check pattern | Scope |
 |---|---|---|---|
 | Image content reminder | Quoted/pasted external content and attachments | (advisory) — `/secure` does not process image content | Advisory |
-| Cyber-action warning | Shell output; External downloads | Deny patterns for credential files (`Read(./secrets/)`); outbound URL denylist for untrusted hosts (`Bash(curl * https://*:*)`) | Mechanical |
+| Cyber-action warning | Shell output; External downloads | Deny patterns for credential files (`Read(./secrets/)`); outbound network restriction (`Bash(curl *)` / `Bash(wget *)` deny rules plus `WebFetch(domain:<trusted-host>)` allows, backed by the sandbox network allowlist for enforcement) | Mechanical |
 | System-instruction warning | Shell output; Hook code and hook output | Hook configuration audit (Phase 1.3 scan + Phase 3 "File Protection Hooks" sub-section); `bypassPermissions` reservation rule (Phase 1.4 sub-check 4b + Phase 3.4 4b suggestion) | Mechanical |
 | Ethics reminder | Repository files; Generated artifacts; Persistent local state | (advisory) — falls under the "Authorized Security Work" footnote in the Defense Surfaces Catalog | Advisory |
 | Intellectual property reminder | Repository files; Generated artifacts | (advisory) — repository licensing checks are outside `/secure` scope | Advisory |
