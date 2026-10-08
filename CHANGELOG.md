@@ -7,6 +7,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- **Repo, plugin, and marketplace now share one name: `guardians-of-the-claude`.** The marketplace in `.claude-plugin/marketplace.json` is renamed `guardians` → `guardians-of-the-claude`, so the install ID becomes `guardians-of-the-claude@guardians-of-the-claude`. Repository links and the `/plugin marketplace add` command now use the lowercase repo name `wlsgur073/guardians-of-the-claude` (GitHub resolves repo names case-insensitively, so old mixed-case links keep working). Updated: `README.md`, `docs/guides/getting-started.md` (1.2.13 → 1.2.14), `docs/guides/recommended-plugins-guide.md` (1.2.0 → 1.2.1), `docs/CONTRIBUTING.md`, `docs/PRIVACY.md`, `docs/ROADMAP.md`, `docs/SECURITY.md`, `ci/README.md`, the `homepage` / `repository` fields of both manifests, and the issue templates.
+  - **Existing installs:** a plugin installed as `guardians-of-the-claude@guardians` keeps loading and updating under that ID (verified with Claude Code 2.1.294 against a git-hosted marketplace that renamed itself: `/plugin marketplace update guardians` and a plugin version update both succeed afterwards). On such a setup the new ID fails with "not found in marketplace" until the old registration is removed, so to move to it run `/plugin marketplace remove guardians` → `/plugin marketplace add wlsgur073/guardians-of-the-claude` → `/plugin install guardians-of-the-claude@guardians-of-the-claude` → `/reload-plugins`. Project state in `.claude/.plugin-cache/guardians-of-the-claude/local/` is keyed by the plugin name, which did not change.
+  - **Windows:** the v2.1.0 NTFS rename failure does not return. A GitHub source is cloned into `marketplaces/<owner>-<repo>` and then renamed to the marketplace name; the failure happened only because the old marketplace name equaled that folder name in a different letter case. `guardians-of-the-claude` has no owner prefix, so the two paths never coincide.
+
 ## [3.2.4] - 2026-09-08
 
 ### Added

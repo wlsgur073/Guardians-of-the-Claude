@@ -19,7 +19,7 @@ A meta-system for Claude Code configuration. Start with a 2-minute guided setup,
 
 ## Requirements
 
-Guardians-of-the-Claude requires `bash` to run its hook scripts (SessionStart) and CI tooling.
+`guardians-of-the-claude` requires `bash` to run its hook scripts (SessionStart) and CI tooling.
 
 | Platform | bash provider |
 |---|---|
@@ -52,10 +52,12 @@ For vulnerability reports, see [SECURITY.md](docs/SECURITY.md). For per-skill pr
 
    ```text
    claude
-   > /plugin marketplace add wlsgur073/Guardians-of-the-Claude
-   > /plugin install guardians-of-the-claude@guardians
+   > /plugin marketplace add wlsgur073/guardians-of-the-claude
+   > /plugin install guardians-of-the-claude@guardians-of-the-claude
    > /reload-plugins
    ```
+
+   > **Installed before the marketplace rename (`guardians-of-the-claude@guardians`)?** That install keeps working under its old ID. To move to the new ID, run `/plugin marketplace remove guardians`, then the three commands above. Project state in `.claude/.plugin-cache/guardians-of-the-claude/` is not affected.
 
 2. **Run the setup command** in your project:
 
@@ -69,8 +71,8 @@ For vulnerability reports, see [SECURITY.md](docs/SECURITY.md). For per-skill pr
 
    | Method | Command |
    | ------ | ------- |
-   | Local plugin | `claude --plugin-dir /path/to/Guardians-of-the-Claude/plugin` |
-   | `@` import | `@../Guardians-of-the-Claude/plugin/skills/create/SKILL.md` |
+   | Local plugin | `claude --plugin-dir /path/to/guardians-of-the-claude/plugin` |
+   | `@` import | `@../guardians-of-the-claude/plugin/skills/create/SKILL.md` |
    | Direct paste | Copy the contents of `plugin/skills/create/SKILL.md` and paste directly into the conversation |
 
 3. **Choose your path** — Claude detects your project state and asks what to do:
@@ -126,7 +128,7 @@ Over multiple skill runs, the plugin's **meta-system layer** fills out — persi
 
 **Stateless mode** (since v2.12.0): when `local/` cannot be written (read-only mount, privacy-sensitive project, user-disabled), the skill prints a one-time warning and skips all state file writes — learning does not persist across sessions. Privacy-sensitive projects can rely on stateless mode rather than pinning an old version.
 
-**Report migration failures** at [GitHub Issues](https://github.com/wlsgur073/Guardians-of-the-Claude/issues) with the warning output and (if possible) a redacted snippet of the file that failed to parse. No telemetry is collected automatically.
+**Report migration failures** at [GitHub Issues](https://github.com/wlsgur073/guardians-of-the-claude/issues) with the warning output and (if possible) a redacted snippet of the file that failed to parse. No telemetry is collected automatically.
 
 ## CI smoke lane
 
@@ -135,7 +137,7 @@ The CI smoke lane (`ci/fixtures/` + `ci/golden/`) validates a broad fixture set 
 ## What's Inside
 
 ```text
-Guardians-of-the-Claude/
+guardians-of-the-claude/
 ├── .claude-plugin/          ← Marketplace manifest (makes this repo a plugin marketplace)
 ├── plugin/                  ← Plugin package
 │   ├── .claude-plugin/
@@ -200,7 +202,7 @@ Browse available plugins with `/plugin` in Claude Code, or see [Plugin docs](htt
 
 Contributing? In this repo? Just tell Claude to do it.
 ...Fine, humans are welcome too. Open an issue or PR.
-See [ROADMAP.md](docs/ROADMAP.md) for the project direction and how to propose changes via [GitHub Discussions](https://github.com/wlsgur073/Guardians-of-the-Claude/discussions).
+See [ROADMAP.md](docs/ROADMAP.md) for the project direction and how to propose changes via [GitHub Discussions](https://github.com/wlsgur073/guardians-of-the-claude/discussions).
 
 ## License
 

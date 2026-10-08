@@ -27,7 +27,7 @@ Report security concerns **privately** via GitHub Security Advisories — do not
 
 To report a security concern:
 
-1. [Open a private security advisory](https://github.com/wlsgur073/Guardians-of-the-Claude/security/advisories/new)
+1. [Open a private security advisory](https://github.com/wlsgur073/guardians-of-the-claude/security/advisories/new)
 2. Describe which file contains the insecure pattern
 3. Explain the potential impact if the pattern were adopted by a real project
 4. Suggest a fix if possible

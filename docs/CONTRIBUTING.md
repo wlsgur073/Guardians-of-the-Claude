@@ -13,7 +13,7 @@ We welcome the following types of contributions:
 - **Guide improvements** — Clarify explanations, fix inaccuracies, or add missing details in `docs/guides/`
 - **Template improvements** — Expand or refine the TaskFlow examples in `templates/`
 - **Translation requests** — Open a GitHub issue requesting translation of a specific guide or template. EN is the canonical source; translations are on-demand rather than CI-enforced mirrors.
-- **Roadmap proposals** — Suggest new directions or features via [Discussions (Roadmap category)](https://github.com/wlsgur073/Guardians-of-the-Claude/discussions). See [ROADMAP.md](ROADMAP.md) for details.
+- **Roadmap proposals** — Suggest new directions or features via [Discussions (Roadmap category)](https://github.com/wlsgur073/guardians-of-the-claude/discussions). See [ROADMAP.md](ROADMAP.md) for details.
 - **Typo and grammar fixes** — Always welcome
 
 ## Before You Start

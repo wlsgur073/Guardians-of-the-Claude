@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "guardians",
+  "name": "guardians-of-the-claude",
   "owner": {
     "name": "wlsgur073",
     "email": "wlsgur073@gmail.com"
@@ -16,8 +16,8 @@
       "author": {
         "name": "wlsgur073"
       },
-      "homepage": "https://github.com/wlsgur073/Guardians-of-the-Claude",
-      "repository": "https://github.com/wlsgur073/Guardians-of-the-Claude",
+      "homepage": "https://github.com/wlsgur073/guardians-of-the-claude",
+      "repository": "https://github.com/wlsgur073/guardians-of-the-claude",
       "license": "MIT",
       "category": "development",
       "tags": ["setup", "configuration", "template", "onboarding"]

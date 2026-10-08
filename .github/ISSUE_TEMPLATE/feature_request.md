@@ -16,4 +16,4 @@ What concrete addition or change?
 
 - [ ] This is **not** a request for a per-stack filled template — we intentionally ship TaskFlow as a fictional reference only; stack adaptation happens at runtime via `/create` (see [`templates/README.md`](../../templates/README.md) and the "Stack-adaptive improvements" backlog item in [`docs/ROADMAP.md`](../../docs/ROADMAP.md))
 - [ ] This is **not** generic architecture or framework guidance — templates and guides cover Claude Code configuration only
-- [ ] If this changes the plugin's user-facing contract (a skill's behavior, a flag, a deny-pattern), it has been discussed first on [GitHub Discussions](https://github.com/wlsgur073/Guardians-of-the-Claude/discussions)
+- [ ] If this changes the plugin's user-facing contract (a skill's behavior, a flag, a deny-pattern), it has been discussed first on [GitHub Discussions](https://github.com/wlsgur073/guardians-of-the-claude/discussions)

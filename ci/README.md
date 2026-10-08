@@ -1,6 +1,6 @@
 # CI Smoke Lane
 
-Canonical regression fixtures + golden snapshots for Guardians-of-the-Claude. CI runs this lane via `.github/workflows/smoke.yml`.
+Canonical regression fixtures + golden snapshots for `guardians-of-the-claude`. CI runs this lane via `.github/workflows/smoke.yml`.
 
 ## Structure
 

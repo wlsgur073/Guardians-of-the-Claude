@@ -1,7 +1,7 @@
 ---
 title: "Recommended Plugins"
 description: "Curated list of Claude Code plugins organized by category"
-version: 1.2.0
+version: 1.2.1
 ---
 
 # Recommended Plugins
@@ -46,7 +46,7 @@ Plugins that ship into the same marketplace can compose — one plugin's skill c
 
 - **Skill-to-skill delegation.** A skill that produces a profile (e.g., `/guardians-of-the-claude:create`) writes to the plugin cache; subsequent skills (`/audit`, `/secure`, `/optimize`) read from it. The first-write-wins contract is documented in the plugin's reference files.
 - **Shared references.** Plugins under a single marketplace can share reference files via `plugin/references/*.md`. The dependency direction is one-way: skills consume references; references don't depend on skills. This matches our `security-patterns.md` ↔ skill relationship.
-- **Marketplace name as namespace.** Skills install as `<plugin>@<marketplace>` (e.g., `guardians-of-the-claude@guardians`). The marketplace name namespaces a coherent set of related plugins; cross-marketplace coordination is intentionally NOT supported.
+- **Marketplace name as namespace.** Skills install as `<plugin>@<marketplace>` (e.g., `guardians-of-the-claude@guardians-of-the-claude`, where this repo gives its plugin and its marketplace the same name). The marketplace name namespaces a coherent set of related plugins; cross-marketplace coordination is intentionally NOT supported.
 
 For shipping a plugin into a multi-plugin marketplace: declare which references it owns vs which it consumes; document the read/write contract in `plugin/references/`; avoid skill-to-skill cycles (always one-direction dependency).
 

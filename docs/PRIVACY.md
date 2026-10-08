@@ -24,4 +24,4 @@ If `local/` cannot be written (read-only mount, privacy-sensitive project, user-
 
 ### Contact
 
-If you have questions about this privacy policy, open an issue at [github.com/wlsgur073/Guardians-of-the-Claude](https://github.com/wlsgur073/Guardians-of-the-Claude/issues).
+If you have questions about this privacy policy, open an issue at [github.com/wlsgur073/guardians-of-the-claude](https://github.com/wlsgur073/guardians-of-the-claude/issues).
