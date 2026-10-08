@@ -2,7 +2,7 @@
 # UserPromptSubmit hook: reminds Claude about migration safeguards when the prompt
 # mentions migration-related keywords. Plain stdout on exit 0 is added to Claude's
 # context (not shown in the transcript). Matches only the `prompt` field: the payload
-# also carries cwd, transcript_path and session_title.
+# also carries cwd, transcript_path and (when a custom title is set) session_title.
 
 PROMPT_TEXT=$(jq -r '.prompt // empty' 2>/dev/null)
 

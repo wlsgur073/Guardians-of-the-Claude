@@ -20,7 +20,7 @@ Read `../../references/learning-system.md` and follow the **Common Phase 0** ste
 After completing Common Phase 0:
 - Separately scan `recommendations.json` for entries with `issued_by == "optimize"` and `status == "DECLINED"` — these are previously declined `/optimize` suggestions and must not be re-suggested unless project scale/structure changed significantly (per Learning Rule 2 Preference Respect).
 - Separately scan `recommendations.json` for entries with `issued_by == "secure"` and `status == "DECLINED"` — if hook-related items are declined there, do not suggest hook quality fixes.
-- **Resolve effective config:** If `~/.claude/guardians/config.json` OR `<project>/.claude/guardians/config.json` exists, run `bash plugin/references/lib/config-resolve.sh "<project-dir>"` and read `.config.optimize.skip` plus `.overrides` / `.warnings`. If neither file exists, skip the helper (zero added cost). Honor ONLY `config.optimize.*`. If the helper exits non-zero (invalid config JSON), report `config at <path> is invalid — skips NOT applied` and proceed with no skips.
+- **Resolve effective config:** If `~/.claude/guardians/config.json` OR `<project>/.claude/guardians/config.json` exists, run `bash "${CLAUDE_PLUGIN_ROOT}/references/lib/config-resolve.sh" "<project-dir>"` and read `.config.optimize.skip` plus `.overrides` / `.warnings`. (Claude Code replaces `${CLAUDE_PLUGIN_ROOT}` with the plugin's installation directory; if the placeholder appears unreplaced because this file was loaded outside a plugin, use `plugin/references/lib/config-resolve.sh` from the guardians-of-the-claude repository.) If neither file exists, skip the helper (zero added cost). Honor ONLY `config.optimize.*`. If the helper exits non-zero (invalid config JSON), report `config at <path> is invalid — skips NOT applied` and proceed with no skips.
 
 ## Phase 1: Scan Optimization State
 
@@ -52,7 +52,7 @@ Check if `.mcp.json` exists. If the project uses databases (`pg`, `prisma`, `kne
 
 If `.claude/settings.json` has a `hooks` section:
 1. Check that every hook has a `statusMessage` field
-2. Check that `PreToolUse` hooks use `exit 2` (not `exit 1`) for blocking, and that the block message is written to stderr (unless the hook prints a JSON decision with its own reason, Claude sees stderr, not plain stdout, as the reason)
+2. Check that `PreToolUse` hooks that block do so with `exit 2` (not `exit 1`) and write the block message to stderr, since on exit 2 Claude sees stderr, not plain stdout, as the reason. A hook that exits 0 and prints JSON with `hookSpecificOutput.permissionDecision: "deny"` (and a `permissionDecisionReason`) also blocks correctly, so do not flag it.
 3. Check for tool-event hooks (`PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`, `PermissionDenied`) with no `matcher` (omitted or empty) and no per-handler `if` condition (runs on every tool call — usually unintentional). A handler whose `if` holds a permission rule such as `"Bash(git *)"` already runs only for matching tool calls, so do not flag it. Do not flag other events: `UserPromptSubmit`, `Stop`, `PostToolBatch`, `TeammateIdle`, `TaskCreated`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`, `MessageDisplay`, and `CwdChanged` have no matcher support (a matcher there is silently ignored), and on events such as `SessionStart` or `PreCompact` an omitted matcher simply fires on every occurrence.
 
 Do NOT output your scan results yet — use them to inform Phase 2.
@@ -115,7 +115,7 @@ If selected:
 1. Ask the user what external tools Claude should connect to
 2. Create `.mcp.json` at project root
 3. Common suggestions based on detected dependencies:
-   - PostgreSQL / relational databases (`pg`, `prisma`, `knex`): `@bytebase/dbhub` (DBHub; pass a read-only database user in `--dsn`)
+   - PostgreSQL / relational databases (`pg`, `prisma`, `knex`): DBHub (`"command": "npx"`, `"args": ["-y", "@bytebase/dbhub@<version>"]`, `"env": { "DSN": "${DATABASE_READONLY_URL}" }`), with a connection string for a read-only database user. Pin the exact version the user reviewed (`npm view @bytebase/dbhub version` shows the current release); an unpinned `npx -y` package can pull new code on any run. Passing the DSN through `env` rather than a `--dsn` argument keeps the credential out of the process's command line
    - Files outside the project: don't add a filesystem MCP server, since it bypasses the project's `Read`/`Edit` deny rules; add the directory with `--add-dir` or `permissions.additionalDirectories` (in `.claude/settings.local.json` for machine-specific paths) so built-in file tools and deny rules still apply
    - Web fetching: prefer the built-in `WebFetch` tool governed by `WebFetch(domain:...)` rules; add a fetch MCP server (e.g. `mcp-server-fetch` via `uvx`) only when raw, unsummarized pages or localhost access are required, and route it through `permissions.ask[]`
 4. Never write literal credentials into `.mcp.json`, which is meant to be committed. Reference them with `${VAR}` expansion (for example `"Authorization": "Bearer ${API_KEY}"`). For a server whose credentials must stay private, add it at local scope (`claude mcp add --scope local`, stored in `~/.claude.json`) instead of gitignoring `.mcp.json`

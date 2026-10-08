@@ -45,7 +45,7 @@ If `/init` already created a CLAUDE.md, merge the template sections into it. The
 
 ## Step 3: Fill in Your CLAUDE.md
 
-If you used `/guardians-of-the-claude:create` in Step 1, skip this step -- the seven canonical sections are already generated. Run `/context` and check **Memory files** to confirm your CLAUDE.md is loaded, then jump to Step 4.
+If you used `/guardians-of-the-claude:create` in Step 1, skip this step -- the seven canonical sections are already generated. Start a new Claude Code session, run `/context`, and check **Memory files** to confirm your CLAUDE.md loaded, then jump to Step 4.
 
 If you are writing CLAUDE.md by hand, work through the sections below. Keep the same structure so `/audit` can grade it against the same rubric:
 

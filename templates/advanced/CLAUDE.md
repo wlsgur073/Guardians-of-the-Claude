@@ -149,6 +149,7 @@ This project connects one external capability via MCP. Per the integration contr
 ### postgres (MCP server)
 
 - **Scope:** runs SQL with the privileges of the database user in `POSTGRES_CONNECTION_STRING` — connect as a read-only user; route any side-effecting SQL through review
+- **Credential:** each developer supplies `POSTGRES_CONNECTION_STRING` from their shell environment or a secrets vault; never commit the value
 - **Trust level / provenance:** third-party DBHub (`@bytebase/dbhub`, by Bytebase), the server the Claude Code MCP docs use for PostgreSQL; pin the version
 - **Privacy boundary:** queries can carry table data — never put secrets or PII in a prompt to it
 - **Safe-disable path:** remove the server from `.mcp.json`, or add `"postgres"` to `disabledMcpjsonServers` in `.claude/settings.local.json`

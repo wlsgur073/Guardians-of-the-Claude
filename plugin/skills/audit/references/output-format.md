@@ -188,7 +188,7 @@ This places aggregate summary before per-row details at both root and subpackage
 
 ## Early Halt Output
 
-When neither CLAUDE.md nor AGENTS.md exists (T1.1 FAIL), the audit halts immediately. Use this output instead of the standard format:
+When CLAUDE.md does not exist at the project root or `.claude/CLAUDE.md` (T1.1 FAIL), the audit halts immediately, even if an `AGENTS.md` exists. Use this output instead of the standard format:
 
 ```
 Configuration Audit Results
@@ -196,8 +196,9 @@ Configuration Audit Results
 
 Quality Gate: NOT READY
 
-No CLAUDE.md or AGENTS.md found at the project root or in .claude/.
-Cannot proceed with audit — a project instruction file is a prerequisite for all checks.
+CLAUDE.md not found at project root or .claude/CLAUDE.md.
+Cannot proceed with audit — CLAUDE.md is a prerequisite for all checks.
+[Only if AGENTS.md or .claude/AGENTS.md exists:] AGENTS.md found — Claude Code v2.1.277+ reads it when no CLAUDE.md exists, but /audit requires a CLAUDE.md. Run /guardians-of-the-claude:create to add one that imports @AGENTS.md.
 
 Detected project signals:
   * [list any dependency manifests, source files, or frameworks found]

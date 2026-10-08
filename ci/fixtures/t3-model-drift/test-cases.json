@@ -332,6 +332,6 @@
   {
     "input": "us.anthropic.claude-opus-5-5",
     "expected_fingerprint": null,
-    "notes": "Bedrock cross-region inference profile ID (Claude Code's default form on Bedrock) — no prefixed rows, fail-safe null per the model-drift rules"
+    "notes": "Bedrock cross-region inference profile ID (Claude Code's default form on Bedrock's Invoke API; Mantle uses the bare anthropic.* ID) — no prefixed rows, fail-safe null per the model-drift rules"
   }
 ]

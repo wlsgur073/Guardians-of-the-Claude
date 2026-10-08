@@ -13,9 +13,9 @@
 # after Claude Code upgrades.
 set -uo pipefail   # NOTE: no -e — a single bad transcript line must not abort the run.
 
-# Note: with CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1, Claude Code strips CLAUDE_CONFIG_DIR from
-# Bash-tool and hook subprocesses, so a custom config dir falls back to ~/.claude here;
-# set GUARDIANS_USAGE_PROJECTS_DIR explicitly in that case.
+# Note: with CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1 (Claude Code v2.1.251+), Claude Code strips
+# CLAUDE_CONFIG_DIR from Bash-tool and hook subprocesses, so a custom config dir falls back
+# to ~/.claude here; set GUARDIANS_USAGE_PROJECTS_DIR explicitly in that case.
 PROJECTS_DIR="${GUARDIANS_USAGE_PROJECTS_DIR:-${CLAUDE_CONFIG_DIR:-${HOME:-}/.claude}/projects}"
 PRICES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/model-prices.json"
 
@@ -111,9 +111,9 @@ printf '%s\n' "$records" | jq -s \
   | .totals.unknown_models = ( [ .by_model[].model ] | map(select($P[.] == null)) )
   | .attribution = { method:"heuristic",
       by_tool:( $toolarr | group_by(.name) | map({name:.[0].name, invocations:length}) | sort_by(-.invocations) ),
-      # capture the full server segment between the __ delimiters (mcp__plugin_github_github__x -> "plugin_github_github"; mcp__github__x -> "github")
+      # capture the full server segment between the __ delimiters (mcp__plugin_github_github__x -> "plugin_github_github"; mcp__my-server__x -> "my-server")
       by_mcp_server:( $toolarr | map(.name) | map(select(startswith("mcp__")))
-          | map(try (capture("^mcp__(?<s>[A-Za-z0-9_]+)__") | .s)) | group_by(.)
+          | map(try (capture("^mcp__(?<s>[A-Za-z0-9_-]+)__") | .s)) | group_by(.)
           | map({name:.[0], invocations:length}) | sort_by(-.invocations) ),
       by_skill:( $toolarr | map(select(.name=="Skill")) | {name:"Skill", invocations:length} | [.] ),
       main_vs_subagent:.main_vs_subagent }

@@ -56,7 +56,7 @@ For non-trivial tasks, follow this cycle:
 | `Esc` twice (empty prompt) / `/rewind` | Open the rewind menu: restore conversation, code, or both to a checkpoint, or **Summarize from here** / **Summarize up to here** to compact only part of the conversation. With text in the prompt, `Esc` twice clears the draft instead. |
 | `/clear` | Reset context between unrelated tasks. **Use frequently.** |
 | `/compact` | Summarize conversation to free context. Add focus: `/compact focus on the API changes` |
-| `/memory` | Open and edit CLAUDE.md files, toggle auto memory, browse what Claude saved. Mid-session, `add this to CLAUDE.md` writes to the shared CLAUDE.md; `remember this` saves to machine-local auto memory. |
+| `/memory` | Open and edit CLAUDE.md files, toggle auto memory, browse what Claude saved. Mid-session, `add this to CLAUDE.md` has Claude write the instruction into CLAUDE.md; `remember this` saves it to machine-local auto memory. |
 | `/context` | See what is using space in your context window. Diagnose when context is getting full. |
 | `--continue` / `--resume` · `/rename` | Resume your most recent conversation (`--continue`) or pick one (`--resume`); name sessions with `/rename` so the picker shows meaningful labels. |
 | `/btw` | Side question — answer renders in a dismissible overlay and does NOT enter conversation history. |
@@ -67,7 +67,7 @@ For non-trivial tasks, follow this cycle:
 
 ## Permission Modes
 
-New terminal and VS Code sessions start in **Auto** mode (Claude Code v2.1.283+, when auto mode is available for your model and organization). `Shift+Tab` cycles Auto → Manual → Accept edits → Plan → Auto, and the status bar shows the active mode:
+New terminal and VS Code sessions start in **Auto** mode (Claude Code v2.1.283+, when auto mode is available for your model and organization). In the terminal, `Shift+Tab` cycles Auto → Manual → Accept edits → Plan → Auto and the status bar shows the active mode (in VS Code, click the mode indicator at the bottom of the prompt box):
 
 | Mode (config value) | Behavior |
 | ------ | ---------- |
@@ -84,7 +84,7 @@ Quality output is short, direct, and free of agent-side framing. Encode these in
 
 - **Terseness.** Default to short responses. One-sentence acknowledgment + result is usually enough. Length earns its place — explain when *why* is non-obvious or *what* is complex. Treat this as a *bias, not a hard cap*: rigid per-reply word limits can measurably degrade quality (Anthropic's [Apr 2026 postmortem](https://www.anthropic.com/engineering/april-23-postmortem) traced a ~3% coding-intelligence drop to a "≤25 words between tool calls" instruction).
 - **No preamble.** Don't open with "I'll help you with X" or "Great question." The answer should arrive in the first sentence.
-- **No time estimates.** Sizing language ("small change") is fine; calendar predictions ("by Friday") are not. *(Publicly documented in Anthropic's release notes.)*
+- **No time estimates.** Sizing language ("small change") is fine; calendar predictions ("by Friday") are not.
 - **Don't expose plumbing.** Internal reasoning, tool calls, and file paths are scaffolding. Report results, not how they were obtained: "Added the deny pattern" beats "I ran Read then Edit on settings.json line 42."
 
 ## Tool Hierarchy
@@ -125,7 +125,7 @@ A diagnostic vocabulary for when responses drift — knowing what good looks lik
 | Hide tool calls and file-path scaffolding; report results, not how results were obtained | "Report results; don't expose plumbing" |
 | Use sizing language (small/large) instead of calendar predictions (2 weeks, by Friday) | "No date commitments" |
 
-Reference: Anthropic's published [system prompt release notes](https://platform.claude.com/docs/en/release-notes/system-prompts/overview) (these cover the claude.ai web and mobile apps, not Claude Code).
+Reference: Claude Code's built-in [Concise output style](https://code.claude.com/docs/en/output-styles#concise) applies several of these defaults (lead with the result; no preamble, narration, or recap). Switch with `/output-style concise`.
 
 ## Adopting Claude Code in Existing Projects
 

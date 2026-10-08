@@ -75,7 +75,7 @@ Scoring:
 
 ## T3.4 Rules Path Validation
 
-If `.claude/rules/` directory exists, read each rule file. If a rule has a `paths:` field in its frontmatter, check that at least one matching file exists using Glob.
+If `.claude/rules/` directory exists, read each rule file. If a rule has a `paths:` field in its frontmatter, check that at least one matching file exists (the `Glob` tool where available, otherwise `find` via Bash).
 
 - All paths match → **PASS**
 - No rules directory → **SKIP**

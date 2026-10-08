@@ -19,7 +19,7 @@ The five principles (human control, value alignment, security, transparency, pri
 The agent acts under human authority; humans retain the ability to inspect, override, or stop work. In Claude Code terms:
 
 - **Plan Mode** for strategy-level oversight (see [§ Plan Mode as Strategy-Level Oversight](#plan-mode-as-strategy-level-oversight) below)
-- `permissions.ask:[]` for tools that should always pause for confirmation. No permission mode auto-approves an explicit ask rule, including `auto` and `bypassPermissions` (`dontAsk` denies the call instead of prompting)
+- `permissions.ask:[]` for tools that should always pause for confirmation. No permission mode auto-approves an explicit ask rule, including `auto` and `bypassPermissions` (`dontAsk` denies the call instead of prompting). One exception: with the sandbox on and `autoAllowBashIfSandboxed` at its default, a bare `Bash` ask rule doesn't prompt for sandboxed commands outside plan mode, while content-scoped rules such as `Bash(git push *)` still do
 - **Starting permission mode**: since v2.1.283, interactive terminal and VS Code sessions with no configured mode start in `auto` (when available), where a classifier rather than you approves most actions. For step-level approval, set `"defaultMode": "default"` (Manual) or pass `--permission-mode default`
 - `PreToolUse` hooks with `exit 2` for hard stops on dangerous operations (e.g., `git push --delete`, `rm -rf`)
 - CLAUDE.md disambiguation rules for destructive operations on ambiguous identifiers

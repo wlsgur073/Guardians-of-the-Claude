@@ -56,7 +56,7 @@ For vulnerability reports, see [SECURITY.md](docs/SECURITY.md). For per-skill pr
    > /plugin install guardians-of-the-claude@guardians-of-the-claude
    ```
 
-   The install command opens the plugin's details: choose a scope (user, project, or local). Claude Code activates the plugin itself, reloading plugins when you close the panel. If it warns that the reload would invalidate the prompt cache and leaves the plugin pending, run `/reload-plugins --force` (or start a new session).
+   The install command opens the plugin's details: choose a scope (user, project, or local). Claude Code activates the plugin itself (or runs `/reload-plugins` for you when the panel closes), so no restart is needed.
 
    > **Installed before the marketplace rename (`guardians-of-the-claude@guardians`)?** That install keeps working under its old ID. To move to the new ID, run `/plugin marketplace remove guardians`, then the two commands above. Project state in `.claude/.plugin-cache/guardians-of-the-claude/` is not affected.
 

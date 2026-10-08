@@ -51,12 +51,12 @@ Replace opaque traceback dumps with actionable improvements. The agent needs to 
 
 ### 5. Tool hierarchy positioning
 
-Tool descriptions should reflect where the tool sits in the surgical-tool-first hierarchy. Surgical tools (Edit, Grep, Read, dedicated specialized tools) are *primary* — describe them as the default choice for their domain. Fallback or general-purpose tools (Bash, scripting) should carry explicit "when to use this instead of [primary]" guidance.
+Tool descriptions should reflect where the tool sits in the surgical-tool-first hierarchy. Surgical tools (Read, Edit, and other dedicated specialized tools) are *primary* — describe them as the default choice for their domain. Fallback or general-purpose tools (Bash, scripting) should carry explicit "when to use this instead of [primary]" guidance.
 
 - Primary tool example: `"Read(path)"` description simply describes the tool's function; no "use this instead" guidance needed.
-- Fallback tool example: `"Bash(command)"` description should note "Prefer dedicated tools (Read, Edit, Grep) when applicable. Use Bash only for shell-specific operations or pipelines that have no surgical equivalent."
+- Fallback tool example: `"Bash(command)"` description should note "Prefer dedicated tools (Read, Edit) when applicable. Use Bash only for shell-specific operations or pipelines that have no surgical equivalent."
 
-Without this guidance, agents tend to default to the most-general tool (Bash) and bypass tool-level permission scopes. Tool descriptions are where hierarchy gets enforced; CLAUDE.md is where the *user* asks for hierarchy. See [`docs/guides/effective-usage-guide.md` § Tool Hierarchy](../../docs/guides/effective-usage-guide.md#tool-hierarchy) for the user-facing principle.
+Without this guidance, agents tend to default to the most-general tool (Bash) and escape tool-specific permission scopes for commands Claude Code doesn't recognize (`Read`/`Edit` deny rules cover recognized file commands such as `cat` and `sed`, not scripts that open files themselves). Tool descriptions are where hierarchy gets enforced; CLAUDE.md is where the *user* asks for hierarchy. See [`docs/guides/effective-usage-guide.md` § Tool Hierarchy](../../docs/guides/effective-usage-guide.md#tool-hierarchy) for the user-facing principle.
 
 ## Iterative refinement
 

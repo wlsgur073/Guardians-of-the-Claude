@@ -62,7 +62,7 @@ Tool search is on by default. At session start Claude sees only MCP tool names a
 | User (`--scope user`) | `~/.claude.json` | All your projects | No (personal) |
 | Plugin | The plugin's `.mcp.json` or `plugin.json` `mcpServers` | Wherever the plugin is enabled | With the plugin |
 
-When the same server is defined in more than one place, Claude Code uses the highest-precedence entry whole, with no field merging: local > project > user > plugin > claude.ai connectors. Scopes are matched by name; plugin servers and connectors are matched by endpoint (URL or command). If you sign in with a claude.ai account, connectors you added at claude.ai also appear in `/mcp`; set `"disableClaudeAiConnectors": true` to turn them off.
+When the same server is defined in more than one place, Claude Code uses the highest-precedence entry whole, with no field merging: local > project > user > plugin > claude.ai connectors. Scopes are matched by name; plugin servers and connectors are matched by endpoint (URL or command). A server your organization provides through `managedMcpServers` outranks all of these (v2.1.259+). If you sign in with a claude.ai account, connectors you added at claude.ai also appear in `/mcp`; set `"disableClaudeAiConnectors": true` to turn them off.
 
 **Security note:** Keep literal secrets out of `.mcp.json`. Reference them as `${VAR}` (or `${VAR:-default}`), which expands from each user's environment, or add servers that carry credentials at local scope, which stays private in `~/.claude.json`. Prefer this over gitignoring `.mcp.json`, since the file exists to share servers with the team. Interactive sessions ask each user to approve `.mcp.json` servers, but `claude -p`, Agent SDK, and cloud sessions load them without asking; to block one in every mode, list it in `disabledMcpjsonServers`.
 
@@ -94,14 +94,14 @@ A TaskFlow project might connect to its PostgreSQL database through DBHub (`@byt
       "command": "npx",
       "args": ["-y", "@bytebase/dbhub@1.4.0"],
       "env": {
-        "DSN": "${TASKFLOW_DB_READONLY_DSN}"
+        "DSN": "${POSTGRES_CONNECTION_STRING}"
       }
     }
   }
 }
 ```
 
-DBHub reads its connection string from `DSN` (or a `--dsn` argument). Claude Code expands `${TASKFLOW_DB_READONLY_DSN}` from your shell environment at load time. Set it in your `.envrc`, `.bashrc`, or CI secrets, and point it at a read-only database user so Claude's queries can't modify data. Pin the version you reviewed, and never commit the actual value to git.
+DBHub reads its connection string from `DSN` (or a `--dsn` argument). Claude Code expands `${POSTGRES_CONNECTION_STRING}` from your shell environment at load time. Set it in your `.envrc`, `.bashrc`, or CI secrets, and point it at a read-only database user so Claude's queries can't modify data. Pin the version you reviewed, and never commit the actual value to git.
 
 ## Common MCP Servers
 

@@ -55,7 +55,7 @@ A project-saved workflow is repo content: review `.claude/workflows/` in PRs lik
 
 ## Further Reading
 
-- [Settings Guide](settings-guide.md) — where `workflowSizeGuideline` / `disableWorkflows` live among the other governance keys
+- [Settings Guide](settings-guide.md) — where the workflow keys (`enableWorkflows`, `workflowSizeGuideline`, `workflowKeywordTriggerEnabled`, `ultracode`, `disableWorkflows`) sit among the other governance keys
 - [Multi-Agent Patterns Guide](multi-agent-patterns-guide.md) — orchestration patterns the script encodes
 - [Workflow Patterns Guide](workflow-patterns-guide.md) — how *you, the human*, structure sessions (a different topic than this feature)
 - [Official workflows documentation](https://code.claude.com/docs/en/workflows) — script API, resume semantics, full reference

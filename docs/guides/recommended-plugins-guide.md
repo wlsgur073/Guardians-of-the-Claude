@@ -22,9 +22,9 @@ Claude Code installs plugins from marketplaces. Anthropic's official marketplace
 | Plugin | What it does |
 | ------ | ------------ |
 | [typescript-lsp](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/typescript-lsp) | TypeScript/JS language server -- go-to-definition, find references, and error checking without leaving Claude |
-| [security-guidance](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/security-guidance) | Has Claude review its own changes for vulnerabilities (injection, XSS, unsafe deserialization, etc.) in three layers: a pattern check after each file edit, a model review of each turn's diff, and an agentic review on each commit or push Claude makes. Needs Python 3.7+ on PATH |
-| [claude-security](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-security) | Multi-agent vulnerability scan of a whole repo or just a diff, with every finding independently reviewed; turns the findings you choose into patches you apply. Needs a paid plan or API access and Python 3.9+ |
-| [context7](https://github.com/upstash/context7) | MCP server that fetches up-to-date library docs on demand. No more hallucinated APIs |
+| [security-guidance](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/security-guidance) | Has Claude review its own changes for vulnerabilities (injection, XSS, unsafe deserialization, etc.) in three layers: a pattern check after each file edit, a model review of each turn's diff, and an agentic review on each commit or push Claude makes. Needs Python 3.7+ on PATH (3.10+ for the agentic commit review) and a git repository for the turn and commit reviews |
+| [claude-security](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-security) | Multi-agent vulnerability scan of a whole repo or just a diff, with every finding independently reviewed; turns the findings you choose into patches you apply. Needs a paid plan, Anthropic API access, or a third-party provider (Amazon Bedrock, Google Cloud's Agent Platform, Microsoft Foundry), plus Python 3.9+ and git for diff scans and patches |
+| [context7](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/context7) | Connects to Context7's hosted MCP server to fetch up-to-date, version-specific library docs on demand. No more hallucinated APIs |
 
 ## UI & Browser
 

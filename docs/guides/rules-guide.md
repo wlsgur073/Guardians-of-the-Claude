@@ -118,7 +118,7 @@ ln -s ~/company-standards/security.md .claude/rules/security.md
 
 This pattern works well for organization-wide standards: maintain a central repository of rule files and symlink them into each project, so every project picks up updates automatically. Make sure the symlink targets exist on every developer's machine, or use a setup script to create them.
 
-**Note:** A symlink whose target is outside the project is treated like an external `@import`. Its rules don't load until you approve external imports in the one-time dialog at session start, and even then only rules **without** `paths` frontmatter load. Symlinks to network paths (UNC shares, `/net`, `/Network`) are not followed. To share personal rules without the approval step, keep them in `~/.claude/rules/`.
+**Note:** A symlink whose target is outside the project is treated like an external `@import`. Its rules don't load until you approve external imports in the one-time dialog at session start (v2.1.284+; earlier versions skip them without asking), and even then only rules **without** `paths` frontmatter load. Symlinks to network paths (UNC shares, `/net`, `/Network`) are not followed. To share personal rules without the approval step, keep them in `~/.claude/rules/`.
 
 ## Further Reading
 

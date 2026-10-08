@@ -57,7 +57,7 @@ Scan the project silently, checking for **actual source code and dependency mani
 1. Search for dependency manifests: `package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `pom.xml`, `Gemfile`, etc.
 2. Search for source code files: `*.ts`, `*.js`, `*.py`, `*.go`, `*.rs`, `*.java`, etc.
 3. If manifests or code found: identify language, framework, project type, directory structure, test frameworks, linters, and formatters
-4. Check for existing `CLAUDE.md`, `AGENTS.md`, `.claude/` directory, or `.claude/rules/`. If `AGENTS.md` exists, make `@AGENTS.md` the first line of the generated CLAUDE.md and do not repeat its content in the sections: once a CLAUDE.md exists, Claude Code stops reading AGENTS.md on its own.
+4. Check for existing `CLAUDE.md`, `AGENTS.md` (or `.claude/AGENTS.md`), `.claude/` directory, or `.claude/rules/`. If an `AGENTS.md` or `.claude/AGENTS.md` exists, make an import of it (`@AGENTS.md` or `@.claude/AGENTS.md`) the first line of the generated CLAUDE.md, above `# Project Overview`, and do not repeat its content in the sections: by default, once a CLAUDE.md exists, Claude Code stops reading AGENTS.md on its own.
 
 CRITICAL — Config files are NOT evidence of a project:
 
@@ -399,7 +399,7 @@ color: "blue"
 
 Not every agent needs all four sections — scale to complexity. **Scope** and **Rules** are essential; add **Constraints** when the agent could cause damage, and **Verification** when quality checks are available.
 
-On macOS, Linux, and WSL, `Grep` and `Glob` are not in Claude Code's default tool set. Unless the session itself has them (for example, started with `--allowedTools Grep`), a subagent gets them only when its `tools` list names them and leaves out `Bash`; with `Bash` listed, it searches with `find`/`grep` through Bash. For a read-only agent, list `Read`, `Grep`, `Glob` without `Bash`.
+On macOS, Linux, and WSL, `Grep` and `Glob` are not in Claude Code's default tool set. Unless the session itself has them (for example, started with `--allowedTools Grep`), a subagent gets them only when its `tools` list names them and leaves out `Bash`; with `Bash` listed, it searches with `find`/`grep` through Bash. Keeping `Grep` and `Glob` next to `Bash`, as the skeleton does, is harmless and keeps them for the agent on Windows, where they are default tools. For a read-only agent, list `Read`, `Grep`, `Glob` without `Bash`.
 
 Available `color` values: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`.
 
@@ -498,6 +498,6 @@ Common suggestions based on detected project:
 - Files outside the project needed → don't add a filesystem MCP server, which bypasses the deny rules above; add the directory with `--add-dir` or `permissions.additionalDirectories` (in `.claude/settings.local.json` for machine-specific paths) so Claude's built-in file tools and deny rules still apply
 - Web fetching needed → prefer Claude Code's built-in `WebFetch` tool, governed by `WebFetch(domain:...)` permission rules; add a fetch MCP server only when raw (unsummarized) pages or localhost access are required, since it bypasses those rules — route it through `permissions.ask[]`
 
-Never write API keys or credentialed connection strings into `.mcp.json` as literals. Reference them as `${VAR}` (or `${VAR:-default}`) in `command`, `args`, `env`, `url`, or `headers`; Claude Code expands them at load time, so `.mcp.json` stays committed for the team. In CLAUDE.md, list the required env vars and note that each developer supplies them from their shell environment or a secrets vault, never from a committed file.
+Never write API keys or credentialed connection strings into `.mcp.json` as literals. Reference them as `${VAR}` in `env` (or in `url`/`headers` for remote servers), and use a `${VAR:-default}` fallback only for non-secret values such as a base URL. Expansion also works in `command` and `args`, but values there appear on the process command line. Claude Code expands these references at load time, so `.mcp.json` stays committed for the team. In CLAUDE.md, list the required env vars and note that each developer supplies them from their shell environment or a secrets vault, never from a committed file.
 
 For any MCP server (or other external capability) you add, also write a short **integration contract** into the generated CLAUDE.md so its *authority* is documented, not just its connection — covering **scope** (read vs write), **trust level**, **provenance**, **privacy boundary**, and a named **safe-disable path**. Route side-effecting calls through `permissions.ask[]`, not `allow[]`. This is an abridged form of the full per-integration contract in [`external-integration-governance.md` § The contract](../../../references/external-integration-governance.md#the-contract).

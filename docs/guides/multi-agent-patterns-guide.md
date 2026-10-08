@@ -34,9 +34,7 @@ For *every* worker, the lead specifies four things:
 3. **Tool guidance** — which tools to prefer or avoid
 4. **Boundaries** — what NOT to touch or explore
 
-When a worker maps to a defined `.claude/agents/<name>.md`, back its **Boundaries** with a hard `tools:` allow-list. Use the *Read-only agents* pattern in [Advanced Features — Agents](advanced-features-guide.md#agents): remove Edit/Write. Also leave out `Agent` unless the worker should fan out further, since subagents can spawn their own subagents by default. The allow-list is an enforced capability grant, not just a soft "avoid Bash" instruction the worker can ignore.
-
-Anthropic reports: "Without detailed task descriptions, agents duplicate work, leave gaps, or fail to find necessary information."
+When a worker maps to a defined `.claude/agents/<name>.md`, back its **Boundaries** with a hard `tools:` allow-list. Use the *Read-only agents* pattern in [Advanced Features — Agents](advanced-features-guide.md#agents): remove Edit/Write. Also leave out `Agent` unless the worker should fan out further, since subagents can spawn their own subagents by default. The allow-list is an enforced capability grant, not just a soft "avoid Bash" instruction the worker can ignore. Anthropic reports: "Without detailed task descriptions, agents duplicate work, leave gaps, or fail to find necessary information."
 
 Example orchestrator prompt fragment:
 
@@ -78,13 +76,7 @@ Anti-pattern: worker returns 50k tokens of raw output → lead cannot fit result
 
 ## Breadth-first search strategy
 
-When the task is exploratory:
-
-1. Start with a broad query that surveys the landscape.
-2. Evaluate the breadth before drilling.
-3. Only then commit workers to a specific direction.
-
-Going deep first wastes calls if you picked the wrong branch.
+When the task is exploratory, start with a broad query that surveys the landscape, evaluate the breadth before drilling, and only then commit workers to a specific direction. Going deep first wastes calls if you picked the wrong branch.
 
 ## Parallel dispatch primer
 
@@ -112,9 +104,7 @@ Different surfaces shape *how* Claude communicates, but the role and deliverable
 | **Mobile / chat** | Same role declaration | The answer paragraph IS the deliverable; complete sentences; bounded length |
 | **Document-embedded** (Excel, Word) | Same role declaration | The document edit is the deliverable; chat is a brief receipt |
 
-When Claude moves between surfaces, the user mental model and agent mental model stay the same; what shifts is what counts as the "deliverable" and how chat relates to it. This invariance is what makes a single CLAUDE.md identity-DNA section adapt to multi-surface use without needing per-surface variants.
-
-See [`claude-md-guide.md` § Identity-DNA](claude-md-guide.md#identity-dna) for the role-declaration template; the surface variants there are concrete examples of this invariance pattern.
+When Claude moves between surfaces, the user mental model and agent mental model stay the same; what shifts is what counts as the "deliverable" and how chat relates to it. This invariance is what makes a single CLAUDE.md identity-DNA section adapt to multi-surface use without needing per-surface variants. See [`claude-md-guide.md` § Identity-DNA](claude-md-guide.md#identity-dna) for the role-declaration template; the surface variants there are concrete examples of this invariance pattern.
 
 ## Peer message protocol
 

@@ -41,11 +41,10 @@ case "$SOURCE" in
   clear|compact) exit 0 ;;
 esac
 
-# Case 1: No Claude Code configuration at all (PRESERVED VERBATIM)
-# AGENTS.md / .claude/AGENTS.md count as project instructions (Claude Code reads
-# them when no CLAUDE.md exists; /audit T1.1 passes on them too).
+# Case 1: No Claude Code configuration at all (message PRESERVED VERBATIM).
+# An AGENTS.md-only project also lands here: /audit T1.1 requires a CLAUDE.md, and
+# /create generates one that imports @AGENTS.md.
 if [ ! -f "CLAUDE.md" ] && [ ! -f ".claude/CLAUDE.md" ] \
-   && [ ! -f "AGENTS.md" ] && [ ! -f ".claude/AGENTS.md" ] \
    && [ ! -f ".claude/settings.json" ]; then
   cat << 'EOF'
 {

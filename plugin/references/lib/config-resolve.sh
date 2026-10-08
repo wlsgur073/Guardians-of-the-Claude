@@ -8,16 +8,18 @@
 #   jq absent / defaults missing -> exit 3 (stderr)
 #   malformed JSON in a tier      -> exit 4 (stderr names the file)
 #   unknown/typo keys             -> reported in .warnings (non-fatal)
-# Test injection: GUARDIANS_CONFIG_DEFAULTS, GUARDIANS_USER_CONFIG override the
-# defaults and user-global paths (mirrors usage-parser.sh's env-var pattern).
+# Overrides: GUARDIANS_CONFIG_DEFAULTS, GUARDIANS_USER_CONFIG replace the defaults and
+# user-global paths (test injection, and the workaround when CLAUDE_CODE_SUBPROCESS_ENV_SCRUB
+# strips CLAUDE_CONFIG_DIR; mirrors usage-parser.sh's env-var pattern).
 set -uo pipefail
 
 PROJECT_DIR="${1:-.}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEFAULTS="${GUARDIANS_CONFIG_DEFAULTS:-$SCRIPT_DIR/guardians-config.defaults.json}"
 # Note: with CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1 (Claude Code v2.1.251+), Claude Code strips
-# CLAUDE_CONFIG_DIR from Bash-tool subprocesses, so a user tier under a custom config dir is
-# not found and the path falls back to ~/.claude; GUARDIANS_USER_CONFIG can point at it explicitly.
+# CLAUDE_CONFIG_DIR from Bash-tool and hook subprocesses, so a user tier under a custom
+# config dir is not found and the path falls back to ~/.claude; GUARDIANS_USER_CONFIG can
+# point at it explicitly.
 USER_CONFIG="${GUARDIANS_USER_CONFIG:-${CLAUDE_CONFIG_DIR:-${HOME:-}/.claude}/guardians/config.json}"
 PROJECT_CONFIG="$PROJECT_DIR/.claude/guardians/config.json"
 

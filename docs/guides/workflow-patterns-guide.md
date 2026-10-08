@@ -60,7 +60,7 @@ For large migrations or analyses, distribute work across many Claude invocations
 >
 > - `claude -p` in a loop incurs token cost per invocation. A multi-thousand-file migration can run for hours and accumulate substantial cost — always estimate with your model's per-token pricing before scaling.
 > - Always dry-run on 2–3 files first; verify outputs before scaling.
-> - Use `--allowedTools` to pre-approve what the run needs and `--permission-mode dontAsk` to deny everything else: `claude -p "..." --allowedTools "Edit,Bash(git commit *)" --permission-mode dontAsk`. Without `--permission-mode` or a `defaultMode` setting, `-p` starts in `default`, or in `auto` in sessions that don't fetch feature flags, such as on third-party providers or with telemetry off (v2.1.285+).
+> - Use `--allowedTools` to pre-approve what the run needs and `--permission-mode dontAsk` to auto-deny anything else that would need approval (file reads in your working directories and read-only Bash commands still run): `claude -p "..." --allowedTools "Edit,Bash(git commit *)" --permission-mode dontAsk`. Without `--permission-mode` or a `defaultMode` setting, `-p` starts in `default`, or in `auto` in sessions that don't fetch feature flags, such as on third-party providers or with telemetry off (v2.1.285+).
 > - In auto mode, repeated classifier blocks do **not** stop a `-p` run. The blocked action is skipped and Claude keeps working, so review each run's output instead of counting on an abort. See [When auto mode falls back](https://code.claude.com/docs/en/permission-modes#when-auto-mode-falls-back) for the thresholds.
 
 Pattern:
@@ -119,4 +119,4 @@ When *not* to multi-session: small focused tasks. Switching context between sess
 
 - [Multi-Agent Patterns Guide](multi-agent-patterns-guide.md) — orchestrator dispatching workers (vs human-orchestrated multi-session)
 - [Claude Code: Best practices for agentic coding](https://code.claude.com/docs/en/best-practices) — upstream source for many patterns here
-- [Claude Code auto mode](https://www.anthropic.com/engineering/claude-code-auto-mode) — for headless and auto-pilot details
+- [Auto mode](https://code.claude.com/docs/en/permission-modes#eliminate-prompts-with-auto-mode) — current behavior, including headless `-p` runs (Anthropic's [auto mode design write-up](https://www.anthropic.com/engineering/claude-code-auto-mode) is background; its note that headless runs terminate no longer matches current behavior)

@@ -38,7 +38,7 @@ your-project/
     └── CLAUDE.md                 # Folder-level instructions (lazy-loaded)
 ```
 
-Apart from `.plugin-cache/` (plugin-written state) and `agent-memory/` (memory that subagents write for themselves), everything inside `.claude/` is Claude Code configuration you author. `commands/` is the older single-file form of skills: `.claude/commands/deploy.md` and `.claude/skills/deploy/SKILL.md` both create `/deploy`, and the skill wins if both exist. Prefer skills for new work, since they can bundle supporting files. `agents/` and `skills/` are advanced features -- see the [Advanced Features Guide](advanced-features-guide.md); `workflows/` is covered in the [Dynamic Workflows guide](workflows-guide.md).
+Apart from `.plugin-cache/` (plugin-written state), `agent-memory/` (memory that subagents write for themselves), and `workflows/` (scripts Claude writes and you save from `/workflows`), everything shown inside `.claude/` is Claude Code configuration you author. `commands/` is the older single-file form of skills: `.claude/commands/deploy.md` and `.claude/skills/deploy/SKILL.md` both create `/deploy`, and the skill wins if both exist. Prefer skills for new work, since they can bundle supporting files. `agents/` and `skills/` are advanced features -- see the [Advanced Features Guide](advanced-features-guide.md); `workflows/` is covered in the [Dynamic Workflows guide](workflows-guide.md).
 
 Most of these have a user-level counterpart in `~/.claude/` that applies to every project: `CLAUDE.md`, `settings.json`, `rules/`, `skills/`, `commands/`, `agents/`, `agent-memory/`, `output-styles/`, and `workflows/`, plus user-only `keybindings.json` and `themes/`. Personal MCP servers and app state live in `~/.claude.json` (outside `~/.claude/`).
 
@@ -70,7 +70,7 @@ Auto memory lives outside your repository, so there is nothing to create or giti
 
 ## Plugin Cache
 
-Some plugins store per-project state in `.claude/.plugin-cache/<plugin-name>/`. This directory is **auto-generated** by plugins and should not be manually edited or committed to version control. Plugins manage their own `.gitignore` inside `.plugin-cache/` to ensure cache files are excluded from git.
+Some plugins store per-project state in `.claude/.plugin-cache/<plugin-name>/`. This directory is **auto-generated** by plugins and should not be manually edited or committed to version control. Keep it out of git by adding `.claude/.plugin-cache/` to your project's `.gitignore` (see below).
 
 Example: The `guardians-of-the-claude` plugin stores a project profile, decision changelog, and accumulated recommendations in a `local/` subdirectory (`profile.json`, `recommendations.json`, `config-changelog.md`, plus the derived human-readable `state-summary.md`). These files let skills remember project context, user preferences, and pending recommendations across sessions.
 
@@ -79,7 +79,7 @@ Example: The `guardians-of-the-claude` plugin stores a project profile, decision
 | File | Commit? | Why |
 | ------ | --------- | ----- |
 | `.claude/settings.json` | Yes | Team-shared configuration -- everyone uses the same permissions |
-| `.claude/rules/`, `skills/`, `commands/`, `agents/` | Yes | Team-shared instructions and extensions |
+| `.claude/rules/`, `skills/`, `commands/`, `agents/`, `output-styles/`, `workflows/`, `agent-memory/` | Yes | Team-shared instructions, extensions, and project-scoped subagent memory |
 | `.mcp.json` | Yes, if no inline secrets | Team-shared MCP servers -- reference secrets as `${VAR}` (see the [MCP Guide](mcp-guide.md)) |
 | `.claude/settings.local.json` | No | Personal overrides -- each developer has their own |
 | `CLAUDE.local.md` | No | Personal project instructions |
